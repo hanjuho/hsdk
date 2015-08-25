@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일\ctst">
+      <UniqueIdentifier>{62625012-598e-4465-8b32-b9c37ffe3f4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\db">
+      <UniqueIdentifier>{5ed56d2b-8fa0-4ce5-817b-dafb06674688}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\net">
+      <UniqueIdentifier>{baebd2d1-aeb5-437a-b715-d0347bc03228}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\thread">
+      <UniqueIdentifier>{2813cf6d-2cf1-4ce5-a4bd-dfef818d232d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\frame">
+      <UniqueIdentifier>{1834ae55-6c5e-4502-9fa2-3773f45f2610}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\autodelete.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\autopointer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\autorelease.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\criticalsection\event.h">
+      <Filter>헤더 파일\ctst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\criticalsection\section.h">
+      <Filter>헤더 파일\ctst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\database\database.h">
+      <Filter>헤더 파일\db</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\network\client.h">
+      <Filter>헤더 파일\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\network\proxy.h">
+      <Filter>헤더 파일\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\network\server.h">
+      <Filter>헤더 파일\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\thread\thread.h">
+      <Filter>헤더 파일\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\autoslot.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\frame\common.h">
+      <Filter>헤더 파일\frame</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\frame\component.h">
+      <Filter>헤더 파일\frame</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\frame\graphics.h">
+      <Filter>헤더 파일\frame</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\frame\inputeventhelper.h">
+      <Filter>헤더 파일\frame</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\frame\mouseable.h">
+      <Filter>헤더 파일\frame</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk_common.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="소스.cpp" />
+  </ItemGroup>
+</Project>

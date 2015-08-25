@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일\ctst">
+      <UniqueIdentifier>{07174550-9fad-4772-a95c-686560f7188f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\db">
+      <UniqueIdentifier>{ce3a665e-7e16-49a0-8061-6669f0f0e000}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\net">
+      <UniqueIdentifier>{45f6a1d8-b792-497c-b275-406162567560}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\thread">
+      <UniqueIdentifier>{9413ea2b-9690-44b7-883e-beea05763360}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\ctst">
+      <UniqueIdentifier>{bc1e3553-6811-44b1-b375-4abedb23f830}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\db">
+      <UniqueIdentifier>{78b1d013-4332-4a8c-aac1-8762a10b2bf0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\thread">
+      <UniqueIdentifier>{918440ef-047f-4dbb-b39f-0815ea6842fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\shader">
+      <UniqueIdentifier>{41916e44-d8eb-47c4-88b8-e760c061b659}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\frame">
+      <UniqueIdentifier>{0649f220-c23d-4f38-9c30-5eab24d27e65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\frame">
+      <UniqueIdentifier>{1ae67458-65da-44dd-bdb8-022faa833c50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\net">
+      <UniqueIdentifier>{e17a9fa4-811e-4c2e-aded-a7e1c6e4438a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="component.cpp">
+      <Filter>소스 파일\frame</Filter>
+    </ClCompile>
+    <ClCompile Include="container.cpp">
+      <Filter>소스 파일\frame</Filter>
+    </ClCompile>
+    <ClCompile Include="d3d11.cpp">
+      <Filter>소스 파일\frame</Filter>
+    </ClCompile>
+    <ClCompile Include="d3d11frame.cpp">
+      <Filter>소스 파일\frame</Filter>
+    </ClCompile>
+    <ClCompile Include="d3d11graphics.cpp">
+      <Filter>소스 파일\frame</Filter>
+    </ClCompile>
+    <ClCompile Include="hwnd.cpp">
+      <Filter>소스 파일\frame</Filter>
+    </ClCompile>
+    <ClCompile Include="inputeventhelper.cpp">
+      <Filter>소스 파일\frame</Filter>
+    </ClCompile>
+    <ClCompile Include="소스.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\component.h">
+      <Filter>헤더 파일\frame</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\container.h">
+      <Filter>헤더 파일\frame</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\d3d11.h">
+      <Filter>헤더 파일\frame</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\d3d11frame.h">
+      <Filter>헤더 파일\frame</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\d3d11graphics.h">
+      <Filter>헤더 파일\frame</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\hwnd.h">
+      <Filter>헤더 파일\frame</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\inputeventhelper.h">
+      <Filter>헤더 파일\frame</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\shader\common.hlsli">
+      <Filter>헤더 파일\shader</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\..\..\..\sdks\hsdk\include\hsdk\win\shader\ps_cuttingtexture.hlsl">
+      <Filter>헤더 파일\shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\..\..\sdks\hsdk\include\hsdk\win\shader\vs_texture.hlsl">
+      <Filter>헤더 파일\shader</Filter>
+    </FxCompile>
+  </ItemGroup>
+</Project>
