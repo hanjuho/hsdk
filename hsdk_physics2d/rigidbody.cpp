@@ -18,15 +18,15 @@ CLASS_REALIZE_CONSTRUCTOR(RigidBody, RigidBody)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(RigidBody, void, apply_Force)(
-	/* [in] */ Vector2D & _vector)
+	/* [in] */ const Vector2D & _vector)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(RigidBody, void, apply_impulse)(
-	/* [in] */ Vector2D & _impulse,
-	/* [in] */ Vector2D & _contact)
+	/* [in] */ const Vector2D & _impulse,
+	/* [in] */ const Vector2D & _contact)
 {
 
 }

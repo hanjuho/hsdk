@@ -104,6 +104,7 @@
     <ClCompile Include="polygon.cpp" />
     <ClCompile Include="rigidbody.cpp" />
     <ClCompile Include="vector2d.cpp" />
+    <ClCompile Include="object.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

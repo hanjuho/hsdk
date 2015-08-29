@@ -10,8 +10,8 @@ using namespace manifold;
 
 //--------------------------------------------------------------------------------------
 DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::initialize)(
-	/* [in] */ RigidBody * _aBody,
-	/* [in] */ RigidBody * _bBody,
+	/* [in] */ const RigidBody * _aBody,
+	/* [in] */ const RigidBody * _bBody,
 	/* [in/out] */ Manifold & _m)
 {
 		// Calculate average restitution
@@ -25,10 +25,10 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::initialize)(
 //--------------------------------------------------------------------------------------
 DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::impulse_Apply)(
 	/* [in] */ float _glength,
-	/* [in] */ Vector2D & _aPos,
-	/* [in] */ Vector2D & _bPos,
-	/* [in] */ RigidBody * _aBody,
-	/* [in] */ RigidBody * _bBody,
+	/* [in] */ const Vector2D & _aPos,
+	/* [in] */ const Vector2D & _bPos,
+	/* [in/out] */ RigidBody * _aBody,
+	/* [in/out] */ RigidBody * _bBody,
 	/* [out] */ Manifold & _m)
 {
 	// Early out and positional correct if both objects have infinite mass
@@ -135,9 +135,9 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::impulse_Apply)(
 //--------------------------------------------------------------------------------------
 DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::positional_Correction)(
 	/* [in] */ float _glength,
-	/* [in] */ RigidBody * _aBody,
-	/* [in] */ RigidBody * _bBody,
-	/* [in] */ Manifold & _m,
+	/* [in] */ const RigidBody * _aBody,
+	/* [in] */ const RigidBody * _bBody,
+	/* [in] */ const Manifold & _m,
 	/* [out] */ Vector2D & _aPos,
 	/* [out] */ Vector2D & _bPos)
 {
