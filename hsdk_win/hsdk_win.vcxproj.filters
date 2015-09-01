@@ -82,6 +82,9 @@
     <ClCompile Include="semaphore.cpp">
       <Filter>소스 파일\ctst</Filter>
     </ClCompile>
+    <ClCompile Include="thread.cpp">
+      <Filter>소스 파일\thread</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\component.h">
@@ -116,6 +119,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\mutex.h">
       <Filter>헤더 파일\ctst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\thread\thread.h">
+      <Filter>헤더 파일\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\thread\task.h">
+      <Filter>헤더 파일\thread</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

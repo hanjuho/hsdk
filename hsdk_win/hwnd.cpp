@@ -6,7 +6,7 @@ using namespace hsdk;
 using namespace win::frame;
 
 
-//--------------------------------------------------------------------------------------
+// grobal
 LRESULT CALLBACK _WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	//
@@ -58,7 +58,7 @@ CLASS_REALIZE_FUNC_T(i_Hwnd, void, get_Message)(
 {
 	// 윈도 메세지 갱신.
 	ZeroMemory(&m_msg, sizeof(m_msg));
-	while (PeekMessage(&m_msg, nullptr, 0, 0, PM_REMOVE))
+	while (GetMessage(&m_msg, nullptr, 0, 0))
 	{
 		TranslateMessage(&m_msg);
 		DispatchMessage(&m_msg);

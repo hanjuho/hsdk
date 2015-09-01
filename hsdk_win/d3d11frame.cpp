@@ -19,17 +19,17 @@ CLASS_REALIZE_CONSTRUCTOR(D3D11Frame, D3D11Frame)(
 {
 	if (FAILED(i_Hwnd::initialize(_hInstance, _title, _x, _y, _w, _h)))
 	{
-		throw - 1;
+		throw HSDK_FAIL;
 	}
 
 	if (FAILED(D3D11::initialize(get_Hwnd(), nullptr)))
 	{
-		throw - 1;
+		throw HSDK_FAIL;
 	}
 
 	if (FAILED(D3D11Graphics::initialize()))
 	{
-		throw - 1;
+		throw HSDK_FAIL;
 	}
 
 	set_X(float(_x));
