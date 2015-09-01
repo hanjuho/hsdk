@@ -62,6 +62,10 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>COPY "$(OutDir)hsdk_win.lib" "$(HSDK_DIR)lib" /y
+COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -80,6 +84,10 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Command>COPY "$(OutDir)hsdk_win.lib" "$(HSDK_DIR)lib" /y
+COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="component.cpp" />
@@ -90,8 +98,16 @@
     <ClCompile Include="hwnd.cpp" />
     <ClCompile Include="inputeventhelper.cpp" />
     <ClCompile Include="소스.cpp" />
+    <ClCompile Include="semaphore.cpp" />
+    <ClCompile Include="autoresetevent.cpp" />
+    <ClCompile Include="manualevent.cpp" />
+    <ClCompile Include="mutex.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\semaphore.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\autoresetevent.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\manualevent.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\mutex.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\component.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\container.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\d3d11.h" />
@@ -110,6 +126,7 @@
       <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(HSDK_DIR)include\hsdk\win\shader\%(Filename).h</HeaderFileOutput>
       <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">s_%(Filename)</VariableName>
       <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(HSDK_DIR)include\hsdk\win\shader\%(Filename).h</HeaderFileOutput>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="..\..\..\..\sdks\hsdk\include\hsdk\win\shader\vs_texture.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
@@ -117,6 +134,7 @@
       <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(HSDK_DIR)include\hsdk\win\shader\%(Filename).h</HeaderFileOutput>
       <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">s_%(Filename)</VariableName>
       <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(HSDK_DIR)include\hsdk\win\shader\%(Filename).h</HeaderFileOutput>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

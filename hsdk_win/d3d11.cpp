@@ -192,10 +192,19 @@ CLASS_REALIZE_FUNC(D3D11, initialize)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(D3D11, void, reset)(
+CLASS_REALIZE_FUNC_T(D3D11, void, destroy)(
 	/* [none] */ void)
 {
+	TEXTURE_CONTAINER.clear();
+	SAMPLER_CONTAINER.clear();
 
+	PANEL_IN_BUFFER.~AutoRelease();
+	
+	DSVIEW.~AutoRelease();
+	RTVIEW.~AutoRelease();
+	CHAIN.~AutoRelease();
+	CONTEXT.~AutoRelease();
+	DEVICE.~AutoRelease();
 }
 
 //--------------------------------------------------------------------------------------
@@ -391,23 +400,24 @@ CLASS_REALIZE_FUNC(D3D11, create_ContantBuffers)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(D3D11, create_inputLayout)(
-	/* [in] */	const char * _shader,
-	/* [in] */	D3D11inputEachFormat * _format,
-	/* [in] */	unsigned int _size,
+CLASS_REALIZE_FUNC(D3D11, create_inputLayoutForHeader)(
+	/* [in] */	const char * _shadername,
+	/* [in] */	unsigned int _shadersize,
+	/* [in] */	D3D11inputEachFormat * _formats,
+	/* [in] */	unsigned int _formatsize,
 	/* [in] */	D3D11_INPUT_CLASSIFICATION _InputSlotClass,
 	/* [out] */ ID3D11InputLayout * (&_layout))
 {
 	// ÀÎÇ² °´Ã¼ ½Ã¸àÆ½½º ÆÄ¶ó¹ÌÅÍ »ý¼º
-	std::vector<D3D11_INPUT_ELEMENT_DESC> inputDescs(_size);
-	for (UINT index = inputDescs.size() - 1; index != -1; --index)
+	std::vector<D3D11_INPUT_ELEMENT_DESC> inputDescs(_formatsize);
+	for (unsigned int index = 0; index < _formatsize; ++index)
 	{
 		// ÀÎÇ² °´Ã¼ ½Ã¸àÆ½½º ¼³Á¤
-		inputDescs[index].SemanticName = _format[index].semantic;
+		inputDescs[index].SemanticName = _formats[index].semantic;
 		inputDescs[index].SemanticIndex = 0;
-		inputDescs[index].Format = _format[index].format;
+		inputDescs[index].Format = _formats[index].format;
 		inputDescs[index].InputSlot = 0;
-		inputDescs[index].AlignedByteOffset = _format[index].offset;
+		inputDescs[index].AlignedByteOffset = _formats[index].offset;
 		inputDescs[index].InputSlotClass = _InputSlotClass;
 		inputDescs[index].InstanceDataStepRate = 0;
 	}
@@ -415,31 +425,33 @@ CLASS_REALIZE_FUNC(D3D11, create_inputLayout)(
 	return DEVICE->CreateInputLayout(
 		&inputDescs[0],
 		inputDescs.size(),
-		_shader,
-		strlen(_shader),
+		_shadername,
+		_shadersize,
 		&_layout);
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(D3D11, create_VertexShader)(
-	/* [in] */	const char * _filename,
+CLASS_REALIZE_FUNC(D3D11, create_VertexShaderForHeader)(
+	/* [in] */	const char * _name,
+	/* [in] */	unsigned int _size,
 	/* [out] */ ID3D11VertexShader * (&_shader))
 {
 	return DEVICE->CreateVertexShader(
-		_filename,
-		strlen(_filename),
+		_name,
+		_size,
 		NULL,
 		&_shader);
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(D3D11, create_PixelShader)(
-	/* [in] */	const char * _filename,
+CLASS_REALIZE_FUNC(D3D11, create_PixelShaderForHeader)(
+	/* [in] */	const char * _name,
+	/* [in] */	unsigned int _size,
 	/* [out] */ ID3D11PixelShader * (&_shader))
 {
 	return DEVICE->CreatePixelShader(
-		_filename,
-		strlen(_filename),
+		_name,
+		_size,
 		NULL,
 		&_shader);
 }

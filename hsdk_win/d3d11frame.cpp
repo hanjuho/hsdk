@@ -15,8 +15,13 @@ CLASS_REALIZE_CONSTRUCTOR(D3D11Frame, D3D11Frame)(
 	/* [in] */ unsigned int _y,
 	/* [in] */ unsigned int _w,
 	/* [in] */ unsigned int _h)
-	: i_Hwnd(_hInstance, _title, _x, _y, _w, _h), m_inputEventHelper(this)
+	: m_inputEventHelper(this), m_vaild(false)
 {
+	if (FAILED(i_Hwnd::initialize(_hInstance, _title, _x, _y, _w, _h)))
+	{
+		throw - 1;
+	}
+
 	if (FAILED(D3D11::initialize(get_Hwnd(), nullptr)))
 	{
 		throw - 1;
@@ -36,16 +41,17 @@ CLASS_REALIZE_CONSTRUCTOR(D3D11Frame, D3D11Frame)(
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_DESTRUCTOR(D3D11Frame, D3D11Frame)(void)
 {
-
+	D3D11Graphics::destroy();
+	D3D11::destroy();
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(D3D11Frame, void, render)(
 	/* [none] */ void)
 {
-	D3D11Graphics::render_Begin();
+	D3D11Graphics::shader_on();
 	Container::render();
-	D3D11Graphics::render_End();
+	D3D11Graphics::shader_off();
 }
 
 //--------------------------------------------------------------------------------------
@@ -56,6 +62,9 @@ CLASS_REALIZE_FUNC_T(D3D11Frame, void, message_Proc)(
 {
 	switch (_uMsg)
 	{
+	case WM_CREATE:
+		m_vaild = true;
+		return;
 	case WM_KEYDOWN:
 		if ((HIWORD(_lParam) & KF_REPEAT))
 		{
@@ -101,6 +110,14 @@ CLASS_REALIZE_FUNC_T(D3D11Frame, void, message_Proc)(
 		m_inputEventHelper.onClick_Up(i::frame::i_Mouseable::WBUTTON, LOWORD(_lParam), HIWORD(_lParam));
 		return;
 	case WM_DESTROY:
+		m_vaild = false;
 		return;
 	};
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(D3D11Frame, bool, is_Valid)(
+	/* [none] */ void)
+{
+	return m_vaild;
 }

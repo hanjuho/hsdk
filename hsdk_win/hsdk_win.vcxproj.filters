@@ -70,6 +70,18 @@
       <Filter>소스 파일\frame</Filter>
     </ClCompile>
     <ClCompile Include="소스.cpp" />
+    <ClCompile Include="mutex.cpp">
+      <Filter>소스 파일\ctst</Filter>
+    </ClCompile>
+    <ClCompile Include="manualevent.cpp">
+      <Filter>소스 파일\ctst</Filter>
+    </ClCompile>
+    <ClCompile Include="autoresetevent.cpp">
+      <Filter>소스 파일\ctst</Filter>
+    </ClCompile>
+    <ClCompile Include="semaphore.cpp">
+      <Filter>소스 파일\ctst</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\component.h">
@@ -92,6 +104,18 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\inputeventhelper.h">
       <Filter>헤더 파일\frame</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\semaphore.h">
+      <Filter>헤더 파일\ctst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\manualevent.h">
+      <Filter>헤더 파일\ctst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\autoresetevent.h">
+      <Filter>헤더 파일\ctst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\mutex.h">
+      <Filter>헤더 파일\ctst</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -9,6 +9,14 @@ using namespace i::frame;
 using namespace win::frame;
 
 
+// grobal
+struct InputLayoutFormat
+{
+	XMFLOAT3 position;
+	XMFLOAT2 texcoord;
+};
+
+
 //--------------------------------------------------------------------------------------
 AutoRelease<ID3D11VertexShader> D3D11Graphics::VERTEX_SHADER;
 AutoRelease<ID3D11PixelShader> D3D11Graphics::PIXEL_SHADER;
@@ -23,23 +31,30 @@ CLASS_REALIZE_FUNC(D3D11Graphics, initialize)(
 	HRESULT hr;
 
 	// vs shader
-	IF_FAILED(hr = D3D11::create_VertexShader(
+	IF_FAILED(hr = D3D11::create_VertexShaderForHeader(
 		(const char *)(s_vs_texture),
+		sizeof(s_vs_texture),
 		*(&VERTEX_SHADER)))
 	{
 		return hr;
 	}
 
 	// vs input layout
-	D3D11::D3D11inputEachFormat inputfomat;
-	inputfomat.offset = 0;
-	inputfomat.format = DXGI_FORMAT_R32_UINT;
-	inputfomat.semantic = "BLENDINDICES";
+	D3D11::D3D11inputEachFormat inputfomats[2];
 
-	IF_FAILED(hr = D3D11::create_inputLayout(
+	inputfomats[0].offset = offsetof(InputLayoutFormat, position);
+	inputfomats[0].format = DXGI_FORMAT_R32G32B32_FLOAT;
+	inputfomats[0].semantic = "POSITION";
+
+	inputfomats[1].offset = offsetof(InputLayoutFormat, texcoord);
+	inputfomats[1].format = DXGI_FORMAT_R32G32_FLOAT;
+	inputfomats[1].semantic = "TEXCOORD";
+
+	IF_FAILED(hr = D3D11::create_inputLayoutForHeader(
 		(const char *)(s_vs_texture),
-		&inputfomat,
-		1,
+		sizeof(s_vs_texture),
+		inputfomats,
+		2,
 		D3D11_INPUT_PER_VERTEX_DATA,
 		*(&INPUT_LAYOUT)))
 	{
@@ -56,8 +71,9 @@ CLASS_REALIZE_FUNC(D3D11Graphics, initialize)(
 	}
 
 	// pixel
-	IF_FAILED(hr = D3D11::create_PixelShader(
+	IF_FAILED(hr = D3D11::create_PixelShaderForHeader(
 		(const char *)(s_ps_cuttingtexture),
+		sizeof(s_ps_cuttingtexture),
 		*(&PIXEL_SHADER)))
 	{
 		return hr;
@@ -76,7 +92,18 @@ CLASS_REALIZE_FUNC(D3D11Graphics, initialize)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(D3D11Graphics, void, render_Begin)(
+CLASS_REALIZE_FUNC_T(D3D11Graphics, void, destroy)(
+	/* [none] */ void)
+{
+	VS_CBUFFER.~AutoRelease();
+	PS_CBUFFER.~AutoRelease();
+	INPUT_LAYOUT.~AutoRelease();
+	VERTEX_SHADER.~AutoRelease();
+	PIXEL_SHADER.~AutoRelease();
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(D3D11Graphics, void, shader_on)(
 	/* [none] */ void)
 {
 	D3D11::CONTEXT->VSSetShader(VERTEX_SHADER, nullptr, 0);
@@ -88,7 +115,7 @@ CLASS_REALIZE_FUNC_T(D3D11Graphics, void, render_Begin)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(D3D11Graphics, void, render_End)(
+CLASS_REALIZE_FUNC_T(D3D11Graphics, void, shader_off)(
 	/* [none] */ void)
 {
 	D3D11::CONTEXT->VSSetShader(nullptr, nullptr, 0);
@@ -98,8 +125,9 @@ CLASS_REALIZE_FUNC_T(D3D11Graphics, void, render_End)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_CONSTRUCTOR(D3D11Graphics, D3D11Graphics)(void)
+: m_custom(nullptr), m_sampler(nullptr)
 {
-
+	XMStoreFloat4x4(&m_matrix, XMMatrixIdentity());
 }
 
 //--------------------------------------------------------------------------------------
@@ -144,7 +172,7 @@ CLASS_REALIZE_FUNC_T(D3D11Graphics, void, update)(
 CLASS_REALIZE_FUNC_T(D3D11Graphics, void, render)(
 	/* [none] */ void)
 {
-	if (visible)
+	if (visible && m_vbuffer)
 	{
 		D3D11::CONTEXT->UpdateSubresource(VS_CBUFFER, 0, nullptr, &m_matrix, 0, 0);
 		D3D11::CONTEXT->UpdateSubresource(PS_CBUFFER, 0, nullptr, form, 0, 0);

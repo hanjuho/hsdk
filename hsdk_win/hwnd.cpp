@@ -21,49 +21,21 @@ LRESULT CALLBACK _WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	}
 
 	//
-	((i_Hwnd *)GetWindowLongPtr(hWnd, GWLP_USERDATA))
-		->message_Proc(msg, wParam, lParam);
+	i_Hwnd * user = (i_Hwnd *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+	if (user)
+	{
+		user->message_Proc(msg, wParam, lParam);
+	}
 
 	//
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(i_Hwnd, i_Hwnd)(
-	/* [in] */ HINSTANCE _hInstance,
-	/* [in] */ const wchar_t * _title,
-	/* [in] */ unsigned int _x,
-	/* [in] */ unsigned int _y,
-	/* [in] */ unsigned int _w,
-	/* [in] */ unsigned int _h)
+CLASS_REALIZE_CONSTRUCTOR(i_Hwnd, i_Hwnd)(void)
+: m_windowhandle(nullptr)
 {
-	WNDCLASSEX wcex;
-	memset(&wcex, 0, sizeof(wcex));
-	wcex.cbSize = sizeof(wcex);
-	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	wcex.hInstance = _hInstance;
-	wcex.lpfnWndProc = _WndProc;
-	wcex.lpszClassName = TEXT("DX11PROJ");
-	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	RegisterClassEx(&wcex);
 
-	// 윈도우 핸들 생성.
-	IF_FALSE((m_windowhandle = CreateWindow(
-		wcex.lpszClassName,
-		_title,
-		WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
-		_x,
-		_y,
-		_x + _w,
-		_y + _h,
-		nullptr,
-		nullptr,
-		_hInstance,
-		this)))
-	{
-		throw - 1;
-	}
 }
 
 //--------------------------------------------------------------------------------------
@@ -91,4 +63,45 @@ CLASS_REALIZE_FUNC_T(i_Hwnd, void, get_Message)(
 		TranslateMessage(&m_msg);
 		DispatchMessage(&m_msg);
 	}
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC(i_Hwnd, initialize)(
+	/* [in] */ HINSTANCE _hInstance,
+	/* [in] */ const wchar_t * _title,
+	/* [in] */ unsigned int _x,
+	/* [in] */ unsigned int _y,
+	/* [in] */ unsigned int _w,
+	/* [in] */ unsigned int _h)
+{
+	//
+	WNDCLASSEX wcex;
+	memset(&wcex, 0, sizeof(wcex));
+	wcex.cbSize = sizeof(wcex);
+	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+	wcex.hInstance = _hInstance;
+	wcex.lpfnWndProc = _WndProc;
+	wcex.lpszClassName = TEXT("DX11PROJ");
+	wcex.style = CS_HREDRAW | CS_VREDRAW;
+	RegisterClassEx(&wcex);
+
+	// 윈도우 핸들 생성.
+	IF_FALSE((m_windowhandle = CreateWindow(
+		wcex.lpszClassName,
+		_title,
+		WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
+		_x,
+		_y,
+		_x + _w,
+		_y + _h,
+		nullptr,
+		nullptr,
+		_hInstance,
+		this)))
+	{
+		return E_INVALIDARG;
+	}
+
+	return S_OK;
 }

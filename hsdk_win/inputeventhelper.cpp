@@ -10,12 +10,10 @@ using namespace win::frame;
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_CONSTRUCTOR(inputEventHelper, inputEventHelper)(
 	/* [in] */ i_Component * _component)
-	: my_FocusComponent(_component)
+	: my_FocusComponent(_component), my_FocusMouseable(_component->get_Mouseable())
 {
-	IF_FALSE(_component)
-	{
-		throw - 1;
-	}
+	xy.x = 0;
+	xy.y = 0;
 }
 
 //--------------------------------------------------------------------------------------
