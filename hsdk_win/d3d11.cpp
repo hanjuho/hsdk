@@ -199,7 +199,7 @@ CLASS_REALIZE_FUNC_T(D3D11, void, destroy)(
 	SAMPLER_CONTAINER.clear();
 
 	PANEL_IN_BUFFER.~AutoRelease();
-	
+
 	DSVIEW.~AutoRelease();
 	RTVIEW.~AutoRelease();
 	CHAIN.~AutoRelease();
@@ -228,10 +228,10 @@ CLASS_REALIZE_FUNC_T(D3D11, void, swap_Backbuffer)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(D3D11, get_Texture)(
-	/* [in] */  const wchar_t * _directory,
-	/* [in] */ ID3D11ShaderResourceView * (&_texture))
+	/* [out] */ ID3D11ShaderResourceView * (&_texture),
+	/* [in] */  const wchar_t * _directory)
 {
-	std::hash_map<std::wstring, AutoRelease<ID3D11ShaderResourceView>>::iterator iter = 
+	std::hash_map<std::wstring, AutoRelease<ID3D11ShaderResourceView>>::iterator iter =
 		TEXTURE_CONTAINER.find(_directory);
 
 	if (iter != TEXTURE_CONTAINER.end())
@@ -263,8 +263,8 @@ CLASS_REALIZE_FUNC(D3D11, get_Texture)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(D3D11, get_Sampler)(
-	/* [in] */ SAMPLER _state,
-	/* [in] */ ID3D11SamplerState * (&_sampler))
+	/* [out] */ ID3D11SamplerState * (&_sampler),
+	/* [in] */ SAMPLER _state)
 {
 	std::hash_map<SAMPLER, AutoRelease<ID3D11SamplerState>>::iterator iter =
 		SAMPLER_CONTAINER.find(_state);
@@ -314,9 +314,9 @@ CLASS_REALIZE_FUNC(D3D11, get_Sampler)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(D3D11, create_Panel)(
+	/* [out] */ ID3D11Buffer * (&_buffer),
 	/* [in] */ XMFLOAT2(&_uvs)[4],
-	/* [in] */ D3D11_USAGE _usage,
-	/* [out] */ ID3D11Buffer * (&_buffer))
+	/* [in] */ D3D11_USAGE _usage)
 {
 	//
 	panel_UV verties[4] =
@@ -373,9 +373,9 @@ CLASS_REALIZE_FUNC_T(D3D11, void, render_Panel)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(D3D11, create_ContantBuffers)(
+	/* [out] */ ID3D11Buffer * (&_buffer),
 	/* [in] */ unsigned long _size,
-	/* [in] */ D3D11_USAGE _usage,
-	/* [out] */ ID3D11Buffer * (&_buffer))
+	/* [in] */ D3D11_USAGE _usage)
 {
 	// 상수 버퍼 파라미터 생성
 	D3D11_BUFFER_DESC cbDescs;
@@ -401,12 +401,12 @@ CLASS_REALIZE_FUNC(D3D11, create_ContantBuffers)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(D3D11, create_inputLayoutForHeader)(
+	/* [out] */ ID3D11InputLayout * (&_layout),
 	/* [in] */	const char * _shadername,
 	/* [in] */	unsigned int _shadersize,
 	/* [in] */	D3D11inputEachFormat * _formats,
 	/* [in] */	unsigned int _formatsize,
-	/* [in] */	D3D11_INPUT_CLASSIFICATION _InputSlotClass,
-	/* [out] */ ID3D11InputLayout * (&_layout))
+	/* [in] */	D3D11_INPUT_CLASSIFICATION _InputSlotClass)
 {
 	// 인풋 객체 시멘틱스 파라미터 생성
 	std::vector<D3D11_INPUT_ELEMENT_DESC> inputDescs(_formatsize);
@@ -432,9 +432,9 @@ CLASS_REALIZE_FUNC(D3D11, create_inputLayoutForHeader)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(D3D11, create_VertexShaderForHeader)(
+	/* [out] */ ID3D11VertexShader * (&_shader),
 	/* [in] */	const char * _name,
-	/* [in] */	unsigned int _size,
-	/* [out] */ ID3D11VertexShader * (&_shader))
+	/* [in] */	unsigned int _size)
 {
 	return DEVICE->CreateVertexShader(
 		_name,
@@ -445,9 +445,9 @@ CLASS_REALIZE_FUNC(D3D11, create_VertexShaderForHeader)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(D3D11, create_PixelShaderForHeader)(
+	/* [out] */ ID3D11PixelShader * (&_shader),
 	/* [in] */	const char * _name,
-	/* [in] */	unsigned int _size,
-	/* [out] */ ID3D11PixelShader * (&_shader))
+	/* [in] */	unsigned int _size)
 {
 	return DEVICE->CreatePixelShader(
 		_name,

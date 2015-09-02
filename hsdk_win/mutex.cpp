@@ -12,7 +12,7 @@ CLASS_REALIZE_CONSTRUCTOR(Mutex, Mutex)(void)
 {
 	IF_FAILED(my_Mutex = CreateMutex(NULL, FALSE, NULL))
 	{
-		throw HSDK_FAIL;
+		throw ADD_FLAG(HSDK_FAIL, GetLastError());
 	}
 }
 
@@ -21,7 +21,7 @@ CLASS_REALIZE_DESTRUCTOR(Mutex, Mutex)(void)
 {
 	IF_FALSE(CloseHandle(my_Mutex))
 	{
-		throw HSDK_FAIL;
+		throw ADD_FLAG(HSDK_FAIL, GetLastError());
 	}
 }
 
@@ -33,7 +33,7 @@ CLASS_REALIZE_FUNC(Mutex, enter)(
 	{
 	case WAIT_ABANDONED:
 	case WAIT_FAILED:
-		return HSDK_FAIL;
+		return ADD_FLAG(HSDK_FAIL, GetLastError());
 	case WAIT_TIMEOUT:
 		return ADD_FLAG(HSDK_FAIL, WAIT_TIMEOUT);
 	}
@@ -47,7 +47,7 @@ CLASS_REALIZE_FUNC(Mutex, leave)(
 {
 	IF_FALSE(ReleaseMutex(my_Mutex))
 	{
-		return HSDK_FAIL;
+		return ADD_FLAG(HSDK_FAIL, GetLastError());
 	}
 
 	return S_OK;
@@ -62,7 +62,7 @@ CLASS_REALIZE_FUNC(Mutex, reset)(
 		this->~Mutex();
 		IF_FAILED(my_Mutex = CreateMutex(NULL, FALSE, NULL))
 		{
-			throw HSDK_FAIL;
+			throw ADD_FLAG(HSDK_FAIL, GetLastError());
 		}
 	}
 	catch (long hr)

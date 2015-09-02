@@ -39,9 +39,6 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\circle.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\헤더.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\collision.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>

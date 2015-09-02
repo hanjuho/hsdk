@@ -17,7 +17,17 @@ public:
 class B
 {
 public:
+	~B()
+	{
+		asdf = 0;
+	}
+
 	int asdf;
+
+	void del()
+	{
+		this->~B();
+	}
 };
 
 class C

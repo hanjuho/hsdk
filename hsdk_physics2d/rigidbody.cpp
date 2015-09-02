@@ -50,9 +50,9 @@ CLASS_REALIZE_FUNC_T(RigidBody, void, integrate_Forces)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(RigidBody, void, integrate_Velocity)(
+	/* [out] */ Object * _obj,
 	/* [in] */ const Vector2D & _gravity,
-	/* [in] */ float _dt,
-	/* [out] */ Object * (&_obj))
+	/* [in] */ float _dt)
 {
 	if (im == 0.0f)
 	{

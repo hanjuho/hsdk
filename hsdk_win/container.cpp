@@ -39,7 +39,7 @@ CLASS_REALIZE_FUNC(Container, add_Component)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Container, remove_Component)(
-	/* [out] */ i_Component * _component)
+	/* [in] */ i_Component * _component)
 {
 	m_Container.erase(_component->get_id());
 
@@ -48,15 +48,15 @@ CLASS_REALIZE_FUNC(Container, remove_Component)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Container, bool, contain_Component)(
-	/* [out] */ i_Component * _component)
+	/* [in] */ i_Component * _component)
 {
 	return m_Container.find(_component->get_id()) != m_Container.end();
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Container, get_Component)(
-	/* [in] */ unsigned int _id,
-	/* [out] */ i_Component * (&_component))
+	/* [out] */ i_Component * (&_component),
+	/* [in] */ unsigned int _id)
 {
 	std::hash_map<unsigned int, i_Component *>::iterator iter =
 		m_Container.find(_id);

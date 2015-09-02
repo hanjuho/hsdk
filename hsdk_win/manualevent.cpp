@@ -12,7 +12,7 @@ CLASS_REALIZE_CONSTRUCTOR(ManualEvent, ManualEvent)(void)
 {
 	IF_FAILED(my_Event = CreateEvent(NULL, CREATE_EVENT_MANUAL_RESET, FALSE, NULL))
 	{
-		throw HSDK_FAIL;
+		throw ADD_FLAG(HSDK_FAIL, GetLastError());
 	}
 }
 
@@ -21,7 +21,7 @@ CLASS_REALIZE_DESTRUCTOR(ManualEvent, ManualEvent)(void)
 {
 	IF_FALSE(CloseHandle(my_Event))
 	{
-		throw HSDK_FAIL;
+		throw ADD_FLAG(HSDK_FAIL, GetLastError());
 	}
 }
 
@@ -31,7 +31,7 @@ CLASS_REALIZE_FUNC(ManualEvent, signal)(
 {
 	IF_FALSE(SetEvent(my_Event))
 	{
-		return HSDK_FAIL;
+		return ADD_FLAG(HSDK_FAIL, GetLastError());
 	}
 
 	return S_OK;
@@ -45,7 +45,7 @@ CLASS_REALIZE_FUNC(ManualEvent, wait)(
 	{
 	case WAIT_ABANDONED:
 	case WAIT_FAILED:
-		return HSDK_FAIL;
+		return ADD_FLAG(HSDK_FAIL, GetLastError());
 	case WAIT_TIMEOUT:
 		return ADD_FLAG(HSDK_FAIL, WAIT_TIMEOUT);
 	}
@@ -62,7 +62,7 @@ CLASS_REALIZE_FUNC(ManualEvent, reset)(
 		this->~ManualEvent();
 		IF_FAILED(my_Event = CreateEvent(NULL, CREATE_EVENT_MANUAL_RESET, FALSE, NULL))
 		{
-			throw HSDK_FAIL;
+			throw ADD_FLAG(HSDK_FAIL, GetLastError());
 		}
 	}
 	catch (long hr)
@@ -79,7 +79,7 @@ CLASS_REALIZE_FUNC(ManualEvent, lock)(
 {
 	IF_FALSE(ResetEvent(my_Event))
 	{
-		return HSDK_FAIL;
+		return ADD_FLAG(HSDK_FAIL, GetLastError());
 	}
 
 	return S_OK;

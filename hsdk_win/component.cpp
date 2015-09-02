@@ -76,8 +76,8 @@ CLASS_REALIZE_FUNC_T(Component, bool, contain_Component)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Component, get_Component)(
-	/* [in] */ unsigned int _id,
-	/* [out] */ i_Component * (&_component))
+	/* [out] */ i_Component * (&_component),
+	/* [in] */ unsigned int _id)
 {
 	return 0x8000000;
 }

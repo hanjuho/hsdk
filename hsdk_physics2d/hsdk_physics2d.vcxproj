@@ -63,8 +63,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>COPY "$(OutDir)hsdk_win.lib" "$(HSDK_DIR)lib" /y
-COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
+      <Command>COPY "$(OutDir)hsdk_physics2d.lib" "$(HSDK_DIR)lib" /y
+COPY "$(OutDir)hsdk_physics2d.dll" "$(HSDK_DIR)lib" /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -85,8 +85,8 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>COPY "$(OutDir)hsdk_win.lib" "$(HSDK_DIR)lib" /y
-COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
+      <Command>COPY "$(OutDir)hsdk_physics2d.lib" "$(HSDK_DIR)lib" /y
+COPY "$(OutDir)hsdk_physics2d.dll" "$(HSDK_DIR)lib" /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -101,7 +101,6 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\object.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\polygon.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\circle.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\헤더.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="calculator.cpp" />

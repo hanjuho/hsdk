@@ -15,12 +15,12 @@ CLASS_REALIZE_CONSTRUCTOR(Semaphore, Semaphore)(
 {
 	IF_FALSE(_initCount < _maxCount)
 	{
-		throw HSDK_FAIL;
+		throw ADD_FLAG(HSDK_FAIL, GetLastError());
 	}	
 	
 	IF_FAILED(my_Semaphore = CreateSemaphore(NULL, my_initCount, my_maxCount, NULL))
 	{
-		throw HSDK_FAIL;
+		throw ADD_FLAG(HSDK_FAIL, GetLastError());
 	}
 }
 
@@ -29,7 +29,7 @@ CLASS_REALIZE_DESTRUCTOR(Semaphore, Semaphore)(void)
 {
 	IF_FALSE(CloseHandle(my_Semaphore))
 	{
-		throw HSDK_FAIL;
+		throw ADD_FLAG(HSDK_FAIL, GetLastError());
 	}
 }
 
@@ -41,7 +41,7 @@ CLASS_REALIZE_FUNC(Semaphore, enter)(
 	{
 	case WAIT_ABANDONED:
 	case WAIT_FAILED:
-		return HSDK_FAIL;
+		return ADD_FLAG(HSDK_FAIL, GetLastError());
 	case WAIT_TIMEOUT:
 		return ADD_FLAG(HSDK_FAIL, WAIT_TIMEOUT);
 	}
@@ -55,7 +55,7 @@ CLASS_REALIZE_FUNC(Semaphore, leave)(
 {
 	IF_FALSE(ReleaseMutex(my_Semaphore))
 	{
-		return HSDK_FAIL;
+		return ADD_FLAG(HSDK_FAIL, GetLastError());
 	}
 
 	return S_OK;
@@ -70,7 +70,7 @@ CLASS_REALIZE_FUNC(Semaphore, reset)(
 		this->~Semaphore();
 		IF_FAILED(my_Semaphore = CreateSemaphore(NULL, my_initCount, my_maxCount, NULL))
 		{
-			throw HSDK_FAIL;
+			throw ADD_FLAG(HSDK_FAIL, GetLastError());
 		}
 	}
 	catch (long hr)

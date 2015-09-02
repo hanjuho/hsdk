@@ -32,9 +32,9 @@ CLASS_REALIZE_FUNC(D3D11Graphics, initialize)(
 
 	// vs shader
 	IF_FAILED(hr = D3D11::create_VertexShaderForHeader(
+		*(&VERTEX_SHADER),
 		(const char *)(s_vs_texture),
-		sizeof(s_vs_texture),
-		*(&VERTEX_SHADER)))
+		sizeof(s_vs_texture)))
 	{
 		return hr;
 	}
@@ -51,39 +51,39 @@ CLASS_REALIZE_FUNC(D3D11Graphics, initialize)(
 	inputfomats[1].semantic = "TEXCOORD";
 
 	IF_FAILED(hr = D3D11::create_inputLayoutForHeader(
+		*(&INPUT_LAYOUT),
 		(const char *)(s_vs_texture),
 		sizeof(s_vs_texture),
 		inputfomats,
 		2,
-		D3D11_INPUT_PER_VERTEX_DATA,
-		*(&INPUT_LAYOUT)))
+		D3D11_INPUT_PER_VERTEX_DATA))
 	{
 		return hr;
 	}
 
 	// vs cbuffer
 	IF_FAILED(hr = D3D11::create_ContantBuffers(
+		*(&VS_CBUFFER),
 		sizeof(XMFLOAT4X4),
-		D3D11_USAGE_DEFAULT,
-		*(&VS_CBUFFER)))
+		D3D11_USAGE_DEFAULT))
 	{
 		return hr;
 	}
 
 	// pixel
 	IF_FAILED(hr = D3D11::create_PixelShaderForHeader(
+		*(&PIXEL_SHADER),
 		(const char *)(s_ps_cuttingtexture),
-		sizeof(s_ps_cuttingtexture),
-		*(&PIXEL_SHADER)))
+		sizeof(s_ps_cuttingtexture)))
 	{
 		return hr;
 	}
 
 	// ps cbuffer
 	IF_FAILED(hr = D3D11::create_ContantBuffers(
+		*(&PS_CBUFFER),
 		sizeof(XMFLOAT4),
-		D3D11_USAGE_DEFAULT,
-		*(&PS_CBUFFER)))
+		D3D11_USAGE_DEFAULT))
 	{
 		return hr;
 	}
@@ -140,8 +140,8 @@ CLASS_REALIZE_DESTRUCTOR(D3D11Graphics, D3D11Graphics)(void)
 CLASS_REALIZE_FUNC_T(D3D11Graphics, void, set_image)(
 	/* [in] */ const wchar_t * _filename)
 {
-	D3D11::get_Sampler(D3D11::SAMPLER_DEFAULT, m_sampler);
-	D3D11::get_Texture(_filename, m_custom);
+	D3D11::get_Sampler(m_sampler, D3D11::SAMPLER_DEFAULT);
+	D3D11::get_Texture(m_custom, _filename);
 }
 
 //--------------------------------------------------------------------------------------

@@ -85,6 +85,15 @@
     <ClCompile Include="thread.cpp">
       <Filter>소스 파일\thread</Filter>
     </ClCompile>
+    <ClCompile Include="tcpproxy.cpp">
+      <Filter>소스 파일\net</Filter>
+    </ClCompile>
+    <ClCompile Include="tcpserver.cpp">
+      <Filter>소스 파일\net</Filter>
+    </ClCompile>
+    <ClCompile Include="tcpclient.cpp">
+      <Filter>소스 파일\net</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\component.h">
@@ -125,6 +134,18 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\thread\task.h">
       <Filter>헤더 파일\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\common.h">
+      <Filter>헤더 파일\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpproxy.h">
+      <Filter>헤더 파일\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpserver.h">
+      <Filter>헤더 파일\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpclient.h">
+      <Filter>헤더 파일\net</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

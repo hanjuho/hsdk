@@ -25,10 +25,10 @@ CLASS_REALIZE_FUNC_T(Calculator, void, set_Resource)(
 
 //-------------------------------------------------------------------------------------- 
 CLASS_REALIZE_FUNC_T(Calculator, void, calculate)(
-	/* [in] */ const Vector2D _gravity,
-	/* [in] */ float _dt,
 	/* [out] */ RESULT_BOUNDARY & _rb,
-	/* [out] */ RESULT_CONTACT & _rc)
+	/* [out] */ RESULT_CONTACT & _rc,
+	/* [in] */ const Vector2D _gravity,
+	/* [in] */ float _dt)
 {
 	_rb.clear();
 	_rc.clear();
@@ -37,9 +37,9 @@ CLASS_REALIZE_FUNC_T(Calculator, void, calculate)(
 	if (res.stream)
 	{
 		// 게임 오브젝트.
-		Object * goA = res.stream[res.offset], * goB;
+		Object * goA = res.stream[res.offset], *goB;
 		Object * const goEnd = goA + (res.offset + res.size);
-		
+
 		// 강체.
 		RigidBody * rigA;
 		RigidBody * rigB;
@@ -52,8 +52,8 @@ CLASS_REALIZE_FUNC_T(Calculator, void, calculate)(
 		for (; goA != goEnd; ++goA)
 		{
 			// Object A의 유효검사.
-			if (goA && 
-				(colA = goA->get_Collider()) && 
+			if (goA &&
+				(colA = goA->get_Collider()) &&
 				(rigA = goA->get_RigidBody()))
 			{
 				/*
@@ -64,7 +64,7 @@ CLASS_REALIZE_FUNC_T(Calculator, void, calculate)(
 				{
 					// Object B의 유효검사.
 					if (goB &&
-						(colB = goB->get_Collider()) && 
+						(colB = goB->get_Collider()) &&
 						(rigB = goB->get_RigidBody()))
 					{
 						R_Boundary boundary(goA, goB);
@@ -109,7 +109,7 @@ CLASS_REALIZE_FUNC_T(Calculator, void, calculate)(
 								continue;
 							}
 						}
-						
+
 						//
 						IF_FALSE(rigA->im + rigB->im)
 						{
@@ -121,11 +121,11 @@ CLASS_REALIZE_FUNC_T(Calculator, void, calculate)(
 
 						// 콜라이더 충돌 검사.
 						collision::Collider_Dispatch[colA->get_Type()][colB->get_Type()](
-							goA->position,
-							goB->position,
+							m,
 							colA,
 							colB,
-							m);
+							goA->position,
+							goB->position);
 
 						// 충돌점이 하나 이상이라면 콜라이더 충돌 버퍼에 콜라이더 충돌 정보 추가.
 						if (m.contact_count)
@@ -135,14 +135,14 @@ CLASS_REALIZE_FUNC_T(Calculator, void, calculate)(
 								manifold);
 						}
 					}
-				}						
+				}
 			}
 		}
 
 		// gravity
 		Vector2D g = _gravity * 1 / 60;
 		FLOAT glength = vector2d::lenSqr(g);
-		
+
 		// Integrate forces
 		for (goA = res.stream[res.offset]; goA != goEnd; ++goA)
 		{
@@ -158,18 +158,18 @@ CLASS_REALIZE_FUNC_T(Calculator, void, calculate)(
 
 			// Initialize collision
 			manifold::initialize(
+				rm.m,
 				rm.rig_A,
-				rm.rig_B,
-				rm.m);
+				rm.rig_B);
 
 			// Solve collisions
 			manifold::impulse_Apply(
-				glength,
-				rm.obj_A->position,
-				rm.obj_B->position,
+				rm.m,
 				rm.rig_A,
 				rm.rig_B,
-				rm.m);
+				rm.obj_A->position,
+				rm.obj_B->position,
+				glength);
 		}
 
 		// Integrate velocities
@@ -177,7 +177,7 @@ CLASS_REALIZE_FUNC_T(Calculator, void, calculate)(
 		{
 			if (goA && (rigA = goA->get_RigidBody()))
 			{
-				rigA->integrate_Velocity(g, _dt, goA);
+				rigA->integrate_Velocity(goA, g, _dt);
 			}
 		}
 
@@ -187,12 +187,12 @@ CLASS_REALIZE_FUNC_T(Calculator, void, calculate)(
 			R_Manifold & rm = _rc[i];
 
 			manifold::positional_Correction(
-				glength,
+				rm.obj_A->position,
+				rm.obj_B->position,
+				rm.m,
 				rm.rig_A,
 				rm.rig_B,
-				rm.m,
-				rm.obj_A->position,
-				rm.obj_B->position);
+				glength);
 		}
 
 		// ptr_ObjBuffer 버퍼 오브젝트 초기화

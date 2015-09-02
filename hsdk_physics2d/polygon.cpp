@@ -36,7 +36,7 @@ CLASS_REALIZE_FUNC_T(Polygon, i::i_Collider::COLLIDER_TYPE, get_Type)(
 CLASS_REALIZE_FUNC_T(Polygon, void, set_Orient)(
 	/* [in] */ float _radians)
 {
-	matrix2d::rotate(_radians, matrix);
+	matrix2d::rotate(matrix, _radians);
 }
 
 //--------------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ CLASS_REALIZE_FUNC_T(Polygon, void, apply_Mass)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Polygon, void, apply_Body)(
-	/* [out] */ RigidBody * (&_body),
+	/* [out] */ RigidBody * _body,
 	/* [in] */ bool _inverse)
 {
 	if (_inverse)
@@ -253,7 +253,7 @@ CLASS_REALIZE_FUNC_T(Polygon, void, set_Polygon)(
 		assert(vector2d::lenSqr(face) > EPSILON * EPSILON);
 
 		// Calculate normal with 2D cross product between vector and scalar
-		vector2d::normalize(Vector2D(face.y, -face.x), normals[i1]);
+		vector2d::normalize(normals[i1], Vector2D(face.y, -face.x));
 	}
 }
 

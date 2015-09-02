@@ -25,11 +25,11 @@ CollisionCallback hsdk::physics2d::collision::Collider_Dispatch
 
 //--------------------------------------------------------------------------------------
 DLL_DECL_FUNC_T(void, hsdk::physics2d::collision::CircleToCircle)(
-	/* [in] */ const Vector2D & _aPos,
-	/* [in] */ const Vector2D & _bPos,
+	/* [out] */ Manifold & _m,
 	/* [in] */ const i::i_Collider * _ac,
 	/* [in] */ const i::i_Collider * _bc,
-	/* [out] */ Manifold & _m)
+	/* [in] */ const Vector2D & _aPos,
+	/* [in] */ const Vector2D & _bPos)
 {
 	const Circle * ac = reinterpret_cast<const Circle *>(_ac);
 	const Circle * bc = reinterpret_cast<const Circle *>(_bc);
@@ -69,11 +69,11 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::collision::CircleToCircle)(
 
 //--------------------------------------------------------------------------------------
 DLL_DECL_FUNC_T(void, hsdk::physics2d::collision::CircleToPolygon)(
-	/* [in] */ const Vector2D & _aPos,
-	/* [in] */ const Vector2D & _bPos,
+	/* [out] */ Manifold & _m,
 	/* [in] */ const i::i_Collider * _ac,
 	/* [in] */ const i::i_Collider * _bc,
-	/* [out] */ Manifold & _m)
+	/* [in] */ const Vector2D & _aPos,
+	/* [in] */ const Vector2D & _bPos)
 {
 	const Circle * ac = reinterpret_cast<const Circle *>(_ac);
 	const Polygon * bc = reinterpret_cast<const Polygon *>(_bc);
@@ -84,7 +84,7 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::collision::CircleToPolygon)(
 	Matrix2D mat;
 
 	Vector2D apos = (_aPos + ac->position);
-	Vector2D center = matrix2d::transpose(bc->matrix, mat) * (_bPos - apos);
+	Vector2D center = matrix2d::transpose(mat, bc->matrix) * (_bPos - apos);
 
 	// Find edge with minimum penetration
 	// Exact concept as using support points in Polygon vs Polygon
@@ -144,7 +144,7 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::collision::CircleToPolygon)(
 		Vector2D dir = v1 - center;
 
 		// dir에 사각형의 매트릭스 적용, 노말 계산.
-		vector2d::normalize(bc->matrix * dir, _m.normal);
+		vector2d::normalize(_m.normal, bc->matrix * dir);
 
 		// 접점.
 		_m.contacts[0] = bc->matrix * v1 + _bPos;
@@ -170,7 +170,7 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::collision::CircleToPolygon)(
 		_m.contacts[0] = v2;
 
 		//
-		vector2d::normalize(bc->matrix * dir, _m.normal);
+		vector2d::normalize(_m.normal, bc->matrix * dir);
 	}
 
 	// Closest to face
@@ -198,23 +198,23 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::collision::CircleToPolygon)(
 
 //--------------------------------------------------------------------------------------
 DLL_DECL_FUNC_T(void, hsdk::physics2d::collision::PolygonToCircle)(
-	/* [in] */ const Vector2D & _aPos,
-	/* [in] */ const Vector2D & _bPos,
+	/* [out] */ Manifold & _m,
 	/* [in] */ const i::i_Collider * _ac,
 	/* [in] */ const i::i_Collider * _bc,
-	/* [out] */ Manifold & _m)
+	/* [in] */ const Vector2D & _aPos,
+	/* [in] */ const Vector2D & _bPos)
 {
-	hsdk::physics2d::collision::CircleToPolygon(_aPos, _bPos, _bc, _ac, _m);
+	hsdk::physics2d::collision::CircleToPolygon(_m, _bc, _ac, _aPos, _bPos);
 	_m.normal = -_m.normal;
 }
 
 //--------------------------------------------------------------------------------------
 REALIZE_FUNC_T(float, find_Axis_Least_Penetration)(
+	/* [out] */ unsigned int & _out,
 	/* [in] */ const Vector2D & _aPos,
 	/* [in] */ const Vector2D & _bPos,
 	/* [in] */ const Polygon * _ac,
-	/* [in] */ const Polygon * _bc,
-	/* [out] */ unsigned int & _out)
+	/* [in] */ const Polygon * _bc)
 {
 	float bestDistance = -FLT_MAX;
 	unsigned int bestIndex;
@@ -227,7 +227,7 @@ REALIZE_FUNC_T(float, find_Axis_Least_Penetration)(
 
 		// Transform face normal into B's model space
 		Matrix2D buT;
-		matrix2d::transpose(_bc->matrix, buT);
+		matrix2d::transpose(buT, _bc->matrix);
 		n = buT * nw;
 
 		// Retrieve support point from B along -n
@@ -269,7 +269,7 @@ REALIZE_FUNC_T(void, find_incident_Face)(
 	referenceNormal = _refPoly->matrix * referenceNormal;
 	// To incident's model space
 	Matrix2D mat;
-	referenceNormal = matrix2d::transpose(_incPoly->matrix, mat) * referenceNormal;
+	referenceNormal = matrix2d::transpose(mat, _incPoly->matrix) * referenceNormal;
 
 	// Find most anti-normal face on incident polygon
 	unsigned int incidentFace = 0;
@@ -293,9 +293,9 @@ REALIZE_FUNC_T(void, find_incident_Face)(
 }
 
 REALIZE_FUNC_T(unsigned int, clip)(
+	/* [out] */ Vector2D(&_in_out)[2],
 	/* [in] */ const Vector2D & _n,
-	/* [in] */ float _c,
-	/* [in/out] */ Vector2D(&_in_out)[2])
+	/* [in] */ float _c)
 {
 	unsigned int sp = 0;
 	Vector2D out[2] = {
@@ -339,11 +339,11 @@ REALIZE_FUNC_T(unsigned int, clip)(
 
 //--------------------------------------------------------------------------------------
 DLL_DECL_FUNC_T(void, hsdk::physics2d::collision::PolygonToPolygon)(
-	/* [in] */ const Vector2D & _aPos,
-	/* [in] */ const Vector2D & _bPos,
+	/* [out] */ Manifold & _m,
 	/* [in] */ const i::i_Collider * _ac,
 	/* [in] */ const i::i_Collider * _bc,
-	/* [out] */ Manifold & _m)
+	/* [in] */ const Vector2D & _aPos,
+	/* [in] */ const Vector2D & _bPos)
 {
 	const Polygon * ac = reinterpret_cast<const Polygon *>(_ac);
 	const Polygon * bc = reinterpret_cast<const Polygon *>(_bc);
@@ -352,11 +352,11 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::collision::PolygonToPolygon)(
 	// Check for a separating axis with A's face planes
 	unsigned int faceA;
 	float penetrationA = find_Axis_Least_Penetration(
-		_aPos, 
-		_bPos, 
+		faceA,
+		_aPos,
+		_bPos,
 		ac,
-		bc, 
-		faceA);
+		bc);
 
 	if (penetrationA >= 0.0f)
 	{
@@ -366,11 +366,11 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::collision::PolygonToPolygon)(
 	// Check for a separating axis with B's face planes
 	unsigned int faceB;
 	float penetrationB = find_Axis_Least_Penetration(
-		_bPos, 
+		faceB,
+		_bPos,
 		_aPos,
 		bc,
-		ac,
-		faceB);
+		ac);
 
 	if (penetrationB >= 0.0f)
 	{
@@ -411,17 +411,17 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::collision::PolygonToPolygon)(
 	// World space incident face
 	Vector2D incidentFace[2];
 	find_incident_Face(
-		refPoly, 
+		refPoly,
 		incPoly,
-		(*incPos), 
-		reference_index, 
+		(*incPos),
+		reference_index,
 		incidentFace);
 
 	//        y
 	//        ^  ->n       ^
 	//      +---c ------posPlane--
 	//  x < | i |\
-						//      +---+ c-----negPlane--
+									//      +---+ c-----negPlane--
 	//             \       v
 	//              r
 	//
@@ -455,13 +455,13 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::collision::PolygonToPolygon)(
 	float posSide = vector2d::dot(sidePlaneNormal, v2);
 
 	// Clip incident face to reference face side planes
-	if (clip(-sidePlaneNormal, negSide, incidentFace) < 2)
+	if (clip(incidentFace, - sidePlaneNormal, negSide) < 2)
 	{
 		// Due to floating point error, possible to not have required points
 		return;
 	}
 
-	if (clip(sidePlaneNormal, posSide, incidentFace) < 2)
+	if (clip(incidentFace, sidePlaneNormal, posSide) < 2)
 	{
 		// Due to floating point error, possible to not have required points
 		return;

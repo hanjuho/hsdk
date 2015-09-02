@@ -12,7 +12,7 @@ CLASS_REALIZE_CONSTRUCTOR(AutoResetEvent, AutoResetEvent)(void)
 {
 	IF_FAILED(my_Event = CreateEvent(NULL, 0, FALSE, NULL))
 	{
-		throw HSDK_FAIL;
+		throw ADD_FLAG(HSDK_FAIL, GetLastError());
 	}
 }
 
@@ -21,7 +21,7 @@ CLASS_REALIZE_DESTRUCTOR(AutoResetEvent, AutoResetEvent)(void)
 {
 	IF_FALSE(CloseHandle(my_Event))
 	{
-		throw HSDK_FAIL;
+		throw ADD_FLAG(HSDK_FAIL, GetLastError());
 	}
 }
 
@@ -31,7 +31,7 @@ CLASS_REALIZE_FUNC(AutoResetEvent, signal)(
 {
 	IF_FALSE(SetEvent(my_Event))
 	{
-		return HSDK_FAIL;
+		return ADD_FLAG(HSDK_FAIL, GetLastError());
 	}
 
 	return S_OK;
@@ -45,7 +45,7 @@ CLASS_REALIZE_FUNC(AutoResetEvent, wait)(
 	{
 	case WAIT_ABANDONED:
 	case WAIT_FAILED:
-		return HSDK_FAIL;
+		return ADD_FLAG(HSDK_FAIL, GetLastError());
 	case WAIT_TIMEOUT:
 		return ADD_FLAG(HSDK_FAIL, WAIT_TIMEOUT);
 	}
@@ -62,7 +62,7 @@ CLASS_REALIZE_FUNC(AutoResetEvent, reset)(
 		this->~AutoResetEvent();
 		IF_FAILED(my_Event = CreateEvent(NULL, 0, FALSE, NULL))
 		{
-			throw HSDK_FAIL;
+			throw ADD_FLAG(HSDK_FAIL, GetLastError());
 		}
 	}
 	catch (long hr)
