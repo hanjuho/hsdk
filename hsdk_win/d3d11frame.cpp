@@ -15,23 +15,8 @@ CLASS_REALIZE_CONSTRUCTOR(D3D11Frame, D3D11Frame)(
 	/* [in] */ unsigned int _y,
 	/* [in] */ unsigned int _w,
 	/* [in] */ unsigned int _h)
-	: m_inputEventHelper(this), m_vaild(false)
+	: D3D11(TEXT(""), _hInstance, _title, _x, _y, _w, _h), m_inputEventHelper(this)
 {
-	if (FAILED(i_Hwnd::initialize(_hInstance, _title, _x, _y, _w, _h)))
-	{
-		throw HSDK_FAIL;
-	}
-
-	if (FAILED(D3D11::initialize(get_Hwnd(), nullptr)))
-	{
-		throw HSDK_FAIL;
-	}
-
-	if (FAILED(D3D11Graphics::initialize()))
-	{
-		throw HSDK_FAIL;
-	}
-
 	set_X(float(_x));
 	set_Y(float(_y));
 	set_W(float(_w));
@@ -41,8 +26,42 @@ CLASS_REALIZE_CONSTRUCTOR(D3D11Frame, D3D11Frame)(
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_DESTRUCTOR(D3D11Frame, D3D11Frame)(void)
 {
-	D3D11Graphics::destroy();
-	D3D11::destroy();
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(D3D11Frame, void, update)(
+	/* [none] */ void)
+{
+	// 상대적 좌표를 사용해서 연산하는 하위 component에게 맞추기 위해 윈도 실제 좌표와는 다르다.
+	m_d3d11Graphics.form[0] = 0.0f;
+	m_d3d11Graphics.form[1] = 0.0f;
+	m_d3d11Graphics.form[2] = get_W();
+	m_d3d11Graphics.form[3] = get_H();
+	m_d3d11Graphics.update();
+
+	// 윈도 와이드 재설정
+	D3D11Graphics::set_Wide(m_d3d11Graphics.form);
+
+	// 윈도 사각형 재설정
+	SetWindowPos(
+		get_Hwnd(),
+		HWND_TOP,
+		(long)(get_X()),
+		(long)(get_Y()),
+		(long)(get_X() + get_W()),
+		(long)(get_Y() + get_H()),
+		SWP_SHOWWINDOW);
+
+	UpdateWindow(get_Hwnd());
+
+	// 하위 컴포넌트 갱신
+	std::hash_map<unsigned int, i_Component *>::iterator iter = m_Container.begin();
+	std::hash_map<unsigned int, i_Component *>::iterator end = m_Container.end();
+	while (iter != end)
+	{
+		iter->second->update();
+		iter++;
+	}
 }
 
 //--------------------------------------------------------------------------------------
@@ -50,7 +69,9 @@ CLASS_REALIZE_FUNC_T(D3D11Frame, void, render)(
 	/* [none] */ void)
 {
 	D3D11Graphics::shader_on();
+
 	Container::render();
+
 	D3D11Graphics::shader_off();
 }
 
@@ -62,9 +83,6 @@ CLASS_REALIZE_FUNC_T(D3D11Frame, void, message_Proc)(
 {
 	switch (_uMsg)
 	{
-	case WM_CREATE:
-		m_vaild = true;
-		return;
 	case WM_KEYDOWN:
 		if ((HIWORD(_lParam) & KF_REPEAT))
 		{
@@ -109,15 +127,5 @@ CLASS_REALIZE_FUNC_T(D3D11Frame, void, message_Proc)(
 	case WM_MBUTTONUP:
 		m_inputEventHelper.onClick_Up(i::frame::i_Mouseable::WBUTTON, LOWORD(_lParam), HIWORD(_lParam));
 		return;
-	case WM_DESTROY:
-		m_vaild = false;
-		return;
 	};
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(D3D11Frame, bool, is_Valid)(
-	/* [none] */ void)
-{
-	return m_vaild;
 }

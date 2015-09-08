@@ -7,33 +7,37 @@ using namespace win::frame;
 
 
 // grobal
-LRESULT CALLBACK _WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK hsdk::win::frame::_WndProc(HWND _hWnd, UINT _msg, WPARAM _wParam, LPARAM _lParam)
 {
 	//
-	switch (msg)
+	i_Hwnd * user;
+	user = (i_Hwnd *)GetWindowLongPtr(_hWnd, GWLP_USERDATA);
+	if (user)
+	{
+		user->message_Proc(_msg, _wParam, _lParam);
+	}
+
+	//
+	switch (_msg)
 	{
 	case WM_NCCREATE:
-		SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)((LPCREATESTRUCT)lParam)->lpCreateParams);
+		user = (i_Hwnd *)((LPCREATESTRUCT)_lParam)->lpCreateParams;
+		SetWindowLongPtr(_hWnd, GWLP_USERDATA, (LONG_PTR)(user));
+		user->my_vaild = true;
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
+		user->my_vaild = false;
 		break;
 	}
 
 	//
-	i_Hwnd * user = (i_Hwnd *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-	if (user)
-	{
-		user->message_Proc(msg, wParam, lParam);
-	}
-
-	//
-	return DefWindowProc(hWnd, msg, wParam, lParam);
+	return DefWindowProc(_hWnd, _msg, _wParam, _lParam);
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_CONSTRUCTOR(i_Hwnd, i_Hwnd)(void)
-: m_windowhandle(nullptr)
+: m_windowhandle(nullptr), my_vaild(false)
 {
 
 }
@@ -58,11 +62,18 @@ CLASS_REALIZE_FUNC_T(i_Hwnd, void, get_Message)(
 {
 	// 윈도 메세지 갱신.
 	ZeroMemory(&m_msg, sizeof(m_msg));
-	while (GetMessage(&m_msg, nullptr, 0, 0))
+	while (PeekMessage(&m_msg, nullptr, 0, 0, PM_REMOVE))
 	{
 		TranslateMessage(&m_msg);
 		DispatchMessage(&m_msg);
 	}
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(i_Hwnd, bool, is_Valid)(
+	/* [none] */ void)
+{
+	return my_vaild;
 }
 
 //--------------------------------------------------------------------------------------

@@ -1,4 +1,5 @@
 #include <hsdk/win/frame/d3d11.h>
+#include <hsdk/win/frame/d3d11graphics.h>
 
 
 
@@ -26,6 +27,39 @@ XMMATRIX D3D11::WORLD;
 std::hash_map<D3D11::SAMPLER, AutoRelease<ID3D11SamplerState>> D3D11::SAMPLER_CONTAINER;
 std::hash_map<std::wstring, AutoRelease<ID3D11ShaderResourceView>> D3D11::TEXTURE_CONTAINER;
 AutoRelease<ID3D11Buffer> D3D11::PANEL_IN_BUFFER;
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_CONSTRUCTOR(D3D11, D3D11)(
+	/* [in] */ const wchar_t * _mode,
+	/* [in] */ HINSTANCE _hInstance,
+	/* [in] */ const wchar_t * _title,
+	/* [in] */ unsigned int _x,
+	/* [in] */ unsigned int _y,
+	/* [in] */ unsigned int _w,
+	/* [in] */ unsigned int _h)
+{
+	if (FAILED(i_Hwnd::initialize(_hInstance, _title, _x, _y, _w, _h)))
+	{
+		throw HSDK_FAIL;
+	}
+
+	if (FAILED(D3D11::initialize(get_Hwnd(), _mode)))
+	{
+		throw HSDK_FAIL;
+	}
+
+	if (FAILED(D3D11Graphics::initialize()))
+	{
+		throw HSDK_FAIL;
+	}
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_DESTRUCTOR(D3D11, D3D11)(void)
+{
+	D3D11Graphics::destroy();
+	D3D11::destroy();
+}
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(D3D11, initialize)(
@@ -315,7 +349,7 @@ CLASS_REALIZE_FUNC(D3D11, get_Sampler)(
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(D3D11, create_Panel)(
 	/* [out] */ ID3D11Buffer * (&_buffer),
-	/* [in] */ XMFLOAT2(&_uvs)[4],
+	/* [in] */ const XMFLOAT2(&_uvs)[4],
 	/* [in] */ D3D11_USAGE _usage)
 {
 	//

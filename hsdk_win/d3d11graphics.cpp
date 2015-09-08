@@ -1,6 +1,6 @@
 #include <hsdk/win/frame/d3d11graphics.h>
-#include <hsdk/win/shader/vs_texture.h>
-#include <hsdk/win/shader/ps_cuttingtexture.h>
+#include <hsdk/win/shader/vs_ui.h>
+#include <hsdk/win/shader/ps_ui.h>
 
 
 
@@ -33,8 +33,8 @@ CLASS_REALIZE_FUNC(D3D11Graphics, initialize)(
 	// vs shader
 	IF_FAILED(hr = D3D11::create_VertexShaderForHeader(
 		*(&VERTEX_SHADER),
-		(const char *)(s_vs_texture),
-		sizeof(s_vs_texture)))
+		(const char *)(s_vs_ui),
+		sizeof(s_vs_ui)))
 	{
 		return hr;
 	}
@@ -52,8 +52,8 @@ CLASS_REALIZE_FUNC(D3D11Graphics, initialize)(
 
 	IF_FAILED(hr = D3D11::create_inputLayoutForHeader(
 		*(&INPUT_LAYOUT),
-		(const char *)(s_vs_texture),
-		sizeof(s_vs_texture),
+		(const char *)(s_vs_ui),
+		sizeof(s_vs_ui),
 		inputfomats,
 		2,
 		D3D11_INPUT_PER_VERTEX_DATA))
@@ -64,7 +64,7 @@ CLASS_REALIZE_FUNC(D3D11Graphics, initialize)(
 	// vs cbuffer
 	IF_FAILED(hr = D3D11::create_ContantBuffers(
 		*(&VS_CBUFFER),
-		sizeof(XMFLOAT4X4),
+		sizeof(XMFLOAT4),
 		D3D11_USAGE_DEFAULT))
 	{
 		return hr;
@@ -73,8 +73,8 @@ CLASS_REALIZE_FUNC(D3D11Graphics, initialize)(
 	// pixel
 	IF_FAILED(hr = D3D11::create_PixelShaderForHeader(
 		*(&PIXEL_SHADER),
-		(const char *)(s_ps_cuttingtexture),
-		sizeof(s_ps_cuttingtexture)))
+		(const char *)(s_ps_ui),
+		sizeof(s_ps_ui)))
 	{
 		return hr;
 	}
@@ -124,10 +124,32 @@ CLASS_REALIZE_FUNC_T(D3D11Graphics, void, shader_off)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(D3D11Graphics, D3D11Graphics)(void)
-: m_custom(nullptr), m_sampler(nullptr)
+CLASS_REALIZE_FUNC_T(D3D11Graphics, void, set_Wide)(
+	/* [none] */ float(&_rectangle)[4])
 {
-	XMStoreFloat4x4(&m_matrix, XMMatrixIdentity());
+	D3D11::CONTEXT->UpdateSubresource(VS_CBUFFER, 0, nullptr, _rectangle, 0, 0);
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_CONSTRUCTOR(D3D11Graphics, D3D11Graphics)(void)
+: imageW(1.0f), imageH(1.0f), visible(true), m_custom(nullptr), m_sampler(nullptr)
+{
+	form[0] = 0.0f;
+	form[1] = 0.0f;
+	form[2] = 0.0f;
+	form[3] = 0.0f;
+
+	uvRectangle[0] = 0.0f;
+	uvRectangle[1] = 0.0f;
+	uvRectangle[2] = 1.0f;
+	uvRectangle[3] = 1.0f;
+
+	D3D11::create_Panel(*(&m_panel), {
+		XMFLOAT2(0.0f, 0.0f),
+		XMFLOAT2(1.0f, 0.0f),
+		XMFLOAT2(1.0f, 1.0f),
+		XMFLOAT2(0.0f, 1.0f)
+	}, D3D11_USAGE_DYNAMIC);
 }
 
 //--------------------------------------------------------------------------------------
@@ -142,6 +164,21 @@ CLASS_REALIZE_FUNC_T(D3D11Graphics, void, set_image)(
 {
 	D3D11::get_Sampler(m_sampler, D3D11::SAMPLER_DEFAULT);
 	D3D11::get_Texture(m_custom, _filename);
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(D3D11Graphics, void, set_imageDetail)(
+	/* [in] */ float _imageW,
+	/* [in] */ float _imageH,
+	/* [in] */ const float(&_rectangle)[4])
+{
+	imageW = _imageW;
+	imageH = _imageW;
+
+	uvRectangle[0] = _rectangle[0];
+	uvRectangle[1] = _rectangle[1];
+	uvRectangle[2] = _rectangle[2];
+	uvRectangle[3] = _rectangle[3];
 }
 
 //--------------------------------------------------------------------------------------
@@ -163,21 +200,47 @@ CLASS_REALIZE_FUNC_T(D3D11Graphics, void, set_Text)(
 CLASS_REALIZE_FUNC_T(D3D11Graphics, void, update)(
 	/* [none] */ void)
 {
-	XMStoreFloat4x4(&m_matrix,
-		XMMatrixTranslation(form[0], form[1], 0.0f) *
-		XMMatrixScaling(form[2], form[3], 0.0f));
+	// 버텍스 버퍼 갱신
+	D3D11_MAPPED_SUBRESOURCE map_subresource;
+	IF_SUCCEEDED(D3D11::CONTEXT->Map(m_panel, 0, D3D11_MAP_WRITE_DISCARD, 0, &map_subresource))
+	{
+		D3D11::panel_UV * dataPtr;
+		dataPtr = (D3D11::panel_UV*)map_subresource.pData;
+		if (dataPtr)
+		{
+			float uv[4] = {
+				uvRectangle[0] / imageW,
+				uvRectangle[1] / imageH,
+				(uvRectangle[0] + uvRectangle[2]) / imageW,
+				(uvRectangle[1] + uvRectangle[3]) / imageH
+			};
+
+			dataPtr[0].pos = XMFLOAT3(form[0], form[1], 0.0f);
+			dataPtr[0].tex = XMFLOAT2(uv[0], uv[1]);
+
+			dataPtr[1].pos = XMFLOAT3(form[2], form[1], 0.0f);
+			dataPtr[1].tex = XMFLOAT2(uv[3], uv[1]);
+
+			dataPtr[2].pos = XMFLOAT3(form[2], form[3], 0.0f);
+			dataPtr[2].tex = XMFLOAT2(uv[3], uv[4]);
+
+			dataPtr[3].pos = XMFLOAT3(form[0], form[3], 0.0f);
+			dataPtr[3].tex = XMFLOAT2(uv[0], uv[4]);
+		}
+
+		D3D11::CONTEXT->Unmap(m_panel, 0);
+	}
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(D3D11Graphics, void, render)(
 	/* [none] */ void)
 {
-	if (visible && m_vbuffer)
+	if (visible)
 	{
-		D3D11::CONTEXT->UpdateSubresource(VS_CBUFFER, 0, nullptr, &m_matrix, 0, 0);
 		D3D11::CONTEXT->UpdateSubresource(PS_CBUFFER, 0, nullptr, form, 0, 0);
 		D3D11::CONTEXT->PSSetShaderResources(0, 1, &m_custom);
 		D3D11::CONTEXT->PSSetSamplers(0, 1, &m_sampler);
-		D3D11::render_Panel(m_vbuffer);
+		D3D11::render_Panel(m_panel);
 	}
 }

@@ -154,10 +154,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\..\..\..\sdks\hsdk\include\hsdk\win\shader\ps_cuttingtexture.hlsl">
+    <FxCompile Include="..\..\..\..\sdks\hsdk\include\hsdk\win\shader\vs_ui.hlsl">
       <Filter>헤더 파일\shader</Filter>
     </FxCompile>
-    <FxCompile Include="..\..\..\..\sdks\hsdk\include\hsdk\win\shader\vs_texture.hlsl">
+    <FxCompile Include="..\..\..\..\sdks\hsdk\include\hsdk\win\shader\ps_ui.hlsl">
       <Filter>헤더 파일\shader</Filter>
     </FxCompile>
   </ItemGroup>

@@ -130,7 +130,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\shader\common.hlsli" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\..\..\..\sdks\hsdk\include\hsdk\win\shader\ps_cuttingtexture.hlsl">
+    <FxCompile Include="..\..\..\..\sdks\hsdk\include\hsdk\win\shader\ps_ui.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">s_%(Filename)</VariableName>
       <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(HSDK_DIR)include\hsdk\win\shader\%(Filename).h</HeaderFileOutput>
@@ -138,7 +138,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
       <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(HSDK_DIR)include\hsdk\win\shader\%(Filename).h</HeaderFileOutput>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="..\..\..\..\sdks\hsdk\include\hsdk\win\shader\vs_texture.hlsl">
+    <FxCompile Include="..\..\..\..\sdks\hsdk\include\hsdk\win\shader\vs_ui.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">s_%(Filename)</VariableName>
       <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(HSDK_DIR)include\hsdk\win\shader\%(Filename).h</HeaderFileOutput>

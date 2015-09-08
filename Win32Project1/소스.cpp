@@ -5,37 +5,10 @@
 #include <hsdk/win/frame/d3d11frame.h>
 
 
+
 using namespace hsdk;
 using namespace win;
 
-class A
-{
-public:
-	int qewr;
-};
-
-class B
-{
-public:
-	~B()
-	{
-		asdf = 0;
-	}
-
-	int asdf;
-
-	void del()
-	{
-		this->~B();
-	}
-};
-
-class C
-	:public B, public A
-{
-public:
-	int zxcv;
-};
 
 
 int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
@@ -48,6 +21,8 @@ int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 		800, 
 		600);
 	
+	frame.update();
+
 	while (frame.is_Valid())
 	{
 		frame.get_Message();

@@ -16,7 +16,10 @@ unsigned int component_id = 0;
 CLASS_REALIZE_CONSTRUCTOR(Component, Component)(void)
 : my_id(component_id++), my_parent(nullptr)
 {
-
+	my_rectangle[0] = 0.0f;
+	my_rectangle[1] = 0.0f;
+	my_rectangle[2] = 0.0f;
+	my_rectangle[3] = 0.0f;
 }
 
 //--------------------------------------------------------------------------------------
@@ -93,56 +96,56 @@ CLASS_REALIZE_FUNC_T(Component, unsigned int, get_id)(
 CLASS_REALIZE_FUNC_T(Component, void, set_X)(
 	/* [in] */ float _value)
 {
-	m_d3d11Graphics.form[0] = _value;
+	my_rectangle[0] = _value;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, void, set_Y)(
 	/* [in] */ float _value)
 {
-	m_d3d11Graphics.form[1] = _value;
+	my_rectangle[1] = _value;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, void, set_W)(
 	/* [in] */ float _value)
 {
-	m_d3d11Graphics.form[2] = _value;
+	my_rectangle[2] = _value;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, void, set_H)(
 	/* [in] */ float _value)
 {
-	m_d3d11Graphics.form[3] = _value;
+	my_rectangle[3] = _value;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, float, get_X)(
 	/* [none] */ void)
 {
-	return m_d3d11Graphics.form[0];
+	return my_rectangle[0];
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, float, get_Y)(
 	/* [none] */ void)
 {
-	return m_d3d11Graphics.form[1];
+	return my_rectangle[1];
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, float, get_W)(
 	/* [none] */ void)
 {
-	return m_d3d11Graphics.form[2];
+	return my_rectangle[2];
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, float, get_H)(
 	/* [none] */ void)
 {
-	return m_d3d11Graphics.form[3];
+	return my_rectangle[3];
 }
 
 //--------------------------------------------------------------------------------------
@@ -162,7 +165,7 @@ CLASS_REALIZE_FUNC_T(Component, bool, is_Visible)(
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, bool, event_chain)(
 	/* [in] */ i_inputEventHelper * _eventhelper)
-{	
+{
 	return _eventhelper->chain(this);
 }
 
@@ -170,6 +173,32 @@ CLASS_REALIZE_FUNC_T(Component, bool, event_chain)(
 CLASS_REALIZE_FUNC_T(Component, void, update)(
 	/* [none] */ void)
 {
+	if (my_parent)
+	{
+		D3D11Graphics * pgraphics;
+		pgraphics = (D3D11Graphics *)my_parent->graphics();
+
+		// 부모의 x, y를 사용하지 않는 이유는 부모의 x, y가 그 부모로부터의 상대적 좌표이기
+		// 때문에 절대 좌표계를 사용하는 D3D11Graphics::form을 호출하는 것
+		if (pgraphics)
+		{
+			// 부모의 x, y + 상대적 좌표 x, y = 자신의 x, y
+			m_d3d11Graphics.form[0] = pgraphics->form[0] + my_rectangle[0];
+			m_d3d11Graphics.form[1] = pgraphics->form[1] + my_rectangle[1];
+
+			// 자신의 x, y + 상대적 좌표 w, h = 자신의 x2, y2
+			m_d3d11Graphics.form[2] = m_d3d11Graphics.form[0] + my_rectangle[2];
+			m_d3d11Graphics.form[3] = m_d3d11Graphics.form[1] + my_rectangle[3];
+		}
+	}
+	else
+	{
+		m_d3d11Graphics.form[0] = my_rectangle[0];
+		m_d3d11Graphics.form[1] = my_rectangle[1];
+		m_d3d11Graphics.form[2] = my_rectangle[0] + my_rectangle[3];
+		m_d3d11Graphics.form[3] = my_rectangle[1] + my_rectangle[4];
+	}
+
 	m_d3d11Graphics.update();
 }
 
