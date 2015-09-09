@@ -1,4 +1,5 @@
 #include <hsdk/win/frame/inputeventhelper.h>
+#include <hsdk/win/frame/component.h>
 
 
 
@@ -31,13 +32,20 @@ CLASS_REALIZE_FUNC_T(inputEventHelper, bool, chain)(
 		return false;
 	}
 
-	int w = xy.x - (int)(_component->get_X());
-	if (0 <= w && w <= _component->get_W())
+	Component * component;
+	component = (Component *)(_component);
+	IF_FALSE(component)
 	{
-		int h = xy.y - (int)(_component->get_Y());
-		if (0 <= h && h <= _component->get_H())
+		return false;
+	}
+
+	int w = xy.x - (int)(component->get_AbsX());
+	if (0 <= w && w <= component->get_W())
+	{
+		int h = xy.y - (int)(component->get_AbsY());
+		if (0 <= h && h <= component->get_H())
 		{
-			my_FocusComponent = _component;
+			my_FocusComponent = component;
 			return true;
 		}
 	}
@@ -95,7 +103,6 @@ CLASS_REALIZE_FUNC_T(inputEventHelper, void, update)(
 
 	// 마우스 이벤트 갱신.
 	my_FocusMouseable = my_FocusComponent->get_Mouseable();
-	
 }
 
 //--------------------------------------------------------------------------------------
@@ -132,9 +139,15 @@ CLASS_REALIZE_FUNC_T(inputEventHelper, void, onDrag)(
 	/* [in] */ int _x,
 	/* [in] */ int _y)
 {
+	int dx = xy.x - _x;
+	int dy = xy.y - _y;
+
+	xy.x = _x;
+	xy.y = _y;
+
 	if (my_FocusMouseable)
 	{
-		my_FocusMouseable->onDrag(_button, _x, _y);
+		my_FocusMouseable->onDrag(_button, dx, dy);
 	}
 }
 
@@ -143,6 +156,9 @@ CLASS_REALIZE_FUNC_T(inputEventHelper, void, onMove)(
 	/* [in] */ int _x,
 	/* [in] */ int _y)
 {
+	xy.x = _x;
+	xy.y = _y;
+
 	if (my_FocusMouseable)
 	{
 		my_FocusMouseable->onMove(_x, _y);

@@ -9,7 +9,7 @@ using namespace win::frame;
 
 //grobal
 float bg_color[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-unsigned int panel_stride = sizeof(unsigned int);
+unsigned int panel_stride = sizeof(D3D11::panel_UV);
 unsigned int panel_offset = 0;
 
 
@@ -57,8 +57,7 @@ CLASS_REALIZE_CONSTRUCTOR(D3D11, D3D11)(
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_DESTRUCTOR(D3D11, D3D11)(void)
 {
-	D3D11Graphics::destroy();
-	D3D11::destroy();
+
 }
 
 //--------------------------------------------------------------------------------------
@@ -109,14 +108,12 @@ CLASS_REALIZE_FUNC(D3D11, initialize)(
 	sd.SampleDesc.Quality = 0;
 	sd.Windowed = TRUE;
 
-	D3D_DRIVER_TYPE driverType = D3D_DRIVER_TYPE_NULL;
-	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
-	for (unsigned int driverTypeIndex = 0; driverTypeIndex < numDriverTypes; driverTypeIndex++)
+	for (unsigned int driverTypeIndex = 0; driverTypeIndex < numDriverTypes; ++driverTypeIndex)
 	{
 		DRIVERTYPE = driverTypes[driverTypeIndex];
 		IF_SUCCEEDED(hr = D3D11CreateDeviceAndSwapChain(
 			NULL,
-			driverType,
+			DRIVERTYPE,
 			NULL,
 			createDeviceFlags,
 			featureLevels,
@@ -181,7 +178,7 @@ CLASS_REALIZE_FUNC(D3D11, initialize)(
 		return hr;
 	}
 
-	CONTEXT->OMSetRenderTargets(1, &RTVIEW, NULL);
+	CONTEXT->OMSetRenderTargets(1, &RTVIEW, DSVIEW);
 
 	// Setup the viewport
 	D3D11_VIEWPORT vp;
@@ -197,17 +194,17 @@ CLASS_REALIZE_FUNC(D3D11, initialize)(
 		// Create index buffer
 		WORD indices[] =
 		{
-			3, 1, 0,
-			2, 1, 3
+			0, 1, 2,
+			3, 0, 2
 		};
 
 		D3D11_BUFFER_DESC ibDesc;
 		ibDesc.ByteWidth = sizeof(indices);
 		ibDesc.Usage = D3D11_USAGE_DEFAULT;
-		ibDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		ibDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		ibDesc.CPUAccessFlags = D3D11_CPU_ACCESS_FLAG(0);
 		ibDesc.MiscFlags = 0;
-		ibDesc.StructureByteStride = sizeof(unsigned short);
+		ibDesc.StructureByteStride = sizeof(WORD);
 
 		// 인덱스 버퍼 내용 추가
 		D3D11_SUBRESOURCE_DATA ibSd;
@@ -257,7 +254,7 @@ CLASS_REALIZE_FUNC_T(D3D11, void, swap_Backbuffer)(
 	/* [none] */ void)
 {
 	// 버퍼 스왑
-	CHAIN->Present(1, 0);
+	CHAIN->Present(0, 0);
 }
 
 //--------------------------------------------------------------------------------------
@@ -265,15 +262,19 @@ CLASS_REALIZE_FUNC(D3D11, get_Texture)(
 	/* [out] */ ID3D11ShaderResourceView * (&_texture),
 	/* [in] */  const wchar_t * _directory)
 {
+	// 중복 검사
 	std::hash_map<std::wstring, AutoRelease<ID3D11ShaderResourceView>>::iterator iter =
 		TEXTURE_CONTAINER.find(_directory);
 
 	if (iter != TEXTURE_CONTAINER.end())
 	{
+		// 이미 있는 경우
 		_texture = iter->second;
 	}
 	else
 	{
+		// 데이터가 없는 경우
+
 		HRESULT hr;
 		IF_FAILED(hr = D3DX11CreateShaderResourceViewFromFile(
 			DEVICE,
@@ -286,6 +287,7 @@ CLASS_REALIZE_FUNC(D3D11, get_Texture)(
 			return hr;
 		}
 
+		// 데이터 추가
 		TEXTURE_CONTAINER.insert(
 			std::hash_map<std::wstring, AutoRelease<ID3D11ShaderResourceView>>::value_type(
 			_directory,
@@ -300,6 +302,7 @@ CLASS_REALIZE_FUNC(D3D11, get_Sampler)(
 	/* [out] */ ID3D11SamplerState * (&_sampler),
 	/* [in] */ SAMPLER _state)
 {
+	// 중복 검사
 	std::hash_map<SAMPLER, AutoRelease<ID3D11SamplerState>>::iterator iter =
 		SAMPLER_CONTAINER.find(_state);
 
@@ -309,6 +312,8 @@ CLASS_REALIZE_FUNC(D3D11, get_Sampler)(
 	}
 	else
 	{
+		// 데이터가 없는 경우
+
 		D3D11_SAMPLER_DESC samplerDesc;
 		switch (_state)
 		{
@@ -337,6 +342,7 @@ CLASS_REALIZE_FUNC(D3D11, get_Sampler)(
 			return hr;
 		}
 
+		// 데이터 추가
 		SAMPLER_CONTAINER.insert(
 			std::hash_map<SAMPLER, AutoRelease<ID3D11SamplerState>>::value_type(
 			_state,
@@ -353,12 +359,12 @@ CLASS_REALIZE_FUNC(D3D11, create_Panel)(
 	/* [in] */ D3D11_USAGE _usage)
 {
 	//
-	panel_UV verties[4] =
+	panel_UV verties[] =
 	{
-		{ { -1.0f, -1.0f, 0.0f }, _uvs[0] },
-		{ { 1.0f, -1.0f, 0.0f }, _uvs[1] },
-		{ { 1.0f, 1.0f, 0.0f }, _uvs[2] },
-		{ { -1.0f, 1.0f, 0.0f }, _uvs[3] },
+		{ { -1.0f, 1.0f, 0.0f }, _uvs[0] },
+		{ { 1.0f, 1.0f, 0.0f }, _uvs[1] },
+		{ { 1.0f, -1.0f, 0.0f }, _uvs[2] },
+		{ { -1.0f, -1.0f, 0.0f }, _uvs[3] },
 	};
 
 	D3D11_BUFFER_DESC vbDesc;

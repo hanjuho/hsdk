@@ -30,8 +30,20 @@ CLASS_REALIZE_FUNC(Container, add_Component)(
 	}
 	else
 	{
+		// is - a 관계 증명
+		Component * component;
+		component = (Component *)(_component);
+		IF_FALSE(component)
+		{
+			return E_INVALIDARG;
+		}
+
+		// 부모관계 추가
+		component->my_parent = this;
+
+		// 컨테이너에 추가
 		m_Container.insert(std::hash_map<unsigned int, i_Component *>::value_type(
-			_component->get_id(), _component));
+			_component->get_id(), component));
 
 		return S_OK;
 	}
@@ -41,7 +53,17 @@ CLASS_REALIZE_FUNC(Container, add_Component)(
 CLASS_REALIZE_FUNC(Container, remove_Component)(
 	/* [in] */ i_Component * _component)
 {
-	m_Container.erase(_component->get_id());
+	if (contain_Component(_component))
+	{
+		// 포함되어 있다는 것은 is - a 관계가 확실하다는 것을 나타냄
+		Component * component = (Component *)(_component);
+
+		// 부모관계 제거
+		component->my_parent = nullptr;
+
+		// 컨테이너에서 제거
+		m_Container.erase(component->get_id());
+	}
 
 	return S_OK;
 }
@@ -50,7 +72,17 @@ CLASS_REALIZE_FUNC(Container, remove_Component)(
 CLASS_REALIZE_FUNC_T(Container, bool, contain_Component)(
 	/* [in] */ i_Component * _component)
 {
-	return m_Container.find(_component->get_id()) != m_Container.end();
+	std::hash_map<unsigned int, i_Component *>::iterator iter =
+		m_Container.find(_component->get_id());
+
+	if (iter == m_Container.end())
+	{
+		return false;
+	}
+	else
+	{
+		return iter->second == _component;
+	}
 }
 
 //--------------------------------------------------------------------------------------
@@ -68,7 +100,6 @@ CLASS_REALIZE_FUNC(Container, get_Component)(
 	else
 	{
 		_component = iter->second;
-
 		return S_OK;
 	}
 }
@@ -118,14 +149,18 @@ CLASS_REALIZE_FUNC_T(Container, void, update)(
 CLASS_REALIZE_FUNC_T(Container, void, render)(
 	/* [none] */ void)
 {
-	m_d3d11Graphics.render();
-	std::hash_map<unsigned int, i_Component *>::iterator iter = m_Container.begin();
-	std::hash_map<unsigned int, i_Component *>::iterator end = m_Container.end();
-	while (iter != end)
+	if (is_Visible())
 	{
-		iter->second->render();
-		iter++;
+		std::hash_map<unsigned int, i_Component *>::iterator iter = m_Container.begin();
+		std::hash_map<unsigned int, i_Component *>::iterator end = m_Container.end();
+		while (iter != end)
+		{
+			iter->second->render();
+			iter++;
+		}
 	}
+
+	m_d3d11Graphics.render();
 }
 
 //--------------------------------------------------------------------------------------

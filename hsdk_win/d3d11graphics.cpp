@@ -21,8 +21,8 @@ struct InputLayoutFormat
 AutoRelease<ID3D11VertexShader> D3D11Graphics::VERTEX_SHADER;
 AutoRelease<ID3D11PixelShader> D3D11Graphics::PIXEL_SHADER;
 AutoRelease<ID3D11InputLayout> D3D11Graphics::INPUT_LAYOUT;
-AutoRelease<ID3D11Buffer> D3D11Graphics::VS_CBUFFER;
-AutoRelease<ID3D11Buffer> D3D11Graphics::PS_CBUFFER;
+AutoRelease<ID3D11Buffer> D3D11Graphics::VS_WIDE_CBUFFER;
+AutoRelease<ID3D11Buffer> D3D11Graphics::VS_CLIP_CBUFFER;
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(D3D11Graphics, initialize)(
@@ -63,7 +63,16 @@ CLASS_REALIZE_FUNC(D3D11Graphics, initialize)(
 
 	// vs cbuffer
 	IF_FAILED(hr = D3D11::create_ContantBuffers(
-		*(&VS_CBUFFER),
+		*(&VS_WIDE_CBUFFER),
+		sizeof(XMFLOAT4),
+		D3D11_USAGE_DEFAULT))
+	{
+		return hr;
+	}
+	
+	// ps cbuffer
+	IF_FAILED(hr = D3D11::create_ContantBuffers(
+		*(&VS_CLIP_CBUFFER),
 		sizeof(XMFLOAT4),
 		D3D11_USAGE_DEFAULT))
 	{
@@ -79,15 +88,6 @@ CLASS_REALIZE_FUNC(D3D11Graphics, initialize)(
 		return hr;
 	}
 
-	// ps cbuffer
-	IF_FAILED(hr = D3D11::create_ContantBuffers(
-		*(&PS_CBUFFER),
-		sizeof(XMFLOAT4),
-		D3D11_USAGE_DEFAULT))
-	{
-		return hr;
-	}
-
 	return S_OK;
 }
 
@@ -95,8 +95,8 @@ CLASS_REALIZE_FUNC(D3D11Graphics, initialize)(
 CLASS_REALIZE_FUNC_T(D3D11Graphics, void, destroy)(
 	/* [none] */ void)
 {
-	VS_CBUFFER.~AutoRelease();
-	PS_CBUFFER.~AutoRelease();
+	VS_WIDE_CBUFFER.~AutoRelease();
+	VS_CLIP_CBUFFER.~AutoRelease();
 	INPUT_LAYOUT.~AutoRelease();
 	VERTEX_SHADER.~AutoRelease();
 	PIXEL_SHADER.~AutoRelease();
@@ -108,10 +108,12 @@ CLASS_REALIZE_FUNC_T(D3D11Graphics, void, shader_on)(
 {
 	D3D11::CONTEXT->VSSetShader(VERTEX_SHADER, nullptr, 0);
 	D3D11::CONTEXT->IASetInputLayout(INPUT_LAYOUT);
-	D3D11::CONTEXT->VSSetConstantBuffers(0, 1, &VS_CBUFFER);
+	D3D11::CONTEXT->VSSetConstantBuffers(0, 1, &VS_WIDE_CBUFFER);
+	D3D11::CONTEXT->VSSetConstantBuffers(1, 1, &VS_CLIP_CBUFFER);
 
 	D3D11::CONTEXT->PSSetShader(PIXEL_SHADER, nullptr, 0);
-	D3D11::CONTEXT->PSSetConstantBuffers(0, 1, &PS_CBUFFER);
+
+	D3D11::CONTEXT->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 //--------------------------------------------------------------------------------------
@@ -127,7 +129,14 @@ CLASS_REALIZE_FUNC_T(D3D11Graphics, void, shader_off)(
 CLASS_REALIZE_FUNC_T(D3D11Graphics, void, set_Wide)(
 	/* [none] */ float(&_rectangle)[4])
 {
-	D3D11::CONTEXT->UpdateSubresource(VS_CBUFFER, 0, nullptr, _rectangle, 0, 0);
+	D3D11::CONTEXT->UpdateSubresource(VS_WIDE_CBUFFER, 0, nullptr, _rectangle, 0, 0);
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(D3D11Graphics, void, set_Clip)(
+	/* [none] */ float(&_rectangle)[4])
+{
+	D3D11::CONTEXT->UpdateSubresource(VS_CLIP_CBUFFER, 0, nullptr, _rectangle, 0, 0);
 }
 
 //--------------------------------------------------------------------------------------
@@ -144,12 +153,16 @@ CLASS_REALIZE_CONSTRUCTOR(D3D11Graphics, D3D11Graphics)(void)
 	uvRectangle[2] = 1.0f;
 	uvRectangle[3] = 1.0f;
 
-	D3D11::create_Panel(*(&m_panel), {
+	HRESULT hr;
+	IF_FAILED(hr = D3D11::create_Panel(*(&m_panel), {
 		XMFLOAT2(0.0f, 0.0f),
 		XMFLOAT2(1.0f, 0.0f),
 		XMFLOAT2(1.0f, 1.0f),
 		XMFLOAT2(0.0f, 1.0f)
-	}, D3D11_USAGE_DYNAMIC);
+	}, D3D11_USAGE_DYNAMIC))
+	{
+		throw hr;
+	}
 }
 
 //--------------------------------------------------------------------------------------
@@ -173,7 +186,7 @@ CLASS_REALIZE_FUNC_T(D3D11Graphics, void, set_imageDetail)(
 	/* [in] */ const float(&_rectangle)[4])
 {
 	imageW = _imageW;
-	imageH = _imageW;
+	imageH = _imageH;
 
 	uvRectangle[0] = _rectangle[0];
 	uvRectangle[1] = _rectangle[1];
@@ -219,13 +232,13 @@ CLASS_REALIZE_FUNC_T(D3D11Graphics, void, update)(
 			dataPtr[0].tex = XMFLOAT2(uv[0], uv[1]);
 
 			dataPtr[1].pos = XMFLOAT3(form[2], form[1], 0.0f);
-			dataPtr[1].tex = XMFLOAT2(uv[3], uv[1]);
+			dataPtr[1].tex = XMFLOAT2(uv[2], uv[1]);
 
 			dataPtr[2].pos = XMFLOAT3(form[2], form[3], 0.0f);
-			dataPtr[2].tex = XMFLOAT2(uv[3], uv[4]);
+			dataPtr[2].tex = XMFLOAT2(uv[2], uv[3]);
 
 			dataPtr[3].pos = XMFLOAT3(form[0], form[3], 0.0f);
-			dataPtr[3].tex = XMFLOAT2(uv[0], uv[4]);
+			dataPtr[3].tex = XMFLOAT2(uv[0], uv[3]);
 		}
 
 		D3D11::CONTEXT->Unmap(m_panel, 0);
@@ -238,9 +251,11 @@ CLASS_REALIZE_FUNC_T(D3D11Graphics, void, render)(
 {
 	if (visible)
 	{
-		D3D11::CONTEXT->UpdateSubresource(PS_CBUFFER, 0, nullptr, form, 0, 0);
-		D3D11::CONTEXT->PSSetShaderResources(0, 1, &m_custom);
-		D3D11::CONTEXT->PSSetSamplers(0, 1, &m_sampler);
-		D3D11::render_Panel(m_panel);
+		if (m_custom)
+		{
+			D3D11::CONTEXT->PSSetShaderResources(0, 1, &m_custom);
+			D3D11::CONTEXT->PSSetSamplers(0, 1, &m_sampler);
+			D3D11::render_Panel(m_panel);
+		}
 	}
 }
