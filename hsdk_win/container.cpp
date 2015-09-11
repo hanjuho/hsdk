@@ -11,8 +11,8 @@ using namespace win::frame;
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_DESTRUCTOR(Container, Container)(void)
 {
-	std::hash_map<unsigned int, i_Component *>::iterator iter = m_Container.begin();
-	std::hash_map<unsigned int, i_Component *>::iterator end = m_Container.end();
+	std::hash_map<unsigned int, Component *>::iterator iter = m_Container.begin();
+	std::hash_map<unsigned int, Component *>::iterator end = m_Container.end();
 	while (iter != end)
 	{
 		DEL_POINTER(iter->second);
@@ -39,10 +39,10 @@ CLASS_REALIZE_FUNC(Container, add_Component)(
 		}
 
 		// 부모관계 추가
-		component->my_parent = this;
+		component->my_Parent = this;
 
 		// 컨테이너에 추가
-		m_Container.insert(std::hash_map<unsigned int, i_Component *>::value_type(
+		m_Container.insert(std::hash_map<unsigned int, Component *>::value_type(
 			_component->get_id(), component));
 
 		return S_OK;
@@ -59,7 +59,7 @@ CLASS_REALIZE_FUNC(Container, remove_Component)(
 		Component * component = (Component *)(_component);
 
 		// 부모관계 제거
-		component->my_parent = nullptr;
+		component->my_Parent = nullptr;
 
 		// 컨테이너에서 제거
 		m_Container.erase(component->get_id());
@@ -72,7 +72,7 @@ CLASS_REALIZE_FUNC(Container, remove_Component)(
 CLASS_REALIZE_FUNC_T(Container, bool, contain_Component)(
 	/* [in] */ i_Component * _component)
 {
-	std::hash_map<unsigned int, i_Component *>::iterator iter =
+	std::hash_map<unsigned int, Component *>::iterator iter =
 		m_Container.find(_component->get_id());
 
 	if (iter == m_Container.end())
@@ -90,7 +90,7 @@ CLASS_REALIZE_FUNC(Container, get_Component)(
 	/* [out] */ i_Component * (&_component),
 	/* [in] */ unsigned int _id)
 {
-	std::hash_map<unsigned int, i_Component *>::iterator iter =
+	std::hash_map<unsigned int, Component *>::iterator iter =
 		m_Container.find(_id);
 
 	if (iter == m_Container.end())
@@ -110,11 +110,11 @@ CLASS_REALIZE_FUNC_T(Container, bool, event_chain)(
 {
 	if (_eventhelper->chain(this))
 	{
-		std::hash_map<unsigned int, i_Component *>::iterator iter = m_Container.begin();
-		std::hash_map<unsigned int, i_Component *>::iterator end = m_Container.end();
+		std::hash_map<unsigned int, Component *>::iterator iter = m_Container.begin();
+		std::hash_map<unsigned int, Component *>::iterator end = m_Container.end();
 		while (iter != end)
 		{
-			i_Component * cmp = iter->second;
+			Component * cmp = iter->second;
 			if (cmp->event_chain(_eventhelper))
 			{
 				break;
@@ -136,8 +136,8 @@ CLASS_REALIZE_FUNC_T(Container, void, update)(
 	/* [none] */ void)
 {
 	Component::update();
-	std::hash_map<unsigned int, i_Component *>::iterator iter = m_Container.begin();
-	std::hash_map<unsigned int, i_Component *>::iterator end = m_Container.end();
+	std::hash_map<unsigned int, Component *>::iterator iter = m_Container.begin();
+	std::hash_map<unsigned int, Component *>::iterator end = m_Container.end();
 	while (iter != end)
 	{
 		iter->second->update();
@@ -151,8 +151,8 @@ CLASS_REALIZE_FUNC_T(Container, void, render)(
 {
 	if (is_Visible())
 	{
-		std::hash_map<unsigned int, i_Component *>::iterator iter = m_Container.begin();
-		std::hash_map<unsigned int, i_Component *>::iterator end = m_Container.end();
+		std::hash_map<unsigned int, Component *>::iterator iter = m_Container.begin();
+		std::hash_map<unsigned int, Component *>::iterator end = m_Container.end();
 		while (iter != end)
 		{
 			iter->second->render();
@@ -160,7 +160,7 @@ CLASS_REALIZE_FUNC_T(Container, void, render)(
 		}
 	}
 
-	m_d3d11Graphics.render();
+	m_D3D11Graphics.render_Panel();
 }
 
 //--------------------------------------------------------------------------------------
@@ -168,4 +168,27 @@ CLASS_REALIZE_FUNC(Container, set_Layout)(
 	/* [none] */ void)
 {
 	return E_ACCESSDENIED;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Container, void, render_ClipHierarchy)(
+	/* [in] */ const float(&_clip)[4])
+{
+	if (is_Visible())
+	{
+		float clip[4] = {
+
+		};
+
+		std::hash_map<unsigned int, Component *>::iterator iter = m_Container.begin();
+		std::hash_map<unsigned int, Component *>::iterator end = m_Container.end();
+		while (iter != end)
+		{
+			iter->second->render_ClipHierarchy(clip);
+			iter++;
+		}
+	}
+
+	D3D11Graphics::set_Clip(_clip);
+	m_D3D11Graphics.render_Panel();
 }

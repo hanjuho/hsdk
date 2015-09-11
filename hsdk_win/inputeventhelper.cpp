@@ -111,6 +111,9 @@ CLASS_REALIZE_FUNC_T(inputEventHelper, void, onClick_Down)(
 	/* [in] */ int _x,
 	/* [in] */ int _y)
 {
+	xy.x = _x;
+	xy.y = _y;
+
 	// focus 재설정.
 	update();
 
@@ -127,6 +130,13 @@ CLASS_REALIZE_FUNC_T(inputEventHelper, void, onClick_Up)(
 	/* [in] */ int _x,
 	/* [in] */ int _y)
 {
+	xy.x = _x;
+	xy.y = _y;
+
+	// focus 재설정.
+	update();
+
+	// event 전달.
 	if (my_FocusMouseable)
 	{
 		my_FocusMouseable->onClick_Up(_button, _x, _y);
@@ -171,6 +181,9 @@ CLASS_REALIZE_FUNC_T(inputEventHelper, void, onWheel)(
 	/* [in] */ int _y,
 	/* [in] */ int _w)
 {
+	xy.x = _x;
+	xy.y = _y;
+
 	if (my_FocusMouseable)
 	{
 		my_FocusMouseable->onWheel(_x, _y, _w);

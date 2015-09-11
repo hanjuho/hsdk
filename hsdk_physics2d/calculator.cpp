@@ -27,6 +27,7 @@ CLASS_REALIZE_FUNC_T(Calculator, void, set_Resource)(
 CLASS_REALIZE_FUNC_T(Calculator, void, calculate)(
 	/* [out] */ RESULT_BOUNDARY & _rb,
 	/* [out] */ RESULT_CONTACT & _rc,
+	/* [in] */ const Terrain2D * _terrain,
 	/* [in] */ const Vector2D _gravity,
 	/* [in] */ float _dt)
 {
@@ -203,6 +204,40 @@ CLASS_REALIZE_FUNC_T(Calculator, void, calculate)(
 				rigA->force.x = 0.0f;
 				rigA->force.y = 0.0f;
 				rigA->torque = 0;
+			}
+		}
+
+		// 지면 충돌 검사
+		if (_terrain)
+		{
+			for (goA = res.stream[res.offset]; goA != goEnd; ++goA)
+			{
+				if (goA == nullptr)
+				{
+					break;
+				}
+
+				float yy;
+				float dy;
+
+				yy = _terrain->compute_Height(
+					goA->position.x,
+					&dy);
+
+				if (yy == 0xfffffff)
+				{
+					break;
+				}
+
+				if (!(yy < goA->position.y))
+				{
+					goA->position.y = yy;
+					if (rigA = goA->get_RigidBody())
+					{
+						// 지면과 충돌했음으로 속도를 감소.
+						rigA->velocity;
+					}
+				}
 			}
 		}
 	}

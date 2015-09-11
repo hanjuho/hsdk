@@ -1,8 +1,10 @@
 #pragma comment (lib, "hsdk_win.lib")
+#pragma comment (lib, "FW1FontWrapper.lib")
 
 
 
 #include <hsdk/win/frame/d3d11frame.h>
+#include <FW1FontWrapper.h>
 
 
 
@@ -78,8 +80,14 @@ private:
 
 };
 
+// grobal function
+void drawText(ID3D11Device *pDevice, ID3D11DeviceContext *pContext);
 
+// grobal variable
+AutoRelease<IFW1Factory> pFW1Factory;
+AutoRelease<IFW1FontWrapper> pFontWrapper;
 
+// main
 int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 {
 	frame::D3D11Frame frame(
@@ -131,6 +139,9 @@ int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 	component_1->set_X(200.0f);
 	component_1->set_Y(200.0f);
 	component_1->update();
+	
+	HRESULT hResult = FW1CreateFactory(FW1_VERSION, &pFW1Factory);
+	hResult = pFW1Factory->CreateFontWrapper(frame::D3D11::DEVICE, L"Arial", &pFontWrapper);
 
 	while (frame.is_Valid())
 	{
@@ -139,7 +150,21 @@ int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 		frame::D3D11::clear_Backbuffer();
 
 		frame.render();
+		//drawText(frame::D3D11::DEVICE, frame::D3D11::CONTEXT);
 
 		frame::D3D11::swap_Backbuffer();
 	}
+}
+
+void drawText(ID3D11Device *pDevice, ID3D11DeviceContext *pContext)
+{
+	pFontWrapper->DrawString(
+		pContext,
+		L"Text",// String
+		128.0f,// Font size
+		100.0f,// X position
+		50.0f,// Y position
+		0xff0099ff,// Text color, 0xAaBbGgRr
+		0// Flags (for example FW1_RESTORESTATE to keep context states unchanged)
+		);
 }

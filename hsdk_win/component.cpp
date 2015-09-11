@@ -14,12 +14,12 @@ unsigned int component_id = 0;
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_CONSTRUCTOR(Component, Component)(void)
-: my_id(component_id++), my_parent(nullptr), my_AbsX(0.0f), my_AbsY(0.0f)
+: my_id(component_id++), my_Parent(nullptr), my_AbsX(0.0f), my_AbsY(0.0f)
 {
-	my_rectangle[0] = 0.0f;
-	my_rectangle[1] = 0.0f;
-	my_rectangle[2] = 0.0f;
-	my_rectangle[3] = 0.0f;
+	my_Rectangle[0] = 0.0f;
+	my_Rectangle[1] = 0.0f;
+	my_Rectangle[2] = 0.0f;
+	my_Rectangle[3] = 0.0f;
 }
 
 //--------------------------------------------------------------------------------------
@@ -32,28 +32,28 @@ CLASS_REALIZE_DESTRUCTOR(Component, Component)(void)
 CLASS_REALIZE_FUNC_T(Component, i_Graphics *, graphics)(
 	/* [none] */ void)
 {
-	return &m_d3d11Graphics;
+	return &m_D3D11Graphics;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, void, set_Mouseable)(
 	/* [in] */ i_Mouseable * _mouseable)
 {
-	m_mouseable = _mouseable;
+	m_Mouseable = _mouseable;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, i_Mouseable *, get_Mouseable)(
 	/* [none] */ void)
 {
-	return m_mouseable;
+	return m_Mouseable;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, i_Component *, parent)(
 	/* [none] */ void)
 {
-	return my_parent;
+	return my_Parent;
 }
 
 //--------------------------------------------------------------------------------------
@@ -96,70 +96,70 @@ CLASS_REALIZE_FUNC_T(Component, unsigned int, get_id)(
 CLASS_REALIZE_FUNC_T(Component, void, set_X)(
 	/* [in] */ float _value)
 {
-	my_rectangle[0] = _value;
+	my_Rectangle[0] = _value;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, void, set_Y)(
 	/* [in] */ float _value)
 {
-	my_rectangle[1] = _value;
+	my_Rectangle[1] = _value;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, void, set_W)(
 	/* [in] */ float _value)
 {
-	my_rectangle[2] = _value;
+	my_Rectangle[2] = _value;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, void, set_H)(
 	/* [in] */ float _value)
 {
-	my_rectangle[3] = _value;
+	my_Rectangle[3] = _value;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, float, get_X)(
 	/* [none] */ void)
 {
-	return my_rectangle[0];
+	return my_Rectangle[0];
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, float, get_Y)(
 	/* [none] */ void)
 {
-	return my_rectangle[1];
+	return my_Rectangle[1];
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, float, get_W)(
 	/* [none] */ void)
 {
-	return my_rectangle[2];
+	return my_Rectangle[2];
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, float, get_H)(
 	/* [none] */ void)
 {
-	return my_rectangle[3];
+	return my_Rectangle[3];
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Component, set_Visible)(
 	/* [in] */ bool _visible)
 {
-	return m_d3d11Graphics.visible = _visible;
+	return m_D3D11Graphics.visible = _visible;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, bool, is_Visible)(
 	/* [none] */ void)
 {
-	return m_d3d11Graphics.visible;
+	return m_D3D11Graphics.visible;
 }
 
 //--------------------------------------------------------------------------------------
@@ -173,46 +173,24 @@ CLASS_REALIZE_FUNC_T(Component, bool, event_chain)(
 CLASS_REALIZE_FUNC_T(Component, void, update)(
 	/* [none] */ void)
 {
-	if (my_parent)
+	if (my_Parent)
 	{
-		D3D11Graphics * pgraphics;
-		pgraphics = (D3D11Graphics *)(my_parent->graphics());
-
-		// 부모의 x, y를 사용하지 않는 이유는 부모의 x, y가 그 부모로부터의 상대적 좌표이기
-		// 때문에 절대 좌표계를 사용하는 D3D11Graphics::form을 호출하는 것
-		if (pgraphics)
-		{
-			// (부모의 x 절대 값) + (부모로부터의 상대적 x 값) = (자신의 x 절대 값)
-			my_AbsX = my_parent->get_AbsX() + my_rectangle[0];
-			m_d3d11Graphics.form[0] = max(my_AbsX, pgraphics->form[0]);
-
-			// (부모의 y) + (부모로부터의 상대적 y) = (자신의 y 절대 값)
-			my_AbsY = my_parent->get_AbsY() + my_rectangle[1];
-			m_d3d11Graphics.form[1] = max(my_AbsY, pgraphics->form[1]);
-
-			// (절대 값 x) + (자신의 w) = (자신의 x2)
-			m_d3d11Graphics.form[2] = min(my_AbsX + my_rectangle[2], pgraphics->form[2]);
-
-			// (절대 값 y) + (자신의 h) = (자신의 y2)
-			m_d3d11Graphics.form[3] = min(my_AbsY + my_rectangle[3], pgraphics->form[3]);
-		}
-	}
-	else
-	{
-		m_d3d11Graphics.form[0] = my_rectangle[0];
-		m_d3d11Graphics.form[1] = my_rectangle[1];
-		m_d3d11Graphics.form[2] = my_rectangle[0] + my_rectangle[2];
-		m_d3d11Graphics.form[3] = my_rectangle[1] + my_rectangle[3];
+		my_AbsX = my_Parent->get_AbsX() + get_X();
+		my_AbsY = my_Parent->get_AbsY() + get_Y();
 	}
 
-	m_d3d11Graphics.update();
+	m_D3D11Graphics.update_Panel({
+		my_AbsX,
+		my_AbsY,
+		my_Rectangle[2],
+		my_Rectangle[3] });
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, void, render)(
 	/* [none] */ void)
 {
-	m_d3d11Graphics.render();
+	m_D3D11Graphics.render_Panel();
 }
 
 //--------------------------------------------------------------------------------------
@@ -227,4 +205,12 @@ CLASS_REALIZE_FUNC_T(Component, float, get_AbsY)(
 	/* [none] */ void)
 {
 	return my_AbsY;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Component, void, render_ClipHierarchy)(
+	/* [in] */ const float(&_clip)[4])
+{
+	D3D11Graphics::set_Clip(_clip);
+	render();
 }

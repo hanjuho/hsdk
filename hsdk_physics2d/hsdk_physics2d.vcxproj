@@ -101,6 +101,7 @@ COPY "$(OutDir)hsdk_physics2d.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\object.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\polygon.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\circle.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\terrain2d.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="calculator.cpp" />
@@ -112,6 +113,7 @@ COPY "$(OutDir)hsdk_physics2d.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClCompile Include="rigidbody.cpp" />
     <ClCompile Include="vector2d.cpp" />
     <ClCompile Include="object.cpp" />
+    <ClCompile Include="terrain2d.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

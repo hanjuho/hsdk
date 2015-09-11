@@ -33,15 +33,18 @@ CLASS_REALIZE_DESTRUCTOR(D3D11Frame, D3D11Frame)(void)
 CLASS_REALIZE_FUNC_T(D3D11Frame, void, update)(
 	/* [none] */ void)
 {
+	float rectangle[4] = {
+		0.0f,
+		0.0f,
+		get_W(),
+		get_H()
+	};
+
 	// 상대적 좌표를 사용해서 연산하는 하위 component에게 맞추기 위해 윈도 실제 좌표와는 다르다.
-	m_d3d11Graphics.form[0] = 0.0f;
-	m_d3d11Graphics.form[1] = 0.0f;
-	m_d3d11Graphics.form[2] = get_W();
-	m_d3d11Graphics.form[3] = get_H();
-	m_d3d11Graphics.update();
+	m_D3D11Graphics.update_Panel(rectangle);
 
 	// 윈도 와이드 재설정
-	D3D11Graphics::set_Wide(m_d3d11Graphics.form);
+	D3D11Graphics::set_Wide(rectangle);
 
 	// 윈도 사각형 재설정
 	SetWindowPos(
@@ -56,8 +59,8 @@ CLASS_REALIZE_FUNC_T(D3D11Frame, void, update)(
 	UpdateWindow(get_Hwnd());
 
 	// 하위 컴포넌트 갱신
-	std::hash_map<unsigned int, i_Component *>::iterator iter = m_Container.begin();
-	std::hash_map<unsigned int, i_Component *>::iterator end = m_Container.end();
+	std::hash_map<unsigned int, Component *>::iterator iter = m_Container.begin();
+	std::hash_map<unsigned int, Component *>::iterator end = m_Container.end();
 	while (iter != end)
 	{
 		iter->second->update();
@@ -69,10 +72,20 @@ CLASS_REALIZE_FUNC_T(D3D11Frame, void, update)(
 CLASS_REALIZE_FUNC_T(D3D11Frame, void, render)(
 	/* [none] */ void)
 {
+	//
 	D3D11Graphics::shader_on();
 
-	Container::render();
+	float rectangle[4] = {
+		0.0f,
+		0.0f,
+		get_W(),
+		get_H()
+	};
 
+	//
+	Container::render_ClipHierarchy(rectangle);
+
+	//
 	D3D11Graphics::shader_off();
 }
 

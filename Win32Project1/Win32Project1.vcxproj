@@ -41,8 +41,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(DXSDK_DIR)include;$(HSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(DXSDK_DIR)lib\x86;$(HSDK_DIR)lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Administrator\Desktop\sdks\FW1FontWrapper_1_1\include;$(DXSDK_DIR)include;$(HSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Administrator\Desktop\sdks\FW1FontWrapper_1_1\lib\x86;$(DXSDK_DIR)lib\x86;$(HSDK_DIR)lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
