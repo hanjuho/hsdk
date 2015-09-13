@@ -27,6 +27,8 @@ XMMATRIX D3D11::WORLD;
 std::hash_map<D3D11::SAMPLER, AutoRelease<ID3D11SamplerState>> D3D11::SAMPLER_CONTAINER;
 std::hash_map<std::wstring, AutoRelease<ID3D11ShaderResourceView>> D3D11::TEXTURE_CONTAINER;
 AutoRelease<ID3D11Buffer> D3D11::PANEL_IN_BUFFER;
+AutoRelease<ID3D11DepthStencilState> D3D11::DEPTH_ON;
+AutoRelease<ID3D11DepthStencilState> D3D11::DEPTH_OFF;
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_CONSTRUCTOR(D3D11, D3D11)(
@@ -217,6 +219,74 @@ CLASS_REALIZE_FUNC(D3D11, initialize)(
 		{
 			return hr;
 		}
+
+		// depth state
+		D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
+
+		// Clear the second depth stencil state before setting the parameters.
+		ZeroMemory(&depthStencilDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
+
+		// Set up the description of the stencil state.
+		depthStencilDesc.DepthEnable = true;
+		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+		depthStencilDesc.StencilEnable = true;
+		depthStencilDesc.StencilReadMask = 0xFF;
+		depthStencilDesc.StencilWriteMask = 0xFF;
+
+		// Stencil operations if pixel is front-facing.
+		depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+		depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+		// Stencil operations if pixel is back-facing.
+		depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+		depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+		// Create the state using the device.
+		IF_FAILED(hr = D3D11::DEVICE->CreateDepthStencilState(
+			&depthStencilDesc,
+			&DEPTH_ON))
+		{
+			return hr;
+		}
+
+		// Clear the second depth stencil state before setting the parameters.
+		ZeroMemory(&depthStencilDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
+
+		// Now create a second depth stencil state which turns off the Z buffer for 2D rendering.  The only difference is 
+		// that DepthEnable is set to false, all other parameters are the same as the other depth stencil state.
+		depthStencilDesc.DepthEnable = false;
+		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+		depthStencilDesc.StencilEnable = true;
+		depthStencilDesc.StencilReadMask = 0xFF;
+		depthStencilDesc.StencilWriteMask = 0xFF;
+
+		// Stencil operations if pixel is front-facing.
+		depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+		depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;								
+		depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+		// Stencil operations if pixel is back-facing.
+		depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+		depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+		// Now create the new depth stencil.
+		// Create the state using the device.
+		IF_FAILED(hr = D3D11::DEVICE->CreateDepthStencilState(
+			&depthStencilDesc,
+			&DEPTH_OFF))
+		{
+			return hr;
+		}
 	}
 
 	return S_OK;
@@ -230,6 +300,8 @@ CLASS_REALIZE_FUNC_T(D3D11, void, destroy)(
 	SAMPLER_CONTAINER.clear();
 
 	PANEL_IN_BUFFER.~AutoRelease();
+	DEPTH_ON.~AutoRelease();
+	DEPTH_OFF.~AutoRelease();
 
 	DSVIEW.~AutoRelease();
 	RTVIEW.~AutoRelease();
@@ -255,6 +327,22 @@ CLASS_REALIZE_FUNC_T(D3D11, void, swap_Backbuffer)(
 {
 	// 버퍼 스왑
 	CHAIN->Present(0, 0);
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(D3D11, void, set_DepthOn)(
+	/* [none] */ void)
+{
+	// Set the depth stencil state.
+	CONTEXT->OMSetDepthStencilState(DEPTH_ON, 1);
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(D3D11, void, set_DepthOff)(
+	/* [none] */ void)
+{
+	// Set the depth stencil state.
+	CONTEXT->OMSetDepthStencilState(DEPTH_OFF, 1);
 }
 
 //--------------------------------------------------------------------------------------

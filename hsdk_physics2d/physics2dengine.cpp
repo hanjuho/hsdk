@@ -1,4 +1,4 @@
-#include <physics2d/calculator.h>
+#include <physics2d/physics2dengine.h>
 #include <physics2d/collision.h>
 #include <Windows.h>
 
@@ -9,10 +9,10 @@ using namespace physics2d;
 
 
 //--------------------------------------------------------------------------------------
-std::hash_map<unsigned int, Calculator::Resource> Calculator::RESOURCES;
+std::hash_map<unsigned int, Physics2DEngine::Resource> Physics2DEngine::RESOURCES;
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Calculator, void, set_Resource)(
+CLASS_REALIZE_FUNC_T(Physics2DEngine, void, set_Resource)(
 	/* [in/ref] */ Object ** _stream,
 	/* [in] */ unsigned int _offset,
 	/* [in] */ unsigned int _size)
@@ -24,7 +24,7 @@ CLASS_REALIZE_FUNC_T(Calculator, void, set_Resource)(
 }
 
 //-------------------------------------------------------------------------------------- 
-CLASS_REALIZE_FUNC_T(Calculator, void, calculate)(
+CLASS_REALIZE_FUNC_T(Physics2DEngine, void, compute)(
 	/* [out] */ RESULT_BOUNDARY & _rb,
 	/* [out] */ RESULT_CONTACT & _rc,
 	/* [in] */ const Terrain2D * _terrain,

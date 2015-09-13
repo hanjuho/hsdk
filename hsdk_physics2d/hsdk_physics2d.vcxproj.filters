@@ -42,9 +42,6 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\collision.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\calculator.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\common.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -54,15 +51,15 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\terrain2d.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\physics2dengine.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="circle.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="polygon.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="calculator.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="collision.cpp">
@@ -84,6 +81,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="terrain2d.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="physics2dengine.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

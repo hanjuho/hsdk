@@ -75,15 +75,8 @@ CLASS_REALIZE_FUNC_T(D3D11Frame, void, render)(
 	//
 	D3D11Graphics::shader_on();
 
-	float rectangle[4] = {
-		0.0f,
-		0.0f,
-		get_W(),
-		get_H()
-	};
-
 	//
-	Container::render_ClipHierarchy(rectangle);
+	Container::render();
 
 	//
 	D3D11Graphics::shader_off();

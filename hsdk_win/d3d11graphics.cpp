@@ -18,6 +18,7 @@ struct InputLayoutFormat
 
 
 //--------------------------------------------------------------------------------------
+AutoRelease<ID3D11RasterizerState> D3D11Graphics::RASTERIZER_STATE;
 AutoRelease<ID3D11VertexShader> D3D11Graphics::VERTEX_SHADER;
 AutoRelease<ID3D11PixelShader> D3D11Graphics::PIXEL_SHADER;
 AutoRelease<ID3D11InputLayout> D3D11Graphics::INPUT_LAYOUT;
@@ -30,6 +31,29 @@ CLASS_REALIZE_FUNC(D3D11Graphics, initialize)(
 {
 	HRESULT hr;
 
+	// rasterizer state
+	D3D11_RASTERIZER_DESC rasterDesc;
+
+	// Setup the raster description which will determine how and what polygons will be drawn.
+	rasterDesc.AntialiasedLineEnable = false;
+	rasterDesc.CullMode = D3D11_CULL_BACK;
+	rasterDesc.DepthBias = 0;
+	rasterDesc.DepthBiasClamp = 0.0f;
+	rasterDesc.DepthClipEnable = true;
+	rasterDesc.FillMode = D3D11_FILL_SOLID;
+	rasterDesc.FrontCounterClockwise = false;
+	rasterDesc.MultisampleEnable = false;
+	rasterDesc.ScissorEnable = false;
+	rasterDesc.SlopeScaledDepthBias = 0.0f;
+
+	// Create the rasterizer state from the description we just filled out.
+	IF_FAILED(hr = D3D11::DEVICE->CreateRasterizerState(
+		&rasterDesc,
+		&RASTERIZER_STATE))
+	{
+		return hr;
+	}
+		
 	// vs shader
 	IF_FAILED(hr = D3D11::create_VertexShaderForHeader(
 		*(&VERTEX_SHADER),
@@ -95,9 +119,13 @@ CLASS_REALIZE_FUNC(D3D11Graphics, initialize)(
 CLASS_REALIZE_FUNC_T(D3D11Graphics, void, destroy)(
 	/* [none] */ void)
 {
+	RASTERIZER_STATE.~AutoRelease();
+
 	VS_WIDE_CBUFFER.~AutoRelease();
 	VS_CLIP_CBUFFER.~AutoRelease();
+
 	INPUT_LAYOUT.~AutoRelease();
+
 	VERTEX_SHADER.~AutoRelease();
 	PIXEL_SHADER.~AutoRelease();
 }
@@ -106,6 +134,9 @@ CLASS_REALIZE_FUNC_T(D3D11Graphics, void, destroy)(
 CLASS_REALIZE_FUNC_T(D3D11Graphics, void, shader_on)(
 	/* [none] */ void)
 {
+	D3D11::set_DepthOff();
+	D3D11::CONTEXT->RSSetState(RASTERIZER_STATE);
+
 	D3D11::CONTEXT->VSSetShader(VERTEX_SHADER, nullptr, 0);
 	D3D11::CONTEXT->IASetInputLayout(INPUT_LAYOUT);
 	D3D11::CONTEXT->VSSetConstantBuffers(0, 1, &VS_WIDE_CBUFFER);
@@ -120,6 +151,8 @@ CLASS_REALIZE_FUNC_T(D3D11Graphics, void, shader_on)(
 CLASS_REALIZE_FUNC_T(D3D11Graphics, void, shader_off)(
 	/* [none] */ void)
 {
+	D3D11::set_DepthOn();
+	D3D11::CONTEXT->RSSetState(NULL);
 	D3D11::CONTEXT->VSSetShader(nullptr, nullptr, 0);
 	D3D11::CONTEXT->IASetInputLayout(nullptr);
 	D3D11::CONTEXT->PSSetShader(nullptr, nullptr, 0);

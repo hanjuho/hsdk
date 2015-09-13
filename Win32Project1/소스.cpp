@@ -43,7 +43,7 @@ public:
 		/* [in] */ int _x,
 		/* [in] */ int _y)
 	{
-
+		
 	}
 
 	// 설명 : mouse의 버튼을 누른 채 커서를 이동하면 발생하는 event
@@ -150,7 +150,6 @@ int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 		frame::D3D11::clear_Backbuffer();
 
 		frame.render();
-		//drawText(frame::D3D11::DEVICE, frame::D3D11::CONTEXT);
 
 		frame::D3D11::swap_Backbuffer();
 	}
@@ -158,13 +157,19 @@ int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 
 void drawText(ID3D11Device *pDevice, ID3D11DeviceContext *pContext)
 {
+	FW1_RECTF rect;
+
+	rect.Left = rect.Right = 32.0f;
+	rect.Top = rect.Bottom = 32.0f;
+
 	pFontWrapper->DrawString(
 		pContext,
-		L"Text",// String
-		128.0f,// Font size
-		100.0f,// X position
-		50.0f,// Y position
-		0xff0099ff,// Text color, 0xAaBbGgRr
-		0// Flags (for example FW1_RESTORESTATE to keep context states unchanged)
-		);
+		L"Text",
+		NULL,
+		32.0f,
+		&rect,
+		0xff0099ff,
+		NULL,
+		NULL,
+		FW1_NOWORDWRAP);
 }

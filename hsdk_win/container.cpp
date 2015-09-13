@@ -149,6 +149,8 @@ CLASS_REALIZE_FUNC_T(Container, void, update)(
 CLASS_REALIZE_FUNC_T(Container, void, render)(
 	/* [none] */ void)
 {
+	m_D3D11Graphics.render_Panel();
+
 	if (is_Visible())
 	{
 		std::hash_map<unsigned int, Component *>::iterator iter = m_Container.begin();
@@ -159,8 +161,6 @@ CLASS_REALIZE_FUNC_T(Container, void, render)(
 			iter++;
 		}
 	}
-
-	m_D3D11Graphics.render_Panel();
 }
 
 //--------------------------------------------------------------------------------------
@@ -168,27 +168,4 @@ CLASS_REALIZE_FUNC(Container, set_Layout)(
 	/* [none] */ void)
 {
 	return E_ACCESSDENIED;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Container, void, render_ClipHierarchy)(
-	/* [in] */ const float(&_clip)[4])
-{
-	if (is_Visible())
-	{
-		float clip[4] = {
-
-		};
-
-		std::hash_map<unsigned int, Component *>::iterator iter = m_Container.begin();
-		std::hash_map<unsigned int, Component *>::iterator end = m_Container.end();
-		while (iter != end)
-		{
-			iter->second->render_ClipHierarchy(clip);
-			iter++;
-		}
-	}
-
-	D3D11Graphics::set_Clip(_clip);
-	m_D3D11Graphics.render_Panel();
 }

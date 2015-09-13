@@ -206,11 +206,3 @@ CLASS_REALIZE_FUNC_T(Component, float, get_AbsY)(
 {
 	return my_AbsY;
 }
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Component, void, render_ClipHierarchy)(
-	/* [in] */ const float(&_clip)[4])
-{
-	D3D11Graphics::set_Clip(_clip);
-	render();
-}
