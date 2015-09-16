@@ -1,5 +1,5 @@
-#include <physics2d/manifold.h>
-#include <physics2d/rigidbody.h>
+#include <physics2d/manifold2d.h>
+#include <physics2d/rigidbody2d.h>
 
 
 
@@ -10,38 +10,47 @@ using namespace manifold;
 
 //--------------------------------------------------------------------------------------
 DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::initialize)(
-	/* [out] */ Manifold & _m,
-	/* [in] */ const RigidBody * _aBody,
-	/* [in] */ const RigidBody * _bBody)
+	/* [out] */ Manifold2D & _m,
+	/* [in] */ const i::i_RigidBody2D * _abody,
+	/* [in] */ const i::i_RigidBody2D * _bbody)
 {
 	// Calculate average restitution
-	_m.e = std::min(_aBody->restitution, _bBody->restitution);
+	_m.e = std::min(_abody->restitution(), _bbody->restitution());
 
 	// Calculate static and dynamic friction
-	_m.sf = std::sqrt(_aBody->staticFriction * _bBody->staticFriction);
-	_m.df = std::sqrt(_aBody->dynamicFriction * _bBody->dynamicFriction);
+	_m.sf = std::sqrt(_abody->s_Friction() * _bbody->s_Friction());
+	_m.df = std::sqrt(_abody->d_Friction() * _bbody->d_Friction());
 }
 
 //--------------------------------------------------------------------------------------
 DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::impulse_Apply)(
-	/* [out] */ Manifold & _m,
-	/* [in/out] */ RigidBody * _aBody,
-	/* [in/out] */ RigidBody * _bBody,
-	/* [in] */ const Vector2D & _aPos,
-	/* [in] */ const Vector2D & _bPos,
+	/* [out] */ Manifold2D & _m,
+	/* [in] */ i::i_RigidBody2D * _abody,
+	/* [in] */ i::i_RigidBody2D * _bbody,
+	/* [in] */ i::i_Physics2DObject * _aobj,
+	/* [in] */ i::i_Physics2DObject * _bobj,
 	/* [in] */ float _glength)
 {
-	// Early out and positional correct if both objects have infinite mass
-	if (abs(_aBody->im + _bBody->im) <= EPSILON)
-	{
-		_aBody->velocity.x = 0.0f;
-		_aBody->velocity.y = 0.0f;
+	float amass = _abody->mass();
+	float bmass = _bbody->mass();
 
-		_bBody->velocity.x = 0.0f;
-		_bBody->velocity.y = 0.0f;
+	// Early out and positional correct if both objects have infinite mass
+	if (abs(amass + bmass) <= EPSILON)
+	{
+		_abody->set_Velocity(0.0f, 0.0f);
+		_bbody->set_Velocity(0.0f, 0.0f);
 
 		return;
 	}
+
+	float ainertia = _abody->inertia();
+	float binertia = _bbody->inertia();
+
+	Vector2D avelocity = _abody->get_Velocity();
+	Vector2D bvelocity = _bbody->get_Velocity();
+
+	float aavelocity = _abody->get_AngularVelocity();
+	float bavelocity = _bbody->get_AngularVelocity();
 
 	Vector2D ra[2];
 	Vector2D rb[2];
@@ -49,12 +58,12 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::impulse_Apply)(
 	for (unsigned int i = _m.contact_count - 1; i != -1; --i)
 	{
 		// Calculate radii from COM to contact
-		ra[i] = _m.contacts[i] - _aPos;
-		rb[i] = _m.contacts[i] - _bPos;
+		ra[i] = _m.contacts[i] - _aobj->postion();
+		rb[i] = _m.contacts[i] - _bobj->postion();
 
 		// Relative velocity
-		rv[i] = _bBody->velocity + vector2d::cross(_bBody->angularVelocity, rb[i]) -
-			_aBody->velocity - vector2d::cross(_aBody->angularVelocity, ra[i]);
+		rv[i] = bvelocity + vector2d::cross(aavelocity, rb[i]) -
+			avelocity - vector2d::cross(bavelocity, ra[i]);
 
 		// Determine if we should perform _aBody resting collision or not
 		// The idea is if the only thing moving this object is gravity,
@@ -82,9 +91,9 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::impulse_Apply)(
 		float raCrossN = vector2d::cross(ra[i], nor);
 		float rbCrossN = vector2d::cross(rb[i], nor);
 		float invMassSum =
-			_aBody->im + _bBody->im +
-			(raCrossN * raCrossN * _aBody->iI) +
-			(rbCrossN * rbCrossN * _bBody->iI);
+			amass + bmass +
+			(raCrossN * raCrossN * ainertia) +
+			(rbCrossN * rbCrossN * binertia);
 
 		// Calculate impulse scalar
 		float j = -(1.0f + e) * contactVel;
@@ -94,12 +103,12 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::impulse_Apply)(
 
 		// Apply impulse
 		Vector2D impulse = nor * j;
-		_aBody->apply_impulse(-impulse, ra[i]);
-		_bBody->apply_impulse(impulse, rb[i]);
+		_aobj->apply_impulse(-impulse, ra[i]);
+		_bobj->apply_impulse(impulse, rb[i]);
 
 		// Friction impulse
-		rv[i] = _bBody->velocity + vector2d::cross(_bBody->angularVelocity, rb[i]) -
-			_aBody->velocity - vector2d::cross(_aBody->angularVelocity, ra[i]);
+		rv[i] = bvelocity + vector2d::cross(bvelocity, rb[i]) -
+			avelocity - vector2d::cross(avelocity, ra[i]);
 
 		Vector2D t = rv[i] - (nor * vector2d::dot(rv[i], nor));
 		vector2d::normalize(t, t);
@@ -127,25 +136,29 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::impulse_Apply)(
 		}
 
 		// Apply friction impulse
-		_aBody->apply_impulse(-tangentImpulse, ra[i]);
-		_bBody->apply_impulse(tangentImpulse, rb[i]);
+		_aobj->apply_impulse(-tangentImpulse, ra[i]);
+		_bobj->apply_impulse(tangentImpulse, rb[i]);
 	}
 }
 
 //--------------------------------------------------------------------------------------
 DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::positional_Correction)(
-	/* [out] */ Vector2D & _aPos,
-	/* [out] */ Vector2D & _bPos,
-	/* [in] */ const Manifold & _m,
-	/* [in] */ const RigidBody * _aBody,
-	/* [in] */ const RigidBody * _bBody,
+	/* [in] */ i::i_Physics2DObject * _aobj,
+	/* [in] */ i::i_Physics2DObject * _bobj,
+	/* [in] */ const Manifold2D & _m,
+	/* [in] */ const i::i_RigidBody2D * _abody,
+	/* [in] */ const i::i_RigidBody2D * _bbody,
 	/* [in] */ float _glength)
 {
 	const float k_slop = 0.05f; // Penetration allowance
 	const float percent = 0.4f; // Penetration percentage to correct
 
-	float alpha = std::max(_m.penetration - k_slop, 0.0f) / (_aBody->im + _bBody->im);
+	float amass = _abody->mass();
+	float bmass = _bbody->mass();
+
+	float alpha = std::max(_m.penetration - k_slop, 0.0f) / (amass + bmass);
 	Vector2D correction = _m.normal * percent * alpha;
-	_aPos -= correction * _aBody->im;
-	_bPos += correction * _bBody->im;
+
+	_aobj->positional_Correction(-correction * amass);
+	_bobj->positional_Correction(correction * bmass);
 }

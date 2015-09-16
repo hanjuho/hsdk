@@ -23,7 +23,7 @@ CLASS_REALIZE_CONSTRUCTOR(Terrain2D, Terrain2D)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(Terrain2D, apply_Raw_File)(
+CLASS_REALIZE_FUNC(Terrain2D, initialize)(
 	/* [in] */ const wchar_t * _fileName,
 	/* [in] */ float _intensity)
 {
@@ -31,10 +31,14 @@ CLASS_REALIZE_FUNC(Terrain2D, apply_Raw_File)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Terrain2D, void, apply_Raw_User)(
-	/* [in] */ std::vector<float> & _map)
+CLASS_REALIZE_FUNC_T(Terrain2D, void, initialize)(
+	/* [in] */ const float * _map,
+	/* [in] */ unsigned int _offset,
+	/* [in] */ unsigned int _size)
 {
-	unsigned int max = std::min(_map.size(), my_HeightMap.size());
+	unsigned int max = my_HeightMap.size();
+	max = _size < max ? _size : max;
+
 	for (unsigned int index = 0; index < max; ++index)
 	{
 		my_HeightMap[index] = _map[index];
@@ -42,10 +46,11 @@ CLASS_REALIZE_FUNC_T(Terrain2D, void, apply_Raw_User)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Terrain2D, unsigned int, index_Cell)(
-	/* [in] */ float _x)const
+CLASS_REALIZE_FUNC_T(Terrain2D, void, set_Height)(
+	/* [in] */ unsigned int _index,
+	/* [in] */ float _height)
 {
-	return (unsigned int)(::floorf((_x - posX) / cellSpace));
+	my_HeightMap[_index] = _height;
 }
 
 //--------------------------------------------------------------------------------------
@@ -63,7 +68,14 @@ CLASS_REALIZE_FUNC_T(Terrain2D, float, get_Height)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Terrain2D, float, compute_Height)(
+CLASS_REALIZE_FUNC_T(Terrain2D, unsigned int, indexOfCell)(
+	/* [in] */ float _x)const
+{
+	return (unsigned int)(::floorf((_x - posX) / cellSpace));
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Terrain2D, float, height)(
 	/* [in] */ float _x,
 	/* [in] */ float * _dy)const
 {
@@ -84,12 +96,4 @@ CLASS_REALIZE_FUNC_T(Terrain2D, float, compute_Height)(
 	}
 
 	return minY < h ? h : 0xffffffff;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Terrain2D, void, set_Height)(
-	/* [in] */ unsigned int _index,
-	/* [in] */ float _height)
-{
-	my_HeightMap[_index] = _height;
 }
