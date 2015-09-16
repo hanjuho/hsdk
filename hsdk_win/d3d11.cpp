@@ -21,12 +21,20 @@ AutoRelease<ID3D11RenderTargetView> D3D11::RTVIEW;
 AutoRelease<ID3D11DepthStencilView> D3D11::DSVIEW;
 D3D_DRIVER_TYPE D3D11::DRIVERTYPE;
 D3D_FEATURE_LEVEL D3D11::FEATURELEVEL;
+
 XMMATRIX D3D11::PROJ;
 XMMATRIX D3D11::VIEW;
 XMMATRIX D3D11::WORLD;
+
+AutoRelease<IDWriteFactory> D3D11::FONTFACTORY;
+AutoRelease<ID2D1Factory> D3D11::DEVICE2D;
+AutoRelease<ID2D1RenderTarget> D3D11::CONTEXT2D;
+
 std::hash_map<D3D11::SAMPLER, AutoRelease<ID3D11SamplerState>> D3D11::SAMPLER_CONTAINER;
 std::hash_map<std::wstring, AutoRelease<ID3D11ShaderResourceView>> D3D11::TEXTURE_CONTAINER;
+
 AutoRelease<ID3D11Buffer> D3D11::PANEL_IN_BUFFER;
+
 AutoRelease<ID3D11DepthStencilState> D3D11::DEPTH_ON;
 AutoRelease<ID3D11DepthStencilState> D3D11::DEPTH_OFF;
 
@@ -40,19 +48,20 @@ CLASS_REALIZE_CONSTRUCTOR(D3D11, D3D11)(
 	/* [in] */ unsigned int _w,
 	/* [in] */ unsigned int _h)
 {
-	if (FAILED(i_Hwnd::initialize(_hInstance, _title, _x, _y, _w, _h)))
+	HRESULT hr;
+	if (FAILED(hr = i_Hwnd::initialize(_hInstance, _title, _x, _y, _w, _h)))
 	{
-		throw HSDK_FAIL;
+		throw hr;
 	}
 
-	if (FAILED(D3D11::initialize(get_Hwnd(), _mode)))
+	if (FAILED(hr = D3D11::initialize(get_Hwnd(), _mode)))
 	{
-		throw HSDK_FAIL;
+		throw hr;
 	}
 
-	if (FAILED(D3D11Graphics::initialize()))
+	if (FAILED(hr = D3D11Graphics::initialize()))
 	{
-		throw HSDK_FAIL;
+		throw hr;
 	}
 }
 
@@ -248,7 +257,7 @@ CLASS_REALIZE_FUNC(D3D11, initialize)(
 		depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
 		// Create the state using the device.
-		IF_FAILED(hr = D3D11::DEVICE->CreateDepthStencilState(
+		IF_FAILED(hr = DEVICE->CreateDepthStencilState(
 			&depthStencilDesc,
 			&DEPTH_ON))
 		{
@@ -270,7 +279,7 @@ CLASS_REALIZE_FUNC(D3D11, initialize)(
 		// Stencil operations if pixel is front-facing.
 		depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
 		depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-		depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;								
+		depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 		depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
 		// Stencil operations if pixel is back-facing.
@@ -281,12 +290,44 @@ CLASS_REALIZE_FUNC(D3D11, initialize)(
 
 		// Now create the new depth stencil.
 		// Create the state using the device.
-		IF_FAILED(hr = D3D11::DEVICE->CreateDepthStencilState(
+		IF_FAILED(hr = DEVICE->CreateDepthStencilState(
 			&depthStencilDesc,
 			&DEPTH_OFF))
 		{
 			return hr;
 		}
+	}
+
+	IF_FAILED(hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &DEVICE2D))
+	{
+		return hr;
+	}
+
+	IF_FAILED(hr = DWriteCreateFactory(
+		DWRITE_FACTORY_TYPE_SHARED,
+		__uuidof(IDWriteFactory),
+		(IUnknown**)&FONTFACTORY))
+	{
+		return hr;
+	}
+
+	AutoRelease<IDXGISurface1> surface;
+	IF_FAILED(hr = pBackBuffer->QueryInterface(__uuidof(IDXGISurface1), (void**)&surface))
+	{
+		return hr;
+	}
+
+	D2D1_RENDER_TARGET_PROPERTIES props = D2D1::RenderTargetProperties(
+		D2D1_RENDER_TARGET_TYPE_DEFAULT,
+		{ DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED },
+		96, 96);
+
+	IF_FAILED(hr = DEVICE2D->CreateDxgiSurfaceRenderTarget(
+		surface,
+		&props,
+		&CONTEXT2D))
+	{
+
 	}
 
 	return S_OK;
@@ -303,9 +344,17 @@ CLASS_REALIZE_FUNC_T(D3D11, void, destroy)(
 	DEPTH_ON.~AutoRelease();
 	DEPTH_OFF.~AutoRelease();
 
+	FONTFACTORY.~AutoRelease();
+	CONTEXT2D.~AutoRelease();
+	DEVICE2D.~AutoRelease();
+
 	DSVIEW.~AutoRelease();
 	RTVIEW.~AutoRelease();
 	CHAIN.~AutoRelease();
+	if (CONTEXT)
+	{
+		CONTEXT->ClearState();
+	}
 	CONTEXT.~AutoRelease();
 	DEVICE.~AutoRelease();
 }
@@ -530,11 +579,11 @@ CLASS_REALIZE_FUNC(D3D11, create_ContantBuffers)(
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(D3D11, create_inputLayoutForHeader)(
 	/* [out] */ ID3D11InputLayout * (&_layout),
-	/* [in] */	const char * _shadername,
-	/* [in] */	unsigned int _shadersize,
-	/* [in] */	D3D11inputEachFormat * _formats,
-	/* [in] */	unsigned int _formatsize,
-	/* [in] */	D3D11_INPUT_CLASSIFICATION _InputSlotClass)
+	/* [in] */ const char * _shadername,
+	/* [in] */ unsigned int _shadersize,
+	/* [in] */ const D3D11inputEachFormat * _formats,
+	/* [in] */ unsigned int _formatsize,
+	/* [in] */ D3D11_INPUT_CLASSIFICATION _InputSlotClass)
 {
 	// ÀÎÇ² °´Ã¼ ½Ã¸àÆ½½º ÆÄ¶ó¹ÌÅÍ »ý¼º
 	std::vector<D3D11_INPUT_ELEMENT_DESC> inputDescs(_formatsize);
@@ -561,8 +610,8 @@ CLASS_REALIZE_FUNC(D3D11, create_inputLayoutForHeader)(
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(D3D11, create_VertexShaderForHeader)(
 	/* [out] */ ID3D11VertexShader * (&_shader),
-	/* [in] */	const char * _name,
-	/* [in] */	unsigned int _size)
+	/* [in] */ const char * _name,
+	/* [in] */ unsigned int _size)
 {
 	return DEVICE->CreateVertexShader(
 		_name,
@@ -574,12 +623,45 @@ CLASS_REALIZE_FUNC(D3D11, create_VertexShaderForHeader)(
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(D3D11, create_PixelShaderForHeader)(
 	/* [out] */ ID3D11PixelShader * (&_shader),
-	/* [in] */	const char * _name,
-	/* [in] */	unsigned int _size)
+	/* [in] */ const char * _name,
+	/* [in] */ unsigned int _size)
 {
 	return DEVICE->CreatePixelShader(
 		_name,
 		_size,
 		NULL,
 		&_shader);
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC(D3D11, create2D_Font)(
+	/* [out] */ IDWriteTextFormat * (&_font),
+	/* [in] */ const wchar_t * _fontname,
+	/* [in] */ unsigned int _size)
+{
+	// Create a DirectWrite text format object.
+	return FONTFACTORY->CreateTextFormat(
+		_fontname,
+		NULL,
+		DWRITE_FONT_WEIGHT_NORMAL,
+		DWRITE_FONT_STYLE_NORMAL,
+		DWRITE_FONT_STRETCH_NORMAL,
+		(float)(_size),
+		TEXT(""), //locale
+		&_font);
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(D3D11, void, render2D_Font)(
+	/* [in] */ const wchar_t * _text,
+	/* [in] */ unsigned int _size,
+	/* [in] */ const D2D1_RECT_F & _rect,
+	/* [in] */ IDWriteTextFormat * _font)
+{
+	CONTEXT2D->DrawTextW(
+		_text,
+		_size,
+		_font,
+		_rect,
+		NULL);
 }

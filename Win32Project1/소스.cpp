@@ -81,7 +81,11 @@ private:
 };
 
 // grobal function
-void drawText(ID3D11Device *pDevice, ID3D11DeviceContext *pContext);
+void drawText(
+	ID3D11DeviceContext * _pContext,
+	const wchar_t * _text,
+	float _x,
+	float _y);
 
 // grobal variable
 AutoRelease<IFW1Factory> pFW1Factory;
@@ -90,16 +94,32 @@ AutoRelease<IFW1FontWrapper> pFontWrapper;
 // main
 int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 {
-	frame::D3D11Frame frame(
-		_hInstance,
-		TEXT("D3D11Frame"),
-		0,
-		0,
-		800,
-		600);
+	AutoDelete<frame::D3D11Frame> frame;
+	try
+	{
+		frame = new frame::D3D11Frame(
+			_hInstance,
+			TEXT("D3D11Frame"),
+			0,
+			0,
+			800,
+			600);
+	}
+	catch (long hr)
+	{
+		wchar_t buffer[32];
+		_itow_s(hr, &buffer[2], 30, 16);
+		
+		buffer[0] = '0';
+		buffer[1] = 'x';
+
+		MessageBox(NULL, buffer, TEXT("Error"), MB_OK);
+
+		return 0;
+	}
 
 	i::frame::i_Graphics * g;
-	g = frame.graphics();
+	g = frame->graphics();
 	if (g)
 	{
 		g->set_image(TEXT("4764905167076218937.png"));
@@ -133,8 +153,8 @@ int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 	}
 
 	component_1->add_Component(component_2);
-	frame.add_Component(component_1);
-	frame.update();
+	frame->add_Component(component_1);
+	frame->update();
 
 	component_1->set_X(200.0f);
 	component_1->set_Y(200.0f);
@@ -143,28 +163,52 @@ int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 	HRESULT hResult = FW1CreateFactory(FW1_VERSION, &pFW1Factory);
 	hResult = pFW1Factory->CreateFontWrapper(frame::D3D11::DEVICE, L"Arial", &pFontWrapper);
 
-	while (frame.is_Valid())
+	while (frame->is_Valid())
 	{
-		frame.get_Message();
+		frame->get_Message();
 
 		frame::D3D11::clear_Backbuffer();
 
-		frame.render();
+		drawText(
+			frame::D3D11::CONTEXT,
+			TEXT("name"),
+			10.0f, 
+			10.0f);
+
+		drawText(
+			frame::D3D11::CONTEXT,
+			TEXT(" : "),
+			10.0f + 32.0f * 4 + 1.0f,
+			10.0f);
+
+		drawText(
+			frame::D3D11::CONTEXT,
+			TEXT("hanjuho"),
+			10.0f + 32.0f * 7 + 1.0f,
+			10.0f);
+		
+		frame->render();
 
 		frame::D3D11::swap_Backbuffer();
 	}
+
+	return 0;
 }
 
-void drawText(ID3D11Device *pDevice, ID3D11DeviceContext *pContext)
+void drawText(
+	ID3D11DeviceContext * _pContext,
+	const wchar_t * _text,
+	float _x,
+	float _y)
 {
 	FW1_RECTF rect;
 
-	rect.Left = rect.Right = 32.0f;
-	rect.Top = rect.Bottom = 32.0f;
+	rect.Left = rect.Right = _x;
+	rect.Top = rect.Bottom = _y;
 
 	pFontWrapper->DrawString(
-		pContext,
-		L"Text",
+		_pContext,
+		_text,
 		NULL,
 		32.0f,
 		&rect,

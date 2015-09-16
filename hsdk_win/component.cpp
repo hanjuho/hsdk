@@ -14,7 +14,7 @@ unsigned int component_id = 0;
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_CONSTRUCTOR(Component, Component)(void)
-: my_id(component_id++), my_Parent(nullptr), my_AbsX(0.0f), my_AbsY(0.0f)
+: my_id(component_id++), my_Parent(nullptr), my_AbsX(0.0f), my_AbsY(0.0f), my_Visible(true)
 {
 	my_Rectangle[0] = 0.0f;
 	my_Rectangle[1] = 0.0f;
@@ -29,10 +29,17 @@ CLASS_REALIZE_DESTRUCTOR(Component, Component)(void)
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Component, i_Graphics *, graphics)(
-	/* [none] */ void)
+CLASS_REALIZE_FUNC_T(Component, i_Component *, parent)(
+	/* [none] */ void)const
 {
-	return &m_D3D11Graphics;
+	return my_Parent;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Component, i_Graphics *, graphics)(
+	/* [none] */ void)const
+{
+	return (i_Graphics *)&m_D3D11Graphics;
 }
 
 //--------------------------------------------------------------------------------------
@@ -44,16 +51,9 @@ CLASS_REALIZE_FUNC_T(Component, void, set_Mouseable)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, i_Mouseable *, get_Mouseable)(
-	/* [none] */ void)
+	/* [none] */ void)const
 {
 	return m_Mouseable;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Component, i_Component *, parent)(
-	/* [none] */ void)
-{
-	return my_Parent;
 }
 
 //--------------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ CLASS_REALIZE_FUNC(Component, remove_Component)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, bool, contain_Component)(
-	/* [in] */ i_Component * _component)
+	/* [in] */ i_Component * _component)const
 {
 	return false;
 }
@@ -80,14 +80,14 @@ CLASS_REALIZE_FUNC_T(Component, bool, contain_Component)(
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Component, get_Component)(
 	/* [out] */ i_Component * (&_component),
-	/* [in] */ unsigned int _id)
+	/* [in] */ unsigned int _id)const
 {
 	return 0x8000000;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, unsigned int, get_id)(
-	/* [none] */ void)
+	/* [none] */ void)const
 {
 	return my_id;
 }
@@ -122,28 +122,28 @@ CLASS_REALIZE_FUNC_T(Component, void, set_H)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, float, get_X)(
-	/* [none] */ void)
+	/* [none] */ void)const
 {
 	return my_Rectangle[0];
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, float, get_Y)(
-	/* [none] */ void)
+	/* [none] */ void)const
 {
 	return my_Rectangle[1];
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, float, get_W)(
-	/* [none] */ void)
+	/* [none] */ void)const
 {
 	return my_Rectangle[2];
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, float, get_H)(
-	/* [none] */ void)
+	/* [none] */ void)const
 {
 	return my_Rectangle[3];
 }
@@ -152,14 +152,17 @@ CLASS_REALIZE_FUNC_T(Component, float, get_H)(
 CLASS_REALIZE_FUNC(Component, set_Visible)(
 	/* [in] */ bool _visible)
 {
-	return m_D3D11Graphics.visible = _visible;
+	bool b = my_Visible;
+	my_Visible = _visible;
+
+	return b;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, bool, is_Visible)(
-	/* [none] */ void)
+	/* [none] */ void)const
 {
-	return m_D3D11Graphics.visible;
+	return my_Visible;
 }
 
 //--------------------------------------------------------------------------------------
@@ -190,19 +193,22 @@ CLASS_REALIZE_FUNC_T(Component, void, update)(
 CLASS_REALIZE_FUNC_T(Component, void, render)(
 	/* [none] */ void)
 {
-	m_D3D11Graphics.render_Panel();
+	if (is_Visible())
+	{
+		m_D3D11Graphics.render_Panel();
+	}
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, float, get_AbsX)(
-	/* [none] */ void)
+	/* [none] */ void)const
 {
 	return my_AbsX;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, float, get_AbsY)(
-	/* [none] */ void)
+	/* [none] */ void)const
 {
 	return my_AbsY;
 }

@@ -25,7 +25,7 @@ CLASS_REALIZE_DESTRUCTOR(inputEventHelper, inputEventHelper)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(inputEventHelper, bool, chain)(
-	/* [in] */ i::frame::i_Component * _component)
+	/* [in] */ const i::frame::i_Component * _component)
 {
 	IF_FALSE(_component->is_Visible())
 	{

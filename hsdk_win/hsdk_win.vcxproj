@@ -97,12 +97,12 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClCompile Include="d3d11graphics.cpp" />
     <ClCompile Include="hwnd.cpp" />
     <ClCompile Include="inputeventhelper.cpp" />
+    <ClCompile Include="thread.cpp" />
     <ClCompile Include="소스.cpp" />
     <ClCompile Include="semaphore.cpp" />
     <ClCompile Include="autoresetevent.cpp" />
     <ClCompile Include="manualevent.cpp" />
     <ClCompile Include="mutex.cpp" />
-    <ClCompile Include="thread.cpp" />
     <ClCompile Include="tcpproxy.cpp" />
     <ClCompile Include="tcpserver.cpp" />
     <ClCompile Include="tcpclient.cpp" />

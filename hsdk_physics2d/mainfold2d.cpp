@@ -25,10 +25,10 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::initialize)(
 //--------------------------------------------------------------------------------------
 DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::impulse_Apply)(
 	/* [out] */ Manifold2D & _m,
+	/* [in] */ const Vector2D & _apos,
 	/* [in] */ i::i_RigidBody2D * _abody,
+	/* [in] */ const Vector2D & _bpos,
 	/* [in] */ i::i_RigidBody2D * _bbody,
-	/* [in] */ i::i_Physics2DObject * _aobj,
-	/* [in] */ i::i_Physics2DObject * _bobj,
 	/* [in] */ float _glength)
 {
 	float amass = _abody->mass();
@@ -58,8 +58,8 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::impulse_Apply)(
 	for (unsigned int i = _m.contact_count - 1; i != -1; --i)
 	{
 		// Calculate radii from COM to contact
-		ra[i] = _m.contacts[i] - _aobj->postion();
-		rb[i] = _m.contacts[i] - _bobj->postion();
+		ra[i] = _m.contacts[i] - _apos;
+		rb[i] = _m.contacts[i] - _bpos;
 
 		// Relative velocity
 		rv[i] = bvelocity + vector2d::cross(aavelocity, rb[i]) -
@@ -103,8 +103,8 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::impulse_Apply)(
 
 		// Apply impulse
 		Vector2D impulse = nor * j;
-		_aobj->apply_impulse(-impulse, ra[i]);
-		_bobj->apply_impulse(impulse, rb[i]);
+		_abody->apply_impulse(-impulse, ra[i]);
+		_bbody->apply_impulse(impulse, rb[i]);
 
 		// Friction impulse
 		rv[i] = bvelocity + vector2d::cross(bvelocity, rb[i]) -
@@ -136,29 +136,7 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::impulse_Apply)(
 		}
 
 		// Apply friction impulse
-		_aobj->apply_impulse(-tangentImpulse, ra[i]);
-		_bobj->apply_impulse(tangentImpulse, rb[i]);
+		_abody->apply_impulse(-tangentImpulse, ra[i]);
+		_bbody->apply_impulse(tangentImpulse, rb[i]);
 	}
-}
-
-//--------------------------------------------------------------------------------------
-DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::positional_Correction)(
-	/* [in] */ i::i_Physics2DObject * _aobj,
-	/* [in] */ i::i_Physics2DObject * _bobj,
-	/* [in] */ const Manifold2D & _m,
-	/* [in] */ const i::i_RigidBody2D * _abody,
-	/* [in] */ const i::i_RigidBody2D * _bbody,
-	/* [in] */ float _glength)
-{
-	const float k_slop = 0.05f; // Penetration allowance
-	const float percent = 0.4f; // Penetration percentage to correct
-
-	float amass = _abody->mass();
-	float bmass = _bbody->mass();
-
-	float alpha = std::max(_m.penetration - k_slop, 0.0f) / (amass + bmass);
-	Vector2D correction = _m.normal * percent * alpha;
-
-	_aobj->positional_Correction(-correction * amass);
-	_bobj->positional_Correction(correction * bmass);
 }

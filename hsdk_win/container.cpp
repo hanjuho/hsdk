@@ -70,9 +70,9 @@ CLASS_REALIZE_FUNC(Container, remove_Component)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Container, bool, contain_Component)(
-	/* [in] */ i_Component * _component)
+	/* [in] */ i_Component * _component)const
 {
-	std::hash_map<unsigned int, Component *>::iterator iter =
+	std::hash_map<unsigned int, Component *>::const_iterator iter =
 		m_Container.find(_component->get_id());
 
 	if (iter == m_Container.end())
@@ -88,9 +88,9 @@ CLASS_REALIZE_FUNC_T(Container, bool, contain_Component)(
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Container, get_Component)(
 	/* [out] */ i_Component * (&_component),
-	/* [in] */ unsigned int _id)
+	/* [in] */ unsigned int _id)const
 {
-	std::hash_map<unsigned int, Component *>::iterator iter =
+	std::hash_map<unsigned int, Component *>::const_iterator iter =
 		m_Container.find(_id);
 
 	if (iter == m_Container.end())
@@ -149,8 +149,6 @@ CLASS_REALIZE_FUNC_T(Container, void, update)(
 CLASS_REALIZE_FUNC_T(Container, void, render)(
 	/* [none] */ void)
 {
-	m_D3D11Graphics.render_Panel();
-
 	if (is_Visible())
 	{
 		std::hash_map<unsigned int, Component *>::iterator iter = m_Container.begin();
@@ -160,7 +158,10 @@ CLASS_REALIZE_FUNC_T(Container, void, render)(
 			iter->second->render();
 			iter++;
 		}
+
+		m_D3D11Graphics.render_Panel();
 	}
+
 }
 
 //--------------------------------------------------------------------------------------

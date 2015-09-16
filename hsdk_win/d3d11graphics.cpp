@@ -18,7 +18,8 @@ struct InputLayoutFormat
 
 
 //--------------------------------------------------------------------------------------
-AutoRelease<ID3D11RasterizerState> D3D11Graphics::RASTERIZER_STATE;
+AutoRelease<ID3D11RasterizerState> D3D11Graphics::CULL_BACK_RASTERIZER;
+AutoRelease<ID3D11DepthStencilState> D3D11Graphics::FRONT_CLIPPING_DEPTH;
 AutoRelease<ID3D11VertexShader> D3D11Graphics::VERTEX_SHADER;
 AutoRelease<ID3D11PixelShader> D3D11Graphics::PIXEL_SHADER;
 AutoRelease<ID3D11InputLayout> D3D11Graphics::INPUT_LAYOUT;
@@ -49,11 +50,46 @@ CLASS_REALIZE_FUNC(D3D11Graphics, initialize)(
 	// Create the rasterizer state from the description we just filled out.
 	IF_FAILED(hr = D3D11::DEVICE->CreateRasterizerState(
 		&rasterDesc,
-		&RASTERIZER_STATE))
+		&CULL_BACK_RASTERIZER))
 	{
 		return hr;
 	}
-		
+
+	// depth state
+	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
+
+	// Clear the second depth stencil state before setting the parameters.
+	ZeroMemory(&depthStencilDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
+
+	// Set up the description of the stencil state.
+	depthStencilDesc.DepthEnable = false;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+	depthStencilDesc.StencilEnable = true;
+	depthStencilDesc.StencilReadMask = 0xFF;
+	depthStencilDesc.StencilWriteMask = 0xFF;
+
+	// Stencil operations if pixel is front-facing.
+	depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	// Stencil operations if pixel is back-facing.
+	depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	// Create the state using the device.
+	IF_FAILED(hr = D3D11::DEVICE->CreateDepthStencilState(
+		&depthStencilDesc,
+		&FRONT_CLIPPING_DEPTH))
+	{
+		return hr;
+	}
+
 	// vs shader
 	IF_FAILED(hr = D3D11::create_VertexShaderForHeader(
 		*(&VERTEX_SHADER),
@@ -93,7 +129,7 @@ CLASS_REALIZE_FUNC(D3D11Graphics, initialize)(
 	{
 		return hr;
 	}
-	
+
 	// ps cbuffer
 	IF_FAILED(hr = D3D11::create_ContantBuffers(
 		*(&VS_CLIP_CBUFFER),
@@ -119,7 +155,8 @@ CLASS_REALIZE_FUNC(D3D11Graphics, initialize)(
 CLASS_REALIZE_FUNC_T(D3D11Graphics, void, destroy)(
 	/* [none] */ void)
 {
-	RASTERIZER_STATE.~AutoRelease();
+	CULL_BACK_RASTERIZER.~AutoRelease();
+	FRONT_CLIPPING_DEPTH.~AutoRelease();
 
 	VS_WIDE_CBUFFER.~AutoRelease();
 	VS_CLIP_CBUFFER.~AutoRelease();
@@ -134,15 +171,16 @@ CLASS_REALIZE_FUNC_T(D3D11Graphics, void, destroy)(
 CLASS_REALIZE_FUNC_T(D3D11Graphics, void, shader_on)(
 	/* [none] */ void)
 {
-	D3D11::set_DepthOff();
-	D3D11::CONTEXT->RSSetState(RASTERIZER_STATE);
+	D3D11::CONTEXT->OMSetDepthStencilState(FRONT_CLIPPING_DEPTH, 0);
+	D3D11::CONTEXT->RSSetState(CULL_BACK_RASTERIZER);
 
 	D3D11::CONTEXT->VSSetShader(VERTEX_SHADER, nullptr, 0);
+	D3D11::CONTEXT->PSSetShader(PIXEL_SHADER, nullptr, 0);
+
 	D3D11::CONTEXT->IASetInputLayout(INPUT_LAYOUT);
+
 	D3D11::CONTEXT->VSSetConstantBuffers(0, 1, &VS_WIDE_CBUFFER);
 	D3D11::CONTEXT->VSSetConstantBuffers(1, 1, &VS_CLIP_CBUFFER);
-
-	D3D11::CONTEXT->PSSetShader(PIXEL_SHADER, nullptr, 0);
 
 	D3D11::CONTEXT->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
@@ -151,11 +189,13 @@ CLASS_REALIZE_FUNC_T(D3D11Graphics, void, shader_on)(
 CLASS_REALIZE_FUNC_T(D3D11Graphics, void, shader_off)(
 	/* [none] */ void)
 {
-	D3D11::set_DepthOn();
+	D3D11::CONTEXT->OMSetDepthStencilState(NULL, 0);
 	D3D11::CONTEXT->RSSetState(NULL);
+
 	D3D11::CONTEXT->VSSetShader(nullptr, nullptr, 0);
-	D3D11::CONTEXT->IASetInputLayout(nullptr);
 	D3D11::CONTEXT->PSSetShader(nullptr, nullptr, 0);
+
+	D3D11::CONTEXT->IASetInputLayout(nullptr);
 }
 
 //--------------------------------------------------------------------------------------
@@ -174,7 +214,7 @@ CLASS_REALIZE_FUNC_T(D3D11Graphics, void, set_Clip)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_CONSTRUCTOR(D3D11Graphics, D3D11Graphics)(void)
-: m_imageW(1.0f), m_imageH(1.0f), visible(true), m_Custom(nullptr), m_Sampler(nullptr)
+: m_imageW(1.0f), m_imageH(1.0f), m_Custom(nullptr), m_Sampler(nullptr)
 {
 	m_uvRectangle[0] = 0.0f;
 	m_uvRectangle[1] = 0.0f;
@@ -284,13 +324,10 @@ CLASS_REALIZE_FUNC_T(D3D11Graphics, void, update_Panel)(
 CLASS_REALIZE_FUNC_T(D3D11Graphics, void, render_Panel)(
 	/* [none] */ void)
 {
-	if (visible)
+	if (m_Custom)
 	{
-		if (m_Custom)
-		{
-			D3D11::CONTEXT->PSSetShaderResources(0, 1, &m_Custom);
-			D3D11::CONTEXT->PSSetSamplers(0, 1, &m_Sampler);
-			D3D11::render_Panel(m_Panel);
-		}
+		D3D11::CONTEXT->PSSetShaderResources(0, 1, &m_Custom);
+		D3D11::CONTEXT->PSSetSamplers(0, 1, &m_Sampler);
+		D3D11::render_Panel(m_Panel);
 	}
 }
