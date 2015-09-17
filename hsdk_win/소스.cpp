@@ -9,6 +9,28 @@ int main(void)
 /*
 
 
+R_Boundary boundary(goA, goB);
+FLOAT distance = vector2d::len(goA->position - goB->position);
+boundary.distance = distance;
+
+
+// 모든 오브젝트는 원형 경계선을 갖는데 선을 넘은 오브젝트를 찾아냄.
+if (distance < goA->boundary)
+{
+boundary.boundary_A = true;
+}
+
+if (distance < goB->boundary)
+{
+boundary.boundary_B = true;
+}
+
+if (boundary.boundary_A || boundary.boundary_B)
+{
+_rb.emplace_back(boundary);
+}
+
+
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(RigidBody2D, void, integrate_Forces)(
 /* [in] */ const Vector2D & _gravity,
@@ -66,17 +88,7 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::positional_Correction)(
 	/* [in] */ const i::i_RigidBody2D * _bbody,
 	/* [in] */ float _glength)
 {
-	const float k_slop = 0.05f; // Penetration allowance
-	const float percent = 0.4f; // Penetration percentage to correct
-
-	float amass = _abody->mass();
-	float bmass = _bbody->mass();
-
-	float alpha = std::max(_m.penetration - k_slop, 0.0f) / (amass + bmass);
-	Vector2D correction = _m.normal * percent * alpha;
-
-	_aobj->positional_Correction(-correction * amass);
-	_bobj->positional_Correction(correction * bmass);
+	
 }
 
 */

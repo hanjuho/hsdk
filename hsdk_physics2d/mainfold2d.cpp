@@ -37,8 +37,8 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::impulse_Apply)(
 	// Early out and positional correct if both objects have infinite mass
 	if (abs(amass + bmass) <= EPSILON)
 	{
-		_abody->set_Velocity(0.0f, 0.0f);
-		_bbody->set_Velocity(0.0f, 0.0f);
+		_abody->accelerate(_abody->velocity());
+		_bbody->accelerate(_bbody->velocity());
 
 		return;
 	}
@@ -46,11 +46,11 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::impulse_Apply)(
 	float ainertia = _abody->inertia();
 	float binertia = _bbody->inertia();
 
-	Vector2D avelocity = _abody->get_Velocity();
-	Vector2D bvelocity = _bbody->get_Velocity();
+	Vector2D avelocity = _abody->velocity();
+	Vector2D bvelocity = _bbody->velocity();
 
-	float aavelocity = _abody->get_AngularVelocity();
-	float bavelocity = _bbody->get_AngularVelocity();
+	float aavelocity = _abody->angularVelocity();
+	float bavelocity = _bbody->angularVelocity();
 
 	Vector2D ra[2];
 	Vector2D rb[2];
@@ -103,8 +103,8 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::impulse_Apply)(
 
 		// Apply impulse
 		Vector2D impulse = nor * j;
-		_abody->apply_impulse(-impulse, ra[i]);
-		_bbody->apply_impulse(impulse, rb[i]);
+		_abody->impulse(-impulse, ra[i]);
+		_bbody->impulse(impulse, rb[i]);
 
 		// Friction impulse
 		rv[i] = bvelocity + vector2d::cross(bvelocity, rb[i]) -
@@ -136,7 +136,7 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::impulse_Apply)(
 		}
 
 		// Apply friction impulse
-		_abody->apply_impulse(-tangentImpulse, ra[i]);
-		_bbody->apply_impulse(tangentImpulse, rb[i]);
+		_abody->impulse(-tangentImpulse, ra[i]);
+		_bbody->impulse(tangentImpulse, rb[i]);
 	}
 }

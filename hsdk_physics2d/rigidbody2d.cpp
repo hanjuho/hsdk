@@ -14,8 +14,7 @@ CLASS_REALIZE_CONSTRUCTOR(RigidBody2D, RigidBody2D)(
 	: m_inertia(0.0f), m_mass(0.0f),
 	m_SFriction(sFriction),
 	m_DFriction(dFriction),
-	m_Restitution(restitution),
-	m_AngularVelocity(0.0f)
+	m_Restitution(restitution)
 {
 
 }
@@ -28,66 +27,12 @@ CLASS_REALIZE_FUNC_T(RigidBody2D, void, apply_Shape)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(RigidBody2D, void, apply_Force)(
-	/* [in] */ const Vector2D & _vector)
-{
-	set_Force(get_Force() + _vector);
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(RigidBody2D, void, apply_impulse)(
+CLASS_REALIZE_FUNC_T(RigidBody2D, void, impulse)(
 	/* [in] */ const Vector2D & _impulse,
 	/* [in] */ const Vector2D & _contact)
 {
-	set_Velocity(
-		get_Velocity() +
-		_impulse * mass());
-
-	set_AngularVelocity(
-		get_AngularVelocity() +
-		vector2d::cross(_contact, _impulse) * inertia());
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(RigidBody2D, void, set_Velocity)(
-	/* [in] */ const Vector2D & _vector)
-{
-	m_Velocity = _vector;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(RigidBody2D, Vector2D, get_Velocity)(
-	/* [none] */ void)const
-{
-	return m_Velocity;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(RigidBody2D, void, set_Force)(
-	/* [in] */ const Vector2D & _vector)
-{
-	m_Force = _vector;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(RigidBody2D, Vector2D, get_Force)(
-	/* [none] */ void)const
-{
-	return m_Force;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(RigidBody2D, void, set_AngularVelocity)(
-	/* [in] */ float _value)
-{
-	m_AngularVelocity = _value;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(RigidBody2D, float, get_AngularVelocity)(
-	/* [none] */ void)const
-{
-	return m_AngularVelocity;
+	accelerate(_impulse * mass());
+	spin(vector2d::cross(_contact, _impulse) * inertia());
 }
 
 //--------------------------------------------------------------------------------------

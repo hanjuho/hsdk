@@ -63,7 +63,7 @@ CLASS_REALIZE_FUNC_T(Terrain2D, float, get_Height)(
 	}
 	else
 	{
-		return 0xffffffff;
+		return -FLT_MAX;
 	}
 }
 

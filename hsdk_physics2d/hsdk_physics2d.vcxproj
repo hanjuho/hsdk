@@ -97,6 +97,8 @@ COPY "$(OutDir)hsdk_physics2d.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\interface\terrain2d.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\interface\rigidbody2d.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\interface\physics2dobject.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\interface\collision2dlistener.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\interface\boundary2dlistener.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\manifold2d.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\vector2d.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\matrix2d.h" />
@@ -108,12 +110,11 @@ COPY "$(OutDir)hsdk_physics2d.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\terrain2d.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="physics2dengine.cpp" />
     <ClCompile Include="collider2dcircle.cpp" />
-    <ClCompile Include="collision.cpp" />
+    <ClCompile Include="collider2dpolygon.cpp" />
+    <ClCompile Include="physics2dengine.cpp" />
     <ClCompile Include="mainfold2d.cpp" />
     <ClCompile Include="matrix2d.cpp" />
-    <ClCompile Include="collider2dpolygon.cpp" />
     <ClCompile Include="physics2dobject.cpp" />
     <ClCompile Include="rigidbody2d.cpp" />
     <ClCompile Include="vector2d.cpp" />
