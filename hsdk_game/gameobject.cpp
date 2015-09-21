@@ -10,31 +10,31 @@ using namespace game;
 CLASS_REALIZE_FUNC_T(GameObject, void, set_Controller)(
 	/* [ref] */ i::i_Controller * _controller)
 {
-	/*m_Controller = _controller;
+	m_Controller = _controller;
 
 	if (_controller)
 	{
 		_controller->link_ActionTable(m_ActionBase);
-	}*/
+	}
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(GameObject, void, set_DataModel)(
 	/* [include] */ i::i_DataTable * _datatable)
 {
-	/*m_DataTable = _datatable;
+	m_DataTable = _datatable;
 
 	if (m_Renderer)
 	{
 		m_Renderer->link_DataTable(_datatable);
-	}*/
+	}
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(GameObject, void, set_ActionBase)(
 	/* [include] */ i::i_ActionBase * _actionbase)
 {
-	/*m_ActionBase = _actionbase;
+	m_ActionBase = _actionbase;
 
 	if (_actionbase)
 	{
@@ -44,19 +44,19 @@ CLASS_REALIZE_FUNC_T(GameObject, void, set_ActionBase)(
 	if (m_Controller)
 	{
 		m_Controller->link_ActionTable(_actionbase);
-	}*/
+	}
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(GameObject, void, set_Renderer)(
 	/* [include] */ i::i_ModelRenderer * _renderer)
 {
-	/*m_Renderer = _renderer;
+	m_Renderer = _renderer;
 
 	if (_renderer)
 	{
 		_renderer->link_DataTable(m_DataTable);
-	}*/
+	}
 }
 
 //--------------------------------------------------------------------------------------

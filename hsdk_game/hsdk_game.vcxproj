@@ -19,8 +19,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -84,6 +84,8 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\actionlayer.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\datatable\buildingdatatable.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\datatable\characterdatatable.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\datatable\objectdatatable.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\gameobject.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\actionbase.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\actionlayer.h" />
@@ -97,7 +99,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="actionlayer.cpp" />
+    <ClCompile Include="buildingdatatable.cpp" />
+    <ClCompile Include="characterdatatable.cpp" />
     <ClCompile Include="gameobject.cpp" />
+    <ClCompile Include="objectdatatable.cpp" />
     <ClCompile Include="소스.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

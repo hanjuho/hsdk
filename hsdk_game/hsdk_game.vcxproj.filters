@@ -19,6 +19,9 @@
     <Filter Include="헤더 파일\datatable">
       <UniqueIdentifier>{bd28b2b6-0567-4edb-ac43-1312fa05b9f7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\datatable">
+      <UniqueIdentifier>{25a0637c-f6ca-4c5e-8210-73d9859ccfa0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\actionbase.h">
@@ -57,6 +60,12 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\datatable\buildingdatatable.h">
       <Filter>헤더 파일\datatable</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\datatable\characterdatatable.h">
+      <Filter>헤더 파일\datatable</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\datatable\objectdatatable.h">
+      <Filter>헤더 파일\datatable</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="소스.cpp">
@@ -67,6 +76,15 @@
     </ClCompile>
     <ClCompile Include="gameobject.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="buildingdatatable.cpp">
+      <Filter>소스 파일\datatable</Filter>
+    </ClCompile>
+    <ClCompile Include="characterdatatable.cpp">
+      <Filter>소스 파일\datatable</Filter>
+    </ClCompile>
+    <ClCompile Include="objectdatatable.cpp">
+      <Filter>소스 파일\datatable</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
