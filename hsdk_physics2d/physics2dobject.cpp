@@ -9,39 +9,26 @@ using namespace physics2d;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Physics2DObject, void, set_RigidBody)(
-	/* [include] */ i::i_RigidBody2D * _rigidbody)
-{
-	my_Rigid = _rigidbody;
-	if (my_Shape)
-	{
-		_rigidbody->apply_Shape(my_Shape);
-	}
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Physics2DObject, i::i_RigidBody2D *, get_RigidBody)(
-	/* [none] */ void)const
-{
-	return my_Rigid;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Physics2DObject, void, set_Collider)(
+CLASS_REALIZE_CONSTRUCTOR(Physics2DObject, Physics2DObject)(
+	/* [include] */ i::i_RigidBody2D * _rigidbody,
 	/* [include] */ i::i_Collider2D * _collider)
+	: my_RigidBody(_rigidbody), my_Collider(_collider)
 {
-	my_Shape = _collider;
-	if (my_Rigid)
-	{
-		my_Rigid->apply_Shape(_collider);
-	}
+	initialize_Body();
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Physics2DObject, i::i_Collider2D *, get_Collider)(
+CLASS_REALIZE_FUNC_T(Physics2DObject, i::i_RigidBody2D *, rigidBody)(
 	/* [none] */ void)const
 {
-	return my_Shape;
+	return my_RigidBody;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Physics2DObject, i::i_Collider2D *, collider)(
+	/* [none] */ void)const
+{
+	return my_Collider;
 }
 
 //--------------------------------------------------------------------------------------
@@ -49,10 +36,10 @@ CLASS_REALIZE_FUNC_T(Physics2DObject, void, integrate_Velocity)(
 	/* [in] */ const Vector2D & _gravity,
 	/* [in] */ float _dt)
 {
-	if (my_Rigid)
+	if (my_RigidBody)
 	{
-		move(my_Rigid->velocity() * _dt);
-		rotate(my_Rigid->angularVelocity() * _dt);
+		move(my_RigidBody->velocity() * _dt);
+		rotate(my_RigidBody->angularVelocity() * _dt);
 
 		integrate_Forces(_gravity, 0.0f, _dt);
 	}
@@ -64,12 +51,29 @@ CLASS_REALIZE_FUNC_T(Physics2DObject, void, integrate_Forces)(
 	/* [in] */ float _torque,
 	/* [in] */ float _dt)
 {
-	if (my_Rigid)
+	if (my_RigidBody)
 	{
-		my_Rigid->accelerate(
-			(my_Rigid->force() * my_Rigid->mass() + _gravity) * (_dt / 2.0f));
+		my_RigidBody->accelerate(
+			(my_RigidBody->force() * my_RigidBody->mass() + _gravity) * (_dt / 2.0f));
 
-		my_Rigid->spin(
-			my_Rigid->angularVelocity() + (_torque * my_Rigid->inertia() * (_dt / 2.0f)));
+		my_RigidBody->spin(
+			my_RigidBody->angularVelocity() + (_torque * my_RigidBody->inertia() * (_dt / 2.0f)));
 	}
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Physics2DObject, void, initialize_Body)(
+	/* [none] */ void)
+{
+	IF_FALSE(my_Collider)
+	{
+		return;
+	}
+
+	IF_FALSE(my_RigidBody)
+	{
+		return;
+	}
+		
+	my_RigidBody->apply_Shape(my_Collider);
 }

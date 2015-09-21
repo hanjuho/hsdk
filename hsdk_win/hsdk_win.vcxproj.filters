@@ -69,7 +69,6 @@
     <ClCompile Include="inputeventhelper.cpp">
       <Filter>소스 파일\frame</Filter>
     </ClCompile>
-    <ClCompile Include="소스.cpp" />
     <ClCompile Include="mutex.cpp">
       <Filter>소스 파일\ctst</Filter>
     </ClCompile>

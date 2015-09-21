@@ -59,7 +59,7 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
@@ -79,7 +79,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
@@ -98,7 +98,6 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClCompile Include="hwnd.cpp" />
     <ClCompile Include="inputeventhelper.cpp" />
     <ClCompile Include="thread.cpp" />
-    <ClCompile Include="소스.cpp" />
     <ClCompile Include="semaphore.cpp" />
     <ClCompile Include="autoresetevent.cpp" />
     <ClCompile Include="manualevent.cpp" />

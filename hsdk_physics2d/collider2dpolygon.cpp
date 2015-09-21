@@ -8,24 +8,111 @@ using namespace hsdk;
 using namespace physics2d;
 
 
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(Collider2DPolygon, Collider2DPolygon)(
-	/* [in] */ float _hw,
-	/* [in] */ float _hh,
-	/* [in] */ float _density)
-	: my_Density(_density)
+// grobal function
+REALIZE_FUNC_T(float, compute_Area)(
+	/* [in] */ const std::vector<Vector2D> & _vertices,
+	/* [out] */ float * _mostLength)
 {
-	set_Box(_hw, _hh);
+	// Calculate centroid and moment of interia
+	// centroid
+	// Vector2D c(0.0f, 0.0f); 
+	float area = 0.0f;
+	float length = 0.0f;
+
+	unsigned int size = _vertices.size();
+	for (unsigned int i1 = 0; i1 < size; ++i1)
+	{
+		// Triangle vertices, third vertex implied as (0, 0)
+		Vector2D p1(_vertices[i1]);
+		unsigned int i2 = i1 + 1 < size ? i1 + 1 : 0;
+		Vector2D p2(_vertices[i2]);
+
+		float L = vector2d::len(p1);
+		length = length < L ? L : length;
+
+		float D = vector2d::cross(p1, p2);
+		float triangleArea = 0.5f * D;
+
+		area += triangleArea;
+	}
+	
+	if (_mostLength)
+	{
+		(*_mostLength) = length;
+	}
+
+	return area;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_CONSTRUCTOR(Collider2DPolygon, Collider2DPolygon)(
-	/* [in] */ const Vector2D * _vertices,
-	/* [in] */ unsigned int _size,
 	/* [in] */ float _density)
-	: my_Density(_density)
+	: m_Density(_density), m_Area(0.0f), m_Radius(0.0f)
 {
-	set_Polygon(_vertices, _size);
+
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Collider2DPolygon, unsigned int, type)(
+	/* [none] */ void)const
+{
+	return 1;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Collider2DPolygon, unsigned int, numOfVerties)(
+	/* [none] */ void)const
+{
+	return my_Vertices.size();
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Collider2DPolygon, Vector2D, vertex)(
+	/* [in] */ unsigned int _index)const
+{
+	return my_Vertices[_index];
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Collider2DPolygon, const Vector2D *, vertices)(
+	/* [none] */ void)const
+{
+	return &my_Vertices[0];
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Collider2DPolygon, Vector2D, normal)(
+	/* [in] */ unsigned int _index)const
+{
+	return my_Normals[_index];
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Collider2DPolygon, const Vector2D *, normals)(
+	/* [none] */ void)const
+{
+	return &my_Normals[0];
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Collider2DPolygon, float, density)(
+	/* [none] */ void)const
+{
+	return m_Density;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Collider2DPolygon, float, area)(
+	/* [none] */ void)const
+{
+	return m_Area;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Collider2DPolygon, float, radius)(
+	/* [none] */ void)const
+{
+	return m_Radius;
 }
 
 //--------------------------------------------------------------------------------------
@@ -36,22 +123,22 @@ CLASS_REALIZE_FUNC_T(Collider2DPolygon, void, set_Box)(
 	my_Vertices.resize(4);
 	my_Normals.resize(4);
 
-	float hw, hh;
-	hw = _hw * 0.5f;
-	hh = _hh *0.5f;
+	m_Area = abs(_hw * _hh);
 
-	my_Vertices[0] = Vector2D(-hw, -hh);
-	my_Vertices[1] = Vector2D(hw, -hh);
-	my_Vertices[2] = Vector2D(hw, hh);
-	my_Vertices[3] = Vector2D(-hw, hh);
+	_hw *= 0.5f;
+	_hh *= 0.5f;
+
+	m_Radius = vector2d::len(Vector2D(_hw, _hh));
+
+	my_Vertices[0] = Vector2D(-_hw, -_hh);
+	my_Vertices[1] = Vector2D(_hw, -_hh);
+	my_Vertices[2] = Vector2D(_hw, _hh);
+	my_Vertices[3] = Vector2D(-_hw, _hh);
 
 	my_Normals[0] = Vector2D(0.0f, -1.0f);
 	my_Normals[1] = Vector2D(1.0f, 0.0f);
 	my_Normals[2] = Vector2D(0.0f, 1.0f);
 	my_Normals[3] = Vector2D(-1.0f, 0.0f);
-	
-	my_Radius = vector2d::len(Vector2D(hw, hh)) * 0.5f;
-	my_Area = std::abs(_hw * _hh);
 }
 
 //--------------------------------------------------------------------------------------
@@ -138,7 +225,6 @@ CLASS_REALIZE_FUNC_T(Collider2DPolygon, void, set_Polygon)(
 
 	my_Vertices.resize(outCount);
 	my_Normals.resize(outCount);
-	my_Radius = 0.0f;
 
 	// Copy vertices into shape's vertices
 	for (unsigned int i = 0; i < outCount; ++i)
@@ -157,13 +243,9 @@ CLASS_REALIZE_FUNC_T(Collider2DPolygon, void, set_Polygon)(
 
 		// Calculate normal with 2D cross product between vector and scalar
 		vector2d::normalize(my_Normals[i1], Vector2D(face.y, -face.x));
-
-		//
-		my_Radius = std::max(my_Radius, vector2d::len(my_Vertices[rightMost] - my_Vertices[i1]));
 	}
 
-	my_Radius *= 0.5f;
-	my_Area = compute_Polygon();
+	m_Area = compute_Area(my_Vertices, &m_Radius);
 }
 
 //--------------------------------------------------------------------------------------
@@ -186,95 +268,4 @@ CLASS_REALIZE_FUNC_T(Collider2DPolygon, Vector2D, support)(
 	}
 
 	return *bestVertex;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Collider2DPolygon, unsigned int, type)(
-	/* [none] */ void)const
-{
-	return 1;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Collider2DPolygon, unsigned int, numOfVerties)(
-	/* [none] */ void)const
-{
-	return my_Vertices.size();
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Collider2DPolygon, Vector2D, vertex)(
-	/* [in] */ unsigned int _index)const
-{
-	return my_Vertices[_index];
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Collider2DPolygon, Vector2D, normal)(
-	/* [in] */ unsigned int _index)const
-{
-	return my_Normals[_index];
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Collider2DPolygon, float, density)(
-	/* [none] */ void)const
-{
-	return my_Density;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Collider2DPolygon, float, area)(
-	/* [none] */ void)const
-{
-	return my_Area;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Collider2DPolygon, float, radius)(
-	/* [none] */ void)const
-{
-	return my_Radius;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Collider2DPolygon, float, compute_Polygon)(
-	/* [none] */ void)
-{
-	// Calculate centroid and moment of interia
-	Vector2D c(0.0f, 0.0f); // centroid
-	float area = 0.0f;
-	float I = 0.0f;
-	const float k_inv3 = 1.0f / 3.0f;
-
-	unsigned int size = my_Vertices.size();
-	for (unsigned int i1 = 0; i1 < size; ++i1)
-	{
-		// Triangle vertices, third vertex implied as (0, 0)
-		Vector2D p1(my_Vertices[i1]);
-		unsigned int i2 = i1 + 1 < size ? i1 + 1 : 0;
-		Vector2D p2(my_Vertices[i2]);
-
-		float D = vector2d::cross(p1, p2);
-		float triangleArea = 0.5f * D;
-
-		area += triangleArea;
-
-		// Use area to weight the centroid average, not just vertex position
-		c += (p1 + p2) * triangleArea * k_inv3;
-
-		float intx2 = p1.x * p1.x + p2.x * p1.x + p2.x * p2.x;
-		float inty2 = p1.y * p1.y + p2.y * p1.y + p2.y * p2.y;
-		I += (0.25f * k_inv3 * D) * (intx2 + inty2);
-	}
-
-	c *= 1.0f / area;
-
-	// Translate vertices to centroid (make the centroid (0, 0)
-	// for the polygon in model space)
-	// Not really necessary, but I like doing this anyway
-	// for (unsigned int i = 0; i < m_vertexCount; ++i)
-	// 	m_vertices[i] -= c;
-
-	return area;
 }

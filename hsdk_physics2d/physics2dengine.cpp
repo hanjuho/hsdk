@@ -1,3 +1,7 @@
+#include <physics2d/interface/terrain2d.h>
+#include <physics2d/interface/physics2dobject.h>
+#include <physics2d/interface/collision2dlistener.h>
+#include <physics2d/interface/boundary2dlistener.h>
 #include <physics2d/physics2dengine.h>
 #include <physics2d/collider2dcircle.h>
 #include <physics2d/Collider2dpolygon.h>
@@ -150,13 +154,13 @@ CLASS_REALIZE_FUNC_T(Physics2DEngine, void, operate)(
 	}
 
 	i::i_Collider2D * colA;
-	IF_FALSE(colA = _objA->get_Collider())
+	IF_FALSE(colA = _objA->collider())
 	{
 		return;
 	}
 
 	i::i_Collider2D * colB;
-	IF_FALSE(colB = _objB->get_Collider())
+	IF_FALSE(colB = _objB->collider())
 	{
 		return;
 	}
@@ -439,7 +443,7 @@ CLASS_REALIZE_FUNC_T(Physics2DEngine, void, operate)(
 				  //        ^  ->n       ^
 				  //      +---c ------posPlane--
 				  //  x < | i |\
-				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  										//      +---+ c-----negPlane--
+				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  										//      +---+ c-----negPlane--
 				  //             \       v
 				  //              r
 				  //
@@ -492,7 +496,7 @@ CLASS_REALIZE_FUNC_T(Physics2DEngine, void, operate)(
 				  //        ^  ->n       ^
 				  //      +---c ------posPlane--
 				  //  x < | i |\
-				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  		//      +---+ c-----negPlane--
+				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  				  		//      +---+ c-----negPlane--
 				  //             \       v
 				  //              r
 				  //
@@ -680,8 +684,8 @@ CLASS_REALIZE_FUNC_T(Physics2DEngine, void, run)(
 		i::i_Physics2DObject * obj_A = A->a->object;
 		i::i_Physics2DObject * obj_B = A->b->object;
 
-		i::i_RigidBody2D * rig_A = obj_A->get_RigidBody();
-		i::i_RigidBody2D * rig_B = obj_B->get_RigidBody();
+		i::i_RigidBody2D * rig_A = obj_A->rigidBody();
+		i::i_RigidBody2D * rig_B = obj_B->rigidBody();
 
 		IF_FALSE(rig_A && rig_B)
 		{
@@ -714,7 +718,7 @@ CLASS_REALIZE_FUNC_T(Physics2DEngine, void, run)(
 			obj_A->integrate_Velocity(_gravity, _dt);
 
 			i::i_RigidBody2D * rig_A;
-			if (rig_A = obj_A->get_RigidBody())
+			if (rig_A = obj_A->rigidBody())
 			{
 				rig_A->expended();
 			}
@@ -730,8 +734,8 @@ CLASS_REALIZE_FUNC_T(Physics2DEngine, void, run)(
 		const float k_slop = 0.05f; // Penetration allowance
 		const float percent = 0.4f; // Penetration percentage to correct
 
-		float amass = obj_A->get_RigidBody()->mass();
-		float bmass = obj_B->get_RigidBody()->mass();
+		float amass = obj_A->rigidBody()->mass();
+		float bmass = obj_B->rigidBody()->mass();
 		float mass = amass + bmass;
 		IF_FALSE(0 < mass)
 		{
@@ -745,4 +749,30 @@ CLASS_REALIZE_FUNC_T(Physics2DEngine, void, run)(
 		obj_A->move(-correction * amass);
 		obj_B->move(correction * bmass);
 	}
+
+	//// 지면 충돌 검사
+	//if (_terrain)
+	//{
+	//	for (std::vector<My_SOURCE_DESC>::iterator A = begin; A != end; ++A)
+	//	{
+	//		i::i_Physics2DObject * obj_A;
+	//		IF_FALSE(obj_A = A->object)
+	//		{
+	//			continue;
+	//		}
+
+	//		const Vector2D pos = obj_A->position();
+
+	//		float dy = -FLT_MAX;
+	//		const float yy = _terrain->height(pos.y, &dy);
+
+	//		// pos.y 의 위치가 지면보다 높음.
+	//		if (yy < pos.y)
+	//		{
+	//			continue;
+	//		}
+
+	//		// 미구현
+	//	}
+	//}
 }

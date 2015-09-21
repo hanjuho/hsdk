@@ -69,14 +69,14 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\physics2dobject.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\manifold2d.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\interface\collision2dlistener.h">
       <Filter>헤더 파일\interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\interface\boundary2dlistener.h">
       <Filter>헤더 파일\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\manifold2d.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

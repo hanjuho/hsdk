@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hsdk_win", "hsdk_win\hsdk_w
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Win32Project1", "Win32Project1\Win32Project1.vcxproj", "{5DB76996-E774-44A8-AE74-3AFD93F76A98}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hsdk_game", "hsdk_game\hsdk_game.vcxproj", "{DC2C6C89-6703-44BD-8784-402B66596C68}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -43,6 +45,12 @@ Global
 		{5DB76996-E774-44A8-AE74-3AFD93F76A98}.Release|Win32.ActiveCfg = Release|Win32
 		{5DB76996-E774-44A8-AE74-3AFD93F76A98}.Release|Win32.Build.0 = Release|Win32
 		{5DB76996-E774-44A8-AE74-3AFD93F76A98}.Release|x64.ActiveCfg = Release|Win32
+		{DC2C6C89-6703-44BD-8784-402B66596C68}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DC2C6C89-6703-44BD-8784-402B66596C68}.Debug|Win32.Build.0 = Debug|Win32
+		{DC2C6C89-6703-44BD-8784-402B66596C68}.Debug|x64.ActiveCfg = Debug|Win32
+		{DC2C6C89-6703-44BD-8784-402B66596C68}.Release|Win32.ActiveCfg = Release|Win32
+		{DC2C6C89-6703-44BD-8784-402B66596C68}.Release|Win32.Build.0 = Release|Win32
+		{DC2C6C89-6703-44BD-8784-402B66596C68}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

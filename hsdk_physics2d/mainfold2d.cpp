@@ -9,7 +9,7 @@ using namespace manifold;
 
 
 //--------------------------------------------------------------------------------------
-DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::initialize)(
+REALIZE_FUNC_T(void, hsdk::physics2d::manifold::initialize)(
 	/* [out] */ Manifold2D & _m,
 	/* [in] */ const i::i_RigidBody2D * _abody,
 	/* [in] */ const i::i_RigidBody2D * _bbody)
@@ -23,7 +23,7 @@ DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::initialize)(
 }
 
 //--------------------------------------------------------------------------------------
-DLL_DECL_FUNC_T(void, hsdk::physics2d::manifold::impulse_Apply)(
+REALIZE_FUNC_T(void, hsdk::physics2d::manifold::impulse_Apply)(
 	/* [out] */ Manifold2D & _m,
 	/* [in] */ const Vector2D & _apos,
 	/* [in] */ i::i_RigidBody2D * _abody,
