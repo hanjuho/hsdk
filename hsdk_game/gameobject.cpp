@@ -7,6 +7,18 @@ using namespace game;
 
 
 //--------------------------------------------------------------------------------------
+CLASS_REALIZE_CONSTRUCTOR(GameObject, GameObject)(void)
+{
+
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_DESTRUCTOR(GameObject, GameObject)(void)
+{
+
+}
+
+//--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(GameObject, void, set_Controller)(
 	/* [ref] */ i::i_Controller * _controller)
 {
@@ -71,21 +83,25 @@ CLASS_REALIZE_FUNC_T(GameObject, void, attack)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(GameObject, void, suffer)(
-	/* [none] */ void)
+	/* [in] */ unsigned int _frequency,
+	/* [in] */ float _amount,
+	/* [in] */ long _flag)
 {
 	if (m_Controller)
 	{
-		m_Controller->attack();
+		m_Controller->suffer(_frequency, _amount, _flag);
 	}
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(GameObject, void, move)(
-	/* [none] */ void)
+	/* [in] */ float _x,
+	/* [in] */ float _y,
+	/* [in] */ long _flag)
 {
 	if (m_Controller)
 	{
-		m_Controller->attack();
+		m_Controller->move(_x, _y, _flag);
 	}
 }
 
@@ -95,7 +111,7 @@ CLASS_REALIZE_FUNC_T(GameObject, void, wait)(
 {
 	if (m_Controller)
 	{
-		m_Controller->attack();
+		m_Controller->wait();
 	}
 }
 
@@ -105,17 +121,19 @@ CLASS_REALIZE_FUNC_T(GameObject, void, effect)(
 {
 	if (m_Controller)
 	{
-		m_Controller->attack();
+		m_Controller->effect(_effect);
 	}
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(GameObject, void, recovery)(
-	/* [none] */ void)
+	/* [in] */ unsigned int _frequency,
+	/* [in] */ float _amount,
+	/* [in] */ long _flag)
 {
 	if (m_Controller)
 	{
-		m_Controller->attack();
+		m_Controller->recovery(_frequency, _amount, _flag);
 	}
 }
 
@@ -125,7 +143,7 @@ CLASS_REALIZE_FUNC_T(GameObject, void, resurrect)(
 {
 	if (m_Controller)
 	{
-		m_Controller->attack();
+		m_Controller->resurrect();
 	}
 }
 
@@ -135,7 +153,7 @@ CLASS_REALIZE_FUNC_T(GameObject, void, disappear)(
 {
 	if (m_Controller)
 	{
-		m_Controller->attack();
+		m_Controller->disappear();
 	}
 }
 

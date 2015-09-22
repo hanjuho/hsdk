@@ -87,7 +87,6 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\datatable\characterdatatable.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\datatable\objectdatatable.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\gameobject.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\actionbase.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\actionlayer.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\actiontable.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\common.h" />
@@ -96,6 +95,9 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\gameengine.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\gameobject.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\modelrenderer.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\controller.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\actionlistener.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\actionbase.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="actionlayer.cpp" />
@@ -104,6 +106,8 @@
     <ClCompile Include="gameobject.cpp" />
     <ClCompile Include="objectdatatable.cpp" />
     <ClCompile Include="소스.cpp" />
+    <ClCompile Include="controller.cpp" />
+    <ClCompile Include="actionbase.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -33,7 +33,7 @@ CLASS_REALIZE_FUNC(BuildingDataTable, read_Table)(
 	/* [out] */ void * (&_data),
 	/* [in] */ unsigned int _size)const
 {
-
+	return HSDK_FAIL;
 }
 
 //--------------------------------------------------------------------------------------
@@ -41,5 +41,5 @@ CLASS_REALIZE_FUNC(BuildingDataTable, write_Table)(
 	/* [in] */ unsigned int _state,
 	/* [in] */ ...)
 {
-
+	return HSDK_FAIL;
 }

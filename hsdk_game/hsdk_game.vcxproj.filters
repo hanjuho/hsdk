@@ -24,12 +24,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\actionbase.h">
-      <Filter>헤더 파일\interface</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\actionlayer.h">
-      <Filter>헤더 파일\interface</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\actiontable.h">
       <Filter>헤더 파일\interface</Filter>
     </ClInclude>
@@ -66,6 +60,18 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\datatable\objectdatatable.h">
       <Filter>헤더 파일\datatable</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\controller.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\actionlayer.h">
+      <Filter>헤더 파일\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\actionlistener.h">
+      <Filter>헤더 파일\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\actionbase.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="소스.cpp">
@@ -85,6 +91,12 @@
     </ClCompile>
     <ClCompile Include="objectdatatable.cpp">
       <Filter>소스 파일\datatable</Filter>
+    </ClCompile>
+    <ClCompile Include="controller.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="actionbase.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
