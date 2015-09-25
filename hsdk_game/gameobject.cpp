@@ -7,9 +7,22 @@ using namespace game;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(GameObject, GameObject)(void)
+CLASS_REALIZE_CONSTRUCTOR(GameObject, GameObject)(
+	/* [include] */ i::i_DataTable * _datatable,
+	/* [include] */ Controller * _controller,
+	/* [include] */ ActionBase *_actionbase,
+	/* [include] */ i::i_ModelRenderer * _renderer)
+	: m_DataTable(_datatable), m_Controller(_controller),
+	m_ActionBase(_actionbase), m_Renderer(_renderer)
 {
+	IF_FALSE(_datatable && _controller &&_actionbase && _renderer)
+	{
+		throw HSDK_FAIL;
+	}
 
+	m_Controller->link_ActionBase(_actionbase);
+	m_Controller->link_ActionListener(this);
+	m_ActionBase->link_DataTable(_datatable);
 }
 
 //--------------------------------------------------------------------------------------
@@ -19,176 +32,77 @@ CLASS_REALIZE_DESTRUCTOR(GameObject, GameObject)(void)
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(GameObject, void, set_Controller)(
-	/* [ref] */ i::i_Controller * _controller)
+CLASS_REALIZE_FUNC_T(GameObject, i::i_DataTable *, datatalbe)(
+	/* [void] */ void)const
 {
-	m_Controller = _controller;
-
-	if (_controller)
-	{
-		_controller->link_ActionTable(m_ActionBase);
-	}
+	return m_DataTable;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(GameObject, void, set_DataModel)(
-	/* [include] */ i::i_DataTable * _datatable)
+CLASS_REALIZE_FUNC_T(GameObject, i::i_Controller *, controller)(
+	/* [void] */ void)const
 {
-	m_DataTable = _datatable;
-
-	if (m_Renderer)
-	{
-		m_Renderer->link_DataTable(_datatable);
-	}
+	return m_Controller;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(GameObject, void, set_ActionBase)(
-	/* [include] */ i::i_ActionBase * _actionbase)
+CLASS_REALIZE_FUNC_T(GameObject, i::i_ModelRenderer *, renderer)(
+	/* [void] */ void)const
 {
-	m_ActionBase = _actionbase;
-
-	if (_actionbase)
-	{
-		_actionbase->link_DataTable(m_DataTable);
-	}
-
-	if (m_Controller)
-	{
-		m_Controller->link_ActionTable(_actionbase);
-	}
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(GameObject, void, set_Renderer)(
-	/* [include] */ i::i_ModelRenderer * _renderer)
-{
-	m_Renderer = _renderer;
-
-	if (_renderer)
-	{
-		_renderer->link_DataTable(m_DataTable);
-	}
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(GameObject, void, attack)(
-	/* [none] */ void)
-{
-	if (m_Controller)
-	{
-		m_Controller->attack();
-	}
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(GameObject, void, suffer)(
-	/* [in] */ unsigned int _frequency,
-	/* [in] */ float _amount,
-	/* [in] */ long _flag)
-{
-	if (m_Controller)
-	{
-		m_Controller->suffer(_frequency, _amount, _flag);
-	}
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(GameObject, void, move)(
-	/* [in] */ float _x,
-	/* [in] */ float _y,
-	/* [in] */ long _flag)
-{
-	if (m_Controller)
-	{
-		m_Controller->move(_x, _y, _flag);
-	}
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(GameObject, void, wait)(
-	/* [none] */ void)
-{
-	if (m_Controller)
-	{
-		m_Controller->wait();
-	}
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(GameObject, void, effect)(
-	/* [in] */ unsigned int _effect)
-{
-	if (m_Controller)
-	{
-		m_Controller->effect(_effect);
-	}
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(GameObject, void, recovery)(
-	/* [in] */ unsigned int _frequency,
-	/* [in] */ float _amount,
-	/* [in] */ long _flag)
-{
-	if (m_Controller)
-	{
-		m_Controller->recovery(_frequency, _amount, _flag);
-	}
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(GameObject, void, resurrect)(
-	/* [none] */ void)
-{
-	if (m_Controller)
-	{
-		m_Controller->resurrect();
-	}
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(GameObject, void, disappear)(
-	/* [none] */ void)
-{
-	if (m_Controller)
-	{
-		m_Controller->disappear();
-	}
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(GameObject, void, notify)(
-	/* [none] */ void)
-{
-	if (m_ActionBase)
-	{
-		m_ActionBase->update();
-	}
-
-	if (m_Controller)
-	{
-		m_Controller->update();
-	}
-
-	if (m_Renderer)
-	{
-		m_Renderer->update();
-	}
+	return m_Renderer;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(GameObject, void, update)(
 	/* [none] */ void)
 {
+
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(GameObject, void, render)(
 	/* [none] */ void)
 {
-	if (m_Renderer)
+
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(GameObject, void, listen_Action)(
+	/* [ref] */ i::i_ActionLayer * _actionlayer)
+{
+	unsigned int p = _actionlayer->priority();
+	if (p)
 	{
-		m_Renderer->render();
+		if (p < my_Action->priority())
+		{
+			my_Action = _actionlayer;
+		}
+	}
+	else
+	{
+		my_Effects.push_back(_actionlayer);
+	}
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(GameObject, void, act)(
+	/* [none] */ void)
+{
+	std::list<i::i_ActionLayer *>::iterator begin = my_Effects.begin();
+	std::list<i::i_ActionLayer *>::iterator end = my_Effects.begin();
+	while (begin != end)
+	{
+		IF_FALSE((*begin)->act())
+		{
+			begin = my_Effects.erase(begin);
+			continue;
+		}
+
+		++begin;
+	}
+
+	if (my_Action || my_Action->act())
+	{
+		m_Controller->wait(0);
 	}
 }

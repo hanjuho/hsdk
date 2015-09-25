@@ -133,11 +133,6 @@ CLASS_REALIZE_FUNC_T(Physics2DEngine, void, operate)(
 		*(Manifold2D *)(_param);
 	m.contact_count = 0;
 
-	IF_FALSE(_objA && _objB)
-	{
-		return;
-	}
-
 	if (_objA->group_id() == _objB->group_id())
 	{
 		return;
@@ -153,17 +148,8 @@ CLASS_REALIZE_FUNC_T(Physics2DEngine, void, operate)(
 		return;
 	}
 
-	i::i_Collider2D * colA;
-	IF_FALSE(colA = _objA->collider())
-	{
-		return;
-	}
-
-	i::i_Collider2D * colB;
-	IF_FALSE(colB = _objB->collider())
-	{
-		return;
-	}
+	i::i_Collider2D * colA = _objA->collider();
+	i::i_Collider2D * colB = _objB->collider();
 
 	const unsigned int typeA = colA->type();
 	const unsigned int typeB = colB->type();
