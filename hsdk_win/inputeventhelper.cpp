@@ -10,7 +10,7 @@ using namespace win::frame;
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_CONSTRUCTOR(inputEventHelper, inputEventHelper)(
-	/* [in] */ i_Component * _component)
+	/* [r] */ i_Component * _component)
 	: my_FocusComponent(_component), my_FocusMouseable(_component->get_Mouseable())
 {
 	xy.x = 0;
@@ -25,7 +25,7 @@ CLASS_REALIZE_DESTRUCTOR(inputEventHelper, inputEventHelper)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(inputEventHelper, bool, chain)(
-	/* [in] */ const i::frame::i_Component * _component)
+	/* [r] */ const i::frame::i_Component * _component)
 {
 	IF_FALSE(_component->is_Visible())
 	{
@@ -55,7 +55,7 @@ CLASS_REALIZE_FUNC_T(inputEventHelper, bool, chain)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(inputEventHelper, void, update)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	/*
 	설명 : component 갱신 chain 이 유효한지 검사.
@@ -107,9 +107,9 @@ CLASS_REALIZE_FUNC_T(inputEventHelper, void, update)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(inputEventHelper, void, onClick_Down)(
-	/* [in] */ i::frame::i_Mouseable::MOUSE_BUTTON _button,
-	/* [in] */ int _x,
-	/* [in] */ int _y)
+	/* [r] */ i::frame::i_Mouseable::MOUSE_BUTTON _button,
+	/* [r] */ int _x,
+	/* [r] */ int _y)
 {
 	xy.x = _x;
 	xy.y = _y;
@@ -126,9 +126,9 @@ CLASS_REALIZE_FUNC_T(inputEventHelper, void, onClick_Down)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(inputEventHelper, void, onClick_Up)(
-	/* [in] */ i::frame::i_Mouseable::MOUSE_BUTTON _button,
-	/* [in] */ int _x,
-	/* [in] */ int _y)
+	/* [r] */ i::frame::i_Mouseable::MOUSE_BUTTON _button,
+	/* [r] */ int _x,
+	/* [r] */ int _y)
 {
 	xy.x = _x;
 	xy.y = _y;
@@ -145,9 +145,9 @@ CLASS_REALIZE_FUNC_T(inputEventHelper, void, onClick_Up)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(inputEventHelper, void, onDrag)(
-	/* [in] */ i::frame::i_Mouseable::MOUSE_BUTTON _button,
-	/* [in] */ int _x,
-	/* [in] */ int _y)
+	/* [r] */ i::frame::i_Mouseable::MOUSE_BUTTON _button,
+	/* [r] */ int _x,
+	/* [r] */ int _y)
 {
 	int dx = xy.x - _x;
 	int dy = xy.y - _y;
@@ -163,8 +163,8 @@ CLASS_REALIZE_FUNC_T(inputEventHelper, void, onDrag)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(inputEventHelper, void, onMove)(
-	/* [in] */ int _x,
-	/* [in] */ int _y)
+	/* [r] */ int _x,
+	/* [r] */ int _y)
 {
 	xy.x = _x;
 	xy.y = _y;
@@ -177,9 +177,9 @@ CLASS_REALIZE_FUNC_T(inputEventHelper, void, onMove)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(inputEventHelper, void, onWheel)(
-	/* [in] */ int _x,
-	/* [in] */ int _y,
-	/* [in] */ int _w)
+	/* [r] */ int _x,
+	/* [r] */ int _y,
+	/* [r] */ int _w)
 {
 	xy.x = _x;
 	xy.y = _y;

@@ -21,63 +21,63 @@ CLASS_REALIZE_DESTRUCTOR(ActionBase, ActionBase)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(ActionBase, i::i_ActionLayer *, attack)(
-	/* [in] */ long _flag)
+	/* [r] */ long _flag)
 {
 	return nullptr;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(ActionBase, i::i_ActionLayer *, suffer)(
-	/* [in] */ unsigned int _frequency,
-	/* [in] */ float _amount,
-	/* [in] */ long _flag)
+	/* [r] */ unsigned int _frequency,
+	/* [r] */ float _amount,
+	/* [r] */ long _flag)
 {
 	return nullptr;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(ActionBase, i::i_ActionLayer *, move)(
-	/* [in] */ float _x,
-	/* [in] */ float _y,
-	/* [in] */ long _flag)
+	/* [r] */ float _x,
+	/* [r] */ float _y,
+	/* [r] */ long _flag)
 {
 	return nullptr;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(ActionBase, i::i_ActionLayer *, wait)(
-	/* [in] */ long _flag)
+	/* [r] */ long _flag)
 {
 	return nullptr;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(ActionBase, i::i_ActionLayer *, effect)(
-	/* [in] */ unsigned int _effect,
-	/* [in] */ long _flag)
+	/* [r] */ unsigned int _effect,
+	/* [r] */ long _flag)
 {
 	return nullptr;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(ActionBase, i::i_ActionLayer *, recovery)(
-	/* [in] */ unsigned int _frequency,
-	/* [in] */ float _amount,
-	/* [in] */ long _flag)
+	/* [r] */ unsigned int _frequency,
+	/* [r] */ float _amount,
+	/* [r] */ long _flag)
 {
 	return nullptr;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(ActionBase, i::i_ActionLayer *, resurrect)(
-	/* [in] */ long _flag)
+	/* [r] */ long _flag)
 {
 	return nullptr;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(ActionBase, i::i_ActionLayer *, disappear)(
-	/* [in] */ long _flag)
+	/* [r] */ long _flag)
 {
 	return nullptr;
 }

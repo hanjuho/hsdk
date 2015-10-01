@@ -18,7 +18,7 @@ m11(0.0f)
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_CONSTRUCTOR(Matrix2D, Matrix2D)(
-	/* [in] */ float _radians)
+	/* [r] */ float _radians)
 {
 	float c = std::cos(_radians);
 	float s = std::sin(_radians);
@@ -31,10 +31,10 @@ CLASS_REALIZE_CONSTRUCTOR(Matrix2D, Matrix2D)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_CONSTRUCTOR(Matrix2D, Matrix2D)(
-	/* [in] */ float _a,
-	/* [in] */ float _b,
-	/* [in] */ float _c,
-	/* [in] */ float _d) :
+	/* [r] */ float _a,
+	/* [r] */ float _b,
+	/* [r] */ float _c,
+	/* [r] */ float _d) :
 	m00(_a),
 	m01(_b),
 	m10(_c),
@@ -45,7 +45,7 @@ CLASS_REALIZE_CONSTRUCTOR(Matrix2D, Matrix2D)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Matrix2D, const Vector2D, operator*)(
-	/* [in] */ const Vector2D & _rhs) const
+	/* [r] */ const Vector2D & _rhs) const
 {
 	return Vector2D(
 		m00 * _rhs.x + m01 * _rhs.y, 
@@ -54,7 +54,7 @@ CLASS_REALIZE_FUNC_T(Matrix2D, const Vector2D, operator*)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Matrix2D, const Matrix2D, operator*)(
-	/* [in] */ const Matrix2D & _rhs) const
+	/* [r] */ const Matrix2D & _rhs) const
 {
 	return Matrix2D(
 		m[0][0] * _rhs.m[0][0] + m[0][1] * _rhs.m[1][0],
@@ -65,7 +65,7 @@ CLASS_REALIZE_FUNC_T(Matrix2D, const Matrix2D, operator*)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Matrix2D, void, operator=)(
-	/* [in] */ const Matrix2D & _rhs)
+	/* [r] */ const Matrix2D & _rhs)
 {
 	m00 = _rhs.m00;
 	m01 = _rhs.m01;
@@ -75,7 +75,7 @@ CLASS_REALIZE_FUNC_T(Matrix2D, void, operator=)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Matrix2D, void, operator=)(
-	/* [in] */ float _radians)
+	/* [r] */ float _radians)
 {
 	float c = std::cos(_radians);
 	float s = std::sin(_radians);

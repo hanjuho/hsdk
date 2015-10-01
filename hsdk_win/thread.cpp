@@ -20,7 +20,7 @@ REALIZE_FUNC_T(DWORD, threadProc)(LPVOID _param)
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_CONSTRUCTOR(Thread, Thread)(
-	/* [include] */ i_Task * _task)
+	/* [set] */ i_Task * _task)
 	: my_Task(_task)
 {
 	//
@@ -55,7 +55,7 @@ CLASS_REALIZE_DESTRUCTOR(Thread, Thread)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Thread, start)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	// 스스로가 이 함수를 호출할 수 없음
 	if (m_ThreadID == GetCurrentThreadId())
@@ -79,7 +79,7 @@ CLASS_REALIZE_FUNC(Thread, start)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Thread, kill)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	// 스스로가 이 함수를 호출할 수 없음
 	if (m_ThreadID == GetCurrentThreadId())
@@ -103,7 +103,7 @@ CLASS_REALIZE_FUNC(Thread, kill)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Thread, wait)(
-	/* [in] */ unsigned int _time)
+	/* [r] */ unsigned int _time)
 {
 	// 스스로가 이 함수를 호출할 수 없음
 	if (m_ThreadID == GetCurrentThreadId())
@@ -126,7 +126,7 @@ CLASS_REALIZE_FUNC(Thread, wait)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Thread, reset)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	try
 	{

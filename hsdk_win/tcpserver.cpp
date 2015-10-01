@@ -38,7 +38,7 @@ CLASS_REALIZE_DESTRUCTOR(TCPServer, TCPServer)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(TCPServer, open)(
-	/* [in] */ unsigned int _port)
+	/* [r] */ unsigned int _port)
 {
 	// 货 家南 
 	SOCKET new_socket;
@@ -120,7 +120,7 @@ CLASS_REALIZE_FUNC(TCPServer, open)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(TCPServer, close)(
-	/* [in] */ void)
+	/* [r] */ void)
 {
 	// 凯赴 家南阑 摧澜
 	closesocket(m_Socket);
@@ -130,8 +130,8 @@ CLASS_REALIZE_FUNC(TCPServer, close)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(TCPServer, accept)(
-	/* [out] */ i::network::i_Proxy * (&_proxy),
-	/* [in] */ unsigned int _time)
+	/* [w] */ i::network::i_Proxy * (&_proxy),
+	/* [r] */ unsigned int _time)
 {
 	HRESULT hr;
 
@@ -174,16 +174,16 @@ CLASS_REALIZE_FUNC(TCPServer, accept)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(TCPServer, reset)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	return close() | open(m_Port);
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(TCPServer, accept)(
-	/* [out] */ SOCKET & _socket,
-	/* [out] */ unsigned int & _ip,
-	/* [in] */ unsigned int _time)
+	/* [w] */ SOCKET & _socket,
+	/* [w] */ unsigned int & _ip,
+	/* [r] */ unsigned int _time)
 {
 	HRESULT hr;
 
@@ -227,7 +227,7 @@ CLASS_REALIZE_FUNC(TCPServer, accept)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(TCPServer, SOCKET, get_Socket)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	return m_Socket;
 }

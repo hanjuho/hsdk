@@ -9,8 +9,8 @@ using namespace criticalsection;
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_CONSTRUCTOR(Semaphore, Semaphore)(
-	/* [in] */ unsigned int _initCount,
-	/* [in] */ unsigned int _maxCount)
+	/* [r] */ unsigned int _initCount,
+	/* [r] */ unsigned int _maxCount)
 	: my_initCount(_initCount), my_maxCount(my_maxCount)
 {
 	IF_FALSE(_initCount < _maxCount)
@@ -35,7 +35,7 @@ CLASS_REALIZE_DESTRUCTOR(Semaphore, Semaphore)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Semaphore, enter)(
-	/* [in] */ unsigned long _time)
+	/* [r] */ unsigned long _time)
 {
 	switch (WaitForSingleObject(my_Semaphore, _time))
 	{
@@ -51,7 +51,7 @@ CLASS_REALIZE_FUNC(Semaphore, enter)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Semaphore, leave)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	IF_FALSE(ReleaseMutex(my_Semaphore))
 	{
@@ -63,7 +63,7 @@ CLASS_REALIZE_FUNC(Semaphore, leave)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Semaphore, reset)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	try
 	{

@@ -46,21 +46,18 @@
     <Filter Include="소스 파일\net">
       <UniqueIdentifier>{e17a9fa4-811e-4c2e-aded-a7e1c6e4438a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="헤더 파일\frame\d3d11">
+      <UniqueIdentifier>{fb0025f1-3c51-4636-b773-780a4747d314}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\frame\d3d11">
+      <UniqueIdentifier>{d5d41e5f-6c7c-462a-8a29-358c8d08ff70}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="component.cpp">
       <Filter>소스 파일\frame</Filter>
     </ClCompile>
     <ClCompile Include="container.cpp">
-      <Filter>소스 파일\frame</Filter>
-    </ClCompile>
-    <ClCompile Include="d3d11.cpp">
-      <Filter>소스 파일\frame</Filter>
-    </ClCompile>
-    <ClCompile Include="d3d11frame.cpp">
-      <Filter>소스 파일\frame</Filter>
-    </ClCompile>
-    <ClCompile Include="d3d11graphics.cpp">
       <Filter>소스 파일\frame</Filter>
     </ClCompile>
     <ClCompile Include="hwnd.cpp">
@@ -93,21 +90,21 @@
     <ClCompile Include="thread.cpp">
       <Filter>소스 파일\thread</Filter>
     </ClCompile>
+    <ClCompile Include="d3d11.cpp">
+      <Filter>소스 파일\frame\d3d11</Filter>
+    </ClCompile>
+    <ClCompile Include="graphics.cpp">
+      <Filter>소스 파일\frame</Filter>
+    </ClCompile>
+    <ClCompile Include="frame.cpp">
+      <Filter>소스 파일\frame</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\component.h">
       <Filter>헤더 파일\frame</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\container.h">
-      <Filter>헤더 파일\frame</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\d3d11.h">
-      <Filter>헤더 파일\frame</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\d3d11frame.h">
-      <Filter>헤더 파일\frame</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\d3d11graphics.h">
       <Filter>헤더 파일\frame</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\hwnd.h">
@@ -145,6 +142,24 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpclient.h">
       <Filter>헤더 파일\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\d3d11\헤더1.h">
+      <Filter>헤더 파일\frame\d3d11</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\d3d11\헤더3.h">
+      <Filter>헤더 파일\frame\d3d11</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\d3d11\d3d11.h">
+      <Filter>헤더 파일\frame\d3d11</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\graphics.h">
+      <Filter>헤더 파일\frame</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\frame.h">
+      <Filter>헤더 파일\frame</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\d3d11\common.h">
+      <Filter>헤더 파일\frame\d3d11</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

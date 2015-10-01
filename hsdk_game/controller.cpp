@@ -21,7 +21,7 @@ CLASS_REALIZE_DESTRUCTOR(Controller, Controller)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Controller, void, attack)(
-	/* [in] */ long _flag)
+	/* [r] */ long _flag)
 {
 	i::i_ActionLayer * layer;
 	if (layer = m_ActionBase->attack(_flag))
@@ -32,9 +32,9 @@ CLASS_REALIZE_FUNC_T(Controller, void, attack)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Controller, void, suffer)(
-	/* [in] */ unsigned int _frequency,
-	/* [in] */ float _amount,
-	/* [in] */ long _flag)
+	/* [r] */ unsigned int _frequency,
+	/* [r] */ float _amount,
+	/* [r] */ long _flag)
 {
 	i::i_ActionLayer * layer;
 	if (layer = m_ActionBase->suffer(_frequency, _amount, _flag))
@@ -45,9 +45,9 @@ CLASS_REALIZE_FUNC_T(Controller, void, suffer)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Controller, void, move)(
-	/* [in] */ float _x,
-	/* [in] */ float _y,
-	/* [in] */ long _flag)
+	/* [r] */ float _x,
+	/* [r] */ float _y,
+	/* [r] */ long _flag)
 {
 	i::i_ActionLayer * layer;
 	if (layer = m_ActionBase->move(_x, _y, _flag))
@@ -58,7 +58,7 @@ CLASS_REALIZE_FUNC_T(Controller, void, move)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Controller, void, wait)(
-	/* [in] */ long _flag)
+	/* [r] */ long _flag)
 {
 	i::i_ActionLayer * layer;
 	if (layer = m_ActionBase->wait(_flag))
@@ -69,8 +69,8 @@ CLASS_REALIZE_FUNC_T(Controller, void, wait)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Controller, void, effect)(
-	/* [in] */ unsigned int _effect,
-	/* [in] */ long _flag)
+	/* [r] */ unsigned int _effect,
+	/* [r] */ long _flag)
 {
 	i::i_ActionLayer * layer;
 	if (layer = m_ActionBase->effect(_effect, _flag))
@@ -81,9 +81,9 @@ CLASS_REALIZE_FUNC_T(Controller, void, effect)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Controller, void, recovery)(
-	/* [in] */ unsigned int _frequency,
-	/* [in] */ float _amount,
-	/* [in] */ long _flag)
+	/* [r] */ unsigned int _frequency,
+	/* [r] */ float _amount,
+	/* [r] */ long _flag)
 {
 	i::i_ActionLayer * layer;
 	if (layer = m_ActionBase->recovery(_frequency, _amount, _flag))
@@ -94,7 +94,7 @@ CLASS_REALIZE_FUNC_T(Controller, void, recovery)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Controller, void, resurrect)(
-	/* [in] */ long _flag)
+	/* [r] */ long _flag)
 {
 	i::i_ActionLayer * layer;
 	if (layer = m_ActionBase->resurrect(_flag))
@@ -105,7 +105,7 @@ CLASS_REALIZE_FUNC_T(Controller, void, resurrect)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Controller, void, disappear)(
-	/* [in] */ long _flag)
+	/* [r] */ long _flag)
 {
 	i::i_ActionLayer * layer;
 	if (layer = m_ActionBase->disappear(_flag))

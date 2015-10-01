@@ -27,7 +27,7 @@ CLASS_REALIZE_DESTRUCTOR(AutoResetEvent, AutoResetEvent)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(AutoResetEvent, signal)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	IF_FALSE(SetEvent(my_Event))
 	{
@@ -39,7 +39,7 @@ CLASS_REALIZE_FUNC(AutoResetEvent, signal)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(AutoResetEvent, wait)(
-	/* [in] */ unsigned long _time)
+	/* [r] */ unsigned long _time)
 {
 	switch (WaitForSingleObject(my_Event, _time))
 	{
@@ -55,7 +55,7 @@ CLASS_REALIZE_FUNC(AutoResetEvent, wait)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(AutoResetEvent, reset)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	try
 	{

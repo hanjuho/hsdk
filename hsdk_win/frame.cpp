@@ -1,4 +1,5 @@
-#include <hsdk/win/frame/d3d11frame.h>
+#include <hsdk/win/frame/frame.h>
+#include <hsdk/win/frame/graphics.h>
 
 
 
@@ -8,15 +9,21 @@ using namespace win::frame;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(D3D11Frame, D3D11Frame)(
-	/* [in] */ HINSTANCE _hInstance,
-	/* [in] */ const wchar_t * _title,
-	/* [in] */ unsigned int _x,
-	/* [in] */ unsigned int _y,
-	/* [in] */ unsigned int _w,
-	/* [in] */ unsigned int _h)
-	: D3D11(TEXT(""), _hInstance, _title, _x, _y, _w, _h), m_inputEventHelper(this)
+CLASS_REALIZE_CONSTRUCTOR(Frame, Frame)(
+	/* [r] */ HINSTANCE _hInstance,
+	/* [r] */ const wchar_t * _title,
+	/* [r] */ unsigned int _x,
+	/* [r] */ unsigned int _y,
+	/* [r] */ unsigned int _w,
+	/* [r] */ unsigned int _h)
+	: D3D11(L"", _hInstance, _title, _x, _y, _w, _h), m_inputEventHelper(this)
 {
+	HRESULT hr;
+	if (FAILED(hr = Graphics::initialize()))
+	{
+		throw hr;
+	}
+
 	set_X(float(_x));
 	set_Y(float(_y));
 	set_W(float(_w));
@@ -24,14 +31,14 @@ CLASS_REALIZE_CONSTRUCTOR(D3D11Frame, D3D11Frame)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_DESTRUCTOR(D3D11Frame, D3D11Frame)(void)
+CLASS_REALIZE_DESTRUCTOR(Frame, Frame)(void)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(D3D11Frame, void, update)(
-	/* [none] */ void)
+CLASS_REALIZE_FUNC_T(Frame, void, update)(
+	/* [x] */ void)
 {
 	float rectangle[4] = {
 		0.0f,
@@ -44,7 +51,7 @@ CLASS_REALIZE_FUNC_T(D3D11Frame, void, update)(
 	m_D3D11Graphics.update_Panel(rectangle);
 
 	// 윈도 와이드 재설정
-	D3D11Graphics::set_Wide(rectangle);
+	Graphics::set_Wide(rectangle);
 
 	// 윈도 사각형 재설정
 	SetWindowPos(
@@ -69,24 +76,24 @@ CLASS_REALIZE_FUNC_T(D3D11Frame, void, update)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(D3D11Frame, void, render)(
-	/* [none] */ void)
+CLASS_REALIZE_FUNC_T(Frame, void, render)(
+	/* [x] */ void)
 {
 	//
-	D3D11Graphics::shader_on();
+	Graphics::shader_on();
 
 	//
 	Container::render();
 
 	//
-	D3D11Graphics::shader_off();
+	Graphics::shader_off();
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(D3D11Frame, void, message_Proc)(
-	/* [in] */unsigned int _uMsg,
-	/* [in] */unsigned int _wParam,
-	/* [in] */unsigned long _lParam)
+CLASS_REALIZE_FUNC_T(Frame, void, message_Proc)(
+	/* [r] */unsigned int _uMsg,
+	/* [r] */unsigned int _wParam,
+	/* [r] */unsigned long _lParam)
 {
 	switch (_uMsg)
 	{

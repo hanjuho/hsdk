@@ -17,9 +17,9 @@ using namespace physics2d;
 
 // grobal function
 REALIZE_FUNC_T(unsigned int, clip)(
-	/* [out] */ Vector2D(&_in_out)[2],
-	/* [in] */ const Vector2D & _n,
-	/* [in] */ float _c)
+	/* [w] */ Vector2D(&_in_out)[2],
+	/* [r] */ const Vector2D & _n,
+	/* [r] */ float _c)
 {
 	unsigned int sp = 0;
 	Vector2D out[2] = {
@@ -73,9 +73,9 @@ CLASS_REALIZE_CONSTRUCTOR(Physics2DEngine::My_SOURCE_DESC, My_SOURCE_DESC)(void)
 
 //-------------------------------------------------------------------------------------- 
 CLASS_REALIZE_CONSTRUCTOR(Physics2DEngine::My_SOURCE_DESC, My_SOURCE_DESC)(
-	/* [in] */ i::i_Physics2DObject * _object,
-	/* [in] */ i::i_Collision2DListener * _listner,
-	/* [in] */ long _valid)
+	/* [r] */ i::i_Physics2DObject * _object,
+	/* [r] */ i::i_Collision2DListener * _listner,
+	/* [r] */ long _valid)
 	: object(_object), listener(_listner), valid(_valid)
 {
 
@@ -106,7 +106,7 @@ CLASS_REALIZE_DESTRUCTOR(Physics2DEngine::My_SOURCE_DESC, My_SOURCE_DESC)(void)
 
 //-------------------------------------------------------------------------------------- 
 CLASS_REALIZE_FUNC_T(Physics2DEngine::My_SOURCE_DESC, void, operator =)(
-	/* [in] */ const SOURCE_DESC & _desc)
+	/* [r] */ const SOURCE_DESC & _desc)
 {
 	new(this) My_SOURCE_DESC(
 		_desc.object, this->listener, _desc.valid);
@@ -114,20 +114,20 @@ CLASS_REALIZE_FUNC_T(Physics2DEngine::My_SOURCE_DESC, void, operator =)(
 
 //-------------------------------------------------------------------------------------- 
 CLASS_REALIZE_FUNC_T(Physics2DEngine, void, find)(
-	/* [in] */ i::i_Physics2DObject * _object,
-	/* [in] */ i::i_Boundary2DListener * _listener,
-	/* [in] */ float _distance,
-	/* [in] */ long _sort)
+	/* [r] */ i::i_Physics2DObject * _object,
+	/* [r] */ i::i_Boundary2DListener * _listener,
+	/* [r] */ float _distance,
+	/* [r] */ long _sort)
 {
 
 }
 
 //-------------------------------------------------------------------------------------- 
 CLASS_REALIZE_FUNC_T(Physics2DEngine, void, operate)(
-	/* [in] */ i::i_Physics2DObject * _objA,
-	/* [in] */ i::i_Physics2DObject * _objB,
-	/* [in] */ const i::i_Terrain2D * _terrain,
-	/* [in] */ void * _param)
+	/* [r] */ i::i_Physics2DObject * _objA,
+	/* [r] */ i::i_Physics2DObject * _objB,
+	/* [r] */ const i::i_Terrain2D * _terrain,
+	/* [r] */ void * _param)
 {
 	Manifold2D & m =
 		*(Manifold2D *)(_param);
@@ -596,7 +596,7 @@ CLASS_REALIZE_FUNC_T(Physics2DEngine, void, operate)(
 //-------------------------------------------------------------------------------------- 
 CLASS_REALIZE_FUNC(Physics2DEngine, update)(
 	/* [ref] */ SOURCE_DESC * (&_source),
-	/* [in] */ unsigned int _size)
+	/* [r] */ unsigned int _size)
 {
 	if (_size < 2)
 	{
@@ -619,10 +619,10 @@ CLASS_REALIZE_FUNC(Physics2DEngine, update)(
 
 //-------------------------------------------------------------------------------------- 
 CLASS_REALIZE_FUNC_T(Physics2DEngine, void, run)(
-	/* [in] */ const i::i_Terrain2D * _terrain,
-	/* [in] */ const Vector2D & _gravity,
-	/* [in] */ float _dt,
-	/* [in] */ void * _param)
+	/* [r] */ const i::i_Terrain2D * _terrain,
+	/* [r] */ const Vector2D & _gravity,
+	/* [r] */ float _dt,
+	/* [r] */ void * _param)
 {
 	// 충돌 결과
 	RESULT_CONTACT result;

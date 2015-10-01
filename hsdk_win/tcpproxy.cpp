@@ -38,9 +38,9 @@ CLASS_REALIZE_DESTRUCTOR(TCPProxy, TCPProxy)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(TCPProxy, send)(
-	/* [in] */ byte * _context,
-	/* [in] */ unsigned int _offset,
-	/* [in] */ unsigned int _size)
+	/* [r] */ byte * _context,
+	/* [r] */ unsigned int _offset,
+	/* [r] */ unsigned int _size)
 {
 	// 패킷으로 변환된 정보를 꺼내 송신한다.
 	IF_FAILED(::send(m_Socket, &_context[_offset], _size, 0))
@@ -53,8 +53,8 @@ CLASS_REALIZE_FUNC(TCPProxy, send)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(TCPProxy, receive)(
-	/* [out] */ byte * (&_context),
-	/* [out] */ unsigned int (&_size))
+	/* [w] */ byte * (&_context),
+	/* [w] */ unsigned int (&_size))
 {
 	unsigned int buffer_len;
 
@@ -76,7 +76,7 @@ CLASS_REALIZE_FUNC(TCPProxy, receive)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(TCPProxy, wait_Recv)(
-	/* [in] */ unsigned int _time)
+	/* [r] */ unsigned int _time)
 {
 	HRESULT hr;
 
@@ -126,8 +126,8 @@ CLASS_REALIZE_FUNC(TCPProxy, wait_Recv)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(TCPProxy, initailize)(
-	/* [in] */ unsigned int _ip,
-	/* [in] */ SOCKET _socket)
+	/* [r] */ unsigned int _ip,
+	/* [r] */ SOCKET _socket)
 {
 	// 소켓과 이벤트를 연결한다.
 	IF_FAILED(WSAEventSelect(_socket, m_Event, FD_READ | FD_CLOSE))
@@ -151,7 +151,7 @@ CLASS_REALIZE_FUNC(TCPProxy, initailize)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(TCPProxy, SOCKET, get_Socket)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	return m_Socket;
 }

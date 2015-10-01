@@ -10,9 +10,9 @@ using namespace manifold;
 
 //--------------------------------------------------------------------------------------
 REALIZE_FUNC_T(void, hsdk::physics2d::manifold::initialize)(
-	/* [out] */ Manifold2D & _m,
-	/* [in] */ const i::i_RigidBody2D * _abody,
-	/* [in] */ const i::i_RigidBody2D * _bbody)
+	/* [w] */ Manifold2D & _m,
+	/* [r] */ const i::i_RigidBody2D * _abody,
+	/* [r] */ const i::i_RigidBody2D * _bbody)
 {
 	// Calculate average restitution
 	_m.e = std::min(_abody->restitution(), _bbody->restitution());
@@ -24,12 +24,12 @@ REALIZE_FUNC_T(void, hsdk::physics2d::manifold::initialize)(
 
 //--------------------------------------------------------------------------------------
 REALIZE_FUNC_T(void, hsdk::physics2d::manifold::impulse_Apply)(
-	/* [out] */ Manifold2D & _m,
-	/* [in] */ const Vector2D & _apos,
-	/* [in] */ i::i_RigidBody2D * _abody,
-	/* [in] */ const Vector2D & _bpos,
-	/* [in] */ i::i_RigidBody2D * _bbody,
-	/* [in] */ float _glength)
+	/* [w] */ Manifold2D & _m,
+	/* [r] */ const Vector2D & _apos,
+	/* [r] */ i::i_RigidBody2D * _abody,
+	/* [r] */ const Vector2D & _bpos,
+	/* [r] */ i::i_RigidBody2D * _bbody,
+	/* [r] */ float _glength)
 {
 	float amass = _abody->mass();
 	float bmass = _bbody->mass();

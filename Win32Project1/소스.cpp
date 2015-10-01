@@ -3,7 +3,7 @@
 
 
 
-#include <hsdk/win/frame/d3d11frame.h>
+#include <hsdk/win/frame/Frame.h>
 #include <FW1FontWrapper.h>
 
 
@@ -30,27 +30,27 @@ public:
 
 	// 설명 : mouse의 버튼이 눌렸을 때 발생하는 event
 	INTERFACE_DECL_FUNC_T(void, onClick_Down)(
-		/* [in] */ MOUSE_BUTTON _button,
-		/* [in] */ int _x,
-		/* [in] */ int _y)
+		/* [r] */ MOUSE_BUTTON _button,
+		/* [r] */ int _x,
+		/* [r] */ int _y)
 	{
 
 	}
 
 	// 설명 : mouse의 버튼이 눌렸다가 때면 발생하는 event
 	INTERFACE_DECL_FUNC_T(void, onClick_Up)(
-		/* [in] */ MOUSE_BUTTON _button,
-		/* [in] */ int _x,
-		/* [in] */ int _y)
+		/* [r] */ MOUSE_BUTTON _button,
+		/* [r] */ int _x,
+		/* [r] */ int _y)
 	{
 		
 	}
 
 	// 설명 : mouse의 버튼을 누른 채 커서를 이동하면 발생하는 event
 	INTERFACE_DECL_FUNC_T(void, onDrag)(
-		/* [in] */ MOUSE_BUTTON _button,
-		/* [in] */ int _x,
-		/* [in] */ int _y)
+		/* [r] */ MOUSE_BUTTON _button,
+		/* [r] */ int _x,
+		/* [r] */ int _y)
 	{
 		my_Component->set_X(my_Component->get_X() - _x);
 		my_Component->set_Y(my_Component->get_Y() - _y);
@@ -59,17 +59,17 @@ public:
 
 	// 설명 : mouse의 커서를 이동시키면 발생하는 event
 	INTERFACE_DECL_FUNC_T(void, onMove)(
-		/* [in] */ int _x,
-		/* [in] */ int _y)
+		/* [r] */ int _x,
+		/* [r] */ int _y)
 	{
 
 	}
 
 	// 설명 : mouse의 wheel을 조작하면 발생하는 event
 	INTERFACE_DECL_FUNC_T(void, onWheel)(
-		/* [in] */ int _x,
-		/* [in] */ int _y,
-		/* [in] */ int _w)
+		/* [r] */ int _x,
+		/* [r] */ int _y,
+		/* [r] */ int _w)
 	{
 
 	}
@@ -94,12 +94,12 @@ AutoRelease<IFW1FontWrapper> pFontWrapper;
 // main
 int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 {
-	AutoDelete<frame::D3D11Frame> frame;
+	AutoDelete<frame::Frame> frame;
 	try
 	{
-		frame = new frame::D3D11Frame(
+		frame = new frame::Frame(
 			_hInstance,
-			TEXT("D3D11Frame"),
+			L"Frame",
 			0,
 			0,
 			800,
@@ -113,7 +113,7 @@ int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 		buffer[0] = '0';
 		buffer[1] = 'x';
 
-		MessageBox(NULL, buffer, TEXT("Error"), MB_OK);
+		MessageBox(NULL, buffer, L"Error", MB_OK);
 
 		return 0;
 	}
@@ -122,7 +122,7 @@ int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 	g = frame->graphics();
 	if (g)
 	{
-		g->set_image(TEXT("4764905167076218937.png"));
+		g->set_image(L"4764905167076218937.png");
 		g->set_imageDetail(860.0f, 1201.0f, { 344.0f, 280.0f, 160.0f, 160.0f });
 	}
 
@@ -135,7 +135,7 @@ int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 	g = component_1->graphics();
 	if (g)
 	{
-		g->set_image(TEXT("4764905167076218937.png"));
+		g->set_image(L"4764905167076218937.png");
 		g->set_imageDetail(860.0f, 1201.0f, { 344.0f, 280.0f, 160.0f, 160.0f });
 	}
 
@@ -148,7 +148,7 @@ int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 	g = component_2->graphics();
 	if (g)
 	{
-		g->set_image(TEXT("4764905167076218937.png"));
+		g->set_image(L"4764905167076218937.png");
 		g->set_imageDetail(860.0f, 1201.0f, { 344.0f, 280.0f, 160.0f, 160.0f });
 	}
 
@@ -171,19 +171,19 @@ int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 
 		drawText(
 			frame::D3D11::CONTEXT,
-			TEXT("name"),
+			L"name"),
 			10.0f, 
 			10.0f);
 
 		drawText(
 			frame::D3D11::CONTEXT,
-			TEXT(" : "),
+			L" : ",
 			10.0f + 32.0f * 4 + 1.0f,
 			10.0f);
 
 		drawText(
 			frame::D3D11::CONTEXT,
-			TEXT("hanjuho"),
+			L"hanjuho",
 			10.0f + 32.0f * 7 + 1.0f,
 			10.0f);
 		

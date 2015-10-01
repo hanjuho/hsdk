@@ -21,17 +21,17 @@ CLASS_REALIZE_DESTRUCTOR(CharacterDataTable, CharacterDataTable)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(CharacterDataTable, read_Table)(
-	/* [in] */ unsigned int _state,
-	/* [out] */ void * (&_data),
-	/* [in] */ unsigned int _size)const
+	/* [r] */ unsigned int _state,
+	/* [w] */ void * (&_data),
+	/* [r] */ unsigned int _size)const
 {
 	return HSDK_FAIL;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(CharacterDataTable, write_Table)(
-	/* [in] */ unsigned int _state,
-	/* [in] */ ...)
+	/* [r] */ unsigned int _state,
+	/* [r] */ ...)
 {
 	return HSDK_FAIL;
 }

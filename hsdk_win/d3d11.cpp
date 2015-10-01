@@ -1,9 +1,9 @@
-#include <hsdk/win/frame/d3d11.h>
-#include <hsdk/win/frame/d3d11graphics.h>
+#include <hsdk/win/frame/d3d11/d3d11.h>
 
 
 
 using namespace hsdk;
+using namespace d3d11;
 using namespace win::frame;
 
 
@@ -40,13 +40,13 @@ AutoRelease<ID3D11DepthStencilState> D3D11::DEPTH_OFF;
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_CONSTRUCTOR(D3D11, D3D11)(
-	/* [in] */ const wchar_t * _mode,
-	/* [in] */ HINSTANCE _hInstance,
-	/* [in] */ const wchar_t * _title,
-	/* [in] */ unsigned int _x,
-	/* [in] */ unsigned int _y,
-	/* [in] */ unsigned int _w,
-	/* [in] */ unsigned int _h)
+	/* [r] */ const wchar_t * _mode,
+	/* [r] */ HINSTANCE _hInstance,
+	/* [r] */ const wchar_t * _title,
+	/* [r] */ unsigned int _x,
+	/* [r] */ unsigned int _y,
+	/* [r] */ unsigned int _w,
+	/* [r] */ unsigned int _h)
 {
 	HRESULT hr;
 	if (FAILED(hr = i_Hwnd::initialize(_hInstance, _title, _x, _y, _w, _h)))
@@ -55,11 +55,6 @@ CLASS_REALIZE_CONSTRUCTOR(D3D11, D3D11)(
 	}
 
 	if (FAILED(hr = D3D11::initialize(get_Hwnd(), _mode)))
-	{
-		throw hr;
-	}
-
-	if (FAILED(hr = D3D11Graphics::initialize()))
 	{
 		throw hr;
 	}
@@ -73,8 +68,8 @@ CLASS_REALIZE_DESTRUCTOR(D3D11, D3D11)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(D3D11, initialize)(
-	/* [in] */ HWND _hwnd,
-	/* [in] */ const wchar_t * _modename)
+	/* [r] */ HWND _hwnd,
+	/* [r] */ const wchar_t * _modename)
 {
 	long hr = S_OK;
 
@@ -335,7 +330,7 @@ CLASS_REALIZE_FUNC(D3D11, initialize)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(D3D11, void, destroy)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	TEXTURE_CONTAINER.clear();
 	SAMPLER_CONTAINER.clear();
@@ -361,7 +356,7 @@ CLASS_REALIZE_FUNC_T(D3D11, void, destroy)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(D3D11, void, clear_Backbuffer)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	// 버퍼 클리어
 	CONTEXT->ClearRenderTargetView(RTVIEW, bg_color);
@@ -372,7 +367,7 @@ CLASS_REALIZE_FUNC_T(D3D11, void, clear_Backbuffer)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(D3D11, void, swap_Backbuffer)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	// 버퍼 스왑
 	CHAIN->Present(0, 0);
@@ -380,7 +375,7 @@ CLASS_REALIZE_FUNC_T(D3D11, void, swap_Backbuffer)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(D3D11, void, set_DepthOn)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	// Set the depth stencil state.
 	CONTEXT->OMSetDepthStencilState(DEPTH_ON, 1);
@@ -388,7 +383,7 @@ CLASS_REALIZE_FUNC_T(D3D11, void, set_DepthOn)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(D3D11, void, set_DepthOff)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	// Set the depth stencil state.
 	CONTEXT->OMSetDepthStencilState(DEPTH_OFF, 1);
@@ -396,8 +391,8 @@ CLASS_REALIZE_FUNC_T(D3D11, void, set_DepthOff)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(D3D11, get_Texture)(
-	/* [out] */ ID3D11ShaderResourceView * (&_texture),
-	/* [in] */  const wchar_t * _directory)
+	/* [w] */ ID3D11ShaderResourceView * (&_texture),
+	/* [r] */  const wchar_t * _directory)
 {
 	// 중복 검사
 	std::hash_map<std::wstring, AutoRelease<ID3D11ShaderResourceView>>::iterator iter =
@@ -436,8 +431,8 @@ CLASS_REALIZE_FUNC(D3D11, get_Texture)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(D3D11, get_Sampler)(
-	/* [out] */ ID3D11SamplerState * (&_sampler),
-	/* [in] */ SAMPLER _state)
+	/* [w] */ ID3D11SamplerState * (&_sampler),
+	/* [r] */ SAMPLER _state)
 {
 	// 중복 검사
 	std::hash_map<SAMPLER, AutoRelease<ID3D11SamplerState>>::iterator iter =
@@ -491,9 +486,9 @@ CLASS_REALIZE_FUNC(D3D11, get_Sampler)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(D3D11, create_Panel)(
-	/* [out] */ ID3D11Buffer * (&_buffer),
-	/* [in] */ const XMFLOAT2(&_uvs)[4],
-	/* [in] */ D3D11_USAGE _usage)
+	/* [w] */ ID3D11Buffer * (&_buffer),
+	/* [r] */ const XMFLOAT2(&_uvs)[4],
+	/* [r] */ D3D11_USAGE _usage)
 {
 	//
 	panel_UV verties[] =
@@ -532,7 +527,7 @@ CLASS_REALIZE_FUNC(D3D11, create_Panel)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(D3D11, void, render_Panel)(
-	/* [in] */ ID3D11Buffer * _buffer)
+	/* [r] */ ID3D11Buffer * _buffer)
 {
 	// 버텍스 버퍼 적용
 	CONTEXT->IASetVertexBuffers(0, 1,
@@ -550,9 +545,9 @@ CLASS_REALIZE_FUNC_T(D3D11, void, render_Panel)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(D3D11, create_ContantBuffers)(
-	/* [out] */ ID3D11Buffer * (&_buffer),
-	/* [in] */ unsigned long _size,
-	/* [in] */ D3D11_USAGE _usage)
+	/* [w] */ ID3D11Buffer * (&_buffer),
+	/* [r] */ unsigned long _size,
+	/* [r] */ D3D11_USAGE _usage)
 {
 	// 상수 버퍼 파라미터 생성
 	D3D11_BUFFER_DESC cbDescs;
@@ -578,12 +573,12 @@ CLASS_REALIZE_FUNC(D3D11, create_ContantBuffers)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(D3D11, create_inputLayoutForHeader)(
-	/* [out] */ ID3D11InputLayout * (&_layout),
-	/* [in] */ const char * _shadername,
-	/* [in] */ unsigned int _shadersize,
-	/* [in] */ const D3D11inputEachFormat * _formats,
-	/* [in] */ unsigned int _formatsize,
-	/* [in] */ D3D11_INPUT_CLASSIFICATION _InputSlotClass)
+	/* [w] */ ID3D11InputLayout * (&_layout),
+	/* [r] */ const char * _shadername,
+	/* [r] */ unsigned int _shadersize,
+	/* [r] */ const D3D11inputEachFormat * _formats,
+	/* [r] */ unsigned int _formatsize,
+	/* [r] */ D3D11_INPUT_CLASSIFICATION _InputSlotClass)
 {
 	// 인풋 객체 시멘틱스 파라미터 생성
 	std::vector<D3D11_INPUT_ELEMENT_DESC> inputDescs(_formatsize);
@@ -609,9 +604,9 @@ CLASS_REALIZE_FUNC(D3D11, create_inputLayoutForHeader)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(D3D11, create_VertexShaderForHeader)(
-	/* [out] */ ID3D11VertexShader * (&_shader),
-	/* [in] */ const char * _name,
-	/* [in] */ unsigned int _size)
+	/* [w] */ ID3D11VertexShader * (&_shader),
+	/* [r] */ const char * _name,
+	/* [r] */ unsigned int _size)
 {
 	return DEVICE->CreateVertexShader(
 		_name,
@@ -622,9 +617,9 @@ CLASS_REALIZE_FUNC(D3D11, create_VertexShaderForHeader)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(D3D11, create_PixelShaderForHeader)(
-	/* [out] */ ID3D11PixelShader * (&_shader),
-	/* [in] */ const char * _name,
-	/* [in] */ unsigned int _size)
+	/* [w] */ ID3D11PixelShader * (&_shader),
+	/* [r] */ const char * _name,
+	/* [r] */ unsigned int _size)
 {
 	return DEVICE->CreatePixelShader(
 		_name,
@@ -635,9 +630,9 @@ CLASS_REALIZE_FUNC(D3D11, create_PixelShaderForHeader)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(D3D11, create2D_Font)(
-	/* [out] */ IDWriteTextFormat * (&_font),
-	/* [in] */ const wchar_t * _fontname,
-	/* [in] */ unsigned int _size)
+	/* [w] */ IDWriteTextFormat * (&_font),
+	/* [r] */ const wchar_t * _fontname,
+	/* [r] */ unsigned int _size)
 {
 	// Create a DirectWrite text format object.
 	return FONTFACTORY->CreateTextFormat(
@@ -647,16 +642,16 @@ CLASS_REALIZE_FUNC(D3D11, create2D_Font)(
 		DWRITE_FONT_STYLE_NORMAL,
 		DWRITE_FONT_STRETCH_NORMAL,
 		(float)(_size),
-		TEXT(""), //locale
+		L"", //locale
 		&_font);
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(D3D11, void, render2D_Font)(
-	/* [in] */ const wchar_t * _text,
-	/* [in] */ unsigned int _size,
-	/* [in] */ const D2D1_RECT_F & _rect,
-	/* [in] */ IDWriteTextFormat * _font)
+	/* [r] */ const wchar_t * _text,
+	/* [r] */ unsigned int _size,
+	/* [r] */ const D2D1_RECT_F & _rect,
+	/* [r] */ IDWriteTextFormat * _font)
 {
 	CONTEXT2D->DrawTextW(
 		_text,

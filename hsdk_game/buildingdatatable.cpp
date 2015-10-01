@@ -9,16 +9,18 @@ using namespace datatable;
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_CONSTRUCTOR(BuildingDataTable, BuildingDataTable)(
+	const wchar_t * name,
+	unsigned int type,
+	unsigned int state,
 	unsigned int maxLife,
-	unsigned int maxMana,
-	unsigned int defense)
-	: m_MaxLife(maxLife),
-	m_Life(maxLife),
-	m_MaxMana(maxMana),
-	m_Mana(maxMana),
-	m_Defense(defense)
+	int defense)
+	: m_Name(name), m_Type(type), m_State(state),
+	m_MaxLife(maxLife), m_Life(maxLife), m_Defense(defense)
 {
-
+	if (maxLife < 1)
+	{
+		throw HSDK_FAIL;
+	}
 }
 
 //--------------------------------------------------------------------------------------
@@ -29,17 +31,38 @@ CLASS_REALIZE_DESTRUCTOR(BuildingDataTable, BuildingDataTable)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(BuildingDataTable, read_Table)(
-	/* [in] */ unsigned int _state,
-	/* [out] */ void * (&_data),
-	/* [in] */ unsigned int _size)const
+	/* [r] */ unsigned int _offset,
+	/* [r] */ unsigned int _size,
+	/* [w] */ void * (&_data))const
 {
 	return HSDK_FAIL;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(BuildingDataTable, write_Table)(
-	/* [in] */ unsigned int _state,
-	/* [in] */ ...)
+	/* [r] */ unsigned int _state,
+	/* [r] */ ...)
 {
 	return HSDK_FAIL;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(BuildingDataTable, const wchar_t *, name)(
+	/* [x] */ void)const
+{
+	return m_Name.c_str();
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(BuildingDataTable, unsigned int, type)(
+	/* [x] */ void)const
+{
+	return m_Type;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(BuildingDataTable, unsigned int, state)(
+	/* [x] */ void)const
+{
+	return m_State;
 }

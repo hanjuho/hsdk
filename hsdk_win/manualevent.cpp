@@ -27,7 +27,7 @@ CLASS_REALIZE_DESTRUCTOR(ManualEvent, ManualEvent)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(ManualEvent, signal)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	IF_FALSE(SetEvent(my_Event))
 	{
@@ -39,7 +39,7 @@ CLASS_REALIZE_FUNC(ManualEvent, signal)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(ManualEvent, wait)(
-	/* [in] */ unsigned long _time)
+	/* [r] */ unsigned long _time)
 {
 	switch (WaitForSingleObject(my_Event, _time))
 	{
@@ -55,7 +55,7 @@ CLASS_REALIZE_FUNC(ManualEvent, wait)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(ManualEvent, reset)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	try
 	{
@@ -75,7 +75,7 @@ CLASS_REALIZE_FUNC(ManualEvent, reset)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(ManualEvent, lock)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	IF_FALSE(ResetEvent(my_Event))
 	{

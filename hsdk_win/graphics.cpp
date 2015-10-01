@@ -1,10 +1,11 @@
-#include <hsdk/win/frame/d3d11graphics.h>
+#include <hsdk/win/frame/graphics.h>
 #include <hsdk/win/shader/vs_ui.h>
 #include <hsdk/win/shader/ps_ui.h>
 
 
 
 using namespace hsdk;
+using namespace d3d11;
 using namespace i::frame;
 using namespace win::frame;
 
@@ -18,17 +19,17 @@ struct InputLayoutFormat
 
 
 //--------------------------------------------------------------------------------------
-AutoRelease<ID3D11RasterizerState> D3D11Graphics::CULL_BACK_RASTERIZER;
-AutoRelease<ID3D11DepthStencilState> D3D11Graphics::FRONT_CLIPPING_DEPTH;
-AutoRelease<ID3D11VertexShader> D3D11Graphics::VERTEX_SHADER;
-AutoRelease<ID3D11PixelShader> D3D11Graphics::PIXEL_SHADER;
-AutoRelease<ID3D11InputLayout> D3D11Graphics::INPUT_LAYOUT;
-AutoRelease<ID3D11Buffer> D3D11Graphics::VS_WIDE_CBUFFER;
-AutoRelease<ID3D11Buffer> D3D11Graphics::VS_CLIP_CBUFFER;
+AutoRelease<ID3D11RasterizerState> Graphics::CULL_BACK_RASTERIZER;
+AutoRelease<ID3D11DepthStencilState> Graphics::FRONT_CLIPPING_DEPTH;
+AutoRelease<ID3D11VertexShader> Graphics::VERTEX_SHADER;
+AutoRelease<ID3D11PixelShader> Graphics::PIXEL_SHADER;
+AutoRelease<ID3D11InputLayout> Graphics::INPUT_LAYOUT;
+AutoRelease<ID3D11Buffer> Graphics::VS_WIDE_CBUFFER;
+AutoRelease<ID3D11Buffer> Graphics::VS_CLIP_CBUFFER;
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(D3D11Graphics, initialize)(
-	/* [none] */ void)
+CLASS_REALIZE_FUNC(Graphics, initialize)(
+	/* [x] */ void)
 {
 	HRESULT hr;
 
@@ -152,8 +153,8 @@ CLASS_REALIZE_FUNC(D3D11Graphics, initialize)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(D3D11Graphics, void, destroy)(
-	/* [none] */ void)
+CLASS_REALIZE_FUNC_T(Graphics, void, destroy)(
+	/* [x] */ void)
 {
 	CULL_BACK_RASTERIZER.~AutoRelease();
 	FRONT_CLIPPING_DEPTH.~AutoRelease();
@@ -168,8 +169,8 @@ CLASS_REALIZE_FUNC_T(D3D11Graphics, void, destroy)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(D3D11Graphics, void, shader_on)(
-	/* [none] */ void)
+CLASS_REALIZE_FUNC_T(Graphics, void, shader_on)(
+	/* [x] */ void)
 {
 	D3D11::CONTEXT->OMSetDepthStencilState(FRONT_CLIPPING_DEPTH, 0);
 	D3D11::CONTEXT->RSSetState(CULL_BACK_RASTERIZER);
@@ -186,8 +187,8 @@ CLASS_REALIZE_FUNC_T(D3D11Graphics, void, shader_on)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(D3D11Graphics, void, shader_off)(
-	/* [none] */ void)
+CLASS_REALIZE_FUNC_T(Graphics, void, shader_off)(
+	/* [x] */ void)
 {
 	D3D11::CONTEXT->OMSetDepthStencilState(NULL, 0);
 	D3D11::CONTEXT->RSSetState(NULL);
@@ -199,21 +200,21 @@ CLASS_REALIZE_FUNC_T(D3D11Graphics, void, shader_off)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(D3D11Graphics, void, set_Wide)(
-	/* [in] */ const float(&_rectangle)[4])
+CLASS_REALIZE_FUNC_T(Graphics, void, set_Wide)(
+	/* [r] */ const float(&_rectangle)[4])
 {
 	D3D11::CONTEXT->UpdateSubresource(VS_WIDE_CBUFFER, 0, nullptr, _rectangle, 0, 0);
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(D3D11Graphics, void, set_Clip)(
-	/* [in] */ const float(&_clip)[4])
+CLASS_REALIZE_FUNC_T(Graphics, void, set_Clip)(
+	/* [r] */ const float(&_clip)[4])
 {
 	D3D11::CONTEXT->UpdateSubresource(VS_CLIP_CBUFFER, 0, nullptr, _clip, 0, 0);
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(D3D11Graphics, D3D11Graphics)(void)
+CLASS_REALIZE_CONSTRUCTOR(Graphics, Graphics)(void)
 : m_imageW(1.0f), m_imageH(1.0f), m_Custom(nullptr), m_Sampler(nullptr)
 {
 	m_uvRectangle[0] = 0.0f;
@@ -234,24 +235,24 @@ CLASS_REALIZE_CONSTRUCTOR(D3D11Graphics, D3D11Graphics)(void)
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_DESTRUCTOR(D3D11Graphics, D3D11Graphics)(void)
+CLASS_REALIZE_DESTRUCTOR(Graphics, Graphics)(void)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(D3D11Graphics, void, set_image)(
-	/* [in] */ const wchar_t * _filename)
+CLASS_REALIZE_FUNC_T(Graphics, void, set_image)(
+	/* [r] */ const wchar_t * _filename)
 {
 	D3D11::get_Sampler(m_Sampler, D3D11::SAMPLER_DEFAULT);
 	D3D11::get_Texture(m_Custom, _filename);
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(D3D11Graphics, void, set_imageDetail)(
-	/* [in] */ float _imageW,
-	/* [in] */ float _imageH,
-	/* [in] */ const float(&_rectangle)[4])
+CLASS_REALIZE_FUNC_T(Graphics, void, set_imageDetail)(
+	/* [r] */ float _imageW,
+	/* [r] */ float _imageH,
+	/* [r] */ const float(&_rectangle)[4])
 {
 	m_imageW = _imageW;
 	m_imageH = _imageH;
@@ -263,23 +264,23 @@ CLASS_REALIZE_FUNC_T(D3D11Graphics, void, set_imageDetail)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(D3D11Graphics, void, set_Font)(
-	/* [in] */ const wchar_t * _fontname,
-	/* [in] */ unsigned int _fontsize)
+CLASS_REALIZE_FUNC_T(Graphics, void, set_Font)(
+	/* [r] */ const wchar_t * _fontname,
+	/* [r] */ unsigned int _fontsize)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(D3D11Graphics, void, set_Text)(
-	/* [in] */ const wchar_t * _text)
+CLASS_REALIZE_FUNC_T(Graphics, void, set_Text)(
+	/* [r] */ const wchar_t * _text)
 {
 	m_Text = _text;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(D3D11Graphics, void, update_Panel)(
-	/* [in] */ const float(&_rectangle)[4])
+CLASS_REALIZE_FUNC_T(Graphics, void, update_Panel)(
+	/* [r] */ const float(&_rectangle)[4])
 {
 	// 버텍스 버퍼 갱신
 	D3D11_MAPPED_SUBRESOURCE map_subresource;
@@ -321,8 +322,8 @@ CLASS_REALIZE_FUNC_T(D3D11Graphics, void, update_Panel)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(D3D11Graphics, void, render_Panel)(
-	/* [none] */ void)
+CLASS_REALIZE_FUNC_T(Graphics, void, render_Panel)(
+	/* [x] */ void)
 {
 	if (m_Custom)
 	{

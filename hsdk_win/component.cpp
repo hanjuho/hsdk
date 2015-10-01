@@ -30,127 +30,127 @@ CLASS_REALIZE_DESTRUCTOR(Component, Component)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, i_Component *, parent)(
-	/* [none] */ void)const
+	/* [x] */ void)const
 {
 	return my_Parent;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, i_Graphics *, graphics)(
-	/* [none] */ void)const
+	/* [x] */ void)const
 {
 	return (i_Graphics *)&m_D3D11Graphics;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, void, set_Mouseable)(
-	/* [in] */ i_Mouseable * _mouseable)
+	/* [r] */ i_Mouseable * _mouseable)
 {
 	m_Mouseable = _mouseable;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, i_Mouseable *, get_Mouseable)(
-	/* [none] */ void)const
+	/* [x] */ void)const
 {
 	return m_Mouseable;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Component, add_Component)(
-	/* [include] */ i_Component * _component)
+	/* [set] */ i_Component * _component)
 {
 	return 0x8000000;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Component, remove_Component)(
-	/* [in] */ i_Component * _component)
+	/* [r] */ i_Component * _component)
 {
 	return 0x8000000;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, bool, contain_Component)(
-	/* [in] */ i_Component * _component)const
+	/* [r] */ i_Component * _component)const
 {
 	return false;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Component, get_Component)(
-	/* [out] */ i_Component * (&_component),
-	/* [in] */ unsigned int _id)const
+	/* [w] */ i_Component * (&_component),
+	/* [r] */ unsigned int _id)const
 {
 	return 0x8000000;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, unsigned int, get_id)(
-	/* [none] */ void)const
+	/* [x] */ void)const
 {
 	return my_id;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, void, set_X)(
-	/* [in] */ float _value)
+	/* [r] */ float _value)
 {
 	my_Rectangle[0] = _value;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, void, set_Y)(
-	/* [in] */ float _value)
+	/* [r] */ float _value)
 {
 	my_Rectangle[1] = _value;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, void, set_W)(
-	/* [in] */ float _value)
+	/* [r] */ float _value)
 {
 	my_Rectangle[2] = _value;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, void, set_H)(
-	/* [in] */ float _value)
+	/* [r] */ float _value)
 {
 	my_Rectangle[3] = _value;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, float, get_X)(
-	/* [none] */ void)const
+	/* [x] */ void)const
 {
 	return my_Rectangle[0];
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, float, get_Y)(
-	/* [none] */ void)const
+	/* [x] */ void)const
 {
 	return my_Rectangle[1];
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, float, get_W)(
-	/* [none] */ void)const
+	/* [x] */ void)const
 {
 	return my_Rectangle[2];
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, float, get_H)(
-	/* [none] */ void)const
+	/* [x] */ void)const
 {
 	return my_Rectangle[3];
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Component, set_Visible)(
-	/* [in] */ bool _visible)
+	/* [r] */ bool _visible)
 {
 	bool b = my_Visible;
 	my_Visible = _visible;
@@ -160,21 +160,21 @@ CLASS_REALIZE_FUNC(Component, set_Visible)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, bool, is_Visible)(
-	/* [none] */ void)const
+	/* [x] */ void)const
 {
 	return my_Visible;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, bool, event_chain)(
-	/* [in] */ i_inputEventHelper * _eventhelper)
+	/* [r] */ i_inputEventHelper * _eventhelper)
 {
 	return _eventhelper->chain(this);
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, void, update)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	if (my_Parent)
 	{
@@ -191,7 +191,7 @@ CLASS_REALIZE_FUNC_T(Component, void, update)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, void, render)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	if (is_Visible())
 	{
@@ -201,14 +201,14 @@ CLASS_REALIZE_FUNC_T(Component, void, render)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, float, get_AbsX)(
-	/* [none] */ void)const
+	/* [x] */ void)const
 {
 	return my_AbsX;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Component, float, get_AbsY)(
-	/* [none] */ void)const
+	/* [x] */ void)const
 {
 	return my_AbsY;
 }

@@ -23,7 +23,7 @@
     <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -92,12 +92,12 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\common.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\controller.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\datatable.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\gameengine.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\gameobject.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\modelrenderer.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\controller.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\actionlistener.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\actionbase.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\modelrenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="actionlayer.cpp" />
@@ -108,6 +108,7 @@
     <ClCompile Include="소스.cpp" />
     <ClCompile Include="controller.cpp" />
     <ClCompile Include="actionbase.cpp" />
+    <ClCompile Include="modelrenderer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

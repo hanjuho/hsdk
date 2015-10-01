@@ -36,9 +36,6 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\datatable.h">
       <Filter>헤더 파일\interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\gameengine.h">
-      <Filter>헤더 파일\interface</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\gameobject.h">
       <Filter>헤더 파일\interface</Filter>
     </ClInclude>
@@ -72,11 +69,11 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\actionbase.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\modelrenderer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="소스.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="actionlayer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -96,6 +93,10 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="actionbase.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="소스.cpp" />
+    <ClCompile Include="modelrenderer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

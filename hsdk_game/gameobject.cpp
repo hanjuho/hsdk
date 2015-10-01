@@ -8,10 +8,10 @@ using namespace game;
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_CONSTRUCTOR(GameObject, GameObject)(
-	/* [include] */ i::i_DataTable * _datatable,
-	/* [include] */ Controller * _controller,
-	/* [include] */ ActionBase *_actionbase,
-	/* [include] */ i::i_ModelRenderer * _renderer)
+	/* [set] */ i::i_DataTable * _datatable,
+	/* [set] */ Controller * _controller,
+	/* [set] */ ActionBase *_actionbase,
+	/* [set] */ ModelRenderer * _renderer)
 	: m_DataTable(_datatable), m_Controller(_controller),
 	m_ActionBase(_actionbase), m_Renderer(_renderer)
 {
@@ -23,6 +23,7 @@ CLASS_REALIZE_CONSTRUCTOR(GameObject, GameObject)(
 	m_Controller->link_ActionBase(_actionbase);
 	m_Controller->link_ActionListener(this);
 	m_ActionBase->link_DataTable(_datatable);
+	m_Renderer->link_DataTable(_datatable);
 }
 
 //--------------------------------------------------------------------------------------
@@ -54,16 +55,16 @@ CLASS_REALIZE_FUNC_T(GameObject, i::i_ModelRenderer *, renderer)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(GameObject, void, update)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(GameObject, void, render)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
-
+	m_Renderer->render();
 }
 
 //--------------------------------------------------------------------------------------
@@ -72,24 +73,32 @@ CLASS_REALIZE_FUNC_T(GameObject, void, listen_Action)(
 {
 	unsigned int p = _actionlayer->priority();
 	if (p)
-	{
+	{		
 		if (p < my_Action->priority())
 		{
+			//
+			_actionlayer->initialize();
 			my_Action = _actionlayer;
+
+			//
+			m_Renderer->initialize();
 		}
 	}
 	else
 	{
+		//
+		_actionlayer->initialize();
 		my_Effects.push_back(_actionlayer);
 	}
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(GameObject, void, act)(
-	/* [none] */ void)
+CLASS_REALIZE_FUNC_T(GameObject, void, act_ActionLayers)(
+	/* [x] */ void)
 {
 	std::list<i::i_ActionLayer *>::iterator begin = my_Effects.begin();
 	std::list<i::i_ActionLayer *>::iterator end = my_Effects.begin();
+
 	while (begin != end)
 	{
 		IF_FALSE((*begin)->act())

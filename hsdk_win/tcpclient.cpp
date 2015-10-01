@@ -21,9 +21,9 @@ CLASS_REALIZE_DESTRUCTOR(TCPClient, TCPClient)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(TCPClient, connect)(
-	/* [in] */ const char * _url,
-	/* [in] */ unsigned int _port,
-	/* [in] */ unsigned int _wait)
+	/* [r] */ const char * _url,
+	/* [r] */ unsigned int _port,
+	/* [r] */ unsigned int _wait)
 {
 	SOCKET new_socket;
 
@@ -68,7 +68,7 @@ CLASS_REALIZE_FUNC(TCPClient, connect)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(TCPClient, disconnect)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	try
 	{
@@ -85,38 +85,38 @@ CLASS_REALIZE_FUNC(TCPClient, disconnect)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(TCPClient, send)(
-	/* [in] */ byte * _context,
-	/* [in] */ unsigned int _offset,
-	/* [in] */ unsigned int _size)
+	/* [r] */ byte * _context,
+	/* [r] */ unsigned int _offset,
+	/* [r] */ unsigned int _size)
 {
 	return m_Proxy.send(_context, _offset, _size);
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(TCPClient, receive)(
-	/* [out] */ byte * (&_context),
-	/* [out] */ unsigned int(&_size))
+	/* [w] */ byte * (&_context),
+	/* [w] */ unsigned int(&_size))
 {
 	return m_Proxy.receive(_context, _size);
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(TCPClient, wait_Recv)(
-	/* [in] */ unsigned int _time)
+	/* [r] */ unsigned int _time)
 {
 	return m_Proxy.wait_Recv(_time);
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(TCPClient, reset)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	return disconnect() | connect(m_Url, m_Port, 1000);
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(TCPClient, SOCKET, get_Socket)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	return m_Proxy.get_Socket();
 }

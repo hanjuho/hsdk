@@ -51,14 +51,14 @@ CLASS_REALIZE_DESTRUCTOR(i_Hwnd, i_Hwnd)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(i_Hwnd, HWND, get_Hwnd)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	return m_windowhandle;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(i_Hwnd, void, get_Message)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	// 윈도 메세지 갱신.
 	ZeroMemory(&m_msg, sizeof(m_msg));
@@ -71,19 +71,19 @@ CLASS_REALIZE_FUNC_T(i_Hwnd, void, get_Message)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(i_Hwnd, bool, is_Valid)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	return my_vaild;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(i_Hwnd, initialize)(
-	/* [in] */ HINSTANCE _hInstance,
-	/* [in] */ const wchar_t * _title,
-	/* [in] */ unsigned int _x,
-	/* [in] */ unsigned int _y,
-	/* [in] */ unsigned int _w,
-	/* [in] */ unsigned int _h)
+	/* [r] */ HINSTANCE _hInstance,
+	/* [r] */ const wchar_t * _title,
+	/* [r] */ unsigned int _x,
+	/* [r] */ unsigned int _y,
+	/* [r] */ unsigned int _w,
+	/* [r] */ unsigned int _h)
 {
 	//
 	WNDCLASSEX wcex;
@@ -93,7 +93,7 @@ CLASS_REALIZE_FUNC(i_Hwnd, initialize)(
 	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wcex.hInstance = _hInstance;
 	wcex.lpfnWndProc = _WndProc;
-	wcex.lpszClassName = TEXT("DX11PROJ");
+	wcex.lpszClassName = L"DX11PROJ";
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
 	RegisterClassEx(&wcex);
 

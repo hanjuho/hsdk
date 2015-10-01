@@ -41,13 +41,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(DXSDK_DIR)include;$(HSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(DXSDK_DIR)lib\x86;$(HSDK_DIR)lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ASSIMP_DIR)include;$(DXSDK_DIR)include;$(HSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ASSIMP_DIR)lib\x86;$(DXSDK_DIR)lib\x86;$(HSDK_DIR)lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(DXSDK_DIR)include;$(HSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(DXSDK_DIR)lib\x86;$(HSDK_DIR)lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ASSIMP_DIR)include;$(DXSDK_DIR)include;$(HSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ASSIMP_DIR)lib\x86;$(DXSDK_DIR)lib\x86;$(HSDK_DIR)lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -93,8 +93,8 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClCompile Include="component.cpp" />
     <ClCompile Include="container.cpp" />
     <ClCompile Include="d3d11.cpp" />
-    <ClCompile Include="d3d11frame.cpp" />
-    <ClCompile Include="d3d11graphics.cpp" />
+    <ClCompile Include="frame.cpp" />
+    <ClCompile Include="graphics.cpp" />
     <ClCompile Include="hwnd.cpp" />
     <ClCompile Include="inputeventhelper.cpp" />
     <ClCompile Include="thread.cpp" />
@@ -113,9 +113,12 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\mutex.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\component.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\container.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\d3d11.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\d3d11frame.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\d3d11graphics.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\frame.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\graphics.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\d3d11\d3d11.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\d3d11\헤더1.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\d3d11\common.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\d3d11\헤더3.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\hwnd.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\inputeventhelper.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpproxy.h" />

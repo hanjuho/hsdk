@@ -22,7 +22,7 @@ CLASS_REALIZE_DESTRUCTOR(Container, Container)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Container, add_Component)(
-	/* [in] */ i_Component * _component)
+	/* [r] */ i_Component * _component)
 {
 	if (contain_Component(_component))
 	{
@@ -51,7 +51,7 @@ CLASS_REALIZE_FUNC(Container, add_Component)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Container, remove_Component)(
-	/* [in] */ i_Component * _component)
+	/* [r] */ i_Component * _component)
 {
 	if (contain_Component(_component))
 	{
@@ -70,7 +70,7 @@ CLASS_REALIZE_FUNC(Container, remove_Component)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Container, bool, contain_Component)(
-	/* [in] */ i_Component * _component)const
+	/* [r] */ i_Component * _component)const
 {
 	std::hash_map<unsigned int, Component *>::const_iterator iter =
 		m_Container.find(_component->get_id());
@@ -87,8 +87,8 @@ CLASS_REALIZE_FUNC_T(Container, bool, contain_Component)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Container, get_Component)(
-	/* [out] */ i_Component * (&_component),
-	/* [in] */ unsigned int _id)const
+	/* [w] */ i_Component * (&_component),
+	/* [r] */ unsigned int _id)const
 {
 	std::hash_map<unsigned int, Component *>::const_iterator iter =
 		m_Container.find(_id);
@@ -106,7 +106,7 @@ CLASS_REALIZE_FUNC(Container, get_Component)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Container, bool, event_chain)(
-	/* [in] */ i_inputEventHelper * _eventhelper)
+	/* [r] */ i_inputEventHelper * _eventhelper)
 {
 	if (_eventhelper->chain(this))
 	{
@@ -133,7 +133,7 @@ CLASS_REALIZE_FUNC_T(Container, bool, event_chain)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Container, void, update)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	Component::update();
 	std::hash_map<unsigned int, Component *>::iterator iter = m_Container.begin();
@@ -147,7 +147,7 @@ CLASS_REALIZE_FUNC_T(Container, void, update)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Container, void, render)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	if (is_Visible())
 	{
@@ -166,7 +166,7 @@ CLASS_REALIZE_FUNC_T(Container, void, render)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Container, set_Layout)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	return E_ACCESSDENIED;
 }

@@ -27,7 +27,7 @@ CLASS_REALIZE_DESTRUCTOR(Mutex, Mutex)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Mutex, enter)(
-	/* [in] */ unsigned long _time)
+	/* [r] */ unsigned long _time)
 {
 	switch (WaitForSingleObject(my_Mutex, _time))
 	{
@@ -43,7 +43,7 @@ CLASS_REALIZE_FUNC(Mutex, enter)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Mutex, leave)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	IF_FALSE(ReleaseMutex(my_Mutex))
 	{
@@ -55,7 +55,7 @@ CLASS_REALIZE_FUNC(Mutex, leave)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Mutex, reset)(
-	/* [none] */ void)
+	/* [x] */ void)
 {
 	try
 	{
