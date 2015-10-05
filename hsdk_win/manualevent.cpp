@@ -10,7 +10,7 @@ using namespace criticalsection;
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_CONSTRUCTOR(ManualEvent, ManualEvent)(void)
 {
-	IF_FAILED(my_Event = CreateEvent(NULL, CREATE_EVENT_MANUAL_RESET, FALSE, NULL))
+	IF_FAILED(my_Event = CreateEvent(nullptr, CREATE_EVENT_MANUAL_RESET, FALSE, nullptr))
 	{
 		throw ADD_FLAG(HSDK_FAIL, GetLastError());
 	}
@@ -60,7 +60,7 @@ CLASS_REALIZE_FUNC(ManualEvent, reset)(
 	try
 	{
 		this->~ManualEvent();
-		IF_FAILED(my_Event = CreateEvent(NULL, CREATE_EVENT_MANUAL_RESET, FALSE, NULL))
+		IF_FAILED(my_Event = CreateEvent(nullptr, CREATE_EVENT_MANUAL_RESET, FALSE, nullptr))
 		{
 			throw ADD_FLAG(HSDK_FAIL, GetLastError());
 		}

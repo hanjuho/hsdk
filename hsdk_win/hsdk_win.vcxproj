@@ -92,10 +92,9 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
   <ItemGroup>
     <ClCompile Include="component.cpp" />
     <ClCompile Include="container.cpp" />
-    <ClCompile Include="d3d11.cpp" />
+    <ClCompile Include="direct3d.cpp" />
     <ClCompile Include="frame.cpp" />
     <ClCompile Include="graphics.cpp" />
-    <ClCompile Include="hwnd.cpp" />
     <ClCompile Include="inputeventhelper.cpp" />
     <ClCompile Include="thread.cpp" />
     <ClCompile Include="semaphore.cpp" />
@@ -105,6 +104,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClCompile Include="tcpproxy.cpp" />
     <ClCompile Include="tcpserver.cpp" />
     <ClCompile Include="tcpclient.cpp" />
+    <ClCompile Include="direct3d_outside.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\semaphore.h" />
@@ -113,13 +113,12 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\mutex.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\component.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\container.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\common.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\direct3d.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d11model.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\direct3doutside.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\frame.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\graphics.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\d3d11\d3d11.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\d3d11\헤더1.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\d3d11\common.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\d3d11\헤더3.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\hwnd.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\inputeventhelper.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpproxy.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpserver.h" />
@@ -129,6 +128,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\thread\task.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\common.inl" />
     <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\shader\common.hlsli" />
   </ItemGroup>
   <ItemGroup>

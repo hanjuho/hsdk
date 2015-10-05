@@ -10,7 +10,7 @@ using namespace criticalsection;
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_CONSTRUCTOR(AutoResetEvent, AutoResetEvent)(void)
 {
-	IF_FAILED(my_Event = CreateEvent(NULL, 0, FALSE, NULL))
+	IF_FAILED(my_Event = CreateEvent(nullptr, 0, FALSE, nullptr))
 	{
 		throw ADD_FLAG(HSDK_FAIL, GetLastError());
 	}
@@ -60,7 +60,7 @@ CLASS_REALIZE_FUNC(AutoResetEvent, reset)(
 	try
 	{
 		this->~AutoResetEvent();
-		IF_FAILED(my_Event = CreateEvent(NULL, 0, FALSE, NULL))
+		IF_FAILED(my_Event = CreateEvent(nullptr, 0, FALSE, nullptr))
 		{
 			throw ADD_FLAG(HSDK_FAIL, GetLastError());
 		}

@@ -18,7 +18,7 @@ CLASS_REALIZE_CONSTRUCTOR(Semaphore, Semaphore)(
 		throw ADD_FLAG(HSDK_FAIL, GetLastError());
 	}	
 	
-	IF_FAILED(my_Semaphore = CreateSemaphore(NULL, my_initCount, my_maxCount, NULL))
+	IF_FAILED(my_Semaphore = CreateSemaphore(nullptr, my_initCount, my_maxCount, nullptr))
 	{
 		throw ADD_FLAG(HSDK_FAIL, GetLastError());
 	}
@@ -68,7 +68,7 @@ CLASS_REALIZE_FUNC(Semaphore, reset)(
 	try
 	{
 		this->~Semaphore();
-		IF_FAILED(my_Semaphore = CreateSemaphore(NULL, my_initCount, my_maxCount, NULL))
+		IF_FAILED(my_Semaphore = CreateSemaphore(nullptr, my_initCount, my_maxCount, nullptr))
 		{
 			throw ADD_FLAG(HSDK_FAIL, GetLastError());
 		}

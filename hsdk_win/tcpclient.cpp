@@ -28,7 +28,7 @@ CLASS_REALIZE_FUNC(TCPClient, connect)(
 	SOCKET new_socket;
 
 	// 서버와 통신 준비를 위해 소켓을 생성
-	IF_FAILED(new_socket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, NULL, NULL))
+	IF_FAILED(new_socket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, nullptr, nullptr, nullptr))
 	{
 		return ADD_FLAG(HSDK_FAIL, WSAGetLastError());
 	}

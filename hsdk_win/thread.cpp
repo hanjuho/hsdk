@@ -27,7 +27,7 @@ CLASS_REALIZE_CONSTRUCTOR(Thread, Thread)(
 	i_Task * task = (_task ? _task : this);
 
 	// 쓰레드 생성
-	IF_FAILED(m_Thread = CreateThread(NULL, 0, threadProc, task, THREAD_SUSPEND_RESUME, &m_ThreadID))
+	IF_FAILED(m_Thread = CreateThread(nullptr, 0, threadProc, task, THREAD_SUSPEND_RESUME, &m_ThreadID))
 	{
 		throw ADD_FLAG(HSDK_FAIL, GetLastError());
 	}
@@ -136,7 +136,7 @@ CLASS_REALIZE_FUNC(Thread, reset)(
 		i_Task * task = (my_Task.operator->() ? my_Task.operator->() : this);
 
 		// 쓰레드 생성
-		IF_FAILED(m_Thread = CreateThread(NULL, 0, threadProc, task, THREAD_SUSPEND_RESUME, &m_ThreadID))
+		IF_FAILED(m_Thread = CreateThread(nullptr, 0, threadProc, task, THREAD_SUSPEND_RESUME, &m_ThreadID))
 		{
 			throw ADD_FLAG(HSDK_FAIL, GetLastError());
 		}

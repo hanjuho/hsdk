@@ -190,8 +190,8 @@ CLASS_REALIZE_FUNC_T(Graphics, void, shader_on)(
 CLASS_REALIZE_FUNC_T(Graphics, void, shader_off)(
 	/* [x] */ void)
 {
-	D3D11::CONTEXT->OMSetDepthStencilState(NULL, 0);
-	D3D11::CONTEXT->RSSetState(NULL);
+	D3D11::CONTEXT->OMSetDepthStencilState(nullptr, 0);
+	D3D11::CONTEXT->RSSetState(nullptr);
 
 	D3D11::CONTEXT->VSSetShader(nullptr, nullptr, 0);
 	D3D11::CONTEXT->PSSetShader(nullptr, nullptr, 0);

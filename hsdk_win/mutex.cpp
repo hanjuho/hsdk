@@ -10,7 +10,7 @@ using namespace criticalsection;
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_CONSTRUCTOR(Mutex, Mutex)(void)
 {
-	IF_FAILED(my_Mutex = CreateMutex(NULL, FALSE, NULL))
+	IF_FAILED(my_Mutex = CreateMutex(nullptr, FALSE, nullptr))
 	{
 		throw ADD_FLAG(HSDK_FAIL, GetLastError());
 	}
@@ -60,7 +60,7 @@ CLASS_REALIZE_FUNC(Mutex, reset)(
 	try
 	{
 		this->~Mutex();
-		IF_FAILED(my_Mutex = CreateMutex(NULL, FALSE, NULL))
+		IF_FAILED(my_Mutex = CreateMutex(nullptr, FALSE, nullptr))
 		{
 			throw ADD_FLAG(HSDK_FAIL, GetLastError());
 		}
