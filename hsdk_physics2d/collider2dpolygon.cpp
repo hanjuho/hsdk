@@ -253,7 +253,7 @@ CLASS_REALIZE_FUNC_T(Collider2DPolygon, Vector2D, support)(
 	/* [r] */ const Vector2D & _dir)const
 {
 	float bestProjection = -FLT_MAX;
-	const Vector2D * bestVertex = NULL;
+	const Vector2D * bestVertex = nullptr;
 
 	for (unsigned int i = 0; i < my_Vertices.size(); ++i)
 	{

@@ -110,7 +110,7 @@ CLASS_REALIZE_FUNC_T(GameObject, void, act_ActionLayers)(
 		++begin;
 	}
 
-	if (my_Action || my_Action->act())
+	if (my_Action == nullptr || my_Action->act())
 	{
 		m_Controller->wait(0);
 	}

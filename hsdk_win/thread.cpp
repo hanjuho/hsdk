@@ -7,7 +7,10 @@ using namespace win;
 using namespace thread;
 
 
-// grobal
+//--------------------------------------------------------------------------------------
+// grobal function
+//--------------------------------------------------------------------------------------
+
 REALIZE_FUNC_T(DWORD, threadProc)(LPVOID _param)
 {
 	if (_param)

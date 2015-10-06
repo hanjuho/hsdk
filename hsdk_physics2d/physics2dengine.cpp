@@ -36,9 +36,8 @@ REALIZE_FUNC_T(unsigned int, clip)(
 	if (d1 <= 0.0f)
 	{
 		out[sp++] = _in_out[0];
-	}
-
-	if (d2 <= 0.0f)
+	}	
+	else if (d2 <= 0.0f)
 	{
 		out[sp++] = _in_out[1];
 	}
@@ -56,7 +55,7 @@ REALIZE_FUNC_T(unsigned int, clip)(
 	_in_out[0] = out[0];
 	_in_out[1] = out[1];
 
-	assert(sp != 3);
+	assert(sp != 2);
 
 	return sp;
 }

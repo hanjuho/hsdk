@@ -113,7 +113,7 @@ int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 		buffer[0] = '0';
 		buffer[1] = 'x';
 
-		MessageBox(NULL, buffer, L"Error", MB_OK);
+		MessageBox(nullptr, buffer, L"Error", MB_OK);
 
 		return 0;
 	}
@@ -209,11 +209,11 @@ void drawText(
 	pFontWrapper->DrawString(
 		_pContext,
 		_text,
-		NULL,
+		nullptr,
 		32.0f,
 		&rect,
 		0xff0099ff,
-		NULL,
-		NULL,
+		nullptr,
+		nullptr,
 		FW1_NOWORDWRAP);
 }

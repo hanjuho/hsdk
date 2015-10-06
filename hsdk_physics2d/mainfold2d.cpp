@@ -55,7 +55,7 @@ REALIZE_FUNC_T(void, hsdk::physics2d::manifold::impulse_Apply)(
 	Vector2D ra[2];
 	Vector2D rb[2];
 	Vector2D rv[2];
-	for (unsigned int i = _m.contact_count - 1; i != -1; --i)
+	for (unsigned int i = 0; i < _m.contact_count; ++i)
 	{
 		// Calculate radii from COM to contact
 		ra[i] = _m.contacts[i] - _apos;
@@ -77,7 +77,7 @@ REALIZE_FUNC_T(void, hsdk::physics2d::manifold::impulse_Apply)(
 	float e = _m.e;
 	Vector2D & nor = _m.normal;
 
-	for (unsigned int i = _m.contact_count - 1; i != -1; --i)
+	for (unsigned int i = 0; i < _m.contact_count; ++i)
 	{
 		// Relative velocity along the normal
 		float contactVel = vector2d::dot(rv[i], nor);

@@ -93,10 +93,13 @@
     <ClCompile Include="frame.cpp">
       <Filter>소스 파일\frame</Filter>
     </ClCompile>
-    <ClCompile Include="direct3d.cpp">
+    <ClCompile Include="direct3d_outside.cpp">
       <Filter>소스 파일\frame\d3d11</Filter>
     </ClCompile>
-    <ClCompile Include="direct3d_outside.cpp">
+    <ClCompile Include="wintimer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="direct3d.cpp">
       <Filter>소스 파일\frame\d3d11</Filter>
     </ClCompile>
   </ItemGroup>
@@ -157,6 +160,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\direct3doutside.h">
       <Filter>헤더 파일\frame\direct3d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\wintimer.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

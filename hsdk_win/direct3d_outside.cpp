@@ -219,6 +219,18 @@ CLASS_REALIZE_FUNC(Direct3D_Outside, initialize_DisplayModes)(
 }
 
 //--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D_Outside, const VideoCard_info *, get_info)(
+	/* [r] */ unsigned int _adapterOrdinal)
+{
+	IF_FALSE(_adapterOrdinal < g_Videos.size())
+	{
+		return nullptr;
+	}
+
+	return &g_Videos[_adapterOrdinal];
+}
+
+//--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Direct3D_Outside, const VideoCard_Output_info *, get_Output_info)(
 	/* [r] */ unsigned int _adapterOrdinal,
 	/* [r] */ unsigned int _output)

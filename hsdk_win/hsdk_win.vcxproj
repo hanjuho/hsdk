@@ -105,6 +105,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClCompile Include="tcpserver.cpp" />
     <ClCompile Include="tcpclient.cpp" />
     <ClCompile Include="direct3d_outside.cpp" />
+    <ClCompile Include="wintimer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\semaphore.h" />
@@ -126,6 +127,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\common.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\thread\thread.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\thread\task.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\wintimer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\common.inl" />
