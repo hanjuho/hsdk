@@ -28,7 +28,7 @@ AutoRelease<ID3D10Buffer> Graphics::VS_WIDE_CBUFFER;
 AutoRelease<ID3D10Buffer> Graphics::VS_CLIP_CBUFFER;
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(Graphics, initialize)(
+CLASS_IMPL_FUNC(Graphics, initialize)(
 	/* [x] */ void)
 {
 	HRESULT hr;
@@ -153,7 +153,7 @@ CLASS_REALIZE_FUNC(Graphics, initialize)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Graphics, void, destroy)(
+CLASS_IMPL_FUNC_T(Graphics, void, destroy)(
 	/* [x] */ void)
 {
 	CULL_BACK_RASTERIZER.~AutoRelease();
@@ -169,7 +169,7 @@ CLASS_REALIZE_FUNC_T(Graphics, void, destroy)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Graphics, void, shader_on)(
+CLASS_IMPL_FUNC_T(Graphics, void, shader_on)(
 	/* [x] */ void)
 {
 	D3D11::CONTEXT->OMSetDepthStencilState(FRONT_CLIPPING_DEPTH, 0);
@@ -187,7 +187,7 @@ CLASS_REALIZE_FUNC_T(Graphics, void, shader_on)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Graphics, void, shader_off)(
+CLASS_IMPL_FUNC_T(Graphics, void, shader_off)(
 	/* [x] */ void)
 {
 	D3D11::CONTEXT->OMSetDepthStencilState(nullptr, 0);
@@ -200,21 +200,21 @@ CLASS_REALIZE_FUNC_T(Graphics, void, shader_off)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Graphics, void, set_Wide)(
+CLASS_IMPL_FUNC_T(Graphics, void, set_Wide)(
 	/* [r] */ const float(&_rectangle)[4])
 {
 	D3D11::CONTEXT->UpdateSubresource(VS_WIDE_CBUFFER, 0, nullptr, _rectangle, 0, 0);
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Graphics, void, set_Clip)(
+CLASS_IMPL_FUNC_T(Graphics, void, set_Clip)(
 	/* [r] */ const float(&_clip)[4])
 {
 	D3D11::CONTEXT->UpdateSubresource(VS_CLIP_CBUFFER, 0, nullptr, _clip, 0, 0);
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(Graphics, Graphics)(void)
+CLASS_IMPL_CONSTRUCTOR(Graphics, Graphics)(void)
 : m_imageW(1.0f), m_imageH(1.0f), m_Custom(nullptr), m_Sampler(nullptr)
 {
 	m_uvRectangle[0] = 0.0f;
@@ -235,13 +235,13 @@ CLASS_REALIZE_CONSTRUCTOR(Graphics, Graphics)(void)
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_DESTRUCTOR(Graphics, Graphics)(void)
+CLASS_IMPL_DESTRUCTOR(Graphics, Graphics)(void)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Graphics, void, set_image)(
+CLASS_IMPL_FUNC_T(Graphics, void, set_image)(
 	/* [r] */ const wchar_t * _filename)
 {
 	D3D11::get_Sampler(m_Sampler, D3D11::SAMPLER_DEFAULT);
@@ -249,7 +249,7 @@ CLASS_REALIZE_FUNC_T(Graphics, void, set_image)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Graphics, void, set_imageDetail)(
+CLASS_IMPL_FUNC_T(Graphics, void, set_imageDetail)(
 	/* [r] */ float _imageW,
 	/* [r] */ float _imageH,
 	/* [r] */ const float(&_rectangle)[4])
@@ -264,7 +264,7 @@ CLASS_REALIZE_FUNC_T(Graphics, void, set_imageDetail)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Graphics, void, set_Font)(
+CLASS_IMPL_FUNC_T(Graphics, void, set_Font)(
 	/* [r] */ const wchar_t * _fontname,
 	/* [r] */ unsigned int _fontsize)
 {
@@ -272,14 +272,14 @@ CLASS_REALIZE_FUNC_T(Graphics, void, set_Font)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Graphics, void, set_Text)(
+CLASS_IMPL_FUNC_T(Graphics, void, set_Text)(
 	/* [r] */ const wchar_t * _text)
 {
 	m_Text = _text;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Graphics, void, update_Panel)(
+CLASS_IMPL_FUNC_T(Graphics, void, update_Panel)(
 	/* [r] */ const float(&_rectangle)[4])
 {
 	// 버텍스 버퍼 갱신
@@ -322,7 +322,7 @@ CLASS_REALIZE_FUNC_T(Graphics, void, update_Panel)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Graphics, void, render_Panel)(
+CLASS_IMPL_FUNC_T(Graphics, void, render_Panel)(
 	/* [x] */ void)
 {
 	if (m_Custom)

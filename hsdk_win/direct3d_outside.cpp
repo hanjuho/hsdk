@@ -14,13 +14,20 @@ using namespace direct3d;
 std::vector<VideoCard_info> g_Videos;
 
 // 설명 :
-bool g_enumerateAllAdapterFormats;
+BOOL g_enumerateAllAdapterFormats;
 
+// 설명 :
+BOOL g_is_in_GammaCorrectMode;
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(Direct3D_Outside, initialize)(
-	/* [r] */ IDXGIFactory * _factory)
+CLASS_IMPL_FUNC(Direct3D_Outside, initialize)(
+	/* [r] */ IDXGIFactory * _factory,
+	/* [r] */ BOOL _enumerateAllAdapterFormats,
+	/* [r] */ BOOL _is_in_GammaCorrectMode)
 {
+	g_enumerateAllAdapterFormats = _enumerateAllAdapterFormats;
+	g_is_in_GammaCorrectMode = _is_in_GammaCorrectMode;
+
 	// CDXUTPerfEventGenerator eventGenerator(DXUT_PERFEVENTCOLOR, L"DXUT D3D10 Enumeration");
 	HRESULT hr;
 
@@ -46,7 +53,7 @@ CLASS_REALIZE_FUNC(Direct3D_Outside, initialize)(
 				index,
 				card_info.dxgiAdapter))
 			{
-				continue;
+				break;
 			}
 
 			if (0 < output_info.displayModeList.size())
@@ -63,7 +70,7 @@ CLASS_REALIZE_FUNC(Direct3D_Outside, initialize)(
 	// with some instance number if that's the case to help distinguish
 	// them.
 	//
-	bool uniqueDesc = true;
+	BOOL uniqueDesc = true;
 
 	const unsigned int size = g_Videos.size();
 	for (unsigned int A = 0; A < size; ++A)
@@ -94,7 +101,7 @@ CLASS_REALIZE_FUNC(Direct3D_Outside, initialize)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(Direct3D_Outside, initialize_Outputs)(
+CLASS_IMPL_FUNC(Direct3D_Outside, initialize_Outputs)(
 	/* [w] */ VideoCard_Output_info & _output_info,
 	/* [r] */ unsigned int _index,
 	/* [r] */ IDXGIAdapter * _adapter)
@@ -105,7 +112,7 @@ CLASS_REALIZE_FUNC(Direct3D_Outside, initialize_Outputs)(
 	hr = _adapter->EnumOutputs(_index, &_output_info.dxgiOutput);
 	if (DXGI_ERROR_NOT_FOUND == hr)
 	{
-		return S_OK;
+		return E_FAIL;
 	}
 	else if (FAILED(hr))
 	{
@@ -128,17 +135,16 @@ CLASS_REALIZE_FUNC(Direct3D_Outside, initialize_Outputs)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(Direct3D_Outside, initialize_DisplayModes)(
-	/* [w] */ VideoCard_Output_info & _output_info,
-	/* [r] */ bool _is_in_GammaCorrectMode)
+CLASS_IMPL_FUNC(Direct3D_Outside, initialize_DisplayModes)(
+	/* [w] */ VideoCard_Output_info & _output_info)
 {
 	HRESULT hr = S_OK;
 	DXGI_FORMAT allowedAdapterFormatArray[] =
 	{
 		//This is DXUT's preferred mode
-		_is_in_GammaCorrectMode
+		g_is_in_GammaCorrectMode
 		? DXGI_FORMAT_R8G8B8A8_UNORM_SRGB : DXGI_FORMAT_R8G8B8A8_UNORM,
-		_is_in_GammaCorrectMode
+		g_is_in_GammaCorrectMode
 		? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
 		DXGI_FORMAT_R16G16B16A16_FLOAT,
 		DXGI_FORMAT_R10G10B10A2_UNORM
@@ -148,7 +154,7 @@ CLASS_REALIZE_FUNC(Direct3D_Outside, initialize_DisplayModes)(
 		sizeof(allowedAdapterFormatArray) / sizeof(allowedAdapterFormatArray[0]);
 
 	// Swap perferred modes for apps running in linear space
-	DXGI_FORMAT RemoteMode = _is_in_GammaCorrectMode
+	DXGI_FORMAT RemoteMode = g_is_in_GammaCorrectMode
 		? DXGI_FORMAT_R8G8B8A8_UNORM_SRGB : DXGI_FORMAT_R8G8B8A8_UNORM;
 
 	// The fast path only enumerates R8G8B8A8_UNORM_SRGB modes
@@ -219,7 +225,7 @@ CLASS_REALIZE_FUNC(Direct3D_Outside, initialize_DisplayModes)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D_Outside, const VideoCard_info *, get_info)(
+CLASS_IMPL_FUNC_T(Direct3D_Outside, const VideoCard_info *, get_info)(
 	/* [r] */ unsigned int _adapterOrdinal)
 {
 	IF_FALSE(_adapterOrdinal < g_Videos.size())
@@ -231,7 +237,7 @@ CLASS_REALIZE_FUNC_T(Direct3D_Outside, const VideoCard_info *, get_info)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D_Outside, const VideoCard_Output_info *, get_Output_info)(
+CLASS_IMPL_FUNC_T(Direct3D_Outside, const VideoCard_Output_info *, get_Output_info)(
 	/* [r] */ unsigned int _adapterOrdinal,
 	/* [r] */ unsigned int _output)
 {
@@ -242,7 +248,7 @@ CLASS_REALIZE_FUNC_T(Direct3D_Outside, const VideoCard_Output_info *, get_Output
 
 	VideoCard_info * adapterInfo = &g_Videos[_adapterOrdinal];
 
-	if(_output < adapterInfo->output_infoList.size())
+	if (_output < adapterInfo->output_infoList.size())
 	{
 		return &adapterInfo->output_infoList[_output];
 	}
@@ -251,7 +257,7 @@ CLASS_REALIZE_FUNC_T(Direct3D_Outside, const VideoCard_Output_info *, get_Output
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D_Outside, HMONITOR, get_MonitorFromAdapter)(
+CLASS_IMPL_FUNC_T(Direct3D_Outside, HMONITOR, get_MonitorFromAdapter)(
 	/* [r] */ const D3D10_DEVICE_DESC & _desc)
 {
 	const VideoCard_Output_info * output_info =
@@ -268,7 +274,7 @@ CLASS_REALIZE_FUNC_T(Direct3D_Outside, HMONITOR, get_MonitorFromAdapter)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D_Outside, unsigned int, get_AdapterOrdinalFromMonitor)(
+CLASS_IMPL_FUNC_T(Direct3D_Outside, unsigned int, get_AdapterOrdinalFromMonitor)(
 	/* [r] */ HMONITOR _monitor,
 	/* [r] */ IDirect3D9 * _d3d9)
 {
@@ -326,7 +332,7 @@ CLASS_REALIZE_FUNC_T(Direct3D_Outside, unsigned int, get_AdapterOrdinalFromMonit
 	return -1;
 }
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D_Outside, unsigned int, get_OutputOrdinalFromMonitor)(
+CLASS_IMPL_FUNC_T(Direct3D_Outside, unsigned int, get_OutputOrdinalFromMonitor)(
 	/* [r] */ HMONITOR _monitor)
 {
 	// Get the monitor handle information

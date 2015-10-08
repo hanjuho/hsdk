@@ -7,20 +7,20 @@ using namespace network;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(TCPClient, TCPClient)(void)
+CLASS_IMPL_CONSTRUCTOR(TCPClient, TCPClient)(void)
 : m_Url(""), m_Port(0)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_DESTRUCTOR(TCPClient, TCPClient)(void)
+CLASS_IMPL_DESTRUCTOR(TCPClient, TCPClient)(void)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(TCPClient, connect)(
+CLASS_IMPL_FUNC(TCPClient, connect)(
 	/* [r] */ const char * _url,
 	/* [r] */ unsigned int _port,
 	/* [r] */ unsigned int _wait)
@@ -67,7 +67,7 @@ CLASS_REALIZE_FUNC(TCPClient, connect)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(TCPClient, disconnect)(
+CLASS_IMPL_FUNC(TCPClient, disconnect)(
 	/* [x] */ void)
 {
 	try
@@ -84,7 +84,7 @@ CLASS_REALIZE_FUNC(TCPClient, disconnect)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(TCPClient, send)(
+CLASS_IMPL_FUNC(TCPClient, send)(
 	/* [r] */ byte * _context,
 	/* [r] */ unsigned int _offset,
 	/* [r] */ unsigned int _size)
@@ -93,7 +93,7 @@ CLASS_REALIZE_FUNC(TCPClient, send)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(TCPClient, receive)(
+CLASS_IMPL_FUNC(TCPClient, receive)(
 	/* [w] */ byte * (&_context),
 	/* [w] */ unsigned int(&_size))
 {
@@ -101,21 +101,21 @@ CLASS_REALIZE_FUNC(TCPClient, receive)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(TCPClient, wait_Recv)(
+CLASS_IMPL_FUNC(TCPClient, wait_Recv)(
 	/* [r] */ unsigned int _time)
 {
 	return m_Proxy.wait_Recv(_time);
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(TCPClient, reset)(
+CLASS_IMPL_FUNC(TCPClient, reset)(
 	/* [x] */ void)
 {
 	return disconnect() | connect(m_Url, m_Port, 1000);
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(TCPClient, SOCKET, get_Socket)(
+CLASS_IMPL_FUNC_T(TCPClient, SOCKET, get_Socket)(
 	/* [x] */ void)
 {
 	return m_Proxy.get_Socket();

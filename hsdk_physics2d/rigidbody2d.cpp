@@ -8,7 +8,7 @@ using namespace physics2d;
 
 
 // grobal function
-REALIZE_FUNC_T(float, compute_inertia)(
+IMPL_FUNC_T(float, compute_inertia)(
 	/* [r] */ const Vector2D * _vertices,
 	/* [r] */ unsigned int _size)
 {
@@ -33,7 +33,7 @@ REALIZE_FUNC_T(float, compute_inertia)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(RigidBody2D, RigidBody2D)(
+CLASS_IMPL_CONSTRUCTOR(RigidBody2D, RigidBody2D)(
 	/* [r] */float sFriction,
 	/* [r] */float dFriction,
 	/* [r] */float restitution)
@@ -46,7 +46,7 @@ CLASS_REALIZE_CONSTRUCTOR(RigidBody2D, RigidBody2D)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(RigidBody2D, void, apply_Shape)(
+CLASS_IMPL_FUNC_T(RigidBody2D, void, apply_Shape)(
 	/* [r] */ const i::i_Collider2D * _collider)
 {
 	float d = _collider->density();
@@ -67,7 +67,7 @@ CLASS_REALIZE_FUNC_T(RigidBody2D, void, apply_Shape)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(RigidBody2D, void, impulse)(
+CLASS_IMPL_FUNC_T(RigidBody2D, void, impulse)(
 	/* [r] */ const Vector2D & _impulse,
 	/* [r] */ const Vector2D & _contact)
 {
@@ -76,42 +76,42 @@ CLASS_REALIZE_FUNC_T(RigidBody2D, void, impulse)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(RigidBody2D, float, mass)(
+CLASS_IMPL_FUNC_T(RigidBody2D, float, mass)(
 	/* [x] */ void)const
 {
 	return m_mass;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(RigidBody2D, float, inertia)(
+CLASS_IMPL_FUNC_T(RigidBody2D, float, inertia)(
 	/* [x] */ void)const
 {
 	return m_inertia;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(RigidBody2D, float, s_Friction)(
+CLASS_IMPL_FUNC_T(RigidBody2D, float, s_Friction)(
 	/* [x] */ void)const
 {
 	return m_SFriction;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(RigidBody2D, float, d_Friction)(
+CLASS_IMPL_FUNC_T(RigidBody2D, float, d_Friction)(
 	/* [x] */ void)const
 {
 	return m_DFriction;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(RigidBody2D, float, restitution)(
+CLASS_IMPL_FUNC_T(RigidBody2D, float, restitution)(
 	/* [x] */ void)const
 {
 	return m_Restitution;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(RigidBody2D, void, fixed)(
+CLASS_IMPL_FUNC_T(RigidBody2D, void, fixed)(
 	/* [r] */ void)
 {
 	m_inertia = 0.0f;

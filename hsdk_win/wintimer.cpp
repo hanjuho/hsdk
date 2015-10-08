@@ -6,7 +6,7 @@ using namespace win;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(WINTimer, WINTimer)(void)
+CLASS_IMPL_CONSTRUCTOR(WINTimer, WINTimer)(void)
 : m_bTimerStopped(true), m_llQPFTicksPerSec(0), m_llStopTime(0), m_llLastElapsedTime(0), m_llBaseTime(0)
 {	
 	// Use QueryPerformanceFrequency to get the frequency of the counter
@@ -16,7 +16,7 @@ CLASS_REALIZE_CONSTRUCTOR(WINTimer, WINTimer)(void)
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(WINTimer, void, reset)(
+CLASS_IMPL_FUNC_T(WINTimer, void, reset)(
 	/* [x] */ void)
 {
 	LARGE_INTEGER qwTime = get_AdjustedCurrentTime();
@@ -28,7 +28,7 @@ CLASS_REALIZE_FUNC_T(WINTimer, void, reset)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(WINTimer, void, start)(
+CLASS_IMPL_FUNC_T(WINTimer, void, start)(
 	/* [x] */ void)
 {
 	// Get the current time
@@ -46,7 +46,7 @@ CLASS_REALIZE_FUNC_T(WINTimer, void, start)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(WINTimer, void, stop)(
+CLASS_IMPL_FUNC_T(WINTimer, void, stop)(
 	/* [x] */ void)
 {
 	IF_FALSE(m_bTimerStopped)
@@ -60,14 +60,14 @@ CLASS_REALIZE_FUNC_T(WINTimer, void, stop)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(WINTimer, void, advance)(
+CLASS_IMPL_FUNC_T(WINTimer, void, advance)(
 	/* [x] */ void)
 {
 	m_llStopTime += m_llQPFTicksPerSec / 10;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(WINTimer, double, get_AbsoluteTime)(
+CLASS_IMPL_FUNC_T(WINTimer, double, get_AbsoluteTime)(
 	/* [x] */ void)
 {
 	LARGE_INTEGER qwTime = { 0 };
@@ -77,7 +77,7 @@ CLASS_REALIZE_FUNC_T(WINTimer, double, get_AbsoluteTime)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(WINTimer, double, get_Time)(
+CLASS_IMPL_FUNC_T(WINTimer, double, get_Time)(
 	/* [x] */ void)
 {
 	LARGE_INTEGER qwTime = get_AdjustedCurrentTime();
@@ -86,7 +86,7 @@ CLASS_REALIZE_FUNC_T(WINTimer, double, get_Time)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(WINTimer, float, get_ElapsedTime)(
+CLASS_IMPL_FUNC_T(WINTimer, float, get_ElapsedTime)(
 	/* [x] */ void)
 {
 	LARGE_INTEGER qwTime = get_AdjustedCurrentTime();
@@ -104,7 +104,7 @@ CLASS_REALIZE_FUNC_T(WINTimer, float, get_ElapsedTime)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(WINTimer, void, get_TimeValues)(
+CLASS_IMPL_FUNC_T(WINTimer, void, get_TimeValues)(
 	/* [w] */ double * _fTime,
 	/* [w] */ double * _fAbsoluteTime,
 	/* [w] */ float * _fElapsedTime)
@@ -132,14 +132,14 @@ CLASS_REALIZE_FUNC_T(WINTimer, void, get_TimeValues)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(WINTimer, bool, is_Stopped)(
+CLASS_IMPL_FUNC_T(WINTimer, BOOL, is_Stopped)(
 	/* [x] */ void)
 {
 	return m_bTimerStopped;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(WINTimer, void, limit_ThreadAffinityToCurrentProc)(
+CLASS_IMPL_FUNC_T(WINTimer, void, limit_ThreadAffinityToCurrentProc)(
 	/* [x] */ void)
 {
 	HANDLE hCurrentProcess = GetCurrentProcess();
@@ -167,7 +167,7 @@ CLASS_REALIZE_FUNC_T(WINTimer, void, limit_ThreadAffinityToCurrentProc)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(WINTimer, LARGE_INTEGER, get_AdjustedCurrentTime)(
+CLASS_IMPL_FUNC_T(WINTimer, LARGE_INTEGER, get_AdjustedCurrentTime)(
 	/* [x] */ void)
 {
 	LARGE_INTEGER qwTime;

@@ -8,7 +8,7 @@ using namespace criticalsection;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(ManualEvent, ManualEvent)(void)
+CLASS_IMPL_CONSTRUCTOR(ManualEvent, ManualEvent)(void)
 {
 	IF_FAILED(my_Event = CreateEvent(nullptr, CREATE_EVENT_MANUAL_RESET, FALSE, nullptr))
 	{
@@ -17,7 +17,7 @@ CLASS_REALIZE_CONSTRUCTOR(ManualEvent, ManualEvent)(void)
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_DESTRUCTOR(ManualEvent, ManualEvent)(void)
+CLASS_IMPL_DESTRUCTOR(ManualEvent, ManualEvent)(void)
 {
 	IF_FALSE(CloseHandle(my_Event))
 	{
@@ -26,7 +26,7 @@ CLASS_REALIZE_DESTRUCTOR(ManualEvent, ManualEvent)(void)
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(ManualEvent, signal)(
+CLASS_IMPL_FUNC(ManualEvent, signal)(
 	/* [x] */ void)
 {
 	IF_FALSE(SetEvent(my_Event))
@@ -38,7 +38,7 @@ CLASS_REALIZE_FUNC(ManualEvent, signal)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(ManualEvent, wait)(
+CLASS_IMPL_FUNC(ManualEvent, wait)(
 	/* [r] */ unsigned long _time)
 {
 	switch (WaitForSingleObject(my_Event, _time))
@@ -54,7 +54,7 @@ CLASS_REALIZE_FUNC(ManualEvent, wait)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(ManualEvent, reset)(
+CLASS_IMPL_FUNC(ManualEvent, reset)(
 	/* [x] */ void)
 {
 	try
@@ -74,7 +74,7 @@ CLASS_REALIZE_FUNC(ManualEvent, reset)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(ManualEvent, lock)(
+CLASS_IMPL_FUNC(ManualEvent, lock)(
 	/* [x] */ void)
 {
 	IF_FALSE(ResetEvent(my_Event))

@@ -7,7 +7,7 @@ using namespace game;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(GameObject, GameObject)(
+CLASS_IMPL_CONSTRUCTOR(GameObject, GameObject)(
 	/* [set] */ i::i_DataTable * _datatable,
 	/* [set] */ Controller * _controller,
 	/* [set] */ ActionBase *_actionbase,
@@ -27,48 +27,48 @@ CLASS_REALIZE_CONSTRUCTOR(GameObject, GameObject)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_DESTRUCTOR(GameObject, GameObject)(void)
+CLASS_IMPL_DESTRUCTOR(GameObject, GameObject)(void)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(GameObject, i::i_DataTable *, datatalbe)(
+CLASS_IMPL_FUNC_T(GameObject, i::i_DataTable *, datatalbe)(
 	/* [void] */ void)const
 {
 	return m_DataTable;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(GameObject, i::i_Controller *, controller)(
+CLASS_IMPL_FUNC_T(GameObject, i::i_Controller *, controller)(
 	/* [void] */ void)const
 {
 	return m_Controller;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(GameObject, i::i_ModelRenderer *, renderer)(
+CLASS_IMPL_FUNC_T(GameObject, i::i_ModelRenderer *, renderer)(
 	/* [void] */ void)const
 {
 	return m_Renderer;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(GameObject, void, update)(
+CLASS_IMPL_FUNC_T(GameObject, void, update)(
 	/* [x] */ void)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(GameObject, void, render)(
+CLASS_IMPL_FUNC_T(GameObject, void, render)(
 	/* [x] */ void)
 {
 	m_Renderer->render();
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(GameObject, void, listen_Action)(
+CLASS_IMPL_FUNC_T(GameObject, void, listen_Action)(
 	/* [ref] */ i::i_ActionLayer * _actionlayer)
 {
 	unsigned int p = _actionlayer->priority();
@@ -93,7 +93,7 @@ CLASS_REALIZE_FUNC_T(GameObject, void, listen_Action)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(GameObject, void, act_ActionLayers)(
+CLASS_IMPL_FUNC_T(GameObject, void, act_ActionLayers)(
 	/* [x] */ void)
 {
 	std::list<i::i_ActionLayer *>::iterator begin = my_Effects.begin();
@@ -110,7 +110,7 @@ CLASS_REALIZE_FUNC_T(GameObject, void, act_ActionLayers)(
 		++begin;
 	}
 
-	if (my_Action == nullptr || my_Action->act())
+	if (nullptr == my_Action || my_Action->act())
 	{
 		m_Controller->wait(0);
 	}

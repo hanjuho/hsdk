@@ -9,7 +9,7 @@ using namespace win::frame;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(Frame, Frame)(
+CLASS_IMPL_CONSTRUCTOR(Frame, Frame)(
 	/* [r] */ HINSTANCE _hInstance,
 	/* [r] */ const wchar_t * _title,
 	/* [r] */ unsigned int _x,
@@ -31,13 +31,13 @@ CLASS_REALIZE_CONSTRUCTOR(Frame, Frame)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_DESTRUCTOR(Frame, Frame)(void)
+CLASS_IMPL_DESTRUCTOR(Frame, Frame)(void)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Frame, void, update)(
+CLASS_IMPL_FUNC_T(Frame, void, update)(
 	/* [x] */ void)
 {
 	float rectangle[4] = {
@@ -76,7 +76,7 @@ CLASS_REALIZE_FUNC_T(Frame, void, update)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Frame, void, render)(
+CLASS_IMPL_FUNC_T(Frame, void, render)(
 	/* [x] */ void)
 {
 	//
@@ -90,7 +90,7 @@ CLASS_REALIZE_FUNC_T(Frame, void, render)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Frame, void, message_Proc)(
+CLASS_IMPL_FUNC_T(Frame, void, message_Proc)(
 	/* [r] */unsigned int _uMsg,
 	/* [r] */unsigned int _wParam,
 	/* [r] */unsigned long _lParam)

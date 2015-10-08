@@ -9,7 +9,7 @@ using namespace physics2d;
 
 
 // grobal function
-REALIZE_FUNC_T(float, compute_Area)(
+IMPL_FUNC_T(float, compute_Area)(
 	/* [r] */ const std::vector<Vector2D> & _vertices,
 	/* [w] */ float * _mostLength)
 {
@@ -45,7 +45,7 @@ REALIZE_FUNC_T(float, compute_Area)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(Collider2DPolygon, Collider2DPolygon)(
+CLASS_IMPL_CONSTRUCTOR(Collider2DPolygon, Collider2DPolygon)(
 	/* [r] */ float _density)
 	: m_Density(_density), m_Area(0.0f), m_Radius(0.0f)
 {
@@ -53,70 +53,70 @@ CLASS_REALIZE_CONSTRUCTOR(Collider2DPolygon, Collider2DPolygon)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Collider2DPolygon, unsigned int, type)(
+CLASS_IMPL_FUNC_T(Collider2DPolygon, unsigned int, type)(
 	/* [x] */ void)const
 {
 	return 1;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Collider2DPolygon, unsigned int, numOfVerties)(
+CLASS_IMPL_FUNC_T(Collider2DPolygon, unsigned int, numOfVerties)(
 	/* [x] */ void)const
 {
 	return my_Vertices.size();
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Collider2DPolygon, Vector2D, vertex)(
+CLASS_IMPL_FUNC_T(Collider2DPolygon, Vector2D, vertex)(
 	/* [r] */ unsigned int _index)const
 {
 	return my_Vertices[_index];
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Collider2DPolygon, const Vector2D *, vertices)(
+CLASS_IMPL_FUNC_T(Collider2DPolygon, const Vector2D *, vertices)(
 	/* [x] */ void)const
 {
 	return &my_Vertices[0];
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Collider2DPolygon, Vector2D, normal)(
+CLASS_IMPL_FUNC_T(Collider2DPolygon, Vector2D, normal)(
 	/* [r] */ unsigned int _index)const
 {
 	return my_Normals[_index];
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Collider2DPolygon, const Vector2D *, normals)(
+CLASS_IMPL_FUNC_T(Collider2DPolygon, const Vector2D *, normals)(
 	/* [x] */ void)const
 {
 	return &my_Normals[0];
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Collider2DPolygon, float, density)(
+CLASS_IMPL_FUNC_T(Collider2DPolygon, float, density)(
 	/* [x] */ void)const
 {
 	return m_Density;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Collider2DPolygon, float, area)(
+CLASS_IMPL_FUNC_T(Collider2DPolygon, float, area)(
 	/* [x] */ void)const
 {
 	return m_Area;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Collider2DPolygon, float, radius)(
+CLASS_IMPL_FUNC_T(Collider2DPolygon, float, radius)(
 	/* [x] */ void)const
 {
 	return m_Radius;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Collider2DPolygon, void, set_Box)(
+CLASS_IMPL_FUNC_T(Collider2DPolygon, void, set_Box)(
 	/* [r] */ float _hw,
 	/* [r] */ float _hh)
 {
@@ -142,7 +142,7 @@ CLASS_REALIZE_FUNC_T(Collider2DPolygon, void, set_Box)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Collider2DPolygon, void, set_Polygon)(
+CLASS_IMPL_FUNC_T(Collider2DPolygon, void, set_Polygon)(
 	/* [r] */ const Vector2D * _vertices,
 	/* [r] */ unsigned int _size)
 {
@@ -249,7 +249,7 @@ CLASS_REALIZE_FUNC_T(Collider2DPolygon, void, set_Polygon)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Collider2DPolygon, Vector2D, support)(
+CLASS_IMPL_FUNC_T(Collider2DPolygon, Vector2D, support)(
 	/* [r] */ const Vector2D & _dir)const
 {
 	float bestProjection = -FLT_MAX;

@@ -9,7 +9,7 @@ using namespace network;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(TCPServer, TCPServer)(void)
+CLASS_IMPL_CONSTRUCTOR(TCPServer, TCPServer)(void)
 : m_Port(0)
 {
 	// 이벤트를 생성한다
@@ -20,7 +20,7 @@ CLASS_REALIZE_CONSTRUCTOR(TCPServer, TCPServer)(void)
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_DESTRUCTOR(TCPServer, TCPServer)(void)
+CLASS_IMPL_DESTRUCTOR(TCPServer, TCPServer)(void)
 {
 	// 이벤트를 제거한다
 	IF_FALSE(WSACloseEvent(m_Event))
@@ -37,7 +37,7 @@ CLASS_REALIZE_DESTRUCTOR(TCPServer, TCPServer)(void)
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(TCPServer, open)(
+CLASS_IMPL_FUNC(TCPServer, open)(
 	/* [r] */ unsigned int _port)
 {
 	// 새 소켓 
@@ -119,7 +119,7 @@ CLASS_REALIZE_FUNC(TCPServer, open)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(TCPServer, close)(
+CLASS_IMPL_FUNC(TCPServer, close)(
 	/* [r] */ void)
 {
 	// 열린 소켓을 닫음
@@ -129,7 +129,7 @@ CLASS_REALIZE_FUNC(TCPServer, close)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(TCPServer, accept)(
+CLASS_IMPL_FUNC(TCPServer, accept)(
 	/* [w] */ i::network::i_Proxy * (&_proxy),
 	/* [r] */ unsigned int _time)
 {
@@ -173,14 +173,14 @@ CLASS_REALIZE_FUNC(TCPServer, accept)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(TCPServer, reset)(
+CLASS_IMPL_FUNC(TCPServer, reset)(
 	/* [x] */ void)
 {
 	return close() | open(m_Port);
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(TCPServer, accept)(
+CLASS_IMPL_FUNC(TCPServer, accept)(
 	/* [w] */ SOCKET & _socket,
 	/* [w] */ unsigned int & _ip,
 	/* [r] */ unsigned int _time)
@@ -226,7 +226,7 @@ CLASS_REALIZE_FUNC(TCPServer, accept)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(TCPServer, SOCKET, get_Socket)(
+CLASS_IMPL_FUNC_T(TCPServer, SOCKET, get_Socket)(
 	/* [x] */ void)
 {
 	return m_Socket;

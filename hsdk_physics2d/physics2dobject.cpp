@@ -9,7 +9,7 @@ using namespace physics2d;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(Physics2DObject, Physics2DObject)(
+CLASS_IMPL_CONSTRUCTOR(Physics2DObject, Physics2DObject)(
 	/* [set] */ i::i_RigidBody2D * _rigidbody,
 	/* [set] */ i::i_Collider2D * _collider)
 	: my_RigidBody(_rigidbody), my_Collider(_collider)
@@ -23,21 +23,21 @@ CLASS_REALIZE_CONSTRUCTOR(Physics2DObject, Physics2DObject)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Physics2DObject, i::i_RigidBody2D *, rigidBody)(
+CLASS_IMPL_FUNC_T(Physics2DObject, i::i_RigidBody2D *, rigidBody)(
 	/* [x] */ void)const
 {
 	return my_RigidBody;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Physics2DObject, i::i_Collider2D *, collider)(
+CLASS_IMPL_FUNC_T(Physics2DObject, i::i_Collider2D *, collider)(
 	/* [x] */ void)const
 {
 	return my_Collider;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Physics2DObject, void, integrate_Velocity)(
+CLASS_IMPL_FUNC_T(Physics2DObject, void, integrate_Velocity)(
 	/* [r] */ const Vector2D & _gravity,
 	/* [r] */ float _dt)
 {
@@ -48,7 +48,7 @@ CLASS_REALIZE_FUNC_T(Physics2DObject, void, integrate_Velocity)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Physics2DObject, void, integrate_Forces)(
+CLASS_IMPL_FUNC_T(Physics2DObject, void, integrate_Forces)(
 	/* [r] */ const Vector2D & _gravity,
 	/* [r] */ float _torque,
 	/* [r] */ float _dt)
@@ -61,7 +61,7 @@ CLASS_REALIZE_FUNC_T(Physics2DObject, void, integrate_Forces)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Physics2DObject, void, initialize_Body)(
+CLASS_IMPL_FUNC_T(Physics2DObject, void, initialize_Body)(
 	/* [x] */ void)
 {
 	my_RigidBody->apply_Shape(my_Collider);

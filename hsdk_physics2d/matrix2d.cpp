@@ -7,7 +7,7 @@ using namespace physics2d;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(Matrix2D, Matrix2D)(void) :
+CLASS_IMPL_CONSTRUCTOR(Matrix2D, Matrix2D)(void) :
 m00(0.0f),
 m01(0.0f),
 m10(0.0f),
@@ -17,7 +17,7 @@ m11(0.0f)
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(Matrix2D, Matrix2D)(
+CLASS_IMPL_CONSTRUCTOR(Matrix2D, Matrix2D)(
 	/* [r] */ float _radians)
 {
 	float c = std::cos(_radians);
@@ -30,7 +30,7 @@ CLASS_REALIZE_CONSTRUCTOR(Matrix2D, Matrix2D)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(Matrix2D, Matrix2D)(
+CLASS_IMPL_CONSTRUCTOR(Matrix2D, Matrix2D)(
 	/* [r] */ float _a,
 	/* [r] */ float _b,
 	/* [r] */ float _c,
@@ -44,7 +44,7 @@ CLASS_REALIZE_CONSTRUCTOR(Matrix2D, Matrix2D)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Matrix2D, const Vector2D, operator*)(
+CLASS_IMPL_FUNC_T(Matrix2D, const Vector2D, operator*)(
 	/* [r] */ const Vector2D & _rhs) const
 {
 	return Vector2D(
@@ -53,7 +53,7 @@ CLASS_REALIZE_FUNC_T(Matrix2D, const Vector2D, operator*)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Matrix2D, const Matrix2D, operator*)(
+CLASS_IMPL_FUNC_T(Matrix2D, const Matrix2D, operator*)(
 	/* [r] */ const Matrix2D & _rhs) const
 {
 	return Matrix2D(
@@ -64,7 +64,7 @@ CLASS_REALIZE_FUNC_T(Matrix2D, const Matrix2D, operator*)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Matrix2D, void, operator=)(
+CLASS_IMPL_FUNC_T(Matrix2D, void, operator=)(
 	/* [r] */ const Matrix2D & _rhs)
 {
 	m00 = _rhs.m00;
@@ -74,7 +74,7 @@ CLASS_REALIZE_FUNC_T(Matrix2D, void, operator=)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Matrix2D, void, operator=)(
+CLASS_IMPL_FUNC_T(Matrix2D, void, operator=)(
 	/* [r] */ float _radians)
 {
 	float c = std::cos(_radians);

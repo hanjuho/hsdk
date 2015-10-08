@@ -16,7 +16,7 @@ using namespace physics2d;
 
 
 // grobal function
-REALIZE_FUNC_T(unsigned int, clip)(
+IMPL_FUNC_T(unsigned int, clip)(
 	/* [w] */ Vector2D(&_in_out)[2],
 	/* [r] */ const Vector2D & _n,
 	/* [r] */ float _c)
@@ -64,14 +64,14 @@ REALIZE_FUNC_T(unsigned int, clip)(
 std::hash_map<unsigned int, std::vector<Physics2DEngine::My_SOURCE_DESC>> Physics2DEngine::RESOURCES;
 
 //-------------------------------------------------------------------------------------- 
-CLASS_REALIZE_CONSTRUCTOR(Physics2DEngine::My_SOURCE_DESC, My_SOURCE_DESC)(void)
+CLASS_IMPL_CONSTRUCTOR(Physics2DEngine::My_SOURCE_DESC, My_SOURCE_DESC)(void)
 : object(nullptr), listener(nullptr)
 {
 
 }
 
 //-------------------------------------------------------------------------------------- 
-CLASS_REALIZE_CONSTRUCTOR(Physics2DEngine::My_SOURCE_DESC, My_SOURCE_DESC)(
+CLASS_IMPL_CONSTRUCTOR(Physics2DEngine::My_SOURCE_DESC, My_SOURCE_DESC)(
 	/* [r] */ i::i_Physics2DObject * _object,
 	/* [r] */ i::i_Collision2DListener * _listner,
 	/* [r] */ long _valid)
@@ -81,7 +81,7 @@ CLASS_REALIZE_CONSTRUCTOR(Physics2DEngine::My_SOURCE_DESC, My_SOURCE_DESC)(
 }
 
 //-------------------------------------------------------------------------------------- 
-CLASS_REALIZE_DESTRUCTOR(Physics2DEngine::My_SOURCE_DESC, My_SOURCE_DESC)(void)
+CLASS_IMPL_DESTRUCTOR(Physics2DEngine::My_SOURCE_DESC, My_SOURCE_DESC)(void)
 {
 	if (valid < 0)
 	{
@@ -104,7 +104,7 @@ CLASS_REALIZE_DESTRUCTOR(Physics2DEngine::My_SOURCE_DESC, My_SOURCE_DESC)(void)
 }
 
 //-------------------------------------------------------------------------------------- 
-CLASS_REALIZE_FUNC_T(Physics2DEngine::My_SOURCE_DESC, void, operator =)(
+CLASS_IMPL_FUNC_T(Physics2DEngine::My_SOURCE_DESC, void, operator =)(
 	/* [r] */ const SOURCE_DESC & _desc)
 {
 	new(this) My_SOURCE_DESC(
@@ -112,7 +112,7 @@ CLASS_REALIZE_FUNC_T(Physics2DEngine::My_SOURCE_DESC, void, operator =)(
 }
 
 //-------------------------------------------------------------------------------------- 
-CLASS_REALIZE_FUNC_T(Physics2DEngine, void, find)(
+CLASS_IMPL_FUNC_T(Physics2DEngine, void, find)(
 	/* [r] */ i::i_Physics2DObject * _object,
 	/* [r] */ i::i_Boundary2DListener * _listener,
 	/* [r] */ float _distance,
@@ -122,7 +122,7 @@ CLASS_REALIZE_FUNC_T(Physics2DEngine, void, find)(
 }
 
 //-------------------------------------------------------------------------------------- 
-CLASS_REALIZE_FUNC_T(Physics2DEngine, void, operate)(
+CLASS_IMPL_FUNC_T(Physics2DEngine, void, operate)(
 	/* [r] */ i::i_Physics2DObject * _objA,
 	/* [r] */ i::i_Physics2DObject * _objB,
 	/* [r] */ const i::i_Terrain2D * _terrain,
@@ -593,7 +593,7 @@ CLASS_REALIZE_FUNC_T(Physics2DEngine, void, operate)(
 }
 
 //-------------------------------------------------------------------------------------- 
-CLASS_REALIZE_FUNC(Physics2DEngine, update)(
+CLASS_IMPL_FUNC(Physics2DEngine, update)(
 	/* [ref] */ SOURCE_DESC * (&_source),
 	/* [r] */ unsigned int _size)
 {
@@ -617,7 +617,7 @@ CLASS_REALIZE_FUNC(Physics2DEngine, update)(
 }
 
 //-------------------------------------------------------------------------------------- 
-CLASS_REALIZE_FUNC_T(Physics2DEngine, void, run)(
+CLASS_IMPL_FUNC_T(Physics2DEngine, void, run)(
 	/* [r] */ const i::i_Terrain2D * _terrain,
 	/* [r] */ const Vector2D & _gravity,
 	/* [r] */ float _dt,

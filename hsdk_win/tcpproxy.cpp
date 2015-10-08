@@ -7,7 +7,7 @@ using namespace network;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(TCPProxy, TCPProxy)(void)
+CLASS_IMPL_CONSTRUCTOR(TCPProxy, TCPProxy)(void)
 {
 	// 이벤트를 생성한다
 	IF_TRUE((m_Event = WSACreateEvent()) == WSA_INVALID_EVENT)
@@ -17,7 +17,7 @@ CLASS_REALIZE_CONSTRUCTOR(TCPProxy, TCPProxy)(void)
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_DESTRUCTOR(TCPProxy, TCPProxy)(void)
+CLASS_IMPL_DESTRUCTOR(TCPProxy, TCPProxy)(void)
 {
 	// 이벤트를 제거한다
 	IF_FALSE(WSACloseEvent(m_Event))
@@ -37,7 +37,7 @@ CLASS_REALIZE_DESTRUCTOR(TCPProxy, TCPProxy)(void)
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(TCPProxy, send)(
+CLASS_IMPL_FUNC(TCPProxy, send)(
 	/* [r] */ byte * _context,
 	/* [r] */ unsigned int _offset,
 	/* [r] */ unsigned int _size)
@@ -52,7 +52,7 @@ CLASS_REALIZE_FUNC(TCPProxy, send)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(TCPProxy, receive)(
+CLASS_IMPL_FUNC(TCPProxy, receive)(
 	/* [w] */ byte * (&_context),
 	/* [w] */ unsigned int (&_size))
 {
@@ -75,7 +75,7 @@ CLASS_REALIZE_FUNC(TCPProxy, receive)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(TCPProxy, wait_Recv)(
+CLASS_IMPL_FUNC(TCPProxy, wait_Recv)(
 	/* [r] */ unsigned int _time)
 {
 	HRESULT hr;
@@ -125,7 +125,7 @@ CLASS_REALIZE_FUNC(TCPProxy, wait_Recv)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(TCPProxy, initailize)(
+CLASS_IMPL_FUNC(TCPProxy, initailize)(
 	/* [r] */ unsigned int _ip,
 	/* [r] */ SOCKET _socket)
 {
@@ -150,7 +150,7 @@ CLASS_REALIZE_FUNC(TCPProxy, initailize)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(TCPProxy, SOCKET, get_Socket)(
+CLASS_IMPL_FUNC_T(TCPProxy, SOCKET, get_Socket)(
 	/* [x] */ void)
 {
 	return m_Socket;

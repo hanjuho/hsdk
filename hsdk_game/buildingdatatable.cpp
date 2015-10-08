@@ -8,7 +8,7 @@ using namespace datatable;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(BuildingDataTable, BuildingDataTable)(
+CLASS_IMPL_CONSTRUCTOR(BuildingDataTable, BuildingDataTable)(
 	const wchar_t * name,
 	unsigned int type,
 	unsigned int state,
@@ -24,13 +24,13 @@ CLASS_REALIZE_CONSTRUCTOR(BuildingDataTable, BuildingDataTable)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_DESTRUCTOR(BuildingDataTable, BuildingDataTable)(void)
+CLASS_IMPL_DESTRUCTOR(BuildingDataTable, BuildingDataTable)(void)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(BuildingDataTable, read_Table)(
+CLASS_IMPL_FUNC(BuildingDataTable, read_Table)(
 	/* [r] */ unsigned int _offset,
 	/* [r] */ unsigned int _size,
 	/* [w] */ void * (&_data))const
@@ -39,7 +39,7 @@ CLASS_REALIZE_FUNC(BuildingDataTable, read_Table)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(BuildingDataTable, write_Table)(
+CLASS_IMPL_FUNC(BuildingDataTable, write_Table)(
 	/* [r] */ unsigned int _state,
 	/* [r] */ ...)
 {
@@ -47,21 +47,21 @@ CLASS_REALIZE_FUNC(BuildingDataTable, write_Table)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(BuildingDataTable, const wchar_t *, name)(
+CLASS_IMPL_FUNC_T(BuildingDataTable, const wchar_t *, name)(
 	/* [x] */ void)const
 {
 	return m_Name.c_str();
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(BuildingDataTable, unsigned int, type)(
+CLASS_IMPL_FUNC_T(BuildingDataTable, unsigned int, type)(
 	/* [x] */ void)const
 {
 	return m_Type;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(BuildingDataTable, unsigned int, state)(
+CLASS_IMPL_FUNC_T(BuildingDataTable, unsigned int, state)(
 	/* [x] */ void)const
 {
 	return m_State;

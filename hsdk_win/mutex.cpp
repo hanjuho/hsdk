@@ -8,7 +8,7 @@ using namespace criticalsection;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(Mutex, Mutex)(void)
+CLASS_IMPL_CONSTRUCTOR(Mutex, Mutex)(void)
 {
 	IF_FAILED(my_Mutex = CreateMutex(nullptr, FALSE, nullptr))
 	{
@@ -17,7 +17,7 @@ CLASS_REALIZE_CONSTRUCTOR(Mutex, Mutex)(void)
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_DESTRUCTOR(Mutex, Mutex)(void)
+CLASS_IMPL_DESTRUCTOR(Mutex, Mutex)(void)
 {
 	IF_FALSE(CloseHandle(my_Mutex))
 	{
@@ -26,7 +26,7 @@ CLASS_REALIZE_DESTRUCTOR(Mutex, Mutex)(void)
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(Mutex, enter)(
+CLASS_IMPL_FUNC(Mutex, enter)(
 	/* [r] */ unsigned long _time)
 {
 	switch (WaitForSingleObject(my_Mutex, _time))
@@ -42,7 +42,7 @@ CLASS_REALIZE_FUNC(Mutex, enter)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(Mutex, leave)(
+CLASS_IMPL_FUNC(Mutex, leave)(
 	/* [x] */ void)
 {
 	IF_FALSE(ReleaseMutex(my_Mutex))
@@ -54,7 +54,7 @@ CLASS_REALIZE_FUNC(Mutex, leave)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(Mutex, reset)(
+CLASS_IMPL_FUNC(Mutex, reset)(
 	/* [x] */ void)
 {
 	try

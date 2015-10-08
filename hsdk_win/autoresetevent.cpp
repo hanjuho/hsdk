@@ -8,7 +8,7 @@ using namespace criticalsection;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(AutoResetEvent, AutoResetEvent)(void)
+CLASS_IMPL_CONSTRUCTOR(AutoResetEvent, AutoResetEvent)(void)
 {
 	IF_FAILED(my_Event = CreateEvent(nullptr, 0, FALSE, nullptr))
 	{
@@ -17,7 +17,7 @@ CLASS_REALIZE_CONSTRUCTOR(AutoResetEvent, AutoResetEvent)(void)
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_DESTRUCTOR(AutoResetEvent, AutoResetEvent)(void)
+CLASS_IMPL_DESTRUCTOR(AutoResetEvent, AutoResetEvent)(void)
 {
 	IF_FALSE(CloseHandle(my_Event))
 	{
@@ -26,7 +26,7 @@ CLASS_REALIZE_DESTRUCTOR(AutoResetEvent, AutoResetEvent)(void)
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(AutoResetEvent, signal)(
+CLASS_IMPL_FUNC(AutoResetEvent, signal)(
 	/* [x] */ void)
 {
 	IF_FALSE(SetEvent(my_Event))
@@ -38,7 +38,7 @@ CLASS_REALIZE_FUNC(AutoResetEvent, signal)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(AutoResetEvent, wait)(
+CLASS_IMPL_FUNC(AutoResetEvent, wait)(
 	/* [r] */ unsigned long _time)
 {
 	switch (WaitForSingleObject(my_Event, _time))
@@ -54,7 +54,7 @@ CLASS_REALIZE_FUNC(AutoResetEvent, wait)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(AutoResetEvent, reset)(
+CLASS_IMPL_FUNC(AutoResetEvent, reset)(
 	/* [x] */ void)
 {
 	try

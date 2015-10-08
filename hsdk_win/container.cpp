@@ -9,7 +9,7 @@ using namespace win::frame;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_DESTRUCTOR(Container, Container)(void)
+CLASS_IMPL_DESTRUCTOR(Container, Container)(void)
 {
 	std::hash_map<unsigned int, Component *>::iterator iter = m_Container.begin();
 	std::hash_map<unsigned int, Component *>::iterator end = m_Container.end();
@@ -21,7 +21,7 @@ CLASS_REALIZE_DESTRUCTOR(Container, Container)(void)
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(Container, add_Component)(
+CLASS_IMPL_FUNC(Container, add_Component)(
 	/* [r] */ i_Component * _component)
 {
 	if (contain_Component(_component))
@@ -50,7 +50,7 @@ CLASS_REALIZE_FUNC(Container, add_Component)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(Container, remove_Component)(
+CLASS_IMPL_FUNC(Container, remove_Component)(
 	/* [r] */ i_Component * _component)
 {
 	if (contain_Component(_component))
@@ -69,7 +69,7 @@ CLASS_REALIZE_FUNC(Container, remove_Component)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Container, bool, contain_Component)(
+CLASS_IMPL_FUNC_T(Container, BOOL, contain_Component)(
 	/* [r] */ i_Component * _component)const
 {
 	std::hash_map<unsigned int, Component *>::const_iterator iter =
@@ -86,7 +86,7 @@ CLASS_REALIZE_FUNC_T(Container, bool, contain_Component)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(Container, get_Component)(
+CLASS_IMPL_FUNC(Container, get_Component)(
 	/* [w] */ i_Component * (&_component),
 	/* [r] */ unsigned int _id)const
 {
@@ -105,7 +105,7 @@ CLASS_REALIZE_FUNC(Container, get_Component)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Container, bool, event_chain)(
+CLASS_IMPL_FUNC_T(Container, BOOL, event_chain)(
 	/* [r] */ i_inputEventHelper * _eventhelper)
 {
 	if (_eventhelper->chain(this))
@@ -132,7 +132,7 @@ CLASS_REALIZE_FUNC_T(Container, bool, event_chain)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Container, void, update)(
+CLASS_IMPL_FUNC_T(Container, void, update)(
 	/* [x] */ void)
 {
 	Component::update();
@@ -146,7 +146,7 @@ CLASS_REALIZE_FUNC_T(Container, void, update)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Container, void, render)(
+CLASS_IMPL_FUNC_T(Container, void, render)(
 	/* [x] */ void)
 {
 	if (is_Visible())
@@ -165,7 +165,7 @@ CLASS_REALIZE_FUNC_T(Container, void, render)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(Container, set_Layout)(
+CLASS_IMPL_FUNC(Container, set_Layout)(
 	/* [x] */ void)
 {
 	return E_ACCESSDENIED;

@@ -8,19 +8,19 @@ using namespace datatable;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(ObjectDataTable, ObjectDataTable)()
+CLASS_IMPL_CONSTRUCTOR(ObjectDataTable, ObjectDataTable)()
 {
 
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_DESTRUCTOR(ObjectDataTable, ObjectDataTable)(void)
+CLASS_IMPL_DESTRUCTOR(ObjectDataTable, ObjectDataTable)(void)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(ObjectDataTable, read_Table)(
+CLASS_IMPL_FUNC(ObjectDataTable, read_Table)(
 	/* [r] */ unsigned int _state,
 	/* [w] */ void * (&_data),
 	/* [r] */ unsigned int _size)const
@@ -29,7 +29,7 @@ CLASS_REALIZE_FUNC(ObjectDataTable, read_Table)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(ObjectDataTable, write_Table)(
+CLASS_IMPL_FUNC(ObjectDataTable, write_Table)(
 	/* [r] */ unsigned int _state,
 	/* [r] */ ...)
 {

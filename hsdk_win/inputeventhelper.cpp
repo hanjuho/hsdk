@@ -9,7 +9,7 @@ using namespace win::frame;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(inputEventHelper, inputEventHelper)(
+CLASS_IMPL_CONSTRUCTOR(inputEventHelper, inputEventHelper)(
 	/* [r] */ i_Component * _component)
 	: my_FocusComponent(_component), my_FocusMouseable(_component->get_Mouseable())
 {
@@ -18,13 +18,13 @@ CLASS_REALIZE_CONSTRUCTOR(inputEventHelper, inputEventHelper)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_DESTRUCTOR(inputEventHelper, inputEventHelper)(void)
+CLASS_IMPL_DESTRUCTOR(inputEventHelper, inputEventHelper)(void)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(inputEventHelper, bool, chain)(
+CLASS_IMPL_FUNC_T(inputEventHelper, BOOL, chain)(
 	/* [r] */ const i::frame::i_Component * _component)
 {
 	IF_FALSE(_component->is_Visible())
@@ -54,7 +54,7 @@ CLASS_REALIZE_FUNC_T(inputEventHelper, bool, chain)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(inputEventHelper, void, update)(
+CLASS_IMPL_FUNC_T(inputEventHelper, void, update)(
 	/* [x] */ void)
 {
 	/*
@@ -67,7 +67,7 @@ CLASS_REALIZE_FUNC_T(inputEventHelper, void, update)(
 		while (true)
 		{
 			// 결과
-			bool result;
+			BOOL result;
 
 			// 부모 component.
 			i_Component * parent;
@@ -106,7 +106,7 @@ CLASS_REALIZE_FUNC_T(inputEventHelper, void, update)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(inputEventHelper, void, onClick_Down)(
+CLASS_IMPL_FUNC_T(inputEventHelper, void, onClick_Down)(
 	/* [r] */ i::frame::i_Mouseable::MOUSE_BUTTON _button,
 	/* [r] */ int _x,
 	/* [r] */ int _y)
@@ -125,7 +125,7 @@ CLASS_REALIZE_FUNC_T(inputEventHelper, void, onClick_Down)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(inputEventHelper, void, onClick_Up)(
+CLASS_IMPL_FUNC_T(inputEventHelper, void, onClick_Up)(
 	/* [r] */ i::frame::i_Mouseable::MOUSE_BUTTON _button,
 	/* [r] */ int _x,
 	/* [r] */ int _y)
@@ -144,7 +144,7 @@ CLASS_REALIZE_FUNC_T(inputEventHelper, void, onClick_Up)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(inputEventHelper, void, onDrag)(
+CLASS_IMPL_FUNC_T(inputEventHelper, void, onDrag)(
 	/* [r] */ i::frame::i_Mouseable::MOUSE_BUTTON _button,
 	/* [r] */ int _x,
 	/* [r] */ int _y)
@@ -162,7 +162,7 @@ CLASS_REALIZE_FUNC_T(inputEventHelper, void, onDrag)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(inputEventHelper, void, onMove)(
+CLASS_IMPL_FUNC_T(inputEventHelper, void, onMove)(
 	/* [r] */ int _x,
 	/* [r] */ int _y)
 {
@@ -176,7 +176,7 @@ CLASS_REALIZE_FUNC_T(inputEventHelper, void, onMove)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(inputEventHelper, void, onWheel)(
+CLASS_IMPL_FUNC_T(inputEventHelper, void, onWheel)(
 	/* [r] */ int _x,
 	/* [r] */ int _y,
 	/* [r] */ int _w)

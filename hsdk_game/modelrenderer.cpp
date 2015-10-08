@@ -7,34 +7,34 @@ using namespace game;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(ModelRenderer, ModelRenderer)(void)
+CLASS_IMPL_CONSTRUCTOR(ModelRenderer, ModelRenderer)(void)
 : m_Datatable(nullptr)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_DESTRUCTOR(ModelRenderer, ModelRenderer)(void)
+CLASS_IMPL_DESTRUCTOR(ModelRenderer, ModelRenderer)(void)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(ModelRenderer, void, initialize)(
+CLASS_IMPL_FUNC_T(ModelRenderer, void, initialize)(
 	/* [x] */ void)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(ModelRenderer, void, render)(
+CLASS_IMPL_FUNC_T(ModelRenderer, void, render)(
 	/* [x] */ void)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(ModelRenderer, void, link_DataTable)(
+CLASS_IMPL_FUNC_T(ModelRenderer, void, link_DataTable)(
 	/* [ref] */ i::i_DataTable * _datatable)
 {
 	m_Datatable = _datatable;

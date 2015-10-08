@@ -11,7 +11,7 @@ using namespace thread;
 // grobal function
 //--------------------------------------------------------------------------------------
 
-REALIZE_FUNC_T(DWORD, threadProc)(LPVOID _param)
+IMPL_FUNC_T(DWORD, threadProc)(LPVOID _param)
 {
 	if (_param)
 	{
@@ -22,7 +22,7 @@ REALIZE_FUNC_T(DWORD, threadProc)(LPVOID _param)
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(Thread, Thread)(
+CLASS_IMPL_CONSTRUCTOR(Thread, Thread)(
 	/* [set] */ i_Task * _task)
 	: my_Task(_task)
 {
@@ -37,7 +37,7 @@ CLASS_REALIZE_CONSTRUCTOR(Thread, Thread)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_DESTRUCTOR(Thread, Thread)(void)
+CLASS_IMPL_DESTRUCTOR(Thread, Thread)(void)
 {
 	// 쓰레드가 1초 안에 죽지 않으면 강제로 종료
 	IF_FAILED(wait(1000))
@@ -57,7 +57,7 @@ CLASS_REALIZE_DESTRUCTOR(Thread, Thread)(void)
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(Thread, start)(
+CLASS_IMPL_FUNC(Thread, start)(
 	/* [x] */ void)
 {
 	// 스스로가 이 함수를 호출할 수 없음
@@ -81,7 +81,7 @@ CLASS_REALIZE_FUNC(Thread, start)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(Thread, kill)(
+CLASS_IMPL_FUNC(Thread, kill)(
 	/* [x] */ void)
 {
 	// 스스로가 이 함수를 호출할 수 없음
@@ -105,7 +105,7 @@ CLASS_REALIZE_FUNC(Thread, kill)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(Thread, wait)(
+CLASS_IMPL_FUNC(Thread, wait)(
 	/* [r] */ unsigned int _time)
 {
 	// 스스로가 이 함수를 호출할 수 없음
@@ -128,7 +128,7 @@ CLASS_REALIZE_FUNC(Thread, wait)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(Thread, reset)(
+CLASS_IMPL_FUNC(Thread, reset)(
 	/* [x] */ void)
 {
 	try

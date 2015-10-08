@@ -7,7 +7,7 @@ using namespace physics2d;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_CONSTRUCTOR(Terrain2D, Terrain2D)(
+CLASS_IMPL_CONSTRUCTOR(Terrain2D, Terrain2D)(
 	/* [r] */ float _posX,
 	/* [r] */ float _minY,
 	/* [r] */ unsigned int _width,
@@ -23,7 +23,7 @@ CLASS_REALIZE_CONSTRUCTOR(Terrain2D, Terrain2D)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(Terrain2D, initialize)(
+CLASS_IMPL_FUNC(Terrain2D, initialize)(
 	/* [r] */ const wchar_t * _fileName,
 	/* [r] */ float _intensity)
 {
@@ -31,7 +31,7 @@ CLASS_REALIZE_FUNC(Terrain2D, initialize)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Terrain2D, void, initialize)(
+CLASS_IMPL_FUNC_T(Terrain2D, void, initialize)(
 	/* [r] */ const float * _map,
 	/* [r] */ unsigned int _offset,
 	/* [r] */ unsigned int _size)
@@ -46,7 +46,7 @@ CLASS_REALIZE_FUNC_T(Terrain2D, void, initialize)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Terrain2D, void, set_Height)(
+CLASS_IMPL_FUNC_T(Terrain2D, void, set_Height)(
 	/* [r] */ unsigned int _index,
 	/* [r] */ float _height)
 {
@@ -54,7 +54,7 @@ CLASS_REALIZE_FUNC_T(Terrain2D, void, set_Height)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Terrain2D, float, get_Height)(
+CLASS_IMPL_FUNC_T(Terrain2D, float, get_Height)(
 	/* [r] */ unsigned int _index)const
 {
 	if (_index < my_HeightMap.size())
@@ -68,14 +68,14 @@ CLASS_REALIZE_FUNC_T(Terrain2D, float, get_Height)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Terrain2D, unsigned int, indexOfCell)(
+CLASS_IMPL_FUNC_T(Terrain2D, unsigned int, indexOfCell)(
 	/* [r] */ float _x)const
 {
 	return (unsigned int)(::floorf((_x - posX) / cellSpace));
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Terrain2D, float, height)(
+CLASS_IMPL_FUNC_T(Terrain2D, float, height)(
 	/* [r] */ float _x,
 	/* [r] */ float * _dy)const
 {
