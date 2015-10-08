@@ -44,7 +44,7 @@ CLASS_REALIZE_FUNC(TCPServer, open)(
 	SOCKET new_socket;
 
 	// 인터넷 프로토콜 버전 4 (IPv4) 의 스트림 패킷 TPC 소켓을 생성한다
-	IF_FAILED(new_socket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, nullptr, nullptr, nullptr))
+	IF_FAILED(new_socket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, nullptr, 0, 0))
 	{
 		return ADD_FLAG(HSDK_FAIL, WSAGetLastError());
 	}

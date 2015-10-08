@@ -5,9 +5,9 @@
 
 
 using namespace hsdk;
-using namespace d3d11;
 using namespace i::frame;
 using namespace win::frame;
+using namespace direct3d;
 
 
 // grobal
@@ -19,13 +19,13 @@ struct InputLayoutFormat
 
 
 //--------------------------------------------------------------------------------------
-AutoRelease<ID3D11RasterizerState> Graphics::CULL_BACK_RASTERIZER;
-AutoRelease<ID3D11DepthStencilState> Graphics::FRONT_CLIPPING_DEPTH;
-AutoRelease<ID3D11VertexShader> Graphics::VERTEX_SHADER;
-AutoRelease<ID3D11PixelShader> Graphics::PIXEL_SHADER;
-AutoRelease<ID3D11InputLayout> Graphics::INPUT_LAYOUT;
-AutoRelease<ID3D11Buffer> Graphics::VS_WIDE_CBUFFER;
-AutoRelease<ID3D11Buffer> Graphics::VS_CLIP_CBUFFER;
+AutoRelease<ID3D10RasterizerState> Graphics::CULL_BACK_RASTERIZER;
+AutoRelease<ID3D10DepthStencilState> Graphics::FRONT_CLIPPING_DEPTH;
+AutoRelease<ID3D10VertexShader> Graphics::VERTEX_SHADER;
+AutoRelease<ID3D10PixelShader> Graphics::PIXEL_SHADER;
+AutoRelease<ID3D10InputLayout> Graphics::INPUT_LAYOUT;
+AutoRelease<ID3D10Buffer> Graphics::VS_WIDE_CBUFFER;	
+AutoRelease<ID3D10Buffer> Graphics::VS_CLIP_CBUFFER;
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Graphics, initialize)(
@@ -34,7 +34,7 @@ CLASS_REALIZE_FUNC(Graphics, initialize)(
 	HRESULT hr;
 
 	// rasterizer state
-	D3D11_RASTERIZER_DESC rasterDesc;
+	D3D10_RASTERIZER_DESC rasterDesc;
 
 	// Setup the raster description which will determine how and what polygons will be drawn.
 	rasterDesc.AntialiasedLineEnable = false;

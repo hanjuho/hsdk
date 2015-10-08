@@ -66,11 +66,11 @@ CLASS_REALIZE_FUNC(Direct3D_Outside, initialize)(
 	bool uniqueDesc = true;
 
 	const unsigned int size = g_Videos.size();
-	for (int A = 0; A < size; ++A)
+	for (unsigned int A = 0; A < size; ++A)
 	{
 		const VideoCard_info & infoA = g_Videos[A];
 
-		for (int B = A + 1; B < size; ++B)
+		for (unsigned int B = A + 1; B < size; ++B)
 		{
 			const VideoCard_info & infoB = g_Videos[A];
 
@@ -248,4 +248,114 @@ CLASS_REALIZE_FUNC_T(Direct3D_Outside, const VideoCard_Output_info *, get_Output
 	}
 
 	return nullptr;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D_Outside, HMONITOR, get_MonitorFromAdapter)(
+	/* [r] */ const D3D10_DEVICE_DESC & _desc)
+{
+	const VideoCard_Output_info * output_info =
+		get_Output_info(
+		_desc.adapterOrdinal,
+		_desc.output);
+
+	IF_INVALID(output_info)
+	{
+		return nullptr;
+	}
+
+	return MonitorFromRect(&output_info->desc.DesktopCoordinates, MONITOR_DEFAULTTONEAREST);
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D_Outside, unsigned int, get_AdapterOrdinalFromMonitor)(
+	/* [r] */ HMONITOR _monitor,
+	/* [r] */ IDirect3D9 * _d3d9)
+{
+	if (_d3d9)
+	{
+		for (int iAdapter = 0;; ++iAdapter)
+		{
+			const VideoCard_info * card_info =
+				get_info(iAdapter);
+
+			IF_INVALID(card_info)
+			{
+				return -1;
+			}
+
+			HMONITOR hAdapterMonitor =
+				_d3d9->GetAdapterMonitor(card_info->ordinal);
+
+			if (_monitor == hAdapterMonitor)
+			{
+				return card_info->ordinal;
+			}
+		}
+	}
+	else
+	{
+		// Get the monitor handle information
+		MONITORINFOEX mi;
+		mi.cbSize = sizeof(MONITORINFOEX);
+		GetMonitorInfo(_monitor, &mi);
+
+		// Search for this monitor in our enumeration hierarchy.
+		for (int iAdapter = 0;; ++iAdapter)
+		{
+			for (int iOutput = 0;; ++iOutput)
+			{
+				const VideoCard_Output_info * output_info =
+					get_Output_info(iAdapter, iOutput);
+
+				IF_INVALID(output_info)
+				{
+					return -1;
+				}
+
+				// Convert output device name from MBCS to Unicode
+				unsigned int size = sizeof(mi.szDevice) / sizeof(mi.szDevice[0]);
+				if (wcsncmp(output_info->desc.DeviceName, mi.szDevice, size) == 0)
+				{
+					return get_info(iAdapter)->ordinal;
+				}
+			}
+		}
+	}
+
+	return -1;
+}
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D_Outside, unsigned int, get_OutputOrdinalFromMonitor)(
+	/* [r] */ HMONITOR _monitor)
+{
+	// Get the monitor handle information
+	MONITORINFOEX mi;
+	mi.cbSize = sizeof(MONITORINFOEX);
+	GetMonitorInfo(_monitor, &mi);
+
+	// Search for this monitor in our enumeration hierarchy.
+	for (int iAdapter = 0;; ++iAdapter)
+	{
+		for (int iOutput = 0;; ++iOutput)
+		{
+			const VideoCard_Output_info * output_info =
+				get_Output_info(iAdapter, iOutput);
+
+			IF_INVALID(output_info)
+			{
+				return -1;
+			}
+
+			DXGI_OUTPUT_DESC Desc;
+			output_info->dxgiOutput->GetDesc(&Desc);
+
+			if (_monitor == Desc.Monitor)
+			{
+				return output_info->output;
+			}
+		}
+	}
+
+	return -1;
 }

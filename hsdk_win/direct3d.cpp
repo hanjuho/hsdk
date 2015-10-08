@@ -2,6 +2,10 @@
 #include <hsdk/win/frame/direct3d/direct3doutside.h>
 #include <hsdk/win/wintimer.h>
 
+#define NODEBUG
+#include <assert.h>
+#include <list>
+
 
 
 using namespace hsdk;
@@ -17,6 +21,26 @@ Direct3D g_Direct3D;
 
 // 설명 : 
 Direct3D_Outside g_Outside;
+
+//--------------------------------------------------------------------------------------
+// Grobal callback function declare
+//--------------------------------------------------------------------------------------
+
+// 설명 : 
+typedef long (CALLBACK *CALLBACK_CREATE_3DENVIRONMENT)(
+	/* [x] */ void);
+
+// 설명 : 
+typedef long (CALLBACK *CALLBACK_RESET_3DENVIRONMENT)(
+	/* [x] */ void);
+
+// 설명 : 
+typedef void (CALLBACK *CALLBACK_RENDER_3DENVIRONMENT)(
+	/* [x] */ void);
+
+// 설명 : 
+typedef void (CALLBACK *CALLBACK_CLEANUP_3DENVIRONMENT)(
+	/* [r] */ bool _releaseSettings);
 
 //--------------------------------------------------------------------------------------
 // Grobal declare
@@ -44,14 +68,88 @@ DECL_STRUCT(Direct3D_TimeStream)
 	// 설명 : 
 	float constantTimePerFrame = 0.0333f;
 
+	// 설명 : 
+	double time = 0.0f;
+
+	// 설명 : 
+	double absoluteTime = 0.0f;
+
+	// 설명 : 
+	float elapsedTime = 0.0f;
+
+	// 설명 : 
+	unsigned int frameCount = 0;
+
+	// 설명 :
+	float fps = 0;
+
 	// 설명 :
 	win::WINTimer timer;
 
 };
 
 // 설명 : 
-DECL_STRUCT(Direct3DState)
+DECL_STRUCT(Direct3D_State)
 {
+	// 설명 :
+	volatile long runMainLoop = 0;
+
+	// 설명 : 
+	bool autoChangeAdapter = false;
+
+	// 설명 : 
+	bool is_in_GammaCorrectMode = false;
+
+	// 설명 :
+	bool minimizedSize = false;
+
+	// 설명 :
+	bool maximizedSize = false;
+
+	// 설명 : 
+	bool allowWhenFullscreen = false;
+
+	// 설명 : 
+	bool allowWhenWindowed = false;
+
+	// 
+	bool calledWasKeyPressed = false;
+
+	// 설명 : 
+	HHOOK keyboardHook = nullptr;
+
+};
+
+// 설명 : 
+DECL_STRUCT(Direct3D_Dispatch)
+{
+
+	// 설명 : 
+	DEVICE_VERSION version;
+
+	// 설명 : 
+	const BOOL * refWindowed = nullptr;
+
+	// 설명 : 
+	const unsigned int * refWidth = nullptr;
+
+	// 설명 : 
+	const unsigned int * refHeight = nullptr;
+
+	// 설명 : 
+	const unsigned int * refAdapter = nullptr;
+
+	// 설명 : 
+	CALLBACK_CREATE_3DENVIRONMENT cbCreate3DEnvironment = nullptr;
+
+	// 설명 : 
+	CALLBACK_RESET_3DENVIRONMENT cbReset3DEnvironment = nullptr;
+
+	// 설명 : 
+	CALLBACK_RENDER_3DENVIRONMENT cbRender3DEnvironment = nullptr;
+
+	// 설명 : 
+	CALLBACK_CLEANUP_3DENVIRONMENT cbCleanUp3DEnvironment = nullptr;
 
 };
 
@@ -82,24 +180,33 @@ Direct3D_Callback_UserContexts g_cbUserContext;
 // 설명 : 
 Direct3D_INIT_DESC g_init;
 
+// 설명 : 
+Direct3D_State g_State;
+
+// 설명 : 
+Direct3D_Dispatch g_Dispatch;
+
 //--------------------------------------------------------------------------------------
 // Grobal control variable
 //--------------------------------------------------------------------------------------
 
 // 설명 : 
-long g_ExitCode;
+long g_ExitCode = 1;
 
 // 설명 : array of key state
-bool g_Keys[256];
+bool g_Keys[256] = { 0 };
 
 // 설명 : array of last key state
-bool g_LastKeys[256];
+bool g_LastKeys[256] = { 0 };
 
 // 설명 : array of mouse states
-bool g_MouseButtons[5];
+bool g_MouseButtons[5] = { 0 };
 
 // 설명 : 
 Direct3D_TimeStream g_TimeStream;
+
+// 설명 :
+std::list<Direct3D_TIMER_DESC> g_TimerEvents;
 
 //--------------------------------------------------------------------------------------
 // Grobal device handle variable
@@ -114,9 +221,14 @@ Direct3D_Device g_Device;
 // 설명 : 
 Direct3D_DeviceDescs g_DeviceDescs;
 
+
 //--------------------------------------------------------------------------------------
 // Grobal function declare
 //--------------------------------------------------------------------------------------
+
+// 설명 : update dispatch function in g_Dispatch
+DECL_FUNC_T(void, initialize_Dispatch)(
+	/* [r] */ DEVICE_VERSION _version);
 
 // 설명 : Creates the 3D environment in g_Device
 DECL_FUNC(create_3DEnvironment9)(
@@ -140,7 +252,7 @@ DECL_FUNC(reset_3DEnvironment9)(
 - Calling the app's framemove and render callback
 - Calling Present()
 */
-DECL_FUNC_T(void, render3DEnvironment9)(
+DECL_FUNC_T(void, render_3DEnvironment9)(
 	/* [x] */ void);
 
 /*
@@ -151,16 +263,6 @@ DECL_FUNC_T(void, render3DEnvironment9)(
 */
 DECL_FUNC_T(void, cleanup_3DEnvironment9)(
 	/* [r] */ bool _releaseSettings);
-
-// 설명 : Setup cursor based on current settings (window/fullscreen mode, show cursor state, clip cursor state)
-DECL_FUNC(setup_DeviceCursor)(
-	/* [r] */ DEVICE_VERSION _version);
-
-// 설명 : Gives the D3D device a cursor with image and hotspot from hCursor.
-DECL_FUNC(set_D3D9DeviceCursor)(
-	IDirect3DDevice9* _d3dDevice,
-	HCURSOR _hCursor,
-	bool _addWatermark);
 
 // 설명 : Creates the 3D environment
 DECL_FUNC(create_3DEnvironment10)(
@@ -203,226 +305,25 @@ DECL_FUNC_T(void, resize_DXGIBuffers)(
 DECL_FUNC(update_BackBufferDesc)(
 	/* [r] */ DEVICE_VERSION _version);
 
-void updateD3D9DeviceStats(
-	D3DDEVTYPE DeviceType,
-	unsigned long BehaviorFlags,
-	D3DADAPTER_IDENTIFIER9* pAdapterIdentifier);
-
-HRESULT DXUTFindD3D9AdapterFormat(
-	unsigned int AdapterOrdinal,
-	D3DDEVTYPE DeviceType,
-	D3DFORMAT BackBufferFormat,
-	BOOL Windowed,
-	D3DFORMAT * pAdapterFormat);
-
-
-void create_D3D10Counters(ID3D10Device* pd3dDevice);
-void destroy_D3D10Counters();
-void startPerformanceCounters();
-void stopPerformanceCounters();
-void updateD3D10CounterStats();
-
-HRESULT setupD3D10Views(ID3D10Device* pd3dDevice, DXUTDeviceSettings* pDeviceSettings);
-
-void updateD3D10DeviceStats(
-	D3D10_DRIVER_TYPE DeviceType,
-	DXGI_ADAPTER_DESC* pAdapterDesc);
-
 /*
-설명 : Checks to see if the HWND changed monitors, and if it did it creates a device 
-from the monitor's adapter and recreates the scene.
+설명 : Enables/disables Windows keys, and disables or restores the StickyKeys/ToggleKeys/FilterKeys
+shortcut to help prevent accidental task switching.
 */
-DECL_FUNC_T(void, checkFor_WindowChangingMonitors)(
-	/* [x] */ void);
-
-// 설명 : Returns the HMONITOR attached to an adapter/output
-DECL_FUNC_T(HMONITOR, get_MonitorFromAdapter)(
-	/* [r] */ const Direct3D_DeviceDescs & _desc);
-
-// 설명 : Look for an adapter ordinal that is tied to a HMONITOR
-DECL_FUNC(get_AdapterOrdinalFromMonitor)(
-	/* [w] */ unsigned int * _adapterOrdinal,
-	/* [r] */ HMONITOR _monitor);
+DECL_FUNC_T(void, allow_ShortcutKeys)(
+	/* [r] */ BOOL _allowKeys);
 
 // 설명 : Handles window messages 
-LRESULT CALLBACK direct3d_WndProc(
+LRESULT CALLBACK direct3D_WndProc(
 	/* [r] */ HWND _hWnd,
 	/* [r] */ unsigned int _uMsg,
 	/* [r] */ unsigned int _wParam,
 	/* [r] */ long _lParam);
 
-//--------------------------------------------------------------------------------------
-// General callbacks
-//--------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_FrameMove)(
-	/* [ref] */ CALLBACK_FRAMEMOVE _callback,
-	/* [r/w] */ void * _userContext)
-{
-	g_Callbacks.frameMoveFunc = _callback;
-	g_cbUserContext.frameMoveFuncUserContext = _userContext;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_Keyboard)(
-	/* [ref] */ CALLBACK_KEYBOARD _callback,
-	/* [r/w] */ void * _userContext)
-{
-	g_Callbacks.keyboardFunc = _callback;
-	g_cbUserContext.keyboardFuncUserContext = _userContext;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_Mouse)(
-	/* [ref] */ CALLBACK_MOUSE _callback,
-	/* [r] */ bool _includeMouseMove,
-	/* [r/w] */ void * _userContext)
-{
-	g_Callbacks.mouseFunc = _callback;
-	g_cbUserContext.notifyOnMouseMove = _includeMouseMove;
-	g_cbUserContext.mouseFuncUserContext = _userContext;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_MsgProc)(
-	/* [ref] */ CALLBACK_MSGPROC _callback,
-	/* [r/w] */ void * _userContext)
-{
-	g_Callbacks.windowMsgFunc = _callback;
-	g_cbUserContext.windowMsgFuncUserContext = _userContext;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_DeviceChanging)(
-	/* [ref] */ CALLBACK_MODIFY_DEVICE_SETTINGS _callback,
-	/* [r/w] */ void * _userContext)
-{
-	g_Callbacks.modifyDeviceSettingsFunc = _callback;
-	g_cbUserContext.modifyDeviceSettingsFuncUserContext = _userContext;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_DeviceRemoved)(
-	/* [ref] */ CALLBACK_DEVICE_REMOVED _callback,
-	/* [r/w] */ void * _userContext)
-{
-	g_Callbacks.deviceRemovedFunc = _callback;
-	g_cbUserContext.deviceRemovedFuncUserContext = _userContext;
-}
-
-// Direct3D 9 callbacks
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D9_DeviceAcceptable)(
-	/* [ref] */ CALLBACK_IS_D3D9_DEVICE_ACCEPTABLE _callback,
-	/* [r/w] */ void * _userContext)
-{
-	g_Callbacks.isD3D9DeviceAcceptableFunc = _callback;
-	g_cbUserContext.isD3D9DeviceAcceptableFuncUserContext = _userContext;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D9_DeviceCreated)(
-	/* [ref] */ CALLBACK_D3D9_DEVICE_CREATED _callback,
-	/* [r/w] */ void * _userContext)
-{
-	g_Callbacks.d3d9DeviceCreatedFunc = _callback;
-	g_cbUserContext.d3d9DeviceCreatedFuncUserContext = _userContext;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D9_DeviceReset)(
-	/* [ref] */ CALLBACK_D3D9_DEVICE_RESET _callback,
-	/* [r/w] */ void * _userContext)
-{
-	g_Callbacks.d3d9DeviceResetFunc = _callback;
-	g_cbUserContext.d3d9DeviceResetFuncUserContext = _userContext;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D9_DeviceLost)(
-	/* [ref] */ CALLBACK_D3D9_DEVICE_LOST _callback,
-	/* [r/w] */ void * _userContext)
-{
-	g_Callbacks.d3d9DeviceLostFunc = _callback;
-	g_cbUserContext.d3d9DeviceLostFuncUserContext = _userContext;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D9_DeviceDestroyed)(
-	/* [ref] */ CALLBACK_D3D9_DEVICE_DESTROYED _callback,
-	/* [r/w] */ void * _userContext)
-{
-	g_Callbacks.d3d9DeviceDestroyedFunc = _callback;
-	g_cbUserContext.d3d9DeviceDestroyedFuncUserContext = _userContext;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D9_FrameRender)(
-	/* [ref] */ CALLBACK_D3D9_FRAME_RENDER _callback,
-	/* [r/w] */ void * _userContext)
-{
-	g_Callbacks.d3d9FrameRenderFunc = _callback;
-	g_cbUserContext.d3d9FrameRenderFuncUserContext = _userContext;
-}
-
-
-// Direct3D 10 callbacks
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D10_DeviceAcceptable)(
-	/* [ref] */ CALLBACK_IS_D3D10_DEVICE_ACCEPTABLE _callback,
-	/* [r/w] */ void * _userContext)
-{
-	g_Callbacks.isD3D10DeviceAcceptableFunc = _callback;
-	g_cbUserContext.isD3D10DeviceAcceptableFuncUserContext = _userContext;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D10_DeviceCreated)(
-	/* [ref] */ CALLBACK_D3D10_DEVICE_CREATED _callback,
-	/* [r/w] */ void * _userContext)
-{
-	g_Callbacks.d3d10DeviceCreatedFunc = _callback;
-	g_cbUserContext.d3d10DeviceCreatedFuncUserContext = _userContext;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D10_SwapChainResized)(
-	/* [ref] */ CALLBACK_D3D10_SWAPCHAINRESIZED _callback,
-	/* [r/w] */ void * _userContext)
-{
-	g_Callbacks.d3d10SwapChainResizedFunc = _callback;
-	g_cbUserContext.d3d10SwapChainResizedFuncUserContext = _userContext;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D10_SwapChainReleasing)(
-	/* [ref] */ CALLBACK_D3D10_SWAPCHAINRELEASING _callback,
-	/* [r/w] */ void * _userContext)
-{
-	g_Callbacks.d3d10SwapChainReleasingFunc = _callback;
-	g_cbUserContext.d3d10SwapChainReleasingFuncUserContext = _userContext;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D10_DeviceDestroyed)(
-	/* [ref] */ CALLBACK_D3D10_DEVICE_DESTROYED _callback,
-	/* [r/w] */ void * _userContext)
-{
-	g_Callbacks.d3d10DeviceDestroyedFunc = _callback;
-	g_cbUserContext.d3d10DeviceDestroyedFuncUserContext = _userContext;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D10_FrameRender)(
-	/* [ref] */ CALLBACK_D3D10_FRAME_RENDER _callback,
-	/* [r/w] */ void * _userContext)
-{
-	g_Callbacks.d3d10FrameRenderFunc = _callback;
-	g_cbUserContext.d3d10FrameRenderFuncUserContext = _userContext;
-}
+// 설명 : Low level keyboard hook to disable Windows key to prevent accidental task switching. 
+LRESULT CALLBACK direct3D_LowLevelKeyboardProc(
+	/* [r] */ int _code,
+	/* [r] */ WPARAM _wParam,
+	/* [r] */ LPARAM _lParam);
 
 //--------------------------------------------------------------------------------------
 // initialize task
@@ -441,14 +342,14 @@ CLASS_REALIZE_FUNC(Direct3D, initialize_Default)(
 	InitCommonControls();
 
 	// Save the current sticky/toggle/filter key settings so DXUT can restore them later
-	g_init.startupStickyKeys = { sizeof(STICKYKEYS), 0 };
-	SystemParametersInfo(SPI_GETSTICKYKEYS, sizeof(STICKYKEYS), &g_init.startupStickyKeys, 0);
+	g_init.stickyKeys = { sizeof(STICKYKEYS), 0 };
+	SystemParametersInfo(SPI_GETSTICKYKEYS, sizeof(STICKYKEYS), &g_init.stickyKeys, 0);
 
-	g_init.startupToggleKeys = { sizeof(TOGGLEKEYS), 0 };
-	SystemParametersInfo(SPI_GETTOGGLEKEYS, sizeof(TOGGLEKEYS), &g_init.startupToggleKeys, 0);
+	g_init.toggleKeys = { sizeof(TOGGLEKEYS), 0 };
+	SystemParametersInfo(SPI_GETTOGGLEKEYS, sizeof(TOGGLEKEYS), &g_init.toggleKeys, 0);
 
-	g_init.startupFilterKeys = { sizeof(FILTERKEYS), 0 };
-	SystemParametersInfo(SPI_GETFILTERKEYS, sizeof(FILTERKEYS), &g_init.startupFilterKeys, 0);
+	g_init.filterKeys = { sizeof(FILTERKEYS), 0 };
+	SystemParametersInfo(SPI_GETFILTERKEYS, sizeof(FILTERKEYS), &g_init.filterKeys, 0);
 
 	if (_parseCommandLine)
 	{
@@ -463,20 +364,7 @@ CLASS_REALIZE_FUNC(Direct3D, initialize_Default)(
 	// Declare this process to be high DPI aware, and prevent automatic scaling
 	// Warning: This is better done as a <dpiaware> manifest element to avoid
 	//			problems based on code that has run before this point.
-	HINSTANCE hUser32 = LoadLibrary(L"user32.dll");
-	if (hUser32)
-	{
-		typedef BOOL(WINAPI* LPSetProcessDPIAware)(void);
-		LPSetProcessDPIAware pSetProcessDPIAware =
-			(LPSetProcessDPIAware)GetProcAddress(hUser32, "SetProcessDPIAware");
-
-		if (pSetProcessDPIAware)
-		{
-			pSetProcessDPIAware();
-		}
-
-		FreeLibrary(hUser32);
-	}
+	SetProcessDPIAware();
 
 	// Reset the timer
 	g_TimeStream.timer.reset();
@@ -486,14 +374,14 @@ CLASS_REALIZE_FUNC(Direct3D, initialize_Default)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Direct3D, initialize_Window)(
-	/* [r] */ const wchar_t * _strWindowTitle = L"Direct3D Window",
-	/* [r] */ HINSTANCE _hInstance = nullptr,
-	/* [r] */ HICON _hIcon = nullptr,
-	/* [r] */ HMENU _hMenu = nullptr,
-	/* [r] */ int _x = CW_USEDEFAULT,
-	/* [r] */ int _y = CW_USEDEFAULT)
+	/* [r] */ const wchar_t * _strWindowTitle,
+	/* [r] */ HINSTANCE _hInstance,
+	/* [r] */ HICON _hIcon,
+	/* [r] */ HMENU _hMenu,
+	/* [r] */ int _x,
+	/* [r] */ int _y)
 {
-	if (_hInstance == nullptr)
+	IF_INVALID(_hInstance)
 	{
 		_hInstance = (HINSTANCE)GetModuleHandle(nullptr);
 	}
@@ -502,7 +390,7 @@ CLASS_REALIZE_FUNC(Direct3D, initialize_Window)(
 	GetModuleFileName(nullptr, szExePath, MAX_PATH);
 
 	// If the icon is nullptr, then use the first one found in the exe
-	if (_hIcon == nullptr)
+	IF_INVALID(_hIcon)
 	{
 		_hIcon = ExtractIcon(_hInstance, szExePath, 0);
 	}
@@ -510,7 +398,7 @@ CLASS_REALIZE_FUNC(Direct3D, initialize_Window)(
 	// Register the windows class
 	WNDCLASS wndClass;
 	wndClass.style = CS_DBLCLKS;
-	wndClass.lpfnWndProc = direct3d_WndProc;
+	wndClass.lpfnWndProc = direct3D_WndProc;
 	wndClass.cbClsExtra = 0;
 	wndClass.cbWndExtra = 0;
 	wndClass.hInstance = _hInstance;
@@ -520,7 +408,7 @@ CLASS_REALIZE_FUNC(Direct3D, initialize_Window)(
 	wndClass.lpszMenuName = nullptr;
 	wndClass.lpszClassName = L"Direct3DWindowClass";
 
-	if (!RegisterClass(&wndClass))
+	IF_FALSE(RegisterClass(&wndClass))
 	{
 		unsigned long dwError = GetLastError();
 		if (dwError != ERROR_CLASS_ALREADY_EXISTS)
@@ -530,12 +418,12 @@ CLASS_REALIZE_FUNC(Direct3D, initialize_Window)(
 	}
 
 	// Override the window's initial & size position if there were cmd line args
-	if (g_init.startX != -1)
+	if (g_init.startX != CW_USEDEFAULT)
 	{
 		_x = g_init.startX;
 	}
 
-	if (g_init.startY != -1)
+	if (g_init.startY != CW_USEDEFAULT)
 	{
 		_y = g_init.startY;
 	}
@@ -554,8 +442,13 @@ CLASS_REALIZE_FUNC(Direct3D, initialize_Window)(
 		nDefaultHeight = g_init.height;
 	}
 
-	RECT rc;
-	SetRect(&rc, 0, 0, nDefaultWidth, nDefaultHeight);
+	RECT rc = {
+		0,
+		0,
+		nDefaultWidth,
+		nDefaultHeight
+	};
+
 	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, (_hMenu != nullptr) ? true : false);
 
 	wchar_t * strCachedWindowTitle = g_Window.windowTitle;
@@ -575,13 +468,19 @@ CLASS_REALIZE_FUNC(Direct3D, initialize_Window)(
 		_hInstance,
 		0);
 
-	if (hWnd == nullptr)
+	IF_INVALID(hWnd)
 	{
 		unsigned long dwError = GetLastError();
 		return ADD_FLAG(HSDK_FAIL, dwError);
 	}
 
-	return userSet_Window(hWnd, hWnd, hWnd);
+	HRESULT hr;
+	IF_FAILED(hr = userSet_Window(hWnd, hWnd, hWnd))
+	{
+		DestroyWindow(hWnd);
+	}
+
+	return hr;
 }
 
 //--------------------------------------------------------------------------------------
@@ -591,10 +490,15 @@ CLASS_REALIZE_FUNC(Direct3D, userSet_Window)(
 	/* [in] */ HWND _deviceWindowed,
 	/* [r] */ bool _handleMessages)
 {
+	if (g_Window.focus || g_Window.deviceFullScreen || g_Window.deviceWindowed)
+	{
+		return E_ACCESSDENIED;
+	}
+
 	// To avoid confusion, we do not allow any HWND to be nullptr here.  The
 	// caller must pass in valid HWND for all three parameters.  The same
 	// HWND may be used for more than one parameter.
-	if (_focus == nullptr || _deviceFullScreen == nullptr || _deviceWindowed == nullptr)
+	if (nullptr == _focus || nullptr == _deviceFullScreen || nullptr == _deviceWindowed)
 	{
 		return E_INVALIDARG;
 	}
@@ -603,14 +507,18 @@ CLASS_REALIZE_FUNC(Direct3D, userSet_Window)(
 	if (_handleMessages)
 	{
 		// Switch window procedures
-		LONG_PTR nResult = SetWindowLongPtr(_focus, GWLP_WNDPROC, (LONG_PTR)direct3d_WndProc);
-
-		unsigned long dwError = GetLastError();
-		if (nResult == 0)
+		LONG_PTR nResult;
+		IF_FALSE(nResult = SetWindowLongPtr(
+			_focus,
+			GWLP_WNDPROC,
+			(LONG_PTR)direct3D_WndProc))
 		{
-			return ADD_FLAG(HSDK_FAIL, HRESULT_FROM_WIN32(dwError));
+			return ADD_FLAG(HSDK_FAIL, HRESULT_FROM_WIN32(GetLastError()));
 		}
 	}
+
+	// 타임 카운트 정지
+	pause_Time(true);
 
 	wchar_t * strCachedWindowTitle = g_Window.windowTitle;
 	GetWindowText(_focus, strCachedWindowTitle, 255);
@@ -620,6 +528,9 @@ CLASS_REALIZE_FUNC(Direct3D, userSet_Window)(
 	g_Window.focus = _focus;
 	g_Window.deviceFullScreen = _deviceFullScreen;
 	g_Window.deviceWindowed = _deviceWindowed;
+
+	// 타임 카운트 시작
+	pause_Time(false);
 
 	return S_OK;
 }
@@ -631,7 +542,7 @@ CLASS_REALIZE_FUNC(Direct3D, dynamic_WndProc)(
 	/* [r] */ unsigned int _wParam,
 	/* [r] */ long _lParam)
 {
-	return direct3d_WndProc(_hWnd, _uMsg, _wParam, _lParam);
+	return direct3D_WndProc(_hWnd, _uMsg, _wParam, _lParam);
 }
 
 //--------------------------------------------------------------------------------------
@@ -643,7 +554,9 @@ CLASS_REALIZE_FUNC(Direct3D, initialize_Device)(
 	Direct3D_DeviceDescs descs;
 	descs.version = D3D9_DEVICE;
 
-	Direct3D_DeviceMatchOptions deviceMatOpt = create_DeviceMatOpt_FrominitDesc(g_init);
+	Direct3D_DeviceMatchOptions deviceMatOpt =
+		create_DeviceMatOpt_FrominitDesc(g_init);
+
 	if (deviceMatOpt.eResolution == IGNORE_INPUT)
 	{
 		if (_windowed || (_suggestedWidth != 0 && _suggestedHeight != 0))
@@ -655,14 +568,18 @@ CLASS_REALIZE_FUNC(Direct3D, initialize_Device)(
 	// Building D3D9 device settings for mathch options.  These
 	// will be converted to D3D10 settings if app can use D3D10	
 	descs.d3d9DeviceDesc = create_DeviceDesc_FrominitDesc(
-		g_init, _windowed, _suggestedWidth, _suggestedHeight);
+		g_init,
+		_windowed,
+		_suggestedWidth,
+		_suggestedHeight);
 
-	bool bAcceptable = false;
+	bool bContinue = false;
 	if (g_init.forceAPI == 9)
 	{
-		IF_INVALID(get_D3D9())
+		IDirect3D9 * d3d9 = get_D3D9();
+		IF_INVALID(d3d9)
 		{
-			direct3D_OutputDebugString(L"Direct3DERR_NODIRECT3D");
+			assert(L"Direct3DERR_NODIRECT3D");
 			return E_ABORT;
 		}
 
@@ -672,13 +589,16 @@ CLASS_REALIZE_FUNC(Direct3D, initialize_Device)(
 		D3DCAPS9 caps;
 
 		HRESULT hr;
-		IF_FAILED(hr = get_D3D9_DeviceCaps(caps, descs))
+		IF_FAILED(hr = d3d9->GetDeviceCaps(
+			g_DeviceDescs.d3d9DeviceDesc.adapterOrdinal,
+			g_DeviceDescs.d3d9DeviceDesc.deviceType,
+			&caps))
 		{
 			return hr;
 		}
 
 		D3D9_DEVICE_DESC & desc = descs.d3d9DeviceDesc;
-		bAcceptable = callback_acceptable(
+		bContinue = callback_acceptable(
 			caps,
 			desc.adapterFormat,
 			desc.pp.BackBufferFormat,
@@ -689,7 +609,7 @@ CLASS_REALIZE_FUNC(Direct3D, initialize_Device)(
 	{
 		IF_INVALID(get_DXGIFactory())
 		{
-			direct3D_OutputDebugString(L"Direct3DERR_NODIRECT3D");
+			assert(L"Direct3DERR_NODIRECT3D");
 			return E_ABORT;
 		}
 
@@ -700,7 +620,7 @@ CLASS_REALIZE_FUNC(Direct3D, initialize_Device)(
 			g_Callbacks.isD3D10DeviceAcceptableFunc;
 
 		D3D10_DEVICE_DESC & desc = descs.d3d10DeviceDesc;
-		bAcceptable = callback_acceptable(
+		bContinue = callback_acceptable(
 			desc.adapterOrdinal,
 			desc.output,
 			desc.driverType,
@@ -709,9 +629,9 @@ CLASS_REALIZE_FUNC(Direct3D, initialize_Device)(
 			g_cbUserContext.isD3D10DeviceAcceptableFuncUserContext);
 	}
 
-	IF_FALSE(bAcceptable)
+	IF_FALSE(bContinue)
 	{
-		return E_ABORT;
+		return E_FAIL;
 	}
 
 	// Change to a Direct3D device created from the new device settings.  
@@ -721,57 +641,38 @@ CLASS_REALIZE_FUNC(Direct3D, initialize_Device)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Direct3D, userSet_Device)(
-	/* [r] */ const Direct3D_DeviceDescs & _d3dDescs,
-	/* [r] */ bool _preserveInput,
-	/* [r] */ bool _clipWindowToSingleAdapter)
+	/* [r] */ const Direct3D_DeviceDescs & _newDescs,
+	/* [r] */ bool _clipWindowToSingleAdapter,
+	/* [r] */ bool _resetRecovery)
 {
-	const Direct3D_DeviceDescs currentDesc_Temp;;
-	memcpy_s((void *)&currentDesc_Temp, 0, &g_DeviceDescs, sizeof(Direct3D_DeviceDescs));
+	HRESULT hr = E_FAIL;
 
 	// Make a copy of the pNewDeviceSettings on the heap
 	Direct3D_DeviceDescs newDesc;
-	memcpy(&newDesc, &_d3dDescs, sizeof(Direct3D_DeviceDescs));
-
-	HRESULT hr;
-	switch (newDesc.version)
-	{
-	case D3D9_DEVICE:
-		IF_INVALID(get_D3D9())
-		{
-			hr = E_ABORT;
-		}
-		break;
-	case D3D10_DEVICE:
-		IF_INVALID(get_DXGIFactory())
-		{
-			hr = E_ABORT;
-		}
-		break;
-	case NONE_DEVICE:
-		hr = E_ABORT;
-		break;
-	}
-
-	IF_FAILED(hr)
-	{
-		direct3D_OutputDebugString(L"Direct3DERR_NODIRECT3D");
-		return hr;
-	}
+	memcpy(&newDesc, &_newDescs, sizeof(Direct3D_DeviceDescs));
 
 	// If the ModifyDeviceSettings callback is non-NULL, then call it to let the app 
 	// change the settings or reject the device change by returning false.
-	CALLBACK_MODIFY_DEVICE_SETTINGS callback_ModifyDeviceSettings = g_Callbacks.modifyDeviceSettingsFunc;
+	CALLBACK_MODIFY_DEVICE_SETTINGS callback_ModifyDeviceSettings =
+		g_Callbacks.modifyDeviceSettingsFunc;
+
 	if (callback_ModifyDeviceSettings)
 	{
-		bool bContinue = callback_ModifyDeviceSettings(
+		IF_FALSE(callback_ModifyDeviceSettings(
 			newDesc,
-			g_cbUserContext.modifyDeviceSettingsFuncUserContext);
-
-		IF_FALSE(bContinue)
+			g_cbUserContext.modifyDeviceSettingsFuncUserContext))
 		{
 			return E_ABORT;
 		}
 	}
+
+	if (newDesc.version == NONE_DEVICE)
+	{
+		return E_INVALIDARG;
+	}
+
+	const Direct3D_DeviceDescs currentDesc_Temp;
+	memcpy_s((void *)&currentDesc_Temp, 0, &g_DeviceDescs, sizeof(Direct3D_DeviceDescs));
 
 	if (_clipWindowToSingleAdapter)
 	{
@@ -780,12 +681,16 @@ CLASS_REALIZE_FUNC(Direct3D, userSet_Device)(
 			// Get the rect of the monitor attached to the adapter
 			MONITORINFO miAdapter;
 			miAdapter.cbSize = sizeof(MONITORINFO);
-			GetMonitorInfo(get_MonitorFromAdapter(newDesc), &miAdapter);
 
-			// Get the rect of the monitor attached to the window
-			MONITORINFO miWindow;
-			miWindow.cbSize = sizeof(MONITORINFO);
-			GetMonitorInfo(MonitorFromWindow(g_Window.focus, MONITOR_DEFAULTTOPRIMARY), &miWindow);
+			if (newDesc.version == D3D9_DEVICE)
+			{
+				GetMonitorInfo(g_Device.direct3D9->GetAdapterMonitor(newDesc.d3d9DeviceDesc.adapterOrdinal), &miAdapter);
+			}
+			else
+			{
+				// NONE_DEVICE 는 이 분기에 들어올 수 없음
+				GetMonitorInfo(g_Outside.get_MonitorFromAdapter(newDesc.d3d10DeviceDesc), &miAdapter);
+			}
 
 			// Do something reasonable if the BackBuffer size is greater than the monitor size
 			int nAdapterMonitorWidth = miAdapter.rcWork.right - miAdapter.rcWork.left;
@@ -817,48 +722,60 @@ CLASS_REALIZE_FUNC(Direct3D, userSet_Device)(
 			{
 				nWindowWidth = nAdapterMonitorWidth;
 			}
+
 			if (nWindowHeight > nAdapterMonitorHeight)
 			{
 				nWindowHeight = nAdapterMonitorHeight;
 			}
 
-			switch (newDesc.version)
+			if (newDesc.version == D3D9_DEVICE)
 			{
-			case D3D9_DEVICE:
 				newDesc.d3d9DeviceDesc.pp.BackBufferWidth = nWindowWidth;
 				newDesc.d3d9DeviceDesc.pp.BackBufferHeight = nWindowHeight;
-				break;
-			case D3D10_DEVICE:
+			}
+			else
+			{
 				newDesc.d3d10DeviceDesc.sd.BufferDesc.Width = nWindowWidth;
 				newDesc.d3d10DeviceDesc.sd.BufferDesc.Height = nWindowHeight;
-				break;
-			};
+			}
 		}
 	}
 
-	pause(true, true);
-	memcpy_s(&g_DeviceDescs, 0, &newDesc, sizeof(Direct3D_DeviceDescs));
+	// 랜더링 정지
+	pause_Rendering(true);
+
+	// 디바이스 상태 갱신
+	memcpy(&g_DeviceDescs, &newDesc, sizeof(Direct3D_DeviceDescs));
+
+	// 빠른 경로 업데이트
+	initialize_Dispatch(newDesc.version);
 
 	// If API version, AdapterOrdinal and DeviceType are the same, we can just do a Reset().
 	// If they've changed, we need to do a complete device tear down/rebuild.
 	// Also only allow a reset if pd3dDevice is the same as the current device 
 	if (is_ResetDevice(currentDesc_Temp, newDesc))
 	{
-		hr = E_FAIL;
-
 		// Reset the Direct3D device and call the app's device callbacks
-		switch (g_DeviceDescs.version)
-		{
-		case D3D9_DEVICE:
-			hr = reset_3DEnvironment9();
-		case D3D10_DEVICE:
-			hr = reset_3DEnvironment10();
-		}
+		hr = g_Dispatch.cbReset3DEnvironment();
 
+		// 리셋 실패
 		IF_FAILED(hr)
 		{
-			direct3D_OutputDebugString(L"Direct3DERR_RESETTINGDEVICE : reset_3DEnvironment", hr);
-			shutdown();
+			// 리셋 복구
+			if (_resetRecovery)
+			{
+				// 복구를 원하는 경우
+				IF_SUCCEEDED(userSet_Device(currentDesc_Temp, _clipWindowToSingleAdapter))
+				{
+					// 이 루트는 userSet_Device 함수가 1번 끝을 보지 못한 상태이기 때문에 이전 pause를 해제
+					pause_Rendering(true);
+				}
+			}
+			else
+			{
+				// 복구를 원치 않는 경우
+				assert(L"Direct3DERR_RESETTINGDEVICE : reset_3DEnvironment");
+			}
 
 			return hr;
 		}
@@ -866,30 +783,22 @@ CLASS_REALIZE_FUNC(Direct3D, userSet_Device)(
 	else
 	{
 		// Reset the Direct3D device and call the app's device callbacks
-		switch (g_DeviceDescs.version)
-		{
-		case D3D9_DEVICE:
-			hr = create_3DEnvironment9();
-		case D3D10_DEVICE:
-			hr = create_3DEnvironment10();
-		}
+		hr = g_Dispatch.cbCreate3DEnvironment();
 
 		IF_FAILED(hr)
 		{
-			direct3D_OutputDebugString(L"Direct3DERR_RESETTINGDEVICE : create3DEnvironment", hr);
-			pause(false, false);
-
+			assert(L"Direct3DERR_RESETTINGDEVICE : create_3DEnvironment");
 			return hr;
 		}
 	}
 
 	const Direct3D_DeviceDescs & currentDesc = g_DeviceDescs;
-	if (is_WindowedFromDesc(currentDesc))
+	if (*g_Dispatch.refWindowed)
 	{
 		// Make a window rect with a client rect that is the same size as the backbuffer
 		RECT rcWindow = { 0 };
-		rcWindow.right = (long)(get_WidthFromDesc(currentDesc));
-		rcWindow.bottom = (long)(get_HeightFromDesc(currentDesc));
+		rcWindow.right = (long)(*g_Dispatch.refWidth);
+		rcWindow.bottom = (long)(*g_Dispatch.refHeight);
 
 		AdjustWindowRect(
 			&rcWindow,
@@ -932,7 +841,7 @@ CLASS_REALIZE_FUNC(Direct3D, userSet_Device)(
 	}
 
 	// Ensure that the display doesn't power down when fullscreen but does when windowed
-	if (is_WindowedFromDesc(newDesc))
+	if (*g_Dispatch.refWindowed)
 	{
 		SetThreadExecutionState(ES_DISPLAY_REQUIRED | ES_CONTINUOUS);
 	}
@@ -941,9 +850,25 @@ CLASS_REALIZE_FUNC(Direct3D, userSet_Device)(
 		SetThreadExecutionState(ES_CONTINUOUS);
 	}
 
-	pause(false, false);
+	// 랜더링 시작
+	pause_Rendering(false);
 
 	return hr;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, void, initialize_Framework)(
+	/* [x] */ void)
+{
+	this->shutdown();
+
+	g_init = Direct3D_INIT_DESC();
+	g_State = Direct3D_State();
+	g_Callbacks = Direct3D_Callbacks();
+	g_cbUserContext = Direct3D_Callback_UserContexts();
+	g_TimeStream = Direct3D_TimeStream();
+	g_DeviceDescs = Direct3D_DeviceDescs();
+	g_Dispatch = Direct3D_Dispatch();
 }
 
 //--------------------------------------------------------------------------------------
@@ -951,24 +876,171 @@ CLASS_REALIZE_FUNC(Direct3D, userSet_Device)(
 //--------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(Direct3D, MainLoop)(
-	/* [r] */ HACCEL hAccel = nullptr);
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, Render3DEnvironment)(
-	/* [x] */ void)
+CLASS_REALIZE_FUNC(Direct3D, mainLoop)(
+	/* [r] */ HACCEL _accel)
 {
+	if (TRUE == InterlockedCompareExchange(&g_State.runMainLoop, TRUE, FALSE))
+	{
+		return S_FALSE;
+	}
 
+	const HWND & hWnd = g_Window.focus;
+	
+	float oneSecond = 0.0f;
+	unsigned int oneSecondCount = 0;
+
+	// Now we're ready to receive and process Windows messages.
+	MSG msg;
+
+	msg.message = WM_NULL;
+	PeekMessage(&msg, NULL, 0U, 0U, PM_NOREMOVE);
+
+	while (WM_QUIT != msg.message)
+	{
+		while (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
+		{
+			// Translate and dispatch the message
+			IF_FALSE(TranslateAccelerator(hWnd, _accel, &msg))
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+		}
+
+		IF_FALSE(g_TimeStream.pauseTime)
+		{
+			// Get the app's time, in seconds. Skip rendering if no time elapsed
+			double fTime, fAbsTime; float fElapsedTime;
+			g_TimeStream.timer.get_TimeValues(&fTime, &fAbsTime, &fElapsedTime);
+
+			// Store the time for the app
+			if (g_TimeStream.constantFrameTime)
+			{
+				fElapsedTime = g_TimeStream.constantTimePerFrame;
+				fTime += fElapsedTime;
+			}
+
+			g_TimeStream.time = fTime;
+			g_TimeStream.absoluteTime = fAbsTime;
+			g_TimeStream.elapsedTime = fElapsedTime;
+
+			if (oneSecond < 1.0f)
+			{
+				++oneSecondCount;
+				oneSecond += fElapsedTime;
+			}
+			else
+			{
+				g_TimeStream.fps = (float)oneSecondCount / oneSecond;
+
+				oneSecondCount = 1;
+				oneSecond -= 1.0f;				
+			}
+
+			auto begin = g_TimerEvents.begin();
+			auto end = g_TimerEvents.end();
+
+			for (auto iter = begin; iter != end; ++iter)
+			{
+				IF_FALSE(iter->bEnabled)
+				{
+					iter = g_TimerEvents.erase(iter);
+					continue;
+				}
+
+				iter->fCountdown -= fElapsedTime;
+
+				// Call the callback if count down expired
+				if (iter->fCountdown < 0)
+				{
+					iter->bEnabled =
+						iter->callbackTimer(
+						iter->nID,
+						iter->callbackUserContext);
+
+					iter->fCountdown = iter->fTimeoutInSecs;
+				}
+			}
+
+			// Animate the scene by calling the app's frame move callback
+			CALLBACK_FRAMEMOVE callback_FrameMove =
+				g_Callbacks.frameMoveFunc;
+
+			if (callback_FrameMove)
+			{
+				callback_FrameMove(
+					fTime,
+					fElapsedTime,
+					g_cbUserContext.frameMoveFuncUserContext);
+			}
+		}
+
+		IF_FALSE(g_TimeStream.pauseRendering)
+		{
+			// Render a frame during idle time (no messages are waiting)
+			g_Dispatch.cbRender3DEnvironment();
+
+			// Update current frame #
+			++g_TimeStream.frameCount;
+		}
+
+		// If the app called DXUTWasKeyPressed() then do the work 
+		// to store the current state of the keys in bLastKeys
+		if (g_State.calledWasKeyPressed)
+		{
+			memcpy(g_LastKeys, g_Keys, sizeof(bool)* 256);
+		}
+	}
+
+	// Cleanup the accelerator table
+	if (_accel)
+	{
+		DestroyAcceleratorTable(_accel);
+	}
+
+	return S_OK;
 }
 
 //--------------------------------------------------------------------------------------
 // Common tasks 
 //--------------------------------------------------------------------------------------
 
+// 설명 : 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, pause)(
-	/* [r] */ bool _pauseTime,
-	/* [r] */ bool _pauseRendering)
+CLASS_REALIZE_FUNC_T(Direct3D, void, shutdown)(
+	/* [r] */ int _exitCode)
+{
+	const HWND & hWnd = g_Window.focus;
+	IF_INVALID(hWnd)
+	{
+		SendMessage(hWnd, WM_CLOSE, 0, 0);
+	}
+	g_ExitCode = _exitCode;
+
+	g_Direct3D.pause_Time(true);
+	g_Direct3D.pause_Rendering(true);
+	g_Dispatch.cbCleanUp3DEnvironment(true);
+
+	// Restore shortcut keys (Windows key, accessibility shortcuts) to original state
+	// This is important to call here if the shortcuts are disabled, 
+	// because accessibility setting changes are permanent.
+	// This means that if this is not done then the accessibility settings 
+	// might not be the same as when the app was started. 
+	// If the app crashes without restoring the settings, this is also true so it
+	// would be wise to backup/restore the settings from a file so they can be 
+	// restored when the crashed app is run again.
+	allow_ShortcutKeys(true);
+
+	// Shutdown D3D9
+	g_Device.d3d9Device.~AutoRelease();
+
+	// Shutdown D3D10
+	g_Device.dxgiFactory.~AutoRelease();
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, void, pause_Time)(
+	/* [r] */ bool _pauseTime)
 {
 	int nPauseTimeCount = g_TimeStream.pauseTimeCount;
 	if (g_TimeStream.pauseTime)
@@ -980,31 +1052,14 @@ CLASS_REALIZE_FUNC_T(Direct3D, void, pause)(
 		--nPauseTimeCount;
 	}
 
-	if (nPauseTimeCount < 0)
+	if (0 < nPauseTimeCount)
 	{
 		nPauseTimeCount = 0;
 	}
 
 	g_TimeStream.pauseTimeCount = nPauseTimeCount;
 
-	int nPauseRenderingCount = g_TimeStream.pauseRenderingCount;
-	if (g_TimeStream.pauseRendering)
-	{
-		nPauseRenderingCount++;
-	}
-	else
-	{
-		nPauseRenderingCount--;
-	}
-
-	if (nPauseRenderingCount < 0)
-	{
-		nPauseRenderingCount = 0;
-	}
-
-	g_TimeStream.pauseRenderingCount = nPauseRenderingCount;
-
-	if (nPauseTimeCount > 0)
+	if (0 < nPauseTimeCount)
 	{
 		// Stop the scene from animating
 		g_TimeStream.timer.stop();
@@ -1016,7 +1071,30 @@ CLASS_REALIZE_FUNC_T(Direct3D, void, pause)(
 	}
 
 	g_TimeStream.pauseTime = nPauseTimeCount > 0;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, void, pause_Rendering)(
+	/* [r] */ bool _pauseRendering)
+{
+	int nPauseRenderingCount = g_TimeStream.pauseRenderingCount;
+	if (g_TimeStream.pauseRendering)
+	{
+		++nPauseRenderingCount;
+	}
+	else
+	{
+		--nPauseRenderingCount;
+	}
+
+	if (0 < nPauseRenderingCount)
+	{
+		nPauseRenderingCount = 0;
+	}
+
 	g_TimeStream.pauseRendering = nPauseRenderingCount > 0;
+
+	g_TimeStream.pauseRenderingCount = nPauseRenderingCount;
 }
 
 //--------------------------------------------------------------------------------------
@@ -1029,194 +1107,349 @@ CLASS_REALIZE_FUNC_T(Direct3D, void, set_ConstantFrameTime)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, set_CursorSettings)(
-	/* [r] */ bool _showCursorWhenFullScreen,
-	/* [r] */ bool _clipCursorWhenFullScreen)
-{
-
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, set_D3DVersionSupport)(
-	/* [r] */ bool _appCanUseD3D9,
-	/* [r] */ bool _appCanUseD3D10)
-{
-
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, set_MultimonSettings)(
-	/* [r] */ bool _autoChangeAdapter)
-{
-	g_DeviceDescs.autoChangeAdapter = _autoChangeAdapter;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, set_ShortcutKeySettings)(
-	/* [r] */ bool _allowWhenFullscreen,
-	/* [r] */ bool _allowWhenWindowed);
-{
-
-}
-
-//--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Direct3D, set_Timer)(
 	/* [r] */ CALLBACK_TIMER _callbackTimer,
 	/* [r] */ float _fTimeoutInSecs,
 	/* [r] */ unsigned int * _nIDEvent,
 	/* [r] */ void * _userContext)
 {
+	static unsigned int timerCount = 0;
 
+	Direct3D_TIMER_DESC timer;
+	timer.callbackTimer = _callbackTimer;
+	timer.callbackUserContext = _userContext;
+	timer.fTimeoutInSecs = _fTimeoutInSecs;
+	timer.fCountdown = _fTimeoutInSecs;
+	timer.nID = timerCount++;
+
+	try
+	{
+		g_TimerEvents.push_back(timer);
+	}
+	catch (...)
+	{
+		return E_FAIL;
+	}
+
+	if (_nIDEvent)
+	{
+		(*_nIDEvent) = timer.nID;
+	}
+
+	return S_OK;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC(Direct3D, kill_Timer)(
-	/* [r] */ unsigned int nIDEvent);
+	/* [r] */ unsigned int _nIDEvent)
+{
+	auto begin = g_TimerEvents.begin();
+	auto end = g_TimerEvents.end();
+
+	for (auto iter = begin; iter != end; ++iter)
+	{
+		if (iter->nID == _nIDEvent)
+		{
+			iter->bEnabled = false;
+			return S_OK;
+		}
+	}
+
+	return S_FALSE;
+}
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, reset_FrameworkState)(
-	/* [x] */ void);
+CLASS_REALIZE_FUNC_T(Direct3D, void, set_ShortcutKeySettings)(
+	/* [r] */ bool _allowWhenFullscreen,
+	/* [r] */ bool _allowWhenWindowed)
+{
+	g_State.allowWhenFullscreen = _allowWhenFullscreen;
+	g_State.allowWhenWindowed = _allowWhenWindowed;
+}
 
-// 설명 : 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, shutdown)(
-	/* [r] */ int _exitCode = 0);
+CLASS_REALIZE_FUNC_T(Direct3D, void, change_Moniter)(
+	/* [r] */ BOOL _windowed,
+	/* [r] */ int _suggestedWidth,
+	/* [r] */ int _suggestedHeight,
+	/* [r] */ unsigned int _adapter)
+{
+	if (_adapter == -1)
+	{
+		HMONITOR const hWindowMonitor = MonitorFromWindow(g_Window.focus, MONITOR_DEFAULTTOPRIMARY);
+		HMONITOR const hAdapterMonitor = g_Window.adapterMonitor;
+
+		if (hWindowMonitor != hAdapterMonitor)
+		{
+			IDirect3D9 * d3d9 = nullptr;
+			if (g_DeviceDescs.version == D3D9_DEVICE)
+			{
+				d3d9 = g_Device.direct3D9;
+			}
+
+			UINT newOrdinal;
+			if (SUCCEEDED(newOrdinal = g_Outside.get_AdapterOrdinalFromMonitor(hWindowMonitor, d3d9)))
+			{
+				change_Moniter(_windowed, _suggestedWidth, _suggestedHeight, newOrdinal);
+			}
+		}
+	}
+	else
+	{
+		// Find the closest valid device settings with the new ordinal
+		Direct3D_DeviceDescs deviceDesc = g_DeviceDescs;
+
+		Direct3D_DeviceMatchOptions matchOptions;
+		matchOptions.eAPIVersion = PRESERVE_INPUT;
+		matchOptions.eAdapterOrdinal = PRESERVE_INPUT;
+		matchOptions.eDeviceType = CLOSEST_TO_INPUT;
+		matchOptions.eWindowed = CLOSEST_TO_INPUT;
+		matchOptions.eAdapterFormat = CLOSEST_TO_INPUT;
+		matchOptions.eVertexProcessing = CLOSEST_TO_INPUT;
+		matchOptions.eResolution = CLOSEST_TO_INPUT;
+		matchOptions.eBackBufferFormat = CLOSEST_TO_INPUT;
+		matchOptions.eBackBufferCount = CLOSEST_TO_INPUT;
+		matchOptions.eMultiSample = CLOSEST_TO_INPUT;
+		matchOptions.eSwapEffect = CLOSEST_TO_INPUT;
+		matchOptions.eDepthFormat = CLOSEST_TO_INPUT;
+		matchOptions.eStencilFormat = CLOSEST_TO_INPUT;
+		matchOptions.ePresentFlags = CLOSEST_TO_INPUT;
+		matchOptions.eRefreshRate = CLOSEST_TO_INPUT;
+		matchOptions.ePresentInterval = CLOSEST_TO_INPUT;
+
+		if (deviceDesc.version == D3D9_DEVICE)
+		{
+			deviceDesc.d3d9DeviceDesc.adapterOrdinal = _adapter;
+
+			if (_windowed)
+			{
+				deviceDesc.d3d9DeviceDesc.pp.Windowed;
+			}
+
+			if (0 < _suggestedWidth)
+			{
+				deviceDesc.d3d9DeviceDesc.pp.BackBufferWidth;
+			}
+
+			if (0 < _suggestedHeight)
+			{
+				deviceDesc.d3d9DeviceDesc.pp.BackBufferHeight;
+			}
+
+			build_OptimalDeviceDesc(
+				deviceDesc.d3d9DeviceDesc,
+				deviceDesc.d3d9DeviceDesc,
+				matchOptions);
+		}
+		else if (deviceDesc.version = D3D10_DEVICE)
+		{
+			deviceDesc.d3d10DeviceDesc.adapterOrdinal = _adapter;
+
+			if (_windowed)
+			{
+				deviceDesc.d3d10DeviceDesc.sd.Windowed;
+			}
+
+			if (0 < _suggestedWidth)
+			{
+				deviceDesc.d3d10DeviceDesc.sd.BufferDesc.Width;
+			}
+
+			if (0 < _suggestedHeight)
+			{
+				deviceDesc.d3d10DeviceDesc.sd.BufferDesc.Height;
+			}
+
+			unsigned int newOutput;
+			IF_SUCCEEDED(newOutput = g_Outside.get_OutputOrdinalFromMonitor(MonitorFromWindow(g_Window.focus, MONITOR_DEFAULTTOPRIMARY)))
+			{
+				deviceDesc.d3d10DeviceDesc.output = newOutput;
+			}
+
+			build_OptimalDeviceDesc(
+				deviceDesc.d3d10DeviceDesc,
+				deviceDesc.d3d10DeviceDesc,
+				matchOptions);
+		}
+
+		// Create a Direct3D device using the new device settings.  
+		// If there is an existing device, then it will either reset or recreate the scene.
+		g_Direct3D.userSet_Device(deviceDesc, false, true);
+	}
+}
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, set_is_in_GammaCorrectMode)(
-	/* [r] */ bool _gammaCorrect);
+CLASS_REALIZE_FUNC_T(Direct3D, void, set_AutoChangeMoniter)(
+	/* [r] */ bool _autoChange)
+{
+	g_State.autoChangeAdapter = _autoChange;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, void, set_GammaCorrectMode)(
+	/* [r] */ bool _gammaCorrect)
+{
+	g_State.is_in_GammaCorrectMode = _gammaCorrect;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, void, set_Vsync)(
+	/* [r] */ bool _vsync)
+{
+	assert(L"미구현");
+}
+
 
 //--------------------------------------------------------------------------------------
 // General
 //--------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, HINSTANCE, get_HINSTANCE)(
-	/* [x] */ void)const;
+CLASS_REALIZE_FUNC_T(Direct3D, const wchar_t *, get_Window_Title)(
+	/* [x] */ void)const
+{
+	return g_Window.windowTitle;
+}
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, HWND, get_HWND)(
-	/* [x] */ void)const;
+CLASS_REALIZE_FUNC_T(Direct3D, HINSTANCE, get_HINSTANCE)(
+	/* [x] */ void)const
+{
+	return g_Window.HINSTANCE;
+}
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Direct3D, HWND, get_HWND_Focus)(
-	/* [x] */ void)const;
+	/* [x] */ void)const
+{
+	return g_Window.focus;
+}
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Direct3D, HWND, get_HWND_DeviceFullScreen)(
-	/* [x] */ void)const;
+	/* [x] */ void)const
+{
+	return g_Window.deviceFullScreen;
+}
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Direct3D, HWND, get_HWND_DeviceWindowed)(
-	/* [x] */ void)const;
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, RECT, get_Window_ClientRect)(
-	/* [x] */ void)const;
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, long, get_Window_Width)(
-	/* [x] */ void)const;
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, long, get_Window_Height)(
-	/* [x] */ void)const;
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, RECT, get_Window_ClientRect_AtModeChange)(
-	/* [x] */ void)const;
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, RECT, get_FullsceenClientRect_AtModeChange)(
-	/* [x] */ void)const;
+	/* [x] */ void)const
+{
+	return g_Window.deviceWindowed;
+}
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Direct3D, double, get_Time)(
-	/* [x] */ void)const;
+	/* [x] */ void)const
+{
+	return g_TimeStream.time;
+}
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Direct3D, float, get_ElapsedTime)(
-	/* [x] */ void)const;
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, bool, is_Windowed)(
-	/* [x] */ void)const;
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, bool, is_In_GammaCorrectMode)(
-	/* [x] */ void)const;
+	/* [x] */ void)const
+{
+	return g_TimeStream.elapsedTime;
+}
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Direct3D, float, get_FPS)(
-	/* [x] */ void)const;
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, const wchar_t *, get_Window_Title)(
-	/* [x] */ void)const;
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, const wchar_t *, get_FrameStats)(
-	/* [r] */ bool bIncludeFPS = false)const;
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, const wchar_t *, get_DeviceStats)(
-	/* [x] */ void)const;
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, const wchar_t *, get_D3D10_CounterStats)(
-	/* [x] */ void)const;
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, bool, is_Vsync_Enabled)(
-	/* [x] */ void)const;
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, bool, is_Rendering_Paused)(
-	/* [x] */ void)const;
+	/* [x] */ void)const
+{
+	return g_TimeStream.fps;
+}
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Direct3D, bool, is_Time_Paused)(
-	/* [x] */ void)const;
+	/* [x] */ void)const
+{
+	return g_TimeStream.pauseTime;
+}
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, bool, is_Active)(
-	/* [x] */ void)const;
+CLASS_REALIZE_FUNC_T(Direct3D, bool, is_Rendering_Paused)(
+	/* [x] */ void)const
+{
+	return g_TimeStream.pauseRendering;
+}
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, int, get_ExitCode)(
-	/* [x] */ void)const;
+CLASS_REALIZE_FUNC_T(Direct3D, BOOL, is_Active)(
+	/* [x] */ void)const
+{
+	return g_State.runMainLoop;
+}
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, bool, get_Show_MsgBox_OnError)(
-	/* [x] */ void)const;
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, bool, get_Automation)(
-	/* [x] */ void)const;
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, bool, is_KeyDown)(
-	/* [r] */ BYTE vKey)const;
+CLASS_REALIZE_FUNC_T(Direct3D, BOOL, is_KeyDown)(
+	/* [r] */ BYTE vKey)const
+{
+	if (0x9f < vKey && vKey < 0xA6)
+	{
+		// VK_LSHIFT, VK_RSHIFT, VK_LCONTROL, VK_RCONTROL, VK_LMENU, VK_RMENU
+		// these keys only are tracked via GetAsyncKeyState()
+		return GetAsyncKeyState(vKey) & 0x8000;
+	}
+	else if (0x00 < vKey && vKey < 0x07 && vKey != 0x03)
+	{
+		// mouse buttons (VK_BUTTON)
+		return is_MouseButtonDown(vKey);
+	}
+	else
+	{
+		return g_Keys[vKey];
+	}
+}
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Direct3D, bool, was_KeyPressed)(
-	/* [r] */ BYTE vKey)const;
+	/* [r] */ BYTE vKey)const
+{
+	return (!g_LastKeys[vKey] && g_Keys[vKey]);
+}
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Direct3D, bool, is_MouseButtonDown)(
-	/* [r] */ BYTE vButton)const;
+	/* [r] */ BYTE vButton)const
+{
+	switch (vButton)
+	{
+	case MK_LBUTTON:
+		return g_MouseButtons[0];
+	case VK_MBUTTON:
+	case MK_MBUTTON:
+		return g_MouseButtons[1];
+	case MK_RBUTTON:
+		return g_MouseButtons[2];
+	case VK_XBUTTON1:
+	case MK_XBUTTON1:
+		return g_MouseButtons[3];
+	case VK_XBUTTON2:
+	case MK_XBUTTON2:
+		return g_MouseButtons[4];
+	}
+
+	return false;
+}
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(Direct3D, create_State)(
-	/* [x] */ void)const;
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, void, destroy_State)(
-	/* [x] */ void)const;
+CLASS_REALIZE_FUNC_T(Direct3D, int, get_ExitCode)(
+	/* [x] */ void)const
+{
+	return g_ExitCode;
+}
 
 //--------------------------------------------------------------------------------------
 // State Retrieval  
 //--------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, DEVICE_VERSION, get_D3DVersion)(
+	/* [x] */ void)const
+{
+	return g_DeviceDescs.version;
+}
 
 // Direct3D 9
 
@@ -1236,88 +1469,40 @@ CLASS_REALIZE_FUNC_T(Direct3D, IDirect3D9 *, get_D3D9)(
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Direct3D, IDirect3DDevice9 *, get_D3D9_Device) (
-	/* [x] */ void)const;
+	/* [x] */ void)const
+{
+	return g_Device.d3d9Device;
+}
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Direct3D, D3D9_DEVICE_DESC, get_D3D9_Settings)(
-	/* [x] */ void)const;
+	/* [x] */ void)const
+{
+	return g_DeviceDescs.d3d9DeviceDesc;
+}
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Direct3D, D3DPRESENT_PARAMETERS, get_D3D9_PresentParameters) (
-	/* [x] */ void)const;
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, const D3DSURFACE_DESC *, get_D3D9_BackBufferSurfaceDesc) (
-	/* [x] */ void)const;
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(Direct3D, get_D3D9_DeviceCaps) (
-	/* [w] */ D3DCAPS9 & _caps)const
+	/* [x] */ void)const
 {
-	switch (g_DeviceDescs.version)
-	{
-	case D3D9_DEVICE:
-		return g_Device.direct3D9->GetDeviceCaps(
-			g_DeviceDescs.d3d9DeviceDesc.adapterOrdinal,
-			g_DeviceDescs.d3d9DeviceDesc.deviceType,
-			&_caps);
-	case D3D10_DEVICE:
-		return g_Device.direct3D9->GetDeviceCaps(
-			g_DeviceDescs.d3d10DeviceDesc.adapterOrdinal,
-			convert_DriverType_DXGITOD3D9(g_DeviceDescs.d3d10DeviceDesc.driverType),
-			&_caps);
-	}
-
-	return E_INVALIDARG;
+	return g_DeviceDescs.d3d9DeviceDesc.pp;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC(Direct3D, get_D3D9_DeviceCaps)(
-	/* [w] */ D3DCAPS9 & _caps,
-	/* [r] */ const Direct3D_DeviceDescs & _d3dDesc)const
+CLASS_REALIZE_FUNC_T(Direct3D, D3DSURFACE_DESC, get_D3D9_BackBufferSurfaceDesc) (
+	/* [x] */ void)const
 {
-	switch (g_DeviceDescs.version)
-	{
-	case D3D9_DEVICE:
-		return g_Device.direct3D9->GetDeviceCaps(
-			_d3dDesc.d3d9DeviceDesc.adapterOrdinal,
-			_d3dDesc.d3d9DeviceDesc.deviceType,
-			&_caps);
-	case D3D10_DEVICE:
-		return g_Device.direct3D9->GetDeviceCaps(
-			_d3dDesc.d3d10DeviceDesc.adapterOrdinal,
-			convert_DriverType_DXGITOD3D9(_d3dDesc.d3d10DeviceDesc.driverType),
-			&_caps);
-	}
-
-	return E_INVALIDARG;
+	return g_Device.backBuffer_Desc;
 }
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, bool, does_AppSupport_D3D9)(
-	/* [x] */ void)const;
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, bool, is_AppRenderingWithD3D9)(
-	/* [x] */ void)const;
 
 // Direct3D 10
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Direct3D, bool, is_D3D10_Available)(
-	/* [x] */ void)const;
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, ID3D10Device *, get_D3D10_Device)(
-	/* [x] */ void)const;
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, ID3D10Device1 *, get_D3D10_Device1)(
-	/* [x] */ void)const;
-
-//--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, D3D10DeviceSettings, get_D3D10_Settings)(
-	/* [x] */ void)const;
+	/* [x] */ void)const
+{
+	return nullptr != get_DXGIFactory();
+}
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Direct3D, IDXGIFactory *, get_DXGIFactory)(
@@ -1328,7 +1513,7 @@ CLASS_REALIZE_FUNC_T(Direct3D, IDXGIFactory *, get_DXGIFactory)(
 		HRESULT hr;
 		IF_FAILED(hr = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&g_Device.dxgiFactory))
 		{
-			direct3D_OutputDebugString(L"I don't know this err!! your device maybe not support D3D10...", hr);
+			assert(L"I don't know this err!! your device maybe not support D3D10...");
 		}
 	}
 
@@ -1336,45 +1521,87 @@ CLASS_REALIZE_FUNC_T(Direct3D, IDXGIFactory *, get_DXGIFactory)(
 }
 
 //--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, ID3D10Device *, get_D3D10_Device)(
+	/* [x] */ void)const
+{
+	return g_Device.d3d10Device;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, ID3D10Device1 *, get_D3D10_Device1)(
+	/* [x] */ void)const
+{
+	return g_Device.d3d10Device1;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, D3D10_DEVICE_DESC, get_D3D10_Settings)(
+	/* [x] */ void)const
+{
+	return g_DeviceDescs.d3d10DeviceDesc;
+}
+
+//--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Direct3D, IDXGISwapChain *, get_DXGISwapChain)(
 	/* [x] */ void)const
 {
-
+	return g_Device.dxgiSwapChain;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Direct3D, ID3D10RenderTargetView *, get_D3D10_RenderTargetView)(
 	/* [x] */ void)const
 {
-
+	return g_Device.d3d10RTV;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_REALIZE_FUNC_T(Direct3D, ID3D10DepthStencilView *, get_D3D10_DepthStencilView)(
 	/* [x] */ void)const
 {
-
+	return g_Device.d3d10DSV;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, const DXGI_SURFACE_DESC *, get_DXGIBackBufferSurfaceDesc)(
+CLASS_REALIZE_FUNC_T(Direct3D, DXGI_SURFACE_DESC, get_DXGIBackBufferSurfaceDesc)(
 	/* [x] */ void)const
 {
-
+	return g_Device.dxgiBackBuffer_Desc;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, bool, does_AppSupport_D3D10)(
-	/* [x] */ void)const
-{
-
-}
+// Grobal function realize
+//--------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(Direct3D, bool, is_AppRenderingWithD3D10)(
-	/* [x] */ void)const
+REALIZE_FUNC_T(void, initialize_Dispatch)(
+	/* [r] */ DEVICE_VERSION _version)
 {
-
+	//
+	if (_version == D3D9_DEVICE)
+	{
+		g_Dispatch.version = _version;
+		g_Dispatch.refWindowed = &g_DeviceDescs.d3d9DeviceDesc.pp.Windowed;
+		g_Dispatch.refWidth = &g_DeviceDescs.d3d9DeviceDesc.pp.BackBufferWidth;
+		g_Dispatch.refHeight = &g_DeviceDescs.d3d9DeviceDesc.pp.BackBufferHeight;
+		g_Dispatch.refAdapter = &g_DeviceDescs.d3d9DeviceDesc.adapterOrdinal;
+		g_Dispatch.cbCreate3DEnvironment = create_3DEnvironment9;
+		g_Dispatch.cbReset3DEnvironment = reset_3DEnvironment9;
+		g_Dispatch.cbRender3DEnvironment = render_3DEnvironment9;
+		g_Dispatch.cbCleanUp3DEnvironment = cleanup_3DEnvironment9;
+	}
+	else if (_version == D3D10_DEVICE)
+	{
+		g_Dispatch.version = _version;
+		g_Dispatch.refWindowed = &g_DeviceDescs.d3d10DeviceDesc.sd.Windowed;
+		g_Dispatch.refWidth = &g_DeviceDescs.d3d10DeviceDesc.sd.BufferDesc.Width;
+		g_Dispatch.refHeight = &g_DeviceDescs.d3d10DeviceDesc.sd.BufferDesc.Height;
+		g_Dispatch.refAdapter = &g_DeviceDescs.d3d10DeviceDesc.adapterOrdinal;
+		g_Dispatch.cbCreate3DEnvironment = create_3DEnvironment10;
+		g_Dispatch.cbReset3DEnvironment = reset_3DEnvironment10;
+		g_Dispatch.cbRender3DEnvironment = render_3DEnvironment10;
+		g_Dispatch.cbCleanUp3DEnvironment = cleanup_3DEnvironment10;
+	}
 }
 
 //--------------------------------------------------------------------------------------
@@ -1426,9 +1653,6 @@ REALIZE_FUNC(create_3DEnvironment9)(
 		backBuffer->GetDesc(&backBufferDesc);
 	}
 
-	// Setup cursor based on current settings (window/fullscreen mode, show cursor state, clip cursor state)
-	setup_DeviceCursor(D3D9_DEVICE);
-
 	// Call the app's device created callback if non-NULL
 	CALLBACK_D3D9_DEVICE_CREATED pCallbackDeviceCreated =
 		g_Callbacks.d3d9DeviceCreatedFunc;
@@ -1456,12 +1680,12 @@ REALIZE_FUNC(reset_3DEnvironment9)(
 {
 	IDirect3DDevice9 * const d3d9Device = g_Device.d3d9Device;
 
-	// Call the app's device lost callback
-	CALLBACK_D3D9_DEVICE_LOST callback_DeviceLost =
-		g_Callbacks.d3d9DeviceLostFunc;
-
 	if (d3d9Device)
 	{
+		// Call the app's device lost callback
+		CALLBACK_D3D9_DEVICE_LOST callback_DeviceLost =
+			g_Callbacks.d3d9DeviceLostFunc;
+
 		if (callback_DeviceLost)
 		{
 			callback_DeviceLost(
@@ -1500,7 +1724,6 @@ REALIZE_FUNC(reset_3DEnvironment9)(
 			g_Device.backBuffer_Desc,
 			g_cbUserContext.d3d9DeviceResetFuncUserContext))
 		{
-
 			// If callback failed
 			if (hr != Direct3DERR_MEDIANOTFOUND)
 			{
@@ -1514,9 +1737,6 @@ REALIZE_FUNC(reset_3DEnvironment9)(
 		}
 	}
 
-	// Setup cursor based on current settings (window/fullscreen mode, show cursor state, clip cursor state)
-	setup_DeviceCursor(D3D9_DEVICE);
-
 	return hr;
 }
 
@@ -1528,108 +1748,26 @@ REALIZE_FUNC_T(void, render_3DEnvironment9)(
 	// then wait and try to create every so often.
 	IDirect3DDevice9 * const d3d9Device = g_Device.d3d9Device;
 
-	// Get the app's time, in seconds. Skip rendering if no time elapsed
-	double fTime, fAbsTime; float fElapsedTime;
-	DXUTGetGlobalTimer()->GetTimeValues(&fTime, &fAbsTime, &fElapsedTime);
+	// Render the scene by calling the app's render callback
+	CALLBACK_D3D9_FRAME_RENDER callback_FrameRender =
+		g_Callbacks.d3d9FrameRenderFunc;
 
-	// Store the time for the app
-	if (GetDXUTState().GetConstantFrameTime())
+	if (callback_FrameRender)
 	{
-		fElapsedTime = GetDXUTState().GetTimePerFrame();
-		fTime = DXUTGetTime() + fElapsedTime;
+		callback_FrameRender(
+			d3d9Device,
+			g_TimeStream.time,
+			g_TimeStream.elapsedTime,
+			g_cbUserContext.d3d9FrameRenderFuncUserContext);
 	}
-
-	GetDXUTState().SetTime(fTime);
-	GetDXUTState().SetAbsoluteTime(fAbsTime);
-	GetDXUTState().SetElapsedTime(fElapsedTime);
-
-	DXUTHandleTimers();
-
-	// Animate the scene by calling the app's frame move callback
-	LPDXUTCALLBACKFRAMEMOVE pCallbackFrameMove = GetDXUTState().GetFrameMoveFunc();
-	if (pCallbackFrameMove != NULL)
+	// Show the frame on the primary surface.
+	HRESULT hr;
+	IF_FAILED(hr = d3d9Device->Present(NULL, NULL, NULL, NULL))
 	{
-		pCallbackFrameMove(fTime, fElapsedTime, GetDXUTState().GetFrameMoveFuncUserContext());
-		pd3dDevice = DXUTGetD3D9Device();
-		if (NULL == pd3dDevice) // Handle DXUTShutdown from inside callback
-			return;
-	}
-
-	if (!GetDXUTState().GetRenderingPaused())
-	{
-		// Render the scene by calling the app's render callback
-		LPDXUTCALLBACKD3D9FRAMERENDER pCallbackFrameRender = GetDXUTState().GetD3D9FrameRenderFunc();
-		if (pCallbackFrameRender != NULL)
+		if (D3DERR_DEVICELOST == hr)
 		{
-			pCallbackFrameRender(pd3dDevice, fTime, fElapsedTime,
-				GetDXUTState().GetD3D9FrameRenderFuncUserContext());
-			pd3dDevice = DXUTGetD3D9Device();
-			if (NULL == pd3dDevice) // Handle DXUTShutdown from inside callback
-				return;
+			reset_3DEnvironment9();
 		}
-
-#if defined(DEBUG) || defined(_DEBUG)
-		// The back buffer should always match the client rect 
-		// if the Direct3D backbuffer covers the entire window
-		RECT rcClient;
-		GetClientRect(DXUTGetHWND(), &rcClient);
-		if (!IsIconic(DXUTGetHWND()))
-		{
-			GetClientRect(DXUTGetHWND(), &rcClient);
-			assert(DXUTGetD3D9BackBufferSurfaceDesc()->Width == (unsigned int)rcClient.right);
-			assert(DXUTGetD3D9BackBufferSurfaceDesc()->Height == (unsigned int)rcClient.bottom);
-		}
-#endif
-
-		// Show the frame on the primary surface.
-		HRESULT hr;
-		IF_FAILED(hr = d3d9Device->Present(NULL, NULL, NULL, NULL))
-		{
-			if (D3DERR_DEVICELOST == hr)
-			{
-				GetDXUTState().SetDeviceLost(true);
-			}
-
-			else if (D3DERR_DRIVERINTERNALERROR == hr)
-			{
-				// When D3DERR_DRIVERINTERNALERROR is returned from Present(),
-				// the application can do one of the following:
-				// 
-				// - End, with the pop-up window saying that the application cannot continue 
-				//   because of problems in the display adapter and that the user should 
-				//   contact the adapter manufacturer.
-				//
-				// - Attempt to restart by calling IDirect3DDevice9::Reset, which is essentially the same 
-				//   path as recovering from a lost device. If IDirect3DDevice9::Reset fails with 
-				//   D3DERR_DRIVERINTERNALERROR, the application should end immediately with the message 
-				//   that the user should contact the adapter manufacturer.
-				// 
-				// The framework attempts the path of resetting the device
-				// 
-				GetDXUTState().SetDeviceLost(true);
-			}
-		}
-	}
-
-	// If the app called DXUTWasKeyPressed() then do the work 
-	// to store the current state of the keys in bLastKeys
-	if (GetDXUTState().GetAppCalledWasKeyPressed())
-	{
-		bool* bLastKeys = GetDXUTState().GetLastKeys();
-		bool* bKeys = GetDXUTState().GetKeys();
-		memcpy(bLastKeys, bKeys, sizeof(bool)* 256);
-	}
-
-	// Update current frame #
-	int nFrame = GetDXUTState().GetCurrentFrameNumber();
-	nFrame++;
-	GetDXUTState().SetCurrentFrameNumber(nFrame);
-
-	// Check to see if the app should shutdown due to cmdline
-	if (GetDXUTState().GetOverrideQuitAfterFrame() != 0)
-	{
-		if (nFrame > GetDXUTState().GetOverrideQuitAfterFrame())
-			DXUTShutdown();
 	}
 
 	return;
@@ -1679,271 +1817,6 @@ REALIZE_FUNC_T(void, cleanup_3DEnvironment9)(
 }
 
 //--------------------------------------------------------------------------------------
-REALIZE_FUNC(setup_DeviceCursor)(
-	/* [r] */ DEVICE_VERSION _version)
-{
-	switch (_version)
-	{
-	case D3D9_DEVICE:
-	{
-						const D3D9_DEVICE_DESC desc = g_DeviceDescs.d3d9DeviceDesc;
-
-						// Show the cursor again if returning to fullscreen 
-						IDirect3DDevice9 * const d3dDevice = g_Device.d3d9Device;
-						IF_FALSE(desc.pp.Windowed)
-						{
-							SetCursor(nullptr); // Turn off Windows cursor in full screen mode
-							HCURSOR hCursor = (HCURSOR)(ULONG_PTR)GetClassLongPtr(g_Window.deviceFullScreen, GCLP_HCURSOR);
-
-							set_D3D9DeviceCursor(d3dDevice, hCursor, false);
-							d3dDevice->ShowCursor(true);
-						}
-
-						// Clip cursor if requested
-						if (desc.pp.Windowed)
-						{
-							ClipCursor(nullptr);
-						}
-						else
-						{
-							// Confine cursor to full screen window
-							RECT rcWindow;
-							GetWindowRect(g_Window.deviceFullScreen, &rcWindow);
-							ClipCursor(&rcWindow);
-						}
-	}
-		break;
-	case D3D10_DEVICE:
-	{
-						 const D3D10_DEVICE_DESC desc = g_DeviceDescs.d3d10DeviceDesc;
-
-						 // Clip cursor if requested
-						 if (desc.sd.Windowed)
-						 {
-							 ClipCursor(NULL);
-						 }
-						 else
-						 {
-							 HCURSOR hCursor = (HCURSOR)(ULONG_PTR)GetClassLongPtr(g_Window.deviceFullScreen, GCLP_HCURSOR);
-							 SetCursor(hCursor); // Reset the cursor in case we turned it off in fullscreen mode d3d9
-
-							 // Confine cursor to full screen window
-							 RECT rcWindow;
-							 GetWindowRect(g_Window.deviceFullScreen, &rcWindow);
-							 ClipCursor(&rcWindow);
-						 }
-	}
-		break;
-	}
-
-	return S_OK;
-}
-
-//--------------------------------------------------------------------------------------
-REALIZE_FUNC(set_D3D9DeviceCursor)(
-	IDirect3DDevice9 * _d3dDevice,
-	HCURSOR _hCursor,
-	bool _addWatermark)
-{
-	HRESULT hr = E_FAIL;
-	ICONINFO iconinfo;
-	bool bBWCursor = false;
-	LPDIRECT3DSURFACE9 pCursorSurface = nullptr;
-	HDC hdcColor = nullptr;
-	HDC hdcMask = nullptr;
-	HDC hdcScreen = nullptr;
-	BITMAP bm;
-	unsigned long dwWidth = 0;
-	unsigned long dwHeightSrc = 0;
-	unsigned long dwHeightDest = 0;
-	COLORREF crColor;
-	COLORREF crMask;
-	unsigned int x;
-	unsigned int y;
-	BITMAPINFO bmi;
-	COLORREF* pcrArrayColor = nullptr;
-	COLORREF* pcrArrayMask = nullptr;
-	unsigned long* pBitmap;
-	HGDIOBJ hgdiobjOld;
-
-	ZeroMemory(&iconinfo, sizeof(iconinfo));
-	if (!GetIconInfo(_hCursor, &iconinfo))
-		goto End;
-
-	if (0 == GetObject((HGDIOBJ)iconinfo.hbmMask, sizeof(BITMAP), (LPVOID)&bm))
-		goto End;
-	dwWidth = bm.bmWidth;
-	dwHeightSrc = bm.bmHeight;
-
-	if (iconinfo.hbmColor == nullptr)
-	{
-		bBWCursor = TRUE;
-		dwHeightDest = dwHeightSrc / 2;
-	}
-	else
-	{
-		bBWCursor = FALSE;
-		dwHeightDest = dwHeightSrc;
-	}
-
-	// Create a surface for the fullscreen cursor
-	IF_FAILED(hr = _d3dDevice->CreateOffscreenPlainSurface(
-		dwWidth,
-		dwHeightDest,
-		D3DFMT_A8R8G8B8,
-		D3DPOOL_SCRATCH,
-		&pCursorSurface,
-		nullptr))
-	{
-		goto End;
-	}
-
-	pcrArrayMask = new unsigned long[dwWidth * dwHeightSrc];
-
-	ZeroMemory(&bmi, sizeof(bmi));
-	bmi.bmiHeader.biSize = sizeof(bmi.bmiHeader);
-	bmi.bmiHeader.biWidth = dwWidth;
-	bmi.bmiHeader.biHeight = dwHeightSrc;
-	bmi.bmiHeader.biPlanes = 1;
-	bmi.bmiHeader.biBitCount = 32;
-	bmi.bmiHeader.biCompression = BI_RGB;
-
-	hdcScreen = GetDC(nullptr);
-	hdcMask = CreateCompatibleDC(hdcScreen);
-	if (hdcMask == nullptr)
-	{
-		hr = E_FAIL;
-		goto End;
-	}
-	hgdiobjOld = SelectObject(hdcMask, iconinfo.hbmMask);
-
-	GetDIBits(
-		hdcMask,
-		iconinfo.hbmMask,
-		0,
-		dwHeightSrc,
-		pcrArrayMask,
-		&bmi,
-		DIB_RGB_COLORS);
-
-	SelectObject(hdcMask, hgdiobjOld);
-
-	if (!bBWCursor)
-	{
-		pcrArrayColor = new unsigned long[dwWidth * dwHeightDest];
-		hdcColor = CreateCompatibleDC(hdcScreen);
-		if (hdcColor == nullptr)
-		{
-			hr = E_FAIL;
-			goto End;
-		}
-		SelectObject(hdcColor, iconinfo.hbmColor);
-
-		GetDIBits(
-			hdcColor,
-			iconinfo.hbmColor,
-			0,
-			dwHeightDest,
-			pcrArrayColor,
-			&bmi,
-			DIB_RGB_COLORS);
-	}
-
-	// Transfer cursor image into the surface
-	D3DLOCKED_RECT lr;
-	IF_SUCCEEDED(pCursorSurface->LockRect(&lr, nullptr, 0))
-	{
-		pBitmap = (unsigned long*)lr.pBits;
-		for (y = 0; y < dwHeightDest; y++)
-		{
-			for (x = 0; x < dwWidth; x++)
-			{
-				if (bBWCursor)
-				{
-					crColor = pcrArrayMask[dwWidth * (dwHeightDest - 1 - y) + x];
-					crMask = pcrArrayMask[dwWidth * (dwHeightSrc - 1 - y) + x];
-				}
-				else
-				{
-					crColor = pcrArrayColor[dwWidth * (dwHeightDest - 1 - y) + x];
-					crMask = pcrArrayMask[dwWidth * (dwHeightDest - 1 - y) + x];
-				}
-				if (crMask == 0)
-					pBitmap[dwWidth * y + x] = 0xff000000 | crColor;
-				else
-					pBitmap[dwWidth * y + x] = 0x00000000;
-
-				// It may be helpful to make the D3D cursor look slightly 
-				// different from the Windows cursor so you can distinguish 
-				// between the two when developing/testing code.  When
-				// bAddWatermark is TRUE, the following code adds some
-				// small grey "D3D" characters to the upper-left corner of
-				// the D3D cursor image.
-				if (_addWatermark && x < 12 && y < 5)
-				{
-					// 11.. 11.. 11.. .... CCC0
-					// 1.1. ..1. 1.1. .... A2A0
-					// 1.1. .1.. 1.1. .... A4A0
-					// 1.1. ..1. 1.1. .... A2A0
-					// 11.. 11.. 11.. .... CCC0
-
-					const WORD wMask[5] = { 0xccc0, 0xa2a0, 0xa4a0, 0xa2a0, 0xccc0 };
-					if (wMask[y] & (1 << (15 - x)))
-					{
-						pBitmap[dwWidth * y + x] |= 0xff808080;
-					}
-				}
-			}
-		}
-		pCursorSurface->UnlockRect();
-	}
-
-	// Set the device cursor
-	if (FAILED(hr = _d3dDevice->SetCursorProperties(
-		iconinfo.xHotspot,
-		iconinfo.yHotspot,
-		pCursorSurface)))
-	{
-		goto End;
-	}
-
-	hr = S_OK;
-
-End:
-
-	if (iconinfo.hbmMask != nullptr)
-	{
-		DeleteObject(iconinfo.hbmMask);
-	}
-
-	if (iconinfo.hbmColor != nullptr)
-	{
-		DeleteObject(iconinfo.hbmColor);
-	}
-
-	if (hdcScreen != nullptr)
-	{
-		ReleaseDC(nullptr, hdcScreen);
-	}
-
-	if (hdcColor != nullptr)
-	{
-		DeleteDC(hdcColor);
-	}
-
-	if (hdcMask != nullptr)
-	{
-		DeleteDC(hdcMask);
-	}
-
-	DEL_POINTER_ARRAY(pcrArrayColor);
-	DEL_POINTER_ARRAY(pcrArrayMask);
-	DEL_COM(pCursorSurface);
-
-	return hr;
-}
-
-//--------------------------------------------------------------------------------------
 REALIZE_FUNC(create_3DEnvironment10)(
 	/* [x] */ void)
 {
@@ -1977,7 +1850,7 @@ REALIZE_FUNC(create_3DEnvironment10)(
 	{
 		IF_FAILED(hr = dxgiFactory->EnumAdapters(_desc.adapterOrdinal, &dxgiAdapter))
 		{
-			direct3D_OutputDebugString(L"Direct3DERR_CREATINGDEVICE : dxgiFactory::EnumAdapters", hr);
+			assert(L"Direct3DERR_CREATINGDEVICE : dxgiFactory::EnumAdapters");
 			return hr;
 		}
 	}
@@ -2009,7 +1882,7 @@ REALIZE_FUNC(create_3DEnvironment10)(
 
 	IF_FAILED(hr)
 	{
-		direct3D_OutputDebugString(L"Direct3DERR_CREATINGDEVICE : D3D10CreateDevice", hr);
+		assert(L"Direct3DERR_CREATINGDEVICE : D3D10CreateDevice");
 		return hr;
 	}
 
@@ -2047,7 +1920,7 @@ REALIZE_FUNC(create_3DEnvironment10)(
 		(DXGI_SWAP_CHAIN_DESC *)&_desc.sd,
 		&dxgiSwapChain))
 	{
-		direct3D_OutputDebugString(L"Direct3DERR_CREATINGDEVICE : CreateSwapChain", hr);
+		assert(L"Direct3DERR_CREATINGDEVICE : CreateSwapChain");
 		return hr;
 	}
 
@@ -2068,9 +1941,6 @@ REALIZE_FUNC(create_3DEnvironment10)(
 	// Update back buffer desc before calling app's device callbacks
 	update_BackBufferDesc(D3D10_DEVICE);
 
-	// Setup cursor based on current settings (window/fullscreen mode, show cursor state, clip cursor state)
-	setup_DeviceCursor(D3D10_DEVICE);
-
 	// Call the app's device created callback if non-nullptr
 	const DXGI_SURFACE_DESC & backBufferSurfaceDesc =
 		g_Device.dxgiBackBuffer_Desc;
@@ -2088,7 +1958,7 @@ REALIZE_FUNC(create_3DEnvironment10)(
 
 	if (FAILED(hr))
 	{
-		direct3D_OutputDebugString(L"Direct3DERR_CREATINGDEVICE : DeviceCreated callback", hr);
+		assert(L"Direct3DERR_CREATINGDEVICE : DeviceCreated callback");
 		cleanup_3DEnvironment10(false);
 
 		return hr;
@@ -2097,7 +1967,7 @@ REALIZE_FUNC(create_3DEnvironment10)(
 	// Setup the render target view and viewport
 	IF_FAILED(hr = setup_D3D10Views(_desc))
 	{
-		direct3D_OutputDebugString(L"Direct3DERR_CREATINGDEVICEOBJECTS : setup_D3D10Views", hr);
+		assert(L"Direct3DERR_CREATINGDEVICEOBJECTS : setup_D3D10Views");
 		cleanup_3DEnvironment10(false);
 
 		return hr;
@@ -2115,7 +1985,7 @@ REALIZE_FUNC(create_3DEnvironment10)(
 			backBufferSurfaceDesc,
 			g_cbUserContext.d3d10SwapChainResizedFuncUserContext))
 		{
-			direct3D_OutputDebugString(L"Direct3DERR_CREATINGDEVICE : DeviceReset callback", hr);
+			assert(L"Direct3DERR_CREATINGDEVICE : DeviceReset callback");
 			cleanup_3DEnvironment10(false);
 
 			return hr;
@@ -2131,8 +2001,6 @@ REALIZE_FUNC(reset_3DEnvironment10)(
 {
 	IDXGISwapChain * const dxgiSwapChain = g_Device.dxgiSwapChain;
 	D3D10_DEVICE_DESC & desc = g_DeviceDescs.d3d10DeviceDesc;
-
-	g_Direct3D.pause(true, true);
 
 	DXGI_SWAP_CHAIN_DESC SCDesc;
 	dxgiSwapChain->GetDesc(&SCDesc);
@@ -2211,9 +2079,29 @@ REALIZE_FUNC(reset_3DEnvironment10)(
 		}
 	}
 
-	g_Direct3D.pause(false, false);
-
 	return S_OK;
+}
+
+//--------------------------------------------------------------------------------------
+REALIZE_FUNC_T(void, render_3DEnvironment10)(
+	/* [x] */ void)
+{
+	const D3D10_DEVICE_DESC & desc =
+		g_DeviceDescs.d3d10DeviceDesc;
+
+	CALLBACK_D3D10_FRAME_RENDER callback_FrameRender =
+		g_Callbacks.d3d10FrameRenderFunc;
+
+	if (callback_FrameRender)
+	{
+		callback_FrameRender(
+			g_Device.d3d10Device,
+			g_TimeStream.time,
+			g_TimeStream.elapsedTime,
+			g_cbUserContext.d3d9FrameRenderFuncUserContext);
+	}
+
+	g_Device.dxgiSwapChain->Present(0, desc.presentFlags);
 }
 
 //--------------------------------------------------------------------------------------
@@ -2274,13 +2162,6 @@ REALIZE_FUNC_T(void, cleanup_3DEnvironment10)(
 			ZeroMemory(&g_DeviceDescs.d3d10DeviceDesc, sizeof(DXGI_SURFACE_DESC));
 		}
 	}
-}
-
-//--------------------------------------------------------------------------------------
-REALIZE_FUNC_T(void, render_3DEnvironment10)(
-	/* [x] */ void)
-{
-
 }
 
 //--------------------------------------------------------------------------------------
@@ -2480,9 +2361,6 @@ REALIZE_FUNC_T(void, resize_DXGIBuffers)(
 	// Save off backbuffer desc
 	update_BackBufferDesc(D3D10_DEVICE);
 
-	// Setup cursor based on current settings (window/fullscreen mode, show cursor state, clip cursor state)
-	setup_DeviceCursor(D3D10_DEVICE);
-
 	// Call the app's SwapChain reset callback
 	const DXGI_SURFACE_DESC & backBufferSurfaceDesc =
 		g_Device.dxgiBackBuffer_Desc;
@@ -2492,7 +2370,6 @@ REALIZE_FUNC_T(void, resize_DXGIBuffers)(
 
 	if (callback_SwapChainResized)
 	{
-		Direct3D g_Direct3D;
 		if (FAILED(hr = callback_SwapChainResized(
 			d3d10Device,
 			dxgiSwapChain,
@@ -2509,12 +2386,7 @@ REALIZE_FUNC_T(void, resize_DXGIBuffers)(
 					g_cbUserContext.d3d10SwapChainResizedFuncUserContext);
 			}
 
-			g_Direct3D.pause(false, false);
 			PostQuitMessage(0);
-		}
-		else
-		{
-			g_Direct3D.pause(false, false);
 		}
 	}
 }
@@ -2524,249 +2396,114 @@ REALIZE_FUNC(update_BackBufferDesc)(
 	/* [r] */ DEVICE_VERSION _version)
 {
 	HRESULT hr = E_FAIL;
-	switch (_version)
+	if (_version == D3D9_DEVICE)
 	{
-	case D3D9_DEVICE:
-	{
-						AutoRelease<IDirect3DSurface9> backBuffer;
-						IF_SUCCEEDED(hr = g_Device.d3d9Device->GetBackBuffer(
-							0,
-							0,
-							D3DBACKBUFFER_TYPE_MONO,
-							&backBuffer))
-						{
-							backBuffer->GetDesc(&g_Device.backBuffer_Desc);
-						}
+		AutoRelease<IDirect3DSurface9> backBuffer;
+		IF_SUCCEEDED(hr = g_Device.d3d9Device->GetBackBuffer(
+			0,
+			0,
+			D3DBACKBUFFER_TYPE_MONO,
+			&backBuffer))
+		{
+			backBuffer->GetDesc(&g_Device.backBuffer_Desc);
+		}
 	}
-		break;
-	case D3D10_DEVICE:
+	else if (_version == D3D10_DEVICE)
 	{
-						 AutoRelease<ID3D10Texture2D> backBuffer;
-						 IF_SUCCEEDED(hr = g_Device.dxgiSwapChain->GetBuffer(
-							 0,
-							 __uuidof(*backBuffer),
-							 (void**)&backBuffer))
-						 {
-							 D3D10_TEXTURE2D_DESC TexDesc;
-							 backBuffer->GetDesc(&TexDesc);
+		AutoRelease<ID3D10Texture2D> backBuffer;
+		IF_SUCCEEDED(hr = g_Device.dxgiSwapChain->GetBuffer(
+			0,
+			__uuidof(*backBuffer),
+			(void**)&backBuffer))
+		{
+			D3D10_TEXTURE2D_DESC TexDesc;
+			backBuffer->GetDesc(&TexDesc);
 
-							 DXGI_SURFACE_DESC & surface = g_Device.dxgiBackBuffer_Desc;
-							 surface.Width = (unsigned int)TexDesc.Width;
-							 surface.Height = (unsigned int)TexDesc.Height;
-							 surface.Format = TexDesc.Format;
-							 surface.SampleDesc = TexDesc.SampleDesc;
-						 }
-	}
-		break;
+			DXGI_SURFACE_DESC & surface = g_Device.dxgiBackBuffer_Desc;
+			surface.Width = (unsigned int)TexDesc.Width;
+			surface.Height = (unsigned int)TexDesc.Height;
+			surface.Format = TexDesc.Format;
+			surface.SampleDesc = TexDesc.SampleDesc;
+		}
+
 	}
 
 	return hr;
 }
 
-HRESULT DXUTFindD3D9AdapterFormat(
-	unsigned int AdapterOrdinal,
-	D3DDEVTYPE DeviceType,
-	D3DFORMAT BackBufferFormat,
-	BOOL Windowed,
-	D3DFORMAT * pAdapterFormat);
-
-HRESULT setupD3D10Views(ID3D10Device* pd3dDevice, DXUTDeviceSettings* pDeviceSettings);
-HRESULT create3DEnvironment10(ID3D10Device* pd3dDeviceFromApp);
-HRESULT reset3DEnvironment10();
-void render3DEnvironment10();
-void cleanup3DEnvironment10(bool bReleaseSettings = true);
-void createD3D10Counters(ID3D10Device* pd3dDevice);
-void destroyD3D10Counters();
-void startPerformanceCounters();
-void stopPerformanceCounters();
-void updateD3D10CounterStats();
-
-void updateD3D10DeviceStats(
-	D3D10_DRIVER_TYPE DeviceType,
-	DXGI_ADAPTER_DESC* pAdapterDesc);
-
 //--------------------------------------------------------------------------------------
-REALIZE_FUNC_T(void, checkFor_WindowChangingMonitors)(
-	/* [x] */ void)
+REALIZE_FUNC_T(void, allow_ShortcutKeys)(
+	/* [r] */ BOOL _allowKeys)
 {
-	// Skip this check for various reasons
-	IF_FALSE(g_DeviceDescs.autoChangeAdapter)
+	if (_allowKeys)
 	{
-		return;
-	}
+		// Restore StickyKeys/etc to original state and enable Windows key      
+		STICKYKEYS sk = g_init.stickyKeys;
+		TOGGLEKEYS tk = g_init.toggleKeys;
+		FILTERKEYS fk = g_init.filterKeys;
 
-	HMONITOR const hWindowMonitor = MonitorFromWindow(g_Window.focus, MONITOR_DEFAULTTOPRIMARY);
-	HMONITOR const hAdapterMonitor = g_Window.adapterMonitor;
-	
-	if (hWindowMonitor != hAdapterMonitor)
-	{
-		UINT newOrdinal;
-		IF_SUCCEEDED(get_AdapterOrdinalFromMonitor(&newOrdinal, hWindowMonitor))
+		SystemParametersInfo(SPI_SETSTICKYKEYS, sizeof(STICKYKEYS), &sk, 0);
+		SystemParametersInfo(SPI_SETTOGGLEKEYS, sizeof(TOGGLEKEYS), &tk, 0);
+		SystemParametersInfo(SPI_SETFILTERKEYS, sizeof(FILTERKEYS), &fk, 0);
+
+		// Remove the keyboard hoook when it isn't needed to prevent any slow down of other apps
+		if (g_State.keyboardHook)
 		{
-			// Find the closest valid device settings with the new ordinal
-			Direct3D_DeviceDescs deviceDesc = g_DeviceDescs;
-			
-			switch (deviceDesc.version)
-			{
-			case D3D9_DEVICE:
-			case D3D10_DEVICE:
-			}
-			if (DXUTIsD3D9(&deviceSettings))
-			{
-				deviceSettings.d3d9.AdapterOrdinal = newOrdinal;
-			}
-			else
-			{
-				deviceSettings.d3d10.AdapterOrdinal = newOrdinal;
-				UINT newOutput;
-				if (SUCCEEDED(DXUTGetOutputOrdinalFromMonitor(hWindowMonitor, &newOutput)))
-					deviceSettings.d3d10.Output = newOutput;
-			}
+			UnhookWindowsHookEx(g_State.keyboardHook);
+			g_State.keyboardHook = nullptr;
+		}
+	}
+	else
+	{
+		// Set low level keyboard hook if haven't already
+		IF_INVALID(g_State.keyboardHook)
+		{
+			HHOOK hKeyboardHook = SetWindowsHookEx(
+				WH_KEYBOARD_LL,
+				direct3D_LowLevelKeyboardProc,
+				GetModuleHandle(NULL),
+				0);
 
-			DXUTMatchOptions matchOptions;
-			matchOptions.eAPIVersion = DXUTMT_PRESERVE_INPUT;
-			matchOptions.eAdapterOrdinal = DXUTMT_PRESERVE_INPUT;
-			matchOptions.eDeviceType = DXUTMT_CLOSEST_TO_INPUT;
-			matchOptions.eWindowed = DXUTMT_CLOSEST_TO_INPUT;
-			matchOptions.eAdapterFormat = DXUTMT_CLOSEST_TO_INPUT;
-			matchOptions.eVertexProcessing = DXUTMT_CLOSEST_TO_INPUT;
-			matchOptions.eResolution = DXUTMT_CLOSEST_TO_INPUT;
-			matchOptions.eBackBufferFormat = DXUTMT_CLOSEST_TO_INPUT;
-			matchOptions.eBackBufferCount = DXUTMT_CLOSEST_TO_INPUT;
-			matchOptions.eMultiSample = DXUTMT_CLOSEST_TO_INPUT;
-			matchOptions.eSwapEffect = DXUTMT_CLOSEST_TO_INPUT;
-			matchOptions.eDepthFormat = DXUTMT_CLOSEST_TO_INPUT;
-			matchOptions.eStencilFormat = DXUTMT_CLOSEST_TO_INPUT;
-			matchOptions.ePresentFlags = DXUTMT_CLOSEST_TO_INPUT;
-			matchOptions.eRefreshRate = DXUTMT_CLOSEST_TO_INPUT;
-			matchOptions.ePresentInterval = DXUTMT_CLOSEST_TO_INPUT;
+			g_State.keyboardHook = hKeyboardHook;
+		}
 
-						HRESULT hr;
-			hr = DXUTFindValidDeviceSettings(&deviceSettings, &deviceSettings, &matchOptions);
-			if (SUCCEEDED(hr))
-			{
-				// Create a Direct3D device using the new device settings.  
-				// If there is an existing device, then it will either reset or recreate the scene.
-				hr = DXUTChangeDevice(&deviceSettings, NULL, NULL, false, false);
+		// Disable StickyKeys/etc shortcuts but if the accessibility feature is on, 
+		// then leave the settings alone as its probably being usefully used
 
-				// If hr == E_ABORT, this means the app rejected the device settings in the ModifySettingsCallback
-				if (hr == E_ABORT)
-				{
-					// so nothing changed and keep from attempting to switch adapters next time
-					GetDXUTState().SetAutoChangeAdapter(false);
-				}
-				else if (FAILED(hr))
-				{
-					DXUTShutdown();
-					DXUTPause(false, false);
-					return;
-				}
-			}
+		STICKYKEYS skOff = g_init.stickyKeys;
+		if ((skOff.dwFlags & SKF_STICKYKEYSON) == 0)
+		{
+			// Disable the hotkey and the confirmation
+			skOff.dwFlags &= ~SKF_HOTKEYACTIVE;
+			skOff.dwFlags &= ~SKF_CONFIRMHOTKEY;
+
+			SystemParametersInfo(SPI_SETSTICKYKEYS, sizeof(STICKYKEYS), &skOff, 0);
+		}
+
+		TOGGLEKEYS tkOff = g_init.toggleKeys;
+		if ((tkOff.dwFlags & TKF_TOGGLEKEYSON) == 0)
+		{
+			// Disable the hotkey and the confirmation
+			tkOff.dwFlags &= ~TKF_HOTKEYACTIVE;
+			tkOff.dwFlags &= ~TKF_CONFIRMHOTKEY;
+
+			SystemParametersInfo(SPI_SETTOGGLEKEYS, sizeof(TOGGLEKEYS), &tkOff, 0);
+		}
+
+		FILTERKEYS fkOff = g_init.filterKeys;
+		if ((fkOff.dwFlags & FKF_FILTERKEYSON) == 0)
+		{
+			// Disable the hotkey and the confirmation
+			fkOff.dwFlags &= ~FKF_HOTKEYACTIVE;
+			fkOff.dwFlags &= ~FKF_CONFIRMHOTKEY;
+
+			SystemParametersInfo(SPI_SETFILTERKEYS, sizeof(FILTERKEYS), &fkOff, 0);
 		}
 	}
 }
 
 //--------------------------------------------------------------------------------------
-REALIZE_FUNC_T(HMONITOR, get_MonitorFromAdapter)(
-	/* [r] */ const Direct3D_DeviceDescs & _desc)
-{
-	switch (_desc.version)
-	{
-	case D3D9_DEVICE:
-	{
-						IDirect3D9 * const d3d = g_Device.direct3D9;
-						return d3d->GetAdapterMonitor(_desc.d3d9DeviceDesc.adapterOrdinal);
-	}
-	case D3D10_DEVICE:
-	{
-						 const VideoCard_Output_info * output_info =
-							 g_Outside.get_Output_info(
-							 _desc.d3d10DeviceDesc.adapterOrdinal,
-							 _desc.d3d10DeviceDesc.output);
-
-						 if (output_info)
-						 {
-							 return nullptr;
-						 }
-
-						 return MonitorFromRect(&output_info->desc.DesktopCoordinates, MONITOR_DEFAULTTONEAREST);
-	}
-	}
-
-	return nullptr;
-}
-
-//--------------------------------------------------------------------------------------
-REALIZE_FUNC(get_AdapterOrdinalFromMonitor)(
-	/* [w] */ unsigned int * _adapterOrdinal,
-	/* [r] */ HMONITOR _monitor)
-{
-	(*_adapterOrdinal) = 0;
-	switch (g_DeviceDescs.version)
-	{
-	case D3D9_DEVICE:
-	{
-						IDirect3D9 * const d3d = g_Device.direct3D9;
-
-						for (int iAdapter = 0;; ++iAdapter)
-						{
-							const VideoCard_info * card_info =
-								g_Outside.get_info(iAdapter);
-
-							if (card_info)
-							{
-								break;
-							}
-
-							HMONITOR hAdapterMonitor =
-								d3d->GetAdapterMonitor(card_info->ordinal);
-
-							if (_monitor == hAdapterMonitor)
-							{
-								(*_adapterOrdinal) = card_info->ordinal;
-								return S_OK;
-							}
-						}
-	}
-		break;
-	case D3D10_DEVICE:
-	{
-						 // Get the monitor handle information
-						 MONITORINFOEX mi;
-						 mi.cbSize = sizeof(MONITORINFOEX);
-						 GetMonitorInfo(_monitor, &mi);
-
-						 // Search for this monitor in our enumeration hierarchy.
-						 for (int iAdapter = 0;; ++iAdapter)
-						 {
-							 for (int iOutput = 0;; ++iOutput)
-							 {
-								 const VideoCard_Output_info * output_info =
-									 g_Outside.get_Output_info(iAdapter, iOutput);
-
-								 if (output_info)
-								 {
-									 break;
-								 }
-
-								 // Convert output device name from MBCS to Unicode
-								 unsigned int size = sizeof(mi.szDevice) / sizeof(mi.szDevice[0]);
-								 if (wcsncmp(output_info->desc.DeviceName, mi.szDevice, size) == 0)
-								 {
-									 (*_adapterOrdinal) = g_Outside.get_info(iAdapter)->ordinal;
-									 return S_OK;
-								 }
-							 }
-						 }
-	}
-		break;
-	}
-
-	return E_FAIL;
-}
-
-//--------------------------------------------------------------------------------------
-LRESULT CALLBACK direct3d_WndProc(
+LRESULT CALLBACK direct3D_WndProc(
 	/* [r] */ HWND _hWnd,
 	/* [r] */ unsigned int _uMsg,
 	/* [r] */ unsigned int _wParam,
@@ -2790,9 +2527,9 @@ LRESULT CALLBACK direct3d_WndProc(
 		if (callback_Keyboard)
 		{
 			callback_Keyboard(
-				(unsigned int)_wParam, 
-				bKeyDown, 
-				bAltDown, 
+				(unsigned int)_wParam,
+				bKeyDown,
+				bAltDown,
 				g_cbUserContext.keyboardFuncUserContext);
 		}
 	}
@@ -2844,7 +2581,7 @@ LRESULT CALLBACK direct3d_WndProc(
 		bMouseButtons[3] = bSideButton1;
 		bMouseButtons[4] = bSideButton2;
 
-		CALLBACK_MOUSE callback_Mouse = 
+		CALLBACK_MOUSE callback_Mouse =
 			g_Callbacks.mouseFunc;
 
 		if (callback_Mouse)
@@ -2853,15 +2590,15 @@ LRESULT CALLBACK direct3d_WndProc(
 				bMouseButtons,
 				5,
 				nMouseWheelDelta,
-				xPos, 
-				yPos, 
+				xPos,
+				yPos,
 				g_cbUserContext.mouseFuncUserContext);
 		}
 	}
 
 	// Pass all messages to the app's MsgProc callback, and don't 
 	// process further messages if the apps says not to.
-	CALLBACK_MSGPROC callback_MsgProc = 
+	CALLBACK_MSGPROC callback_MsgProc =
 		g_Callbacks.windowMsgFunc;
 
 	if (callback_MsgProc)
@@ -2869,10 +2606,10 @@ LRESULT CALLBACK direct3d_WndProc(
 		bool bNoFurtherProcessing = false;
 		LRESULT nResult = callback_MsgProc(
 			&bNoFurtherProcessing,
-			_hWnd, 
-			_uMsg, 
-			_wParam, 
-			_lParam, 
+			_hWnd,
+			_uMsg,
+			_wParam,
+			_lParam,
 			g_cbUserContext.windowMsgFuncUserContext);
 
 		if (bNoFurtherProcessing)
@@ -2884,257 +2621,78 @@ LRESULT CALLBACK direct3d_WndProc(
 	switch (_uMsg)
 	{
 	case WM_PAINT:
-	{
-					 // Handle paint messages when the app is paused
-					 if (DXUTIsRenderingPaused() &&
-						 g_DeviceObjectsCreated() && g_DeviceObjectsReset())
-					 {
-						 HRESULT hr;
-						 double fTime = DXUTGetTime();
-						 float fElapsedTime = DXUTGetElapsedTime();
 
-						 switch (g_DeviceDescs.version)
-						 {
-						 case D3D9_DEVICE:
-						 {
-											 IDirect3DDevice9 * const d3d9Device =
-												 g_Device.d3d9Device;
-
-											 if (d3d9Device)
-											 {
-												 CALLBACK_D3D9_FRAME_RENDER callback_FrameRender =
-													 g_Callbacks.d3d9FrameRenderFunc;
-
-												 if (callback_FrameRender)
-												 {
-													 callback_FrameRender(
-														 d3d9Device,
-														 fTime,
-														 fElapsedTime,
-														 g_cbUserContext.d3d9FrameRenderFuncUserContext);
-												 }
-
-												 d3d9Device->Present(nullptr, nullptr, nullptr, nullptr);
-											 }
-						 }
-							 break;
-						 case D3D10_DEVICE:
-						 {
-											  ID3D10Device * const d3d10Device =
-												  g_Device.d3d10Device;
-
-											  const D3D10_DEVICE_DESC & desc =
-												  g_DeviceDescs.d3d10DeviceDesc;
-
-											  if (d3d10Device)
-											  {
-												  CALLBACK_D3D10_FRAME_RENDER callback_FrameRender =
-													  g_Callbacks.d3d10FrameRenderFunc;
-
-												  if (callback_FrameRender)
-												  {
-													  callback_FrameRender(
-														  d3d10Device,
-														  fTime,
-														  fElapsedTime,
-														  g_cbUserContext.d3d9FrameRenderFuncUserContext);
-												  }
-
-												  IDXGISwapChain * const dxgiSwapChain =
-													  g_Device.dxgiSwapChain;
-
-												  dxgiSwapChain->Present(0, desc.presentFlags);
-											  }
-						 }
-							 break;
-						 }
-	}
+		// Handle paint messages when the app is paused
+		if (g_TimeStream.pauseRendering)
+		{
+			g_Dispatch.cbRender3DEnvironment();
+		}
+		break;
 
 	case WM_SIZE:
 		if (SIZE_MINIMIZED == _wParam)
 		{
+			g_State.minimizedSize = true;
+
 			// Pause while we're minimized
-			g_Direct3D.pause(true, true); 
+			g_Direct3D.pause_Rendering(true);
 		}
 		else
 		{
-			RECT rcCurrentClient;
-			GetClientRect(g_Window.focus, &rcCurrentClient);
-			if (rcCurrentClient.top == 0 && rcCurrentClient.bottom == 0)
-			{
-				// Rapidly clicking the task bar to minimize and restore a window
-				// can cause a WM_SIZE message with SIZE_RESTORED when 
-				// the window has actually become minimized due to rapid change
-				// so just ignore this message
-			}
-			else if (SIZE_MAXIMIZED == _wParam)
-			{
-				if (g_Minimized())
-				{
-					// Unpause since we're no longer minimized
-					DXUTPause(false, false); 
-				}
+			unsigned int width = LOWORD(_lParam);
+			unsigned int height = HIWORD(_lParam);
 
-				g_Minimized(false);
-				g_Maximized(true);
-
-				DXUTCheckForWindowSizeChange();
-				DXUTCheckForWindowChangingMonitors();
-			}
-			else if (SIZE_RESTORED == _wParam)
+			if (g_State.autoChangeAdapter)
 			{
-				//DXUTCheckForDXGIFullScreenSwitch();
-				if (g_Maximized())
-				{
-					g_Maximized(false);
-					DXUTCheckForWindowSizeChange();
-					DXUTCheckForWindowChangingMonitors();
-				}
-				else if (g_Minimized())
-				{
-					DXUTPause(false, false); // Unpause since we're no longer minimized
-					g_Minimized(false);
-					DXUTCheckForWindowSizeChange();
-					DXUTCheckForWindowChangingMonitors();
-				}
-				else if (g_InSizeMove())
-				{
-					// If we're neither maximized nor minimized, the window size 
-					// is changing by the user dragging the window edges.  In this 
-					// case, we don't reset the device yet -- we wait until the 
-					// user stops dragging, and a WM_EXITSIZEMOVE message comes.
-				}
-				else
-				{
-					// This WM_SIZE come from resizing the window via an API like SetWindowPos() so 
-					// resize and reset the device now.
-					DXUTCheckForWindowSizeChange();
-					DXUTCheckForWindowChangingMonitors();
-				}
+				g_Direct3D.change_Moniter(
+					(*g_Dispatch.refWindowed),
+					width,
+					height);
+			}
+			else
+			{
+				g_Direct3D.change_Moniter(
+					(*g_Dispatch.refWindowed),
+					width,
+					height,
+					(*g_Dispatch.refAdapter));
+			}
+
+			if (g_State.minimizedSize)
+			{
+				g_State.minimizedSize = false;
+				g_Direct3D.pause_Rendering(false);
+			}
+			else if (g_State.maximizedSize)
+			{
+				g_State.maximizedSize = false;
 			}
 		}
 		break;
 
 	case WM_GETMINMAXINFO:
-		((MINMAXINFO*)_lParam)->ptMinTrackSize.x = DXUT_MIN_WINDOW_SIZE_X;
-		((MINMAXINFO*)_lParam)->ptMinTrackSize.y = DXUT_MIN_WINDOW_SIZE_Y;
-		break;
-
-	case WM_ENTERSIZEMOVE:
-		// Halt frame movement while the app is sizing or moving
-		DXUTPause(true, true);
-		g_InSizeMove(true);
-		break;
-
-	case WM_EXITSIZEMOVE:
-		DXUTPause(false, false);
-		DXUTCheckForWindowSizeChange();
-		DXUTCheckForWindowChangingMonitors();
-		g_InSizeMove(false);
-		break;
-
-	case WM_MOUSEMOVE:
-		if (DXUTIsActive() && !DXUTIsWindowed())
-		{
-			if (DXUTIsCurrentDeviceD3D9())
-			{
-				IDirect3DDevice9* pd3dDevice = DXUTGetD3D9Device();
-				if (pd3dDevice)
-				{
-					POINT ptCursor;
-					GetCursorPos(&ptCursor);
-					pd3dDevice->SetCursorPosition(ptCursor.x, ptCursor.y, 0);
-				}
-			}
-			else
-			{
-				// For D3D10, no processing is necessary.  D3D10 cursor
-				// is handled in the traditional Windows manner.
-			}
-		}
-		break;
-
-	case WM_SETCURSOR:
-		if (DXUTIsActive() && !DXUTIsWindowed())
-		{
-			if (DXUTIsCurrentDeviceD3D9())
-			{
-				IDirect3DDevice9* pd3dDevice = DXUTGetD3D9Device();
-				if (pd3dDevice && g_ShowCursorWhenFullScreen())
-					pd3dDevice->ShowCursor(true);
-			}
-			else
-			{
-				if (!g_ShowCursorWhenFullScreen())
-					SetCursor(nullptr);
-			}
-
-			return true; // prevent Windows from setting cursor to window class cursor
-		}
+		((MINMAXINFO*)_lParam)->ptMinTrackSize.x = 200;
+		((MINMAXINFO*)_lParam)->ptMinTrackSize.y = 200;
 		break;
 
 	case WM_ACTIVATEAPP:
-		if (_wParam == TRUE && !DXUTIsActive()) // Handle only if previously not active 
+		if (_wParam == TRUE && g_State.runMainLoop) // Handle only if previously not active 
 		{
-			g_Active(true);
-
-			// Enable controller rumble & input when activating app
-			DXUTEnableXInput(true);
-
-			// The GetMinimizedWhileFullscreen() varible is used instead of !DXUTIsWindowed()
-			// to handle the rare case toggling to windowed mode while the fullscreen application 
-			// is minimized and thus making the pause count wrong
-			if (g_MinimizedWhileFullscreen())
-			{
-				if (DXUTIsD3D9(g_CurrentDeviceSettings()))
-					DXUTPause(false, false); // Unpause since we're no longer minimized
-				g_MinimizedWhileFullscreen(false);
-
-				if (DXUTIsAppRenderingWithD3D10())
-				{
-					DXUTToggleFullScreen();
-				}
-			}
-
 			// Upon returning to this app, potentially disable shortcut keys 
-			// (Windows key, accessibility shortcuts) 
-			DXUTAllowShortcutKeys((DXUTIsWindowed()) ? g_AllowShortcutKeysWhenWindowed() :
-				g_AllowShortcutKeysWhenFullscreen());
+			// (Windows key, accessibility shortcuts)
+			allow_ShortcutKeys((*g_Dispatch.refWindowed));
 
 		}
-		else if (_wParam == FALSE && DXUTIsActive()) // Handle only if previously active 
+		else if (_wParam == FALSE && g_State.runMainLoop) // Handle only if previously active 
 		{
-			g_Active(false);
-
-			// Disable any controller rumble & input when de-activating app
-			DXUTEnableXInput(false);
-
-			if (!DXUTIsWindowed())
-			{
-				// Going from full screen to a minimized state 
-				ClipCursor(nullptr);      // don't limit the cursor anymore
-				if (DXUTIsD3D9(g_CurrentDeviceSettings()))
-					DXUTPause(true, true); // Pause while we're minimized (take care not to pause twice by handling this message twice)
-				g_MinimizedWhileFullscreen(true);
-			}
-
 			// Restore shortcut keys (Windows key, accessibility shortcuts) to original state
 			//
 			// This is important to call here if the shortcuts are disabled, 
 			// because if this is not done then the Windows key will continue to 
 			// be disabled while this app is running which is very bad.
 			// If the app crashes, the Windows key will return to normal.
-			DXUTAllowShortcutKeys(true);
+			allow_ShortcutKeys(true);
 		}
-		break;
-
-	case WM_ENTERMENULOOP:
-		// Pause the app when menus are displayed
-		DXUTPause(true, true);
-		break;
-
-	case WM_EXITMENULOOP:
-		DXUTPause(false, false);
 		break;
 
 	case WM_MENUCHAR:
@@ -3145,7 +2703,7 @@ LRESULT CALLBACK direct3d_WndProc(
 
 	case WM_NCHITTEST:
 		// Prevent the user from selecting the menu in full screen mode
-		if (!DXUTIsWindowed())
+		IF_FALSE((*g_Dispatch.refWindowed))
 			return HTCLIENT;
 		break;
 
@@ -3173,8 +2731,10 @@ LRESULT CALLBACK direct3d_WndProc(
 
 			// QPC may lose consistency when suspending, so reset the timer
 			// upon resume.
-			DXUTGetGlobalTimer()->Reset();
-			g_LastStatsUpdateTime(0);
+			g_TimeStream.timer.reset();
+			g_TimeStream.time = 0.0f;
+			g_TimeStream.elapsedTime = 0.0f;
+			g_TimeStream.absoluteTime = 0.0f;
 			return true;
 		}
 		break;
@@ -3187,72 +2747,34 @@ LRESULT CALLBACK direct3d_WndProc(
 		case SC_SIZE:
 		case SC_MAXIMIZE:
 		case SC_KEYMENU:
-			if (!DXUTIsWindowed())
+			IF_FALSE((*g_Dispatch.refWindowed))
 				return 0;
 			break;
 		}
 		break;
 
 	case WM_SYSKEYDOWN:
-	{
-						  switch (_wParam)
-						  {
-						  case VK_RETURN:
-						  {
-											if (g_HandleAltEnter() && DXUTIsAppRenderingWithD3D9())
-											{
-												// Toggle full screen upon alt-enter 
-												unsigned long dwMask = (1 << 29);
-												if ((_lParam & dwMask) != 0) // Alt is down also
-												{
-													// Toggle the full screen/window mode
-													DXUTPause(true, true);
-													DXUTToggleFullScreen();
-													DXUTPause(false, false);
-													return 0;
-												}
-											}
-						  }
-						  }
-						  break;
-	}
+		g_Direct3D.initialize_Framework();
 
 	case WM_KEYDOWN:
-	{
-					   switch (_wParam)
-					   {
-					   case VK_ESCAPE:
-					   {
-										 SendMessage(_hWnd, WM_CLOSE, 0, 0);
-										 break;
-					   }
-
-					   case VK_PAUSE:
-					   {
-											bool bTimePaused = DXUTIsTimePaused();
-											bTimePaused = !bTimePaused;
-											if (bTimePaused)
-											{
-												DXUTPause(true, false);
-											}
-											else
-											{
-												DXUTPause(false, false);
-											}
-										break;
-					   }
-					   }
-					   break;
-	}
+		if (_wParam == VK_ESCAPE)
+		{
+			SendMessage(_hWnd, WM_CLOSE, 0, 0);
+		}
+		break;
 
 	case WM_CLOSE:
 	{
 					 HMENU hMenu;
-					 hMenu = GetMenu(_hWnd);
-					 if (hMenu != nullptr)
+					 if (hMenu = GetMenu(_hWnd))
+					 {
 						 DestroyMenu(hMenu);
+					 }
+
 					 DestroyWindow(_hWnd);
+
 					 UnregisterClass(L"Direct3DWindowClass", nullptr);
+
 					 g_Window.focus = nullptr;
 					 g_Window.deviceFullScreen = nullptr;
 					 g_Window.deviceWindowed = nullptr;
@@ -3267,7 +2789,7 @@ LRESULT CALLBACK direct3d_WndProc(
 	// Don't allow the F10 key to act as a shortcut to the menu bar
 	// by not passing these messages to the DefWindowProc only when
 	// there's no menu present
-	if (g_Window.menu == nullptr &&	(_uMsg == WM_SYSKEYDOWN || _uMsg == WM_SYSKEYUP) && _wParam == VK_F10)
+	if (nullptr == g_Window.menu && (_uMsg == WM_SYSKEYDOWN || _uMsg == WM_SYSKEYUP) && _wParam == VK_F10)
 	{
 		return 0;
 	}
@@ -3275,4 +2797,218 @@ LRESULT CALLBACK direct3d_WndProc(
 	{
 		return DefWindowProc(_hWnd, _uMsg, _wParam, _lParam);
 	}
+}
+
+//--------------------------------------------------------------------------------------
+LRESULT CALLBACK direct3D_LowLevelKeyboardProc(
+	/* [r] */ int _code,
+	/* [r] */ WPARAM _wParam,
+	/* [r] */ LPARAM _lParam)
+{
+	// do not process message 
+	if (_code < 0 || _code != HC_ACTION)
+	{
+		return CallNextHookEx(
+			g_State.keyboardHook,
+			_code,
+			_wParam,
+			_lParam);
+	}
+
+	bool bEatKeystroke = false;
+	KBDLLHOOKSTRUCT* p = (KBDLLHOOKSTRUCT*)_lParam;
+	switch (_wParam)
+	{
+	case WM_KEYDOWN:
+	case WM_KEYUP:
+	{
+					 bEatKeystroke = p->vkCode == VK_LWIN || p->vkCode == VK_RWIN;
+					 break;
+	}
+	}
+
+	if (bEatKeystroke)
+	{
+		return 1;
+	}
+	else
+	{
+		return CallNextHookEx(
+			g_State.keyboardHook,
+			_code,
+			_wParam,
+			_lParam);
+	}
+}
+
+//--------------------------------------------------------------------------------------
+// General callbacks
+//--------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_FrameMove)(
+	/* [ref] */ CALLBACK_FRAMEMOVE _callback,
+	/* [r/w] */ void * _userContext)
+{
+	g_Callbacks.frameMoveFunc = _callback;
+	g_cbUserContext.frameMoveFuncUserContext = _userContext;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_Keyboard)(
+	/* [ref] */ CALLBACK_KEYBOARD _callback,
+	/* [r/w] */ void * _userContext)
+{
+	g_Callbacks.keyboardFunc = _callback;
+	g_cbUserContext.keyboardFuncUserContext = _userContext;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_Mouse)(
+	/* [ref] */ CALLBACK_MOUSE _callback,
+	/* [r] */ bool _includeMouseMove,
+	/* [r/w] */ void * _userContext)
+{
+	g_Callbacks.mouseFunc = _callback;
+	g_cbUserContext.notifyOnMouseMove = _includeMouseMove;
+	g_cbUserContext.mouseFuncUserContext = _userContext;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_MsgProc)(
+	/* [ref] */ CALLBACK_MSGPROC _callback,
+	/* [r/w] */ void * _userContext)
+{
+	g_Callbacks.windowMsgFunc = _callback;
+	g_cbUserContext.windowMsgFuncUserContext = _userContext;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_DeviceChanging)(
+	/* [ref] */ CALLBACK_MODIFY_DEVICE_SETTINGS _callback,
+	/* [r/w] */ void * _userContext)
+{
+	g_Callbacks.modifyDeviceSettingsFunc = _callback;
+	g_cbUserContext.modifyDeviceSettingsFuncUserContext = _userContext;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_DeviceRemoved)(
+	/* [ref] */ CALLBACK_DEVICE_REMOVED _callback,
+	/* [r/w] */ void * _userContext)
+{
+	g_Callbacks.deviceRemovedFunc = _callback;
+	g_cbUserContext.deviceRemovedFuncUserContext = _userContext;
+}
+
+// Direct3D 9 callbacks
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D9_DeviceAcceptable)(
+	/* [ref] */ CALLBACK_IS_D3D9_DEVICE_ACCEPTABLE _callback,
+	/* [r/w] */ void * _userContext)
+{
+	g_Callbacks.isD3D9DeviceAcceptableFunc = _callback;
+	g_cbUserContext.isD3D9DeviceAcceptableFuncUserContext = _userContext;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D9_DeviceCreated)(
+	/* [ref] */ CALLBACK_D3D9_DEVICE_CREATED _callback,
+	/* [r/w] */ void * _userContext)
+{
+	g_Callbacks.d3d9DeviceCreatedFunc = _callback;
+	g_cbUserContext.d3d9DeviceCreatedFuncUserContext = _userContext;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D9_DeviceReset)(
+	/* [ref] */ CALLBACK_D3D9_DEVICE_RESET _callback,
+	/* [r/w] */ void * _userContext)
+{
+	g_Callbacks.d3d9DeviceResetFunc = _callback;
+	g_cbUserContext.d3d9DeviceResetFuncUserContext = _userContext;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D9_DeviceLost)(
+	/* [ref] */ CALLBACK_D3D9_DEVICE_LOST _callback,
+	/* [r/w] */ void * _userContext)
+{
+	g_Callbacks.d3d9DeviceLostFunc = _callback;
+	g_cbUserContext.d3d9DeviceLostFuncUserContext = _userContext;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D9_DeviceDestroyed)(
+	/* [ref] */ CALLBACK_D3D9_DEVICE_DESTROYED _callback,
+	/* [r/w] */ void * _userContext)
+{
+	g_Callbacks.d3d9DeviceDestroyedFunc = _callback;
+	g_cbUserContext.d3d9DeviceDestroyedFuncUserContext = _userContext;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D9_FrameRender)(
+	/* [ref] */ CALLBACK_D3D9_FRAME_RENDER _callback,
+	/* [r/w] */ void * _userContext)
+{
+	g_Callbacks.d3d9FrameRenderFunc = _callback;
+	g_cbUserContext.d3d9FrameRenderFuncUserContext = _userContext;
+}
+
+// Direct3D 10 callbacks
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D10_DeviceAcceptable)(
+	/* [ref] */ CALLBACK_IS_D3D10_DEVICE_ACCEPTABLE _callback,
+	/* [r/w] */ void * _userContext)
+{
+	g_Callbacks.isD3D10DeviceAcceptableFunc = _callback;
+	g_cbUserContext.isD3D10DeviceAcceptableFuncUserContext = _userContext;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D10_DeviceCreated)(
+	/* [ref] */ CALLBACK_D3D10_DEVICE_CREATED _callback,
+	/* [r/w] */ void * _userContext)
+{
+	g_Callbacks.d3d10DeviceCreatedFunc = _callback;
+	g_cbUserContext.d3d10DeviceCreatedFuncUserContext = _userContext;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D10_SwapChainResized)(
+	/* [ref] */ CALLBACK_D3D10_SWAPCHAINRESIZED _callback,
+	/* [r/w] */ void * _userContext)
+{
+	g_Callbacks.d3d10SwapChainResizedFunc = _callback;
+	g_cbUserContext.d3d10SwapChainResizedFuncUserContext = _userContext;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D10_SwapChainReleasing)(
+	/* [ref] */ CALLBACK_D3D10_SWAPCHAINRELEASING _callback,
+	/* [r/w] */ void * _userContext)
+{
+	g_Callbacks.d3d10SwapChainReleasingFunc = _callback;
+	g_cbUserContext.d3d10SwapChainReleasingFuncUserContext = _userContext;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D10_DeviceDestroyed)(
+	/* [ref] */ CALLBACK_D3D10_DEVICE_DESTROYED _callback,
+	/* [r/w] */ void * _userContext)
+{
+	g_Callbacks.d3d10DeviceDestroyedFunc = _callback;
+	g_cbUserContext.d3d10DeviceDestroyedFuncUserContext = _userContext;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_REALIZE_FUNC_T(Direct3D, void, set_Callback_D3D10_FrameRender)(
+	/* [ref] */ CALLBACK_D3D10_FRAME_RENDER _callback,
+	/* [r/w] */ void * _userContext)
+{
+	g_Callbacks.d3d10FrameRenderFunc = _callback;
+	g_cbUserContext.d3d10FrameRenderFuncUserContext = _userContext;
 }

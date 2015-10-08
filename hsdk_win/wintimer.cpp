@@ -67,7 +67,7 @@ CLASS_REALIZE_FUNC_T(WINTimer, void, advance)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(WINTimer, double, getAbsoluteTime)(
+CLASS_REALIZE_FUNC_T(WINTimer, double, get_AbsoluteTime)(
 	/* [x] */ void)
 {
 	LARGE_INTEGER qwTime = { 0 };
@@ -77,7 +77,7 @@ CLASS_REALIZE_FUNC_T(WINTimer, double, getAbsoluteTime)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(WINTimer, double, getTime)(
+CLASS_REALIZE_FUNC_T(WINTimer, double, get_Time)(
 	/* [x] */ void)
 {
 	LARGE_INTEGER qwTime = get_AdjustedCurrentTime();
@@ -86,7 +86,7 @@ CLASS_REALIZE_FUNC_T(WINTimer, double, getTime)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(WINTimer, float, getElapsedTime)(
+CLASS_REALIZE_FUNC_T(WINTimer, float, get_ElapsedTime)(
 	/* [x] */ void)
 {
 	LARGE_INTEGER qwTime = get_AdjustedCurrentTime();
@@ -104,14 +104,14 @@ CLASS_REALIZE_FUNC_T(WINTimer, float, getElapsedTime)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_REALIZE_FUNC_T(WINTimer, void, getTimeValues)(
+CLASS_REALIZE_FUNC_T(WINTimer, void, get_TimeValues)(
 	/* [w] */ double * _fTime,
 	/* [w] */ double * _fAbsoluteTime,
 	/* [w] */ float * _fElapsedTime)
 {
 	LARGE_INTEGER qwTime = get_AdjustedCurrentTime();
 
-	float fElapsedTime = (float)((double)(qwTime.QuadPart - m_llLastElapsedTime) / (double)m_llQPFTicksPerSec);
+	float fElapsedTime = (float)((double)(qwTime.QuadPart - m_llLastElapsedTime) / (double)(m_llQPFTicksPerSec));
 	m_llLastElapsedTime = qwTime.QuadPart;
 
 	// Clamp the timer to non-negative values to ensure the timer is accurate.
@@ -126,8 +126,8 @@ CLASS_REALIZE_FUNC_T(WINTimer, void, getTimeValues)(
 		fElapsedTime = 0.0f;
 	}
 
-	(*_fAbsoluteTime) = qwTime.QuadPart / (double)m_llQPFTicksPerSec;
-	(*_fTime) = (qwTime.QuadPart - m_llBaseTime) / (double)m_llQPFTicksPerSec;
+	(*_fAbsoluteTime) = (double)(qwTime.QuadPart) / (double)(m_llQPFTicksPerSec);
+	(*_fTime) = (double)(qwTime.QuadPart - m_llBaseTime) / (double)(m_llQPFTicksPerSec);
 	(*_fElapsedTime) = fElapsedTime;
 }
 

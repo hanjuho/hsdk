@@ -152,9 +152,6 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\common.h">
       <Filter>헤더 파일\frame\direct3d</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d11model.h">
-      <Filter>헤더 파일\frame\direct3d</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\direct3d.h">
       <Filter>헤더 파일\frame\direct3d</Filter>
     </ClInclude>
