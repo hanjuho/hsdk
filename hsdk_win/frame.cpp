@@ -9,61 +9,56 @@ using namespace win::frame;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_CONSTRUCTOR(Frame, Frame)(
-	/* [r] */ HINSTANCE _hInstance,
-	/* [r] */ const wchar_t * _title,
-	/* [r] */ unsigned int _x,
-	/* [r] */ unsigned int _y,
-	/* [r] */ unsigned int _w,
-	/* [r] */ unsigned int _h)
-	: D3D11(L"", _hInstance, _title, _x, _y, _w, _h), m_inputEventHelper(this)
+// Grobal 
+//--------------------------------------------------------------------------------------
+direct3d::D3D10_Manager g_Manager;
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_CONSTRUCTOR(Frame, Frame)(void)
+: m_inputEventHelper(this)
 {
 	HRESULT hr;
-	if (FAILED(hr = Graphics::initialize()))
+	IF_FAILED(hr = Graphics::initialize(g_Manager))
 	{
 		throw hr;
 	}
-
-	set_X(float(_x));
-	set_Y(float(_y));
-	set_W(float(_w));
-	set_H(float(_h));
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_DESTRUCTOR(Frame, Frame)(void)
 {
-
+	g_Manager.destroy();
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Frame, void, update)(
 	/* [x] */ void)
 {
-	float rectangle[4] = {
-		0.0f,
-		0.0f,
-		get_W(),
-		get_H()
-	};
+		IF_FALSE(is_FullScreen())
+		{
+			// 윈도 사각형 재설정
+			if (SetWindowPos(
+				g_Manager.get_HWND_Focus(),
+				HWND_TOP,
+				(long)(get_X()),
+				(long)(get_Y()),
+				0,
+				0,
+				SWP_NOSIZE))
+			{
+				g_Manager.change_Monitor(true, (int)get_W(), (int)get_H());
+			}
+		}
 
 	// 상대적 좌표를 사용해서 연산하는 하위 component에게 맞추기 위해 윈도 실제 좌표와는 다르다.
-	m_D3D11Graphics.update_Panel(rectangle);
-
-	// 윈도 와이드 재설정
-	Graphics::set_Wide(rectangle);
-
-	// 윈도 사각형 재설정
-	SetWindowPos(
-		get_Hwnd(),
-		HWND_TOP,
-		(long)(get_X()),
-		(long)(get_Y()),
-		(long)(get_X() + get_W()),
-		(long)(get_Y() + get_H()),
-		SWP_SHOWWINDOW);
-
-	UpdateWindow(get_Hwnd());
+	if (m_D3D10Graphics)
+	{
+		m_D3D10Graphics->update({
+			0.0f,
+			0.0f,
+			get_W(),
+			get_H() });
+	}
 
 	// 하위 컴포넌트 갱신
 	std::hash_map<unsigned int, Component *>::iterator iter = m_Container.begin();
@@ -80,13 +75,7 @@ CLASS_IMPL_FUNC_T(Frame, void, render)(
 	/* [x] */ void)
 {
 	//
-	Graphics::shader_on();
-
-	//
 	Container::render();
-
-	//
-	Graphics::shader_off();
 }
 
 //--------------------------------------------------------------------------------------
@@ -97,6 +86,24 @@ CLASS_IMPL_FUNC_T(Frame, void, message_Proc)(
 {
 	switch (_uMsg)
 	{
+	case WM_MOVE:
+		break;
+	case WM_SIZE:
+	{
+					unsigned int width = LOWORD(_lParam);
+					unsigned int height = HIWORD(_lParam);
+
+					if (width != 0 && height != 0)
+					{
+						if (width != get_W() || height != get_H())
+						{
+							set_W((float)(width));
+							set_H((float)(height));
+							update();
+						}
+					}
+	}
+		return;
 	case WM_KEYDOWN:
 		if ((HIWORD(_lParam) & KF_REPEAT))
 		{
@@ -142,4 +149,34 @@ CLASS_IMPL_FUNC_T(Frame, void, message_Proc)(
 		m_inputEventHelper.onClick_Up(i::frame::i_Mouseable::WBUTTON, LOWORD(_lParam), HIWORD(_lParam));
 		return;
 	};
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC(Frame, set_Visible)(
+	/* [r] */ bool _visible)
+{
+	if (_visible)
+	{
+		ShowWindow(g_Manager.get_HWND_Focus(), SW_SHOW);
+	}
+	else
+	{
+		ShowWindow(g_Manager.get_HWND_Focus(), SW_HIDE);
+	}
+
+	return Container::set_Visible(_visible);
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Frame, void, set_FullScreen)(
+	/* [r] */ bool _full)
+{
+	g_Manager.change_Monitor(!_full, 0, 0);
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Frame, BOOL, is_FullScreen)(
+	/* [x] */ void)const
+{
+	return !g_Manager.is_Windowed();
 }

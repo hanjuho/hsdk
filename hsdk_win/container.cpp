@@ -69,7 +69,7 @@ CLASS_IMPL_FUNC(Container, remove_Component)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Container, BOOL, contain_Component)(
+CLASS_IMPL_FUNC_T(Container, bool, contain_Component)(
 	/* [r] */ i_Component * _component)const
 {
 	std::hash_map<unsigned int, Component *>::const_iterator iter =
@@ -105,7 +105,7 @@ CLASS_IMPL_FUNC(Container, get_Component)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Container, BOOL, event_chain)(
+CLASS_IMPL_FUNC_T(Container, bool, event_chain)(
 	/* [r] */ i_inputEventHelper * _eventhelper)
 {
 	if (_eventhelper->chain(this))
@@ -159,14 +159,6 @@ CLASS_IMPL_FUNC_T(Container, void, render)(
 			iter++;
 		}
 
-		m_D3D11Graphics.render_Panel();
+		m_D3D10Graphics->render();
 	}
-
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(Container, set_Layout)(
-	/* [x] */ void)
-{
-	return E_ACCESSDENIED;
 }

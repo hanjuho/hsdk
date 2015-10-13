@@ -102,6 +102,18 @@
     <ClCompile Include="direct3d.cpp">
       <Filter>소스 파일\frame\d3d11</Filter>
     </ClCompile>
+    <ClCompile Include="d3d10_manager.cpp">
+      <Filter>소스 파일\frame\d3d11</Filter>
+    </ClCompile>
+    <ClCompile Include="d3d10_mesh.cpp">
+      <Filter>소스 파일\frame\d3d11</Filter>
+    </ClCompile>
+    <ClCompile Include="d3d10_animation.cpp">
+      <Filter>소스 파일\frame\d3d11</Filter>
+    </ClCompile>
+    <ClCompile Include="d3d10_meshrenderer.cpp">
+      <Filter>소스 파일\frame\d3d11</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\component.h">
@@ -155,11 +167,23 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\direct3d.h">
       <Filter>헤더 파일\frame\direct3d</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\direct3doutside.h">
-      <Filter>헤더 파일\frame\direct3d</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\wintimer.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_manager.h">
+      <Filter>헤더 파일\frame\direct3d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_mesh.h">
+      <Filter>헤더 파일\frame\direct3d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_common.h">
+      <Filter>헤더 파일\frame\direct3d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\direct3d_outside.h">
+      <Filter>헤더 파일\frame\direct3d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_animation.h">
+      <Filter>헤더 파일\frame\direct3d</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

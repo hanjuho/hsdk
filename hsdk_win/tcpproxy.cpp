@@ -38,7 +38,7 @@ CLASS_IMPL_DESTRUCTOR(TCPProxy, TCPProxy)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(TCPProxy, send)(
-	/* [r] */ byte * _context,
+	/* [r] */ char * _context,
 	/* [r] */ unsigned int _offset,
 	/* [r] */ unsigned int _size)
 {
@@ -53,7 +53,7 @@ CLASS_IMPL_FUNC(TCPProxy, send)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(TCPProxy, receive)(
-	/* [w] */ byte * (&_context),
+	/* [w] */ char * (&_context),
 	/* [w] */ unsigned int (&_size))
 {
 	unsigned int buffer_len;

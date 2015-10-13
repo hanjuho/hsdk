@@ -24,7 +24,7 @@ CLASS_IMPL_DESTRUCTOR(inputEventHelper, inputEventHelper)(void)
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(inputEventHelper, BOOL, chain)(
+CLASS_IMPL_FUNC_T(inputEventHelper, bool, chain)(
 	/* [r] */ const i::frame::i_Component * _component)
 {
 	IF_FALSE(_component->is_Visible())

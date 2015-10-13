@@ -85,7 +85,7 @@ CLASS_IMPL_FUNC(TCPClient, disconnect)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(TCPClient, send)(
-	/* [r] */ byte * _context,
+	/* [r] */ char * _context,
 	/* [r] */ unsigned int _offset,
 	/* [r] */ unsigned int _size)
 {
@@ -94,7 +94,7 @@ CLASS_IMPL_FUNC(TCPClient, send)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(TCPClient, receive)(
-	/* [w] */ byte * (&_context),
+	/* [w] */ char * (&_context),
 	/* [w] */ unsigned int(&_size))
 {
 	return m_Proxy.receive(_context, _size);

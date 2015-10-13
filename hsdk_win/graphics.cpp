@@ -10,228 +10,219 @@ using namespace win::frame;
 using namespace direct3d;
 
 
-// grobal
-struct InputLayoutFormat
-{
-	XMFLOAT3 position;
-	XMFLOAT2 texcoord;
-};
+//--------------------------------------------------------------------------------------
+// Grobal declare function
+//--------------------------------------------------------------------------------------
 
+// 설명 : 
+DECL_FUNC_T(D3DCOLORVALUE, get_ColorToValue)(
+	/* [r] */ D3DCOLOR _color);
 
 //--------------------------------------------------------------------------------------
-AutoRelease<ID3D10RasterizerState> Graphics::CULL_BACK_RASTERIZER;
-AutoRelease<ID3D10DepthStencilState> Graphics::FRONT_CLIPPING_DEPTH;
-AutoRelease<ID3D10VertexShader> Graphics::VERTEX_SHADER;
-AutoRelease<ID3D10PixelShader> Graphics::PIXEL_SHADER;
-AutoRelease<ID3D10InputLayout> Graphics::INPUT_LAYOUT;
-AutoRelease<ID3D10Buffer> Graphics::VS_WIDE_CBUFFER;	
-AutoRelease<ID3D10Buffer> Graphics::VS_CLIP_CBUFFER;
+// Grobal D3D10 Variable
+//--------------------------------------------------------------------------------------
+
+// 설명 : 
+direct3d::D3D10_Manager * g_refManager;
+
+// 설명 : Effect used to render UI with D3D10
+AutoRelease<ID3D10Effect> g_D3D10Effect;
+
+// 설명 : Technique: RenderUI
+ID3D10EffectTechnique * g_D3D10TechRenderUI;
+
+// 설명 : Technique: RenderUI without texture
+ID3D10EffectTechnique * g_D3D10TechRenderUIUntex;
+
+// 설명 :
+ID3D10EffectShaderResourceVariable * g_D3D10SRV_Texture;
+
+// 설명 :
+AutoRelease<ID3D10InputLayout> g_D3D10inputLayout;
+
+//--------------------------------------------------------------------------------------
+AutoRelease<ID3D10RasterizerState> CULL_BACK_RASTERIZER;
+AutoRelease<ID3D10DepthStencilState> FRONT_CLIPPING_DEPTH;
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Graphics, initialize)(
-	/* [x] */ void)
+	/* [r] */ direct3d::D3D10_Manager & _manager)
 {
+	const char strUIEffectFile[] = \
+		"Texture2D g_Texture;"\
+		""\
+		"SamplerState Sampler"\
+		"{"\
+		"    Filter = MIN_MAG_MIP_LINEAR;"\
+		"    AddressU = Wrap;"\
+		"    AddressV = Wrap;"\
+		"};"\
+		""\
+		"BlendState UIBlend"\
+		"{"\
+		"    AlphaToCoverageEnable = FALSE;"\
+		"    BlendEnable[0] = TRUE;"\
+		"    SrcBlend = SRC_ALPHA;"\
+		"    DestBlend = INV_SRC_ALPHA;"\
+		"    BlendOp = ADD;"\
+		"    SrcBlendAlpha = ONE;"\
+		"    DestBlendAlpha = ZERO;"\
+		"    BlendOpAlpha = ADD;"\
+		"    RenderTargetWriteMask[0] = 0x0F;"\
+		"};"\
+		""\
+		"BlendState NoBlending"\
+		"{"\
+		"    BlendEnable[0] = FALSE;"\
+		"    RenderTargetWriteMask[0] = 0x0F;"\
+		"};"\
+		""\
+		"DepthStencilState DisableDepth"\
+		"{"\
+		"    DepthEnable = false;"\
+		"};"\
+		"DepthStencilState EnableDepth"\
+		"{"\
+		"    DepthEnable = true;"\
+		"};"\
+		"struct VS_OUTPUT"\
+		"{"\
+		"    float4 Pos : SV_POSITION;"\
+		"    float4 Dif : COLOR;"\
+		"    float2 Tex : TEXCOORD;"\
+		"};"\
+		""\
+		"VS_OUTPUT VS( float3 vPos : POSITION,"\
+		"              float4 Dif : COLOR,"\
+		"              float2 vTexCoord0 : TEXCOORD )"\
+		"{"\
+		"    VS_OUTPUT Output;"\
+		""\
+		"    Output.Pos = float4( vPos, 1.0f );"\
+		"    Output.Dif = Dif;"\
+		"    Output.Tex = vTexCoord0;"\
+		""\
+		"    return Output;"\
+		"}"\
+		""\
+		"float4 PS( VS_OUTPUT In ) : SV_Target"\
+		"{"\
+		"    return g_Texture.Sample( Sampler, In.Tex ) * In.Dif;"\
+		"}"\
+		""\
+		"float4 PSUntex( VS_OUTPUT In ) : SV_Target"\
+		"{"\
+		"    return In.Dif;"\
+		"}"\
+		""\
+		"technique10 RenderUI"\
+		"{"\
+		"    pass P0"\
+		"    {"\
+		"        SetVertexShader( CompileShader( vs_4_0, VS() ) );"\
+		"        SetGeometryShader( NULL );"\
+		"        SetPixelShader( CompileShader( ps_4_0, PS() ) );"\
+		"        SetDepthStencilState( DisableDepth, 0 );"\
+		"        SetBlendState( UIBlend, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );"\
+		"    }"\
+		"}"\
+		"technique10 RenderUIUntex"\
+		"{"\
+		"    pass P0"\
+		"    {"\
+		"        SetVertexShader( CompileShader( vs_4_0, VS() ) );"\
+		"        SetGeometryShader( NULL );"\
+		"        SetPixelShader( CompileShader( ps_4_0, PSUntex() ) );"\
+		"        SetDepthStencilState( DisableDepth, 0 );"\
+		"        SetBlendState( UIBlend, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );"\
+		"    }"\
+		"}"\
+		"technique10 RestoreState"\
+		"{"\
+		"    pass P0"\
+		"    {"\
+		"        SetDepthStencilState( EnableDepth, 0 );"\
+		"        SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );"\
+		"    }"\
+		"}";
+
+	const unsigned int UIEffectFileSize = sizeof(strUIEffectFile);
+
+	// Create the UI effect object
 	HRESULT hr;
-
-	// rasterizer state
-	D3D10_RASTERIZER_DESC rasterDesc;
-
-	// Setup the raster description which will determine how and what polygons will be drawn.
-	rasterDesc.AntialiasedLineEnable = false;
-	rasterDesc.CullMode = D3D11_CULL_BACK;
-	rasterDesc.DepthBias = 0;
-	rasterDesc.DepthBiasClamp = 0.0f;
-	rasterDesc.DepthClipEnable = true;
-	rasterDesc.FillMode = D3D11_FILL_SOLID;
-	rasterDesc.FrontCounterClockwise = false;
-	rasterDesc.MultisampleEnable = false;
-	rasterDesc.ScissorEnable = false;
-	rasterDesc.SlopeScaledDepthBias = 0.0f;
-
-	// Create the rasterizer state from the description we just filled out.
-	IF_FAILED(hr = D3D11::DEVICE->CreateRasterizerState(
-		&rasterDesc,
-		&CULL_BACK_RASTERIZER))
+	IF_FAILED(hr = D3DX10CreateEffectFromMemory(
+		strUIEffectFile,
+		UIEffectFileSize,
+		NULL,
+		NULL,
+		NULL,
+		"fx_4_0",
+		D3D10_SHADER_ENABLE_STRICTNESS,
+		0,
+		_manager.get_D3D10_Device(),
+		NULL,
+		NULL,
+		&g_D3D10Effect,
+		NULL,
+		NULL))
 	{
 		return hr;
 	}
 
-	// depth state
-	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
+	g_D3D10TechRenderUI =
+		g_D3D10Effect->GetTechniqueByName("RenderUI");
 
-	// Clear the second depth stencil state before setting the parameters.
-	ZeroMemory(&depthStencilDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
+	g_D3D10TechRenderUIUntex =
+		g_D3D10Effect->GetTechniqueByName("RenderUIUntex");
 
-	// Set up the description of the stencil state.
-	depthStencilDesc.DepthEnable = false;
-	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	g_D3D10SRV_Texture =
+		g_D3D10Effect->GetVariableByName("g_Texture")->AsShaderResource();
 
-	depthStencilDesc.StencilEnable = true;
-	depthStencilDesc.StencilReadMask = 0xFF;
-	depthStencilDesc.StencilWriteMask = 0xFF;
-
-	// Stencil operations if pixel is front-facing.
-	depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-	depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-	// Stencil operations if pixel is back-facing.
-	depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
-	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-	// Create the state using the device.
-	IF_FAILED(hr = D3D11::DEVICE->CreateDepthStencilState(
-		&depthStencilDesc,
-		&FRONT_CLIPPING_DEPTH))
+	D3D10_PASS_DESC PassDesc;
+	IF_FAILED(hr = g_D3D10TechRenderUI->GetPassByIndex(0)->GetDesc(&PassDesc))
 	{
 		return hr;
 	}
 
-	// vs shader
-	IF_FAILED(hr = D3D11::create_VertexShaderForHeader(
-		*(&VERTEX_SHADER),
-		(const char *)(s_vs_ui),
-		sizeof(s_vs_ui)))
+	// Create input layout
+	const D3D10_INPUT_ELEMENT_DESC layout[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D10_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D10_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 28, D3D10_INPUT_PER_VERTEX_DATA, 0 },
+	};
+
+	IF_FAILED(hr = _manager.get_D3D10_Device()->CreateInputLayout(
+		layout,
+		3,
+		PassDesc.pIAInputSignature,
+		PassDesc.IAInputSignatureSize,
+		&g_D3D10inputLayout))
 	{
 		return hr;
 	}
 
-	// vs input layout
-	D3D11::D3D11inputEachFormat inputfomats[2];
+	g_refManager = &_manager;
 
-	inputfomats[0].offset = offsetof(InputLayoutFormat, position);
-	inputfomats[0].format = DXGI_FORMAT_R32G32B32_FLOAT;
-	inputfomats[0].semantic = "POSITION";
-
-	inputfomats[1].offset = offsetof(InputLayoutFormat, texcoord);
-	inputfomats[1].format = DXGI_FORMAT_R32G32_FLOAT;
-	inputfomats[1].semantic = "TEXCOORD";
-
-	IF_FAILED(hr = D3D11::create_inputLayoutForHeader(
-		*(&INPUT_LAYOUT),
-		(const char *)(s_vs_ui),
-		sizeof(s_vs_ui),
-		inputfomats,
-		2,
-		D3D11_INPUT_PER_VERTEX_DATA))
-	{
-		return hr;
-	}
-
-	// vs cbuffer
-	IF_FAILED(hr = D3D11::create_ContantBuffers(
-		*(&VS_WIDE_CBUFFER),
-		sizeof(XMFLOAT4),
-		D3D11_USAGE_DEFAULT))
-	{
-		return hr;
-	}
-
-	// ps cbuffer
-	IF_FAILED(hr = D3D11::create_ContantBuffers(
-		*(&VS_CLIP_CBUFFER),
-		sizeof(XMFLOAT4),
-		D3D11_USAGE_DEFAULT))
-	{
-		return hr;
-	}
-
-	// pixel
-	IF_FAILED(hr = D3D11::create_PixelShaderForHeader(
-		*(&PIXEL_SHADER),
-		(const char *)(s_ps_ui),
-		sizeof(s_ps_ui)))
-	{
-		return hr;
-	}
-
-	return S_OK;
+	return hr;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Graphics, void, destroy)(
 	/* [x] */ void)
 {
-	CULL_BACK_RASTERIZER.~AutoRelease();
-	FRONT_CLIPPING_DEPTH.~AutoRelease();
-
-	VS_WIDE_CBUFFER.~AutoRelease();
-	VS_CLIP_CBUFFER.~AutoRelease();
-
-	INPUT_LAYOUT.~AutoRelease();
-
-	VERTEX_SHADER.~AutoRelease();
-	PIXEL_SHADER.~AutoRelease();
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Graphics, void, shader_on)(
-	/* [x] */ void)
-{
-	D3D11::CONTEXT->OMSetDepthStencilState(FRONT_CLIPPING_DEPTH, 0);
-	D3D11::CONTEXT->RSSetState(CULL_BACK_RASTERIZER);
-
-	D3D11::CONTEXT->VSSetShader(VERTEX_SHADER, nullptr, 0);
-	D3D11::CONTEXT->PSSetShader(PIXEL_SHADER, nullptr, 0);
-
-	D3D11::CONTEXT->IASetInputLayout(INPUT_LAYOUT);
-
-	D3D11::CONTEXT->VSSetConstantBuffers(0, 1, &VS_WIDE_CBUFFER);
-	D3D11::CONTEXT->VSSetConstantBuffers(1, 1, &VS_CLIP_CBUFFER);
-
-	D3D11::CONTEXT->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Graphics, void, shader_off)(
-	/* [x] */ void)
-{
-	D3D11::CONTEXT->OMSetDepthStencilState(nullptr, 0);
-	D3D11::CONTEXT->RSSetState(nullptr);
-
-	D3D11::CONTEXT->VSSetShader(nullptr, nullptr, 0);
-	D3D11::CONTEXT->PSSetShader(nullptr, nullptr, 0);
-
-	D3D11::CONTEXT->IASetInputLayout(nullptr);
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Graphics, void, set_Wide)(
-	/* [r] */ const float(&_rectangle)[4])
-{
-	D3D11::CONTEXT->UpdateSubresource(VS_WIDE_CBUFFER, 0, nullptr, _rectangle, 0, 0);
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Graphics, void, set_Clip)(
-	/* [r] */ const float(&_clip)[4])
-{
-	D3D11::CONTEXT->UpdateSubresource(VS_CLIP_CBUFFER, 0, nullptr, _clip, 0, 0);
+	g_D3D10inputLayout.~AutoRelease();
+	g_D3D10Effect.~AutoRelease();
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(Graphics, Graphics)(void)
-: m_imageW(1.0f), m_imageH(1.0f), m_Custom(nullptr), m_Sampler(nullptr)
+: m_imageW(1.0f), m_imageH(1.0f), my_refCustom(nullptr), my_refSampler(nullptr)
 {
 	m_uvRectangle[0] = 0.0f;
 	m_uvRectangle[1] = 0.0f;
 	m_uvRectangle[2] = 1.0f;
 	m_uvRectangle[3] = 1.0f;
-
-	HRESULT hr;
-	IF_FAILED(hr = D3D11::create_Panel(*(&m_Panel), {
-		XMFLOAT2(0.0f, 0.0f),
-		XMFLOAT2(1.0f, 0.0f),
-		XMFLOAT2(1.0f, 1.0f),
-		XMFLOAT2(0.0f, 1.0f)
-	}, D3D11_USAGE_DYNAMIC))
-	{
-		throw hr;
-	}
 }
 
 //--------------------------------------------------------------------------------------
@@ -244,8 +235,8 @@ CLASS_IMPL_DESTRUCTOR(Graphics, Graphics)(void)
 CLASS_IMPL_FUNC_T(Graphics, void, set_image)(
 	/* [r] */ const wchar_t * _filename)
 {
-	D3D11::get_Sampler(m_Sampler, D3D11::SAMPLER_DEFAULT);
-	D3D11::get_Texture(m_Custom, _filename);
+	g_refManager->get_Sampler(&my_refSampler, direct3d::SAMPLER_DEFAULT);
+	g_refManager->get_Texture(&my_refCustom, _filename);
 }
 
 //--------------------------------------------------------------------------------------
@@ -279,56 +270,90 @@ CLASS_IMPL_FUNC_T(Graphics, void, set_Text)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Graphics, void, update_Panel)(
+CLASS_IMPL_FUNC_T(Graphics, void, update)(
 	/* [r] */ const float(&_rectangle)[4])
 {
-	// 버텍스 버퍼 갱신
-	D3D11_MAPPED_SUBRESOURCE map_subresource;
-	IF_SUCCEEDED(D3D11::CONTEXT->Map(m_Panel, 0, D3D11_MAP_WRITE_DISCARD, 0, &map_subresource))
+	IF_INVALID(my_Panel)
 	{
-		D3D11::panel_UV * dataPtr;
-		dataPtr = (D3D11::panel_UV*)map_subresource.pData;
-		if (dataPtr)
-		{
-			float uv[4] = {
-				m_uvRectangle[0] / m_imageW,
-				m_uvRectangle[1] / m_imageH,
-				(m_uvRectangle[0] + m_uvRectangle[2]) / m_imageW,
-				(m_uvRectangle[1] + m_uvRectangle[3]) / m_imageH
-			};
+		g_refManager->create_Panel(
+			&my_Panel,
+			{ XMFLOAT2(0.0f, 0.0f),
+			XMFLOAT2(0.0f, 0.0f),
+			XMFLOAT2(0.0f, 0.0f),
+			XMFLOAT2(0.0f, 0.0f) },
+			D3D10_USAGE_DYNAMIC);
+	}
 
-			float form[4] = {
-				_rectangle[0],
-				_rectangle[1],
-				_rectangle[0] + _rectangle[2],
-				_rectangle[1] + _rectangle[3],
-			};
+	// Convert the rect from screen coordinates to clip space coordinates.
+	float Left, Right, Top, Bottom;
 
-			dataPtr[0].pos = XMFLOAT3(form[0], form[1], 0.0f);
-			dataPtr[0].tex = XMFLOAT2(uv[0], uv[1]);
+	Left = ((_rectangle[0] / g_refManager->get_Width()) * 2.0f) - 1.0f;
+	Right = ((_rectangle[2] / g_refManager->get_Width()) * 2.0f) - 1.0f;
 
-			dataPtr[1].pos = XMFLOAT3(form[2], form[1], 0.0f);
-			dataPtr[1].tex = XMFLOAT2(uv[2], uv[1]);
+	Top = 1.0f - ((_rectangle[1] / g_refManager->get_Height()) * 2.0f);
+	Bottom = 1.0f - ((_rectangle[3] / g_refManager->get_Height()) * 2.0f);
 
-			dataPtr[2].pos = XMFLOAT3(form[2], form[3], 0.0f);
-			dataPtr[2].tex = XMFLOAT2(uv[2], uv[3]);
+	float uv[4] = {
+		m_uvRectangle[0] / m_imageW,
+		m_uvRectangle[1] / m_imageH,
+		(m_uvRectangle[0] + m_uvRectangle[2]) / m_imageW,
+		(m_uvRectangle[1] + m_uvRectangle[3]) / m_imageH
+	};
+	
+	D3D10_SCREEN_VERTEX vertices[4] =
+	{
+		{ Left, Top, 0.5f, get_ColorToValue(0), uv[0], uv[1] },
+		{ Right, Top, 0.5f, get_ColorToValue(0), uv[2], uv[1] },
+		{ Left, Bottom, 0.5f, get_ColorToValue(0), uv[0], uv[3] },
+		{ Right, Bottom, 0.5f, get_ColorToValue(0), uv[2], uv[3] },
+	};
 
-			dataPtr[3].pos = XMFLOAT3(form[0], form[3], 0.0f);
-			dataPtr[3].tex = XMFLOAT2(uv[0], uv[3]);
-		}
-
-		D3D11::CONTEXT->Unmap(m_Panel, 0);
+	D3D10_SCREEN_VERTEX* pVB;
+	if (SUCCEEDED(my_Panel->Map(D3D10_MAP_WRITE_DISCARD, 0, (void**)&pVB)))
+	{
+		CopyMemory(pVB, vertices, sizeof(vertices));
+		my_Panel->Unmap();
 	}
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Graphics, void, render_Panel)(
+CLASS_IMPL_FUNC_T(Graphics, void, render)(
 	/* [x] */ void)
 {
-	if (m_Custom)
+	ID3D10Device * const device =
+		g_refManager->get_D3D10_Device();
+
+	// Set the quad VB as current
+	UINT stride = sizeof(D3D10_SCREEN_VERTEX);
+	UINT offset = 0;
+
+	device->IASetVertexBuffers(0, 1, &my_Panel, &stride, &offset);
+	device->IASetInputLayout(g_D3D10inputLayout);
+	device->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+	// Draw dialog background
+	D3D10_TECHNIQUE_DESC techDesc;
+	g_D3D10TechRenderUIUntex->GetDesc(&techDesc);
+	for (unsigned int index = 0; index < techDesc.Passes; ++index)
 	{
-		D3D11::CONTEXT->PSSetShaderResources(0, 1, &m_Custom);
-		D3D11::CONTEXT->PSSetSamplers(0, 1, &m_Sampler);
-		D3D11::render_Panel(m_Panel);
+		g_D3D10TechRenderUIUntex->GetPassByIndex(index)->Apply(0);
+		device->Draw(4, 0);
 	}
+}
+
+//--------------------------------------------------------------------------------------
+// Grobal implements function
+//--------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------
+IMPL_FUNC_T(D3DCOLORVALUE, get_ColorToValue)(
+	/* [r] */ D3DCOLOR _color)
+{
+	D3DCOLORVALUE value = {
+		((_color >> 16) & 0xFF) / 255.0f,
+		((_color >> 8) & 0xFF) / 255.0f,
+		(_color & 0xFF) / 255.0f,
+		((_color >> 24) & 0xFF) / 255.0f };
+
+	return value;
 }

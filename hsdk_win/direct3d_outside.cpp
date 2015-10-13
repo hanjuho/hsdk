@@ -1,4 +1,4 @@
-#include <hsdk/win/frame/direct3d/direct3doutside.h>
+#include <hsdk/win/frame/direct3d/direct3d_outside.h>
 
 
 
@@ -364,4 +364,11 @@ CLASS_IMPL_FUNC_T(Direct3D_Outside, unsigned int, get_OutputOrdinalFromMonitor)(
 	}
 
 	return -1;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Direct3D_Outside, void, destroy)(
+	/* [x] */ void)
+{
+	g_Videos.clear();
 }

@@ -9,12 +9,12 @@ using namespace win::frame;
 
 
 // grobal
-unsigned int component_id = 0;
+volatile unsigned int component_id = 0;
 
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(Component, Component)(void)
-: my_id(component_id++), my_Parent(nullptr), my_AbsX(0.0f), my_AbsY(0.0f), my_Visible(true)
+: my_id(component_id++), my_Parent(nullptr), my_AbsX(0.0f), my_AbsY(0.0f), my_Visible(false)
 {
 	my_Rectangle[0] = 0.0f;
 	my_Rectangle[1] = 0.0f;
@@ -39,7 +39,12 @@ CLASS_IMPL_FUNC_T(Component, i_Component *, parent)(
 CLASS_IMPL_FUNC_T(Component, i_Graphics *, graphics)(
 	/* [x] */ void)const
 {
-	return (i_Graphics *)&m_D3D11Graphics;
+	IF_INVALID(m_D3D10Graphics)
+	{
+		memcpy((void*)&m_D3D10Graphics, new Graphics(), sizeof(int));
+	}
+
+	return m_D3D10Graphics;
 }
 
 //--------------------------------------------------------------------------------------
@@ -71,7 +76,7 @@ CLASS_IMPL_FUNC(Component, remove_Component)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Component, BOOL, contain_Component)(
+CLASS_IMPL_FUNC_T(Component, bool, contain_Component)(
 	/* [r] */ i_Component * _component)const
 {
 	return false;
@@ -150,23 +155,30 @@ CLASS_IMPL_FUNC_T(Component, float, get_H)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Component, set_Visible)(
-	/* [r] */ BOOL _visible)
+	/* [r] */ bool _visible)
 {
-	BOOL b = my_Visible;
-	my_Visible = _visible;
+	if (m_D3D10Graphics)
+	{
+		bool b = my_Visible;
+		my_Visible = _visible;
 
-	return b;
+		return S_OK;
+	}
+	else
+	{
+		return E_ABORT;
+	}
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Component, BOOL, is_Visible)(
+CLASS_IMPL_FUNC_T(Component, bool, is_Visible)(
 	/* [x] */ void)const
 {
 	return my_Visible;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Component, BOOL, event_chain)(
+CLASS_IMPL_FUNC_T(Component, bool, event_chain)(
 	/* [r] */ i_inputEventHelper * _eventhelper)
 {
 	return _eventhelper->chain(this);
@@ -182,11 +194,14 @@ CLASS_IMPL_FUNC_T(Component, void, update)(
 		my_AbsY = my_Parent->get_AbsY() + get_Y();
 	}
 
-	m_D3D11Graphics.update_Panel({
-		my_AbsX,
-		my_AbsY,
-		my_Rectangle[2],
-		my_Rectangle[3] });
+	if(m_D3D10Graphics)
+	{
+		m_D3D10Graphics->update({
+			my_AbsX,
+			my_AbsY,
+			my_AbsX + my_Rectangle[2],
+			my_AbsY + my_Rectangle[3] });
+	}
 }
 
 //--------------------------------------------------------------------------------------
@@ -195,7 +210,7 @@ CLASS_IMPL_FUNC_T(Component, void, render)(
 {
 	if (is_Visible())
 	{
-		m_D3D11Graphics.render_Panel();
+		m_D3D10Graphics->render();
 	}
 }
 
