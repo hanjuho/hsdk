@@ -185,6 +185,9 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_animation.h">
       <Filter>헤더 파일\frame\direct3d</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_meshrenderer.h">
+      <Filter>헤더 파일\frame\direct3d</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\shader\common.hlsli">
@@ -192,6 +195,9 @@
     </None>
     <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\common.inl">
       <Filter>헤더 파일\frame\direct3d</Filter>
+    </None>
+    <None Include="shader\meshrenderer.fx">
+      <Filter>리소스 파일</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

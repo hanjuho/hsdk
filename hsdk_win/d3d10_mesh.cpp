@@ -21,7 +21,8 @@ CLASS_IMPL_CONSTRUCTOR(D3D10_Mesh, D3D10_Mesh)(
 	my_refCallback_Create_indexBuffer(_callback_Create_indexBuffer),
 	my_refUserContext(_userContext),
 	my_refD3D10Device(nullptr),
-	my_MeshPath(L"")
+	my_MeshPath(L""),
+	my_LoadLock(false)
 {
 
 }
@@ -39,14 +40,14 @@ CLASS_IMPL_FUNC_T(D3D10_Mesh, void, destroy)(
 	my_MeshPath = L"";
 	my_Meshs.clear();
 	my_MeshPath.clear();
+	my_LoadLock = false;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_Mesh, setup)(
 	/* [r] */ ID3D10Device * _device,
 	/* [r] */ unsigned int _numOfMaterials,
-	/* [r] */ unsigned int _numOfMeshs,
-	/* [r] */ unsigned int _numOfFrames)
+	/* [r] */ unsigned int _numOfMeshs)
 {
 	if (my_Meshs.size())
 	{
@@ -56,6 +57,8 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup)(
 	my_refD3D10Device = _device;
 	my_Meshs.resize(_numOfMeshs);
 	my_Materials.resize(_numOfMaterials);
+
+	return S_OK;
 }
 
 //--------------------------------------------------------------------------------------
@@ -69,7 +72,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup_Texture)(
 		return E_ACCESSDENIED;
 	}
 
-	MY_MATERIAL & material =
+	D3D10MY_MATERIAL & material =
 		my_Materials[_indexOfMaterial];
 
 	if (my_refCallback_Create_Texture_FromFile)
@@ -117,7 +120,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup_Material)(
 		return E_ACCESSDENIED;
 	}
 
-	MY_MATERIAL & material =
+	D3D10MY_MATERIAL & material =
 		my_Materials[_indexOfMaterial];
 
 	switch (_attribute)
@@ -156,13 +159,15 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup_Mesh)(
 		return E_ACCESSDENIED;
 	}
 
-	MY_MESH & mesh =
+	D3D10MY_MESH & mesh =
 		my_Meshs[_indexOfMesh];
 
 	mesh.render_Descs.resize(_numOfRenderDescs);
 	mesh.vertexbuffers_Strides.resize(_numOfVertexBuffers);
 	mesh.vertexbuffers_Offsets.resize(_numOfVertexBuffers);
 	mesh.vertexbuffers.resize(_numOfVertexBuffers);
+
+	return S_OK;
 }
 
 //--------------------------------------------------------------------------------------
@@ -170,10 +175,10 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup_RenderDesc)(
 	/* [r] */ unsigned int _indexOfMesh,
 	/* [r] */ unsigned int _indexOfRenderDesc,
 	/* [r] */ unsigned int _material_id,
-	/* [r] */ unsigned long long _indexStart,
-	/* [r] */ unsigned long long _indexCount,
-	/* [r] */ unsigned long long _vertexbufferStart,
-	/* [r] */ unsigned long long _vertexbufferCount,
+	/* [r] */ unsigned int _indexStart,
+	/* [r] */ unsigned int _indexCount,
+	/* [r] */ unsigned int _vertexbufferStart,
+	/* [r] */ unsigned int _vertexbufferCount,
 	/* [r] */ D3D10_PRIMITIVE_TOPOLOGY _primitiveType)
 {
 	IF_FALSE(_indexOfMesh < my_Meshs.size())
@@ -186,7 +191,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup_RenderDesc)(
 		return E_ACCESSDENIED;
 	}
 
-	MY_RENDER_DESC & render_Desc =
+	D3D10MY_RENDER_DESC & render_Desc =
 		my_Meshs[_indexOfMesh].render_Descs[_indexOfRenderDesc];
 
 	render_Desc.material_id = _material_id;
@@ -195,6 +200,8 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup_RenderDesc)(
 	render_Desc.vertexbufferStart = _vertexbufferStart;
 	render_Desc.vertexbufferCount = _vertexbufferCount;
 	render_Desc.primitiveType = _primitiveType;
+
+	return S_OK;
 }
 
 //--------------------------------------------------------------------------------------
@@ -217,7 +224,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup_Vertexbuffer)(
 		return E_ACCESSDENIED;
 	}
 
-	MY_MESH & mesh =
+	D3D10MY_MESH & mesh =
 		my_Meshs[_indexOfMesh];
 
 	AutoRelease<ID3D10Buffer> & vb =
@@ -269,7 +276,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup_indexbuffer)(
 		return E_ACCESSDENIED;
 	}
 
-	MY_INDEXBUFFER & ib =
+	D3D10MY_INDEXBUFFER & ib =
 		my_Meshs[_indexOfMesh].indexbuffer;
 
 	HRESULT hr = E_FAIL;
@@ -328,7 +335,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, userSet_MeshBoundingBox)(
 		return E_ACCESSDENIED;
 	}
 
-	MY_MESH & mesh =
+	D3D10MY_MESH & mesh =
 		my_Meshs[_indexOfMesh];
 
 	mesh.boundingBoxCenter = _center;
@@ -357,17 +364,17 @@ CLASS_IMPL_FUNC(D3D10_Mesh, userSet_MaterialName)(
 //--------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_Mesh, set_Loading)(
-	/* [x] */ bool _loaging)
+CLASS_IMPL_FUNC(D3D10_Mesh, loadLock)(
+	/* [x] */ void)
 {
-
+	return InterlockedCompareExchange(&my_LoadLock, TRUE, FALSE) == TRUE ? E_ACCESSDENIED : S_OK;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(D3D10_Mesh, bool, is_Load)(
+CLASS_IMPL_FUNC_T(D3D10_Mesh, long, is_Load)(
 	/* [x] */ void)const
 {
-
+	return my_LoadLock;
 }
 
 //--------------------------------------------------------------------------------------
@@ -392,14 +399,14 @@ CLASS_IMPL_FUNC_T(D3D10_Mesh, unsigned int, get_NumMaterials)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(D3D10_Mesh, const MY_MATERIAL &, get_Material)(
+CLASS_IMPL_FUNC_T(D3D10_Mesh, const D3D10MY_MATERIAL &, get_Material)(
 	/* [r] */ unsigned int _indexOfMaterial)const
 {
 	return my_Materials[_indexOfMaterial];
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(D3D10_Mesh, const MY_MESH &, get_Mesh)(
+CLASS_IMPL_FUNC_T(D3D10_Mesh, const D3D10MY_MESH &, get_Mesh)(
 	/* [r] */ unsigned int _indexOfMesh)const
 {
 	return my_Meshs[_indexOfMesh];

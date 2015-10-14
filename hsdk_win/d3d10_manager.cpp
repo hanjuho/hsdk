@@ -7,31 +7,130 @@ using namespace direct3d;
 
 
 //--------------------------------------------------------------------------------------
-// Grobal function declare
-//--------------------------------------------------------------------------------------
-
-/*
-설명 : Tries to find the location of a SDK media file cchDest is the size in WCHARs of strDestPath.
-Be careful not to pass in sizeof(strDest) on UNICODE builds.
-*/
-template<unsigned int T> DECL_FUNC(find_Media_FileCch)(
-	/* [w] */ wchar_t(&_strDestPath)[T],
-	/* [r] */ int _cchDest,
-	/* [r] */ const wchar_t * _strFilename);
-
-/*
-설명: Search parent directories starting at strStartAt, and appending strLeafName at each parent directory.
-It stops at the root directory.
-*/
-template<unsigned int T> DECL_FUNC_T(bool, find_Media_SearchParentDirs)(
-	/* [w] */ wchar_t(&_strDestPath)[T],
-	/* [r] */ int _cchSearch,
-	/* [r] */ wchar_t * _strStartAt,
-	/* [r] */ wchar_t * _strLeafName);
-
-//--------------------------------------------------------------------------------------
 // D3D10_Manager impl
 //--------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC(D3D10_Manager, create_MeshSkyBox)(
+	/* [w] */ D3D10_Mesh & _mesh,
+	/* [r] */ float _size)
+{
+	_mesh.destroy();
+
+	HRESULT hr;
+
+	IF_FAILED(hr = _mesh.setup(get_D3D10_Device(), 6, 1))
+	{
+		return hr;
+	}
+
+	IF_FAILED(hr = _mesh.setup_Mesh(0, 6, 1))
+	{
+		return hr;
+	}
+
+	// Build box
+	D3D10_SkyFormat vBox[] = {
+		// fill in the front face vertex data
+		{ { -_size, -_size, -_size }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 0.0f } },
+		{ { -_size, _size, -_size }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 1.0f } },
+		{ { _size, _size, -_size }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 1.0f } },
+		{ { _size, -_size, -_size }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 0.0f } },
+		// fill in the back face vertex data
+		{ { -_size, -_size, _size }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
+		{ { _size, -_size, _size }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } },
+		{ { _size, _size, _size }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
+		{ { -_size, _size, _size }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } },
+		// fill in the top face vertex data
+		{ { -_size, _size, -_size }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f } },
+		{ { -_size, _size, _size }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 1.0f } },
+		{ { _size, _size, _size }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 1.0f } },
+		{ { _size, _size, -_size }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
+		// fill in the bottom face vertex data
+		{ { -_size, -_size, -_size }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 0.0f } },
+		{ { _size, -_size, -_size }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 1.0f } },
+		{ { _size, -_size, _size }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 1.0f } },
+		{ { -_size, -_size, _size }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 0.0f } },
+		// fill in the left face vertex data
+		{ { -_size, -_size, _size }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f } },
+		{ { -_size, _size, _size }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f } },
+		{ { -_size, _size, -_size }, { -1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } },
+		{ { -_size, -_size, -_size }, { -1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f } },
+		// fill in the right face vertex data
+		{ { _size, -_size, -_size }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f } },
+		{ { _size, _size, -_size }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f } },
+		{ { _size, _size, _size }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } },
+		{ { _size, -_size, _size }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f } } };
+
+	// Vertex Buffer
+	D3D10_BUFFER_DESC vBufferDesc;
+	vBufferDesc.ByteWidth = sizeof(vBox);
+	vBufferDesc.Usage = D3D10_USAGE_DEFAULT;
+	vBufferDesc.BindFlags = D3D10_BIND_VERTEX_BUFFER;
+	vBufferDesc.CPUAccessFlags = 0;
+	vBufferDesc.MiscFlags = 0;
+
+	IF_FAILED(hr = _mesh.setup_Vertexbuffer(
+		0, 0,
+		vBufferDesc,
+		vBox,
+		sizeof(vBox),
+		0,
+		sizeof(vBox) / sizeof(D3D10_SkyFormat)))
+	{
+		return hr;
+	}
+
+	unsigned short iBox[] = {
+		// fill in the front face index data
+		0, 1, 2,
+		0, 2, 3,
+		// fill in the back face index data
+		4, 5, 6,
+		4, 6, 7,
+		// fill in the top face index data
+		8, 9, 10,
+		8, 10, 11,
+		// fill in the bottom face index data
+		12, 13, 14,
+		12, 14, 15,
+		// fill in the left face index data
+		16, 17, 18,
+		16, 18, 19,
+		// fill in the right face index data
+		20, 21, 22,
+		20, 22, 23 };
+
+	// index Buffer
+	D3D10_BUFFER_DESC iBufferDesc;
+	iBufferDesc.ByteWidth = sizeof(iBox);
+	iBufferDesc.Usage = D3D10_USAGE_DEFAULT;
+	iBufferDesc.BindFlags = D3D10_BIND_INDEX_BUFFER;
+	iBufferDesc.CPUAccessFlags = 0;
+	iBufferDesc.MiscFlags = 0;
+
+	IF_FAILED(hr = _mesh.setup_indexbuffer(
+		0,
+		iBufferDesc,
+		iBox,
+		DXGI_FORMAT_R16_UINT,
+		sizeof(iBox) / sizeof(unsigned short)))
+	{
+		return hr;
+	}
+
+	for (unsigned int index = 0; index < 6; ++index)
+	{
+		IF_FAILED(hr = _mesh.setup_RenderDesc(
+			0, 0, 0, index * 6, 6, 0, 0,
+			D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST))
+		{
+			return hr;
+		}
+	}
+
+	return hr;
+}
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_Manager, create_MeshFromFile)(
@@ -42,15 +141,6 @@ CLASS_IMPL_FUNC(D3D10_Manager, create_MeshFromFile)(
 	HRESULT hr = S_OK;
 
 	wchar_t meshPath[MAX_PATH];
-
-	// Find the path for the file
-	IF_FAILED(hr = find_Media_FileCch(
-		meshPath,
-		sizeof(meshPath) / sizeof(wchar_t),
-		_szFileName))
-	{
-		return hr;
-	}
 
 	// Open the file
 	HANDLE hFile = CreateFile(
@@ -189,8 +279,7 @@ CLASS_IMPL_FUNC(D3D10_Manager, create_MeshFromMemory)(
 	IF_FAILED(hr = _mesh.setup(
 		get_D3D10_Device(),
 		refMeshDescs->numMaterials,
-		refMeshDescs->numMeshes,
-		refMeshDescs->numFrames))
+		refMeshDescs->numMeshes))
 	{
 		return hr;
 	}
@@ -296,8 +385,8 @@ CLASS_IMPL_FUNC(D3D10_Manager, create_MeshFromMemory)(
 			IF_FAILED(hr = _mesh.setup_indexbuffer(
 				m, bufferDesc,
 				(refBufferData + (desc.dataOffset - BufferDataStart)),
-				desc.indexType == IT_16BIT ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT),
-				desc.numindices)
+				desc.indexType == IT_16BIT ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT,
+				desc.numindices))
 			{
 				return hr;
 			}
@@ -441,152 +530,5 @@ CLASS_IMPL_FUNC(D3D10_Manager, create_MeshFromMemory)(
 	}
 	// Update 
 
-Error:
-
 	return hr;
-}
-
-//--------------------------------------------------------------------------------------
-// Grobal function impl
-//--------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------
-template<unsigned int T> IMPL_FUNC(find_MediaFileCch)(
-	/* [w] */ wchar_t(&_strDestPath)[T],
-	/* [r] */ int _cchDest,
-	/* [r] */ const wchar_t * _strFilename)
-{
-	bool bFound;
-	wchar_t strSearchFor[MAX_PATH];
-
-	if (nullptr == _strFilename || _strFilename[0] == 0 || nullptr == _strDestPath || _cchDest < 10)
-	{
-		return E_INVALIDARG;
-	}
-
-	// Get the exe name, and exe path
-	wchar_t strExePath[MAX_PATH] = { 0 };
-	wchar_t strExeName[MAX_PATH] = { 0 };
-	wchar_t * strLastSlash = nullptr;
-
-	GetModuleFileName(nullptr, strExePath, MAX_PATH);
-
-	strExePath[MAX_PATH - 1] = 0;
-	strLastSlash = wcsrchr(strExePath, TEXT('\\'));
-	if (strLastSlash)
-	{
-		wcscpy_s(strExeName, MAX_PATH, &strLastSlash[1]);
-
-		// Chop the exe name from the exe path
-		*strLastSlash = 0;
-
-		// Chop the .exe from the exe name
-		strLastSlash = wcsrchr(strExeName, TEXT('.'));
-		if (strLastSlash)
-			*strLastSlash = 0;
-	}
-
-	// Typical directories:
-	//      .\
-																    //      ..\
-																    //      ..\..\
-																    //      %EXE_DIR%\
-																    //      %EXE_DIR%\..\
-																    //      %EXE_DIR%\..\..\
-																    //      %EXE_DIR%\..\%EXE_NAME%
-	//      %EXE_DIR%\..\..\%EXE_NAME%
-
-	// Typical directory search
-	bFound = find_Media_SearchParentDirs(
-		_strDestPath,
-		_cchDest,
-		_strFilename,
-		strExePath,
-		strExeName);
-
-	if (bFound)
-		return S_OK;
-
-	// Typical directory search again, but also look in a subdir called "\media\" 
-	swprintf_s(strSearchFor, MAX_PATH, L"media\\%s", _strFilename);
-	bFound = find_Media_SearchParentDirs(
-		strDestPath,
-		cchDest,
-		strSearchFor,
-		strExePath,
-		strExeName);
-
-	if (bFound)
-		return S_OK;
-
-	WCHAR strLeafName[MAX_PATH] = { 0 };
-
-	// Search all parent directories starting at .\ and using strFilename as the leaf name
-	wcscpy_s(strLeafName, MAX_PATH, _strFilename);
-	bFound = find_Media_SearchParentDirs(
-		strDestPath,
-		cchDest,
-		L".",
-		strLeafName);
-
-	if (bFound)
-		return S_OK;
-
-	// Search all parent directories starting at the exe's dir and using strFilename as the leaf name
-	bFound = find_Media_SearchParentDirs(strDestPath, cchDest, strExePath, strLeafName);
-	if (bFound)
-		return S_OK;
-
-	// Search all parent directories starting at .\ and using "media\strFilename" as the leaf name
-	swprintf_s(strLeafName, MAX_PATH, L"media\\%s", _strFilename);
-	bFound = find_Media_SearchParentDirs(
-		strDestPath,
-		cchDest,
-		L".",
-		strLeafName);
-
-	if (bFound)
-		return S_OK;
-
-	// Search all parent directories starting at the exe's dir and using "media\strFilename" as the leaf name
-	bFound = find_Media_SearchParentDirs(strDestPath, cchDest, strExePath, strLeafName);
-	if (bFound)
-		return S_OK;
-
-	// On failure, return the file as the path but also return an error code
-	wcscpy_s(strDestPath, cchDest, _strFilename);
-
-	return Direct3DERR_MEDIANOTFOUND;
-}
-
-//--------------------------------------------------------------------------------------
-template<unsigned int T> IMPL_FUNC_T(bool, find_Media_SearchParentDirs)(
-	/* [w] */ wchar_t(&_strDestPath)[T],
-	/* [r] */ int _cchSearch,
-	/* [r] */ const wchar_t * _strStartAt,
-	/* [r] */ const wchar_t * _strLeafName)
-{
-	wchar_t strFullPath[MAX_PATH] = { 0 };
-	wchar_t strFullFileName[MAX_PATH] = { 0 };
-	wchar_t strSearch[MAX_PATH] = { 0 };
-	wchar_t* strFilePart = NULL;
-
-	GetFullPathName(_strStartAt, MAX_PATH, strFullPath, &strFilePart);
-	if (strFilePart == NULL)
-		return false;
-
-	while (strFilePart != NULL && *strFilePart != '\0')
-	{
-		swprintf_s(strFullFileName, MAX_PATH, L"%s\\%s", strFullPath, _strLeafName);
-		if (GetFileAttributes(strFullFileName) != 0xFFFFFFFF)
-		{
-			wcscpy_s(_strSearchPath, _cchSearch, &strFullFileName[0]);
-			return true;
-		}
-
-		swprintf_s(strSearch, MAX_PATH, L"%s\\..", strFullPath);
-		GetFullPathName(strSearch, MAX_PATH, strFullPath, &strFilePart);
-	}
-
-	return false;
 }

@@ -26,19 +26,19 @@ DECL_FUNC_T(D3DCOLORVALUE, get_ColorToValue)(
 direct3d::D3D10_Manager * g_refManager;
 
 // 설명 : Effect used to render UI with D3D10
-AutoRelease<ID3D10Effect> g_D3D10Effect;
+AutoRelease<ID3D10Effect> g_Graphics_Effect;
 
 // 설명 : Technique: RenderUI
-ID3D10EffectTechnique * g_D3D10TechRenderUI;
+ID3D10EffectTechnique * g_Graphics_RenderUI_Technique;
 
 // 설명 : Technique: RenderUI without texture
-ID3D10EffectTechnique * g_D3D10TechRenderUIUntex;
+ID3D10EffectTechnique * g_Graphics_RenderUIUntex_Technique;
 
 // 설명 :
-ID3D10EffectShaderResourceVariable * g_D3D10SRV_Texture;
+ID3D10EffectShaderResourceVariable * g_Graphics_Texture;
 
 // 설명 :
-AutoRelease<ID3D10InputLayout> g_D3D10inputLayout;
+AutoRelease<ID3D10InputLayout> g_Graphics_inputLayout;
 
 //--------------------------------------------------------------------------------------
 AutoRelease<ID3D10RasterizerState> CULL_BACK_RASTERIZER;
@@ -162,24 +162,20 @@ CLASS_IMPL_FUNC(Graphics, initialize)(
 		_manager.get_D3D10_Device(),
 		NULL,
 		NULL,
-		&g_D3D10Effect,
+		&g_Graphics_Effect,
 		NULL,
 		NULL))
 	{
 		return hr;
 	}
 
-	g_D3D10TechRenderUI =
-		g_D3D10Effect->GetTechniqueByName("RenderUI");
+	g_Graphics_RenderUI_Technique = g_Graphics_Effect->GetTechniqueByName("RenderUI");
+	g_Graphics_RenderUIUntex_Technique = g_Graphics_Effect->GetTechniqueByName("RenderUIUntex");
 
-	g_D3D10TechRenderUIUntex =
-		g_D3D10Effect->GetTechniqueByName("RenderUIUntex");
-
-	g_D3D10SRV_Texture =
-		g_D3D10Effect->GetVariableByName("g_Texture")->AsShaderResource();
+	g_Graphics_Texture = g_Graphics_Effect->GetVariableByName("g_Texture")->AsShaderResource();
 
 	D3D10_PASS_DESC PassDesc;
-	IF_FAILED(hr = g_D3D10TechRenderUI->GetPassByIndex(0)->GetDesc(&PassDesc))
+	IF_FAILED(hr = g_Graphics_RenderUI_Technique->GetPassByIndex(0)->GetDesc(&PassDesc))
 	{
 		return hr;
 	}
@@ -197,7 +193,7 @@ CLASS_IMPL_FUNC(Graphics, initialize)(
 		3,
 		PassDesc.pIAInputSignature,
 		PassDesc.IAInputSignatureSize,
-		&g_D3D10inputLayout))
+		&g_Graphics_inputLayout))
 	{
 		return hr;
 	}
@@ -211,8 +207,11 @@ CLASS_IMPL_FUNC(Graphics, initialize)(
 CLASS_IMPL_FUNC_T(Graphics, void, destroy)(
 	/* [x] */ void)
 {
-	g_D3D10inputLayout.~AutoRelease();
-	g_D3D10Effect.~AutoRelease();
+	g_Graphics_inputLayout.~AutoRelease();
+	g_Graphics_Effect.~AutoRelease();
+	g_Graphics_RenderUI_Technique = nullptr;
+	g_Graphics_RenderUIUntex_Technique = nullptr;
+	g_Graphics_Texture = nullptr;
 }
 
 //--------------------------------------------------------------------------------------
@@ -223,6 +222,14 @@ CLASS_IMPL_CONSTRUCTOR(Graphics, Graphics)(void)
 	m_uvRectangle[1] = 0.0f;
 	m_uvRectangle[2] = 1.0f;
 	m_uvRectangle[3] = 1.0f;
+
+	HRESULT hr;
+	IF_FAILED(hr = g_refManager->create_UIPanel(
+		&my_Panel,
+		D3D10_USAGE_DYNAMIC))
+	{
+		throw hr;
+	}
 }
 
 //--------------------------------------------------------------------------------------
@@ -273,17 +280,6 @@ CLASS_IMPL_FUNC_T(Graphics, void, set_Text)(
 CLASS_IMPL_FUNC_T(Graphics, void, update)(
 	/* [r] */ const float(&_rectangle)[4])
 {
-	IF_INVALID(my_Panel)
-	{
-		g_refManager->create_Panel(
-			&my_Panel,
-			{ XMFLOAT2(0.0f, 0.0f),
-			XMFLOAT2(0.0f, 0.0f),
-			XMFLOAT2(0.0f, 0.0f),
-			XMFLOAT2(0.0f, 0.0f) },
-			D3D10_USAGE_DYNAMIC);
-	}
-
 	// Convert the rect from screen coordinates to clip space coordinates.
 	float Left, Right, Top, Bottom;
 
@@ -299,7 +295,7 @@ CLASS_IMPL_FUNC_T(Graphics, void, update)(
 		(m_uvRectangle[0] + m_uvRectangle[2]) / m_imageW,
 		(m_uvRectangle[1] + m_uvRectangle[3]) / m_imageH
 	};
-	
+
 	D3D10_SCREEN_VERTEX vertices[4] =
 	{
 		{ Left, Top, 0.5f, get_ColorToValue(0), uv[0], uv[1] },
@@ -328,15 +324,15 @@ CLASS_IMPL_FUNC_T(Graphics, void, render)(
 	UINT offset = 0;
 
 	device->IASetVertexBuffers(0, 1, &my_Panel, &stride, &offset);
-	device->IASetInputLayout(g_D3D10inputLayout);
+	device->IASetInputLayout(g_Graphics_inputLayout);
 	device->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	// Draw dialog background
 	D3D10_TECHNIQUE_DESC techDesc;
-	g_D3D10TechRenderUIUntex->GetDesc(&techDesc);
+	g_Graphics_RenderUIUntex_Technique->GetDesc(&techDesc);
 	for (unsigned int index = 0; index < techDesc.Passes; ++index)
 	{
-		g_D3D10TechRenderUIUntex->GetPassByIndex(index)->Apply(0);
+		g_Graphics_RenderUI_Technique->GetPassByIndex(index)->Apply(0);
 		device->Draw(4, 0);
 	}
 }
