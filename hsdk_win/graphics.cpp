@@ -23,7 +23,7 @@ DECL_FUNC_T(D3DCOLORVALUE, get_ColorToValue)(
 //--------------------------------------------------------------------------------------
 
 // 설명 : 
-direct3d::D3D10_Manager * g_refManager;
+direct3d::D3D10_Master * g_Graphics_refMaster;
 
 // 설명 : Effect used to render UI with D3D10
 AutoRelease<ID3D10Effect> g_Graphics_Effect;
@@ -46,7 +46,7 @@ AutoRelease<ID3D10DepthStencilState> FRONT_CLIPPING_DEPTH;
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Graphics, initialize)(
-	/* [r] */ direct3d::D3D10_Manager & _manager)
+	/* [r] */ direct3d::D3D10_Master * _master)
 {
 	const char strUIEffectFile[] = \
 		"Texture2D g_Texture;"\
@@ -159,7 +159,7 @@ CLASS_IMPL_FUNC(Graphics, initialize)(
 		"fx_4_0",
 		D3D10_SHADER_ENABLE_STRICTNESS,
 		0,
-		_manager.get_D3D10_Device(),
+		_master->get_D3D10_Device(),
 		NULL,
 		NULL,
 		&g_Graphics_Effect,
@@ -188,7 +188,7 @@ CLASS_IMPL_FUNC(Graphics, initialize)(
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 28, D3D10_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
-	IF_FAILED(hr = _manager.get_D3D10_Device()->CreateInputLayout(
+	IF_FAILED(hr = _master->get_D3D10_Device()->CreateInputLayout(
 		layout,
 		3,
 		PassDesc.pIAInputSignature,
@@ -198,7 +198,7 @@ CLASS_IMPL_FUNC(Graphics, initialize)(
 		return hr;
 	}
 
-	g_refManager = &_manager;
+	g_Graphics_refMaster = _master;
 
 	return hr;
 }
@@ -212,6 +212,7 @@ CLASS_IMPL_FUNC_T(Graphics, void, destroy)(
 	g_Graphics_RenderUI_Technique = nullptr;
 	g_Graphics_RenderUIUntex_Technique = nullptr;
 	g_Graphics_Texture = nullptr;
+	g_Graphics_refMaster = nullptr;
 }
 
 //--------------------------------------------------------------------------------------
@@ -224,7 +225,7 @@ CLASS_IMPL_CONSTRUCTOR(Graphics, Graphics)(void)
 	m_uvRectangle[3] = 1.0f;
 
 	HRESULT hr;
-	IF_FAILED(hr = g_refManager->create_UIPanel(
+	IF_FAILED(hr = g_Graphics_refMaster->create_UIPanel(
 		&my_Panel,
 		D3D10_USAGE_DYNAMIC))
 	{
@@ -242,8 +243,8 @@ CLASS_IMPL_DESTRUCTOR(Graphics, Graphics)(void)
 CLASS_IMPL_FUNC_T(Graphics, void, set_image)(
 	/* [r] */ const wchar_t * _filename)
 {
-	g_refManager->get_Sampler(&my_refSampler, direct3d::SAMPLER_DEFAULT);
-	g_refManager->get_Texture(&my_refCustom, _filename);
+	g_Graphics_refMaster->get_Sampler(&my_refSampler, direct3d::SAMPLER_DEFAULT);
+	g_Graphics_refMaster->get_Texture(&my_refCustom, _filename);
 }
 
 //--------------------------------------------------------------------------------------
@@ -283,28 +284,24 @@ CLASS_IMPL_FUNC_T(Graphics, void, update)(
 	// Convert the rect from screen coordinates to clip space coordinates.
 	float Left, Right, Top, Bottom;
 
-	Left = ((_rectangle[0] / g_refManager->get_Width()) * 2.0f) - 1.0f;
-	Right = ((_rectangle[2] / g_refManager->get_Width()) * 2.0f) - 1.0f;
-
-	Top = 1.0f - ((_rectangle[1] / g_refManager->get_Height()) * 2.0f);
-	Bottom = 1.0f - ((_rectangle[3] / g_refManager->get_Height()) * 2.0f);
+	Left = ((_rectangle[0] / g_Graphics_refMaster->get_Width()) * 2.0f) - 1.0f;
+	Right = ((_rectangle[2] / g_Graphics_refMaster->get_Width()) * 2.0f) - 1.0f;
+	Top = 1.0f - ((_rectangle[1] / g_Graphics_refMaster->get_Height()) * 2.0f);
+	Bottom = 1.0f - ((_rectangle[3] / g_Graphics_refMaster->get_Height()) * 2.0f);
 
 	float uv[4] = {
 		m_uvRectangle[0] / m_imageW,
 		m_uvRectangle[1] / m_imageH,
 		(m_uvRectangle[0] + m_uvRectangle[2]) / m_imageW,
-		(m_uvRectangle[1] + m_uvRectangle[3]) / m_imageH
-	};
+		(m_uvRectangle[1] + m_uvRectangle[3]) / m_imageH };
 
-	D3D10_SCREEN_VERTEX vertices[4] =
-	{
-		{ Left, Top, 0.5f, get_ColorToValue(0), uv[0], uv[1] },
-		{ Right, Top, 0.5f, get_ColorToValue(0), uv[2], uv[1] },
-		{ Left, Bottom, 0.5f, get_ColorToValue(0), uv[0], uv[3] },
-		{ Right, Bottom, 0.5f, get_ColorToValue(0), uv[2], uv[3] },
-	};
+	D3D10_UIFormat vertices[4] = {
+		{ { Left, Top, 0.5f }, get_ColorToValue(0), { uv[0], uv[1] } },
+		{ { Right, Top, 0.5f }, get_ColorToValue(0), { uv[2], uv[1] } },
+		{ { Left, Bottom, 0.5f }, get_ColorToValue(0), { uv[0], uv[3] } },
+		{ { Right, Bottom, 0.5f }, get_ColorToValue(0), { uv[2], uv[3] } } };
 
-	D3D10_SCREEN_VERTEX* pVB;
+	D3D10_UIFormat * pVB;
 	if (SUCCEEDED(my_Panel->Map(D3D10_MAP_WRITE_DISCARD, 0, (void**)&pVB)))
 	{
 		CopyMemory(pVB, vertices, sizeof(vertices));
@@ -317,10 +314,10 @@ CLASS_IMPL_FUNC_T(Graphics, void, render)(
 	/* [x] */ void)
 {
 	ID3D10Device * const device =
-		g_refManager->get_D3D10_Device();
+		g_Graphics_refMaster->get_D3D10_Device();
 
 	// Set the quad VB as current
-	UINT stride = sizeof(D3D10_SCREEN_VERTEX);
+	UINT stride = sizeof(D3D10_UIFormat);
 	UINT offset = 0;
 
 	device->IASetVertexBuffers(0, 1, &my_Panel, &stride, &offset);

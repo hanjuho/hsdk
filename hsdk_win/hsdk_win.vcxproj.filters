@@ -102,9 +102,6 @@
     <ClCompile Include="direct3d.cpp">
       <Filter>소스 파일\frame\d3d11</Filter>
     </ClCompile>
-    <ClCompile Include="d3d10_manager.cpp">
-      <Filter>소스 파일\frame\d3d11</Filter>
-    </ClCompile>
     <ClCompile Include="d3d10_mesh.cpp">
       <Filter>소스 파일\frame\d3d11</Filter>
     </ClCompile>
@@ -112,6 +109,9 @@
       <Filter>소스 파일\frame\d3d11</Filter>
     </ClCompile>
     <ClCompile Include="d3d10_meshrenderer.cpp">
+      <Filter>소스 파일\frame\d3d11</Filter>
+    </ClCompile>
+    <ClCompile Include="d3d10_master.cpp">
       <Filter>소스 파일\frame\d3d11</Filter>
     </ClCompile>
   </ItemGroup>
@@ -170,9 +170,6 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\wintimer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_manager.h">
-      <Filter>헤더 파일\frame\direct3d</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_mesh.h">
       <Filter>헤더 파일\frame\direct3d</Filter>
     </ClInclude>
@@ -188,6 +185,9 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_meshrenderer.h">
       <Filter>헤더 파일\frame\direct3d</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_master.h">
+      <Filter>헤더 파일\frame\direct3d</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\shader\common.hlsli">
@@ -196,7 +196,7 @@
     <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\common.inl">
       <Filter>헤더 파일\frame\direct3d</Filter>
     </None>
-    <None Include="shader\meshrenderer.fx">
+    <None Include="..\shader\meshrenderer.fx">
       <Filter>리소스 파일</Filter>
     </None>
   </ItemGroup>

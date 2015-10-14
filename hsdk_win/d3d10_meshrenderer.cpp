@@ -12,7 +12,7 @@ using namespace direct3d;
 //--------------------------------------------------------------------------------------
 
 // 설명 :
-ID3D10Device * g_refMeshRenderer_Device;
+ID3D10Device * g_MeshRenderer_refDevice;
 
 // 설명 : 
 AutoRelease<ID3D10Effect> g_MeshRenderer_D3D10Effect;
@@ -96,7 +96,7 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize)(
 
 	HRESULT hr = S_OK;
 	IF_FAILED(hr = D3DX10CreateEffectFromFile(
-		str,
+		L"meshrenderer.fx",
 		nullptr,
 		nullptr,
 		"fx_4_0",
@@ -149,7 +149,7 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize)(
 		return hr;
 	}
 
-	g_refMeshRenderer_Device = _d3d10Device;
+	g_MeshRenderer_refDevice = _d3d10Device;
 
 	return hr;
 }
@@ -170,14 +170,18 @@ CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, destroy)(
 	g_MeshRenderer_Time_Scalar = nullptr;
 	g_MeshRenderer_ElapsedTime_Scalar = nullptr;
 	g_MeshRenderer_Diffuse_Texture = nullptr;
+	g_MeshRenderer_refDevice = nullptr;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, render_SkyBox)(
-	/* [r] */ const D3DXMATRIX & _world,
+	/* [r] */ D3DXMATRIX & _world,
 	/* [r] */ const D3D10_Mesh & _mesh)
 {
-	g_refMeshRenderer_Device->IASetInputLayout(g_MeshRenderer_Basic_inputLayout);
+	g_MeshRenderer_ViewProj_Matrix->SetMatrix((float *)(_world));
+	g_MeshRenderer_World_Matrix->SetMatrix((float *)(_world));
+
+	g_MeshRenderer_refDevice->IASetInputLayout(g_MeshRenderer_Basic_inputLayout);
 
 	const unsigned int numMeshs =
 		_mesh.get_NumMeshes();
@@ -187,13 +191,13 @@ CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, render_SkyBox)(
 		const D3D10MY_MESH & mesh =
 			_mesh.get_Mesh(imesh);
 
-		g_refMeshRenderer_Device->IASetVertexBuffers(
+		g_MeshRenderer_refDevice->IASetVertexBuffers(
 			0, mesh.vertexbuffers.size(),
 			&mesh.vertexbuffers[0],
 			&mesh.vertexbuffers_Strides[0],
 			&mesh.vertexbuffers_Offsets[0]);
 
-		g_refMeshRenderer_Device->IASetIndexBuffer(
+		g_MeshRenderer_refDevice->IASetIndexBuffer(
 			mesh.indexbuffer.indexbuffer,
 			mesh.indexbuffer.indexType, 0);
 
@@ -208,13 +212,13 @@ CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, render_SkyBox)(
 			const D3D10MY_MATERIAL & material =
 				_mesh.get_Material(desc.material_id);
 
-			g_refMeshRenderer_Device->IASetPrimitiveTopology(desc.primitiveType);
+			g_MeshRenderer_refDevice->IASetPrimitiveTopology(desc.primitiveType);
 
 			g_MeshRenderer_Diffuse_Texture->SetResource(material.diffuseRV);
 
 			g_MeshRenderer_RenderSky_Technique->GetPassByIndex(0)->Apply(0);
 
-			g_refMeshRenderer_Device->DrawIndexed(
+			g_MeshRenderer_refDevice->DrawIndexed(
 				desc.indexCount,
 				desc.indexStart,
 				desc.vertexbufferStart);

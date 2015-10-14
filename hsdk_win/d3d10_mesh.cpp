@@ -38,8 +38,8 @@ CLASS_IMPL_FUNC_T(D3D10_Mesh, void, destroy)(
 	/* [x] */ void)
 {
 	my_MeshPath = L"";
+	my_Materials.clear();
 	my_Meshs.clear();
-	my_MeshPath.clear();
 	my_LoadLock = false;
 }
 
@@ -107,6 +107,44 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup_Texture)(
 	return E_FAIL;
 }
 
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC(D3D10_Mesh, setup_Texture)(
+	/* [r] */ unsigned int _indexOfMaterial,
+	/* [r] */ unsigned int _attribute,
+	/* [r] */ ID3D10ShaderResourceView * _resource)
+{
+	IF_FALSE(_indexOfMaterial < my_Materials.size())
+	{
+		return E_ACCESSDENIED;
+	}
+
+	D3D10MY_MATERIAL & material =
+		my_Materials[_indexOfMaterial];
+
+	switch (_attribute)
+	{
+	case 0:
+		material.diffuseRV =
+			AutoRelease<ID3D10ShaderResourceView>(_resource);
+
+		return S_OK;
+
+	case 1:
+		material.normalRV =
+			AutoRelease<ID3D10ShaderResourceView>(_resource);
+
+		return S_OK;
+
+	case 2:
+		material.specularRV =
+			AutoRelease<ID3D10ShaderResourceView>(_resource);
+
+		return S_OK;
+
+	default:
+		return E_NOTIMPL;
+	};
+}
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_Mesh, setup_Material)(

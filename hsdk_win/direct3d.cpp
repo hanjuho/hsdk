@@ -2354,6 +2354,7 @@ IMPL_FUNC(setup_D3D10Views)(
 		RSDesc.DepthClipEnable = TRUE;
 		RSDesc.ScissorEnable = FALSE;
 		RSDesc.AntialiasedLineEnable = FALSE;
+
 		if (descDepth.SampleDesc.Count > 1)
 		{
 			RSDesc.MultisampleEnable = TRUE;

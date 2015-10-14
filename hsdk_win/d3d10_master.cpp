@@ -1,4 +1,6 @@
-#include <hsdk/win/frame/direct3d/d3d10_manager.h>
+#include <hsdk/win/frame/direct3d/d3d10_master.h>
+#include <hash_map>
+#include <string>
 
 
 
@@ -7,11 +9,64 @@ using namespace direct3d;
 
 
 //--------------------------------------------------------------------------------------
-// D3D10_Manager impl
+// 
+//--------------------------------------------------------------------------------------
+
+// 설명 : 
+std::hash_map<std::wstring, AutoRelease<ID3D10ShaderResourceView>> g_Manager_Texture_Container;
+
+//--------------------------------------------------------------------------------------
+// D3D10_Master impl
 //--------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_Manager, create_MeshSkyBox)(
+CLASS_IMPL_FUNC_T(D3D10_Master, void, destroy_Master)(
+	/* [x] */ void)
+{
+	g_Manager_Texture_Container.clear();
+	destroy();
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC(D3D10_Master, get_Texture)(
+	/* [w] */ ID3D10ShaderResourceView ** _texture,
+	/* [r] */ const wchar_t * _directory)
+{
+	// 중복 검사
+	auto iter = g_Manager_Texture_Container.find(_directory);
+
+	if (iter != g_Manager_Texture_Container.end())
+	{
+		// 이미 있는 경우
+		(*_texture) = iter->second;
+	}
+	else
+	{
+		// 데이터가 없는 경우
+
+		HRESULT hr;
+		IF_FAILED(hr = D3DX10CreateShaderResourceViewFromFile(
+			get_D3D10_Device(),
+			_directory,
+			NULL,
+			NULL,
+			_texture,
+			NULL))
+		{
+			return hr;
+		}
+
+		// 데이터 추가
+		g_Manager_Texture_Container.insert(
+			std::hash_map<std::wstring, AutoRelease<ID3D10ShaderResourceView>>::value_type(
+			_directory, AutoRelease<ID3D10ShaderResourceView>((*_texture))));
+	}
+
+	return S_OK;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC(D3D10_Master, create_MeshSkyBox)(
 	/* [w] */ D3D10_Mesh & _mesh,
 	/* [r] */ float _size)
 {
@@ -19,7 +74,8 @@ CLASS_IMPL_FUNC(D3D10_Manager, create_MeshSkyBox)(
 
 	HRESULT hr;
 
-	IF_FAILED(hr = _mesh.setup(get_D3D10_Device(), 6, 1))
+	IF_FAILED(hr = _mesh.setup(
+		get_D3D10_Device(), 6, 1))
 	{
 		return hr;
 	}
@@ -32,35 +88,35 @@ CLASS_IMPL_FUNC(D3D10_Manager, create_MeshSkyBox)(
 	// Build box
 	D3D10_SkyFormat vBox[] = {
 		// fill in the front face vertex data
-		{ { -_size, -_size, -_size }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 0.0f } },
-		{ { -_size, _size, -_size }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 1.0f } },
-		{ { _size, _size, -_size }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 1.0f } },
-		{ { _size, -_size, -_size }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 0.0f } },
+		{ { -_size, -_size, -_size }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
+		{ { -_size, _size, -_size }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } },
+		{ { _size, _size, -_size }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
+		{ { _size, -_size, -_size }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } },
 		// fill in the back face vertex data
-		{ { -_size, -_size, _size }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
-		{ { _size, -_size, _size }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } },
-		{ { _size, _size, _size }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
-		{ { -_size, _size, _size }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } },
+		{ { -_size, -_size, _size }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 0.0f } },
+		{ { _size, -_size, _size }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 1.0f } },
+		{ { _size, _size, _size }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 1.0f } },
+		{ { -_size, _size, _size }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 0.0f } },
 		// fill in the top face vertex data
-		{ { -_size, _size, -_size }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f } },
-		{ { -_size, _size, _size }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 1.0f } },
-		{ { _size, _size, _size }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 1.0f } },
-		{ { _size, _size, -_size }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
+		{ { -_size, _size, -_size }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 0.0f } },
+		{ { -_size, _size, _size }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 1.0f } },
+		{ { _size, _size, _size }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 1.0f } },
+		{ { _size, _size, -_size }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 0.0f } },
 		// fill in the bottom face vertex data
-		{ { -_size, -_size, -_size }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 0.0f } },
-		{ { _size, -_size, -_size }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 1.0f } },
-		{ { _size, -_size, _size }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 1.0f } },
-		{ { -_size, -_size, _size }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 0.0f } },
+		{ { -_size, -_size, -_size }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f } },
+		{ { _size, -_size, -_size }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 1.0f } },
+		{ { _size, -_size, _size }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 1.0f } },
+		{ { -_size, -_size, _size }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
 		// fill in the left face vertex data
-		{ { -_size, -_size, _size }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f } },
-		{ { -_size, _size, _size }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f } },
-		{ { -_size, _size, -_size }, { -1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } },
-		{ { -_size, -_size, -_size }, { -1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f } },
+		{ { -_size, -_size, _size }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f } },
+		{ { -_size, _size, _size }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f } },
+		{ { -_size, _size, -_size }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } },
+		{ { -_size, -_size, -_size }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f } },
 		// fill in the right face vertex data
-		{ { _size, -_size, -_size }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f } },
-		{ { _size, _size, -_size }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f } },
-		{ { _size, _size, _size }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } },
-		{ { _size, -_size, _size }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f } } };
+		{ { _size, -_size, -_size }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f } },
+		{ { _size, _size, -_size }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f } },
+		{ { _size, _size, _size }, { -1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } },
+		{ { _size, -_size, _size }, { -1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f } } };
 
 	// Vertex Buffer
 	D3D10_BUFFER_DESC vBufferDesc;
@@ -74,7 +130,7 @@ CLASS_IMPL_FUNC(D3D10_Manager, create_MeshSkyBox)(
 		0, 0,
 		vBufferDesc,
 		vBox,
-		sizeof(vBox),
+		sizeof(D3D10_SkyFormat),
 		0,
 		sizeof(vBox) / sizeof(D3D10_SkyFormat)))
 	{
@@ -122,7 +178,7 @@ CLASS_IMPL_FUNC(D3D10_Manager, create_MeshSkyBox)(
 	for (unsigned int index = 0; index < 6; ++index)
 	{
 		IF_FAILED(hr = _mesh.setup_RenderDesc(
-			0, 0, 0, index * 6, 6, 0, 0,
+			0, index, 0, index * 6, 6, 0, 0,
 			D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST))
 		{
 			return hr;
@@ -133,7 +189,7 @@ CLASS_IMPL_FUNC(D3D10_Manager, create_MeshSkyBox)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_Manager, create_MeshFromFile)(
+CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 	/* [w] */ D3D10_Mesh & _mesh,
 	/* [r] */ const wchar_t * _szFileName,
 	/* [r] */ bool _createAdjacencyIndices)
@@ -212,7 +268,7 @@ CLASS_IMPL_FUNC(D3D10_Manager, create_MeshFromFile)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_Manager, create_MeshFromMemory)(
+CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromMemory)(
 	/* [w] */ D3D10_Mesh & _mesh,
 	/* [r] */ const wchar_t * _resourcePath,
 	/* [r] */ unsigned char * _data,
