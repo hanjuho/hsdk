@@ -116,18 +116,36 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize)(
 	g_MeshRenderer_RenderSky_Technique =
 		g_MeshRenderer_D3D10Effect->GetTechniqueByName("RenderSky10");
 
-	g_MeshRenderer_WorldViewProj_Matrix = g_MeshRenderer_D3D10Effect->GetVariableByName("g_WorldViewProj_Matrix")->AsMatrix();
-	g_MeshRenderer_ViewProj_Matrix = g_MeshRenderer_D3D10Effect->GetVariableByName("g_ViewProj_Matrix")->AsMatrix();
-	g_MeshRenderer_World_Matrix = g_MeshRenderer_D3D10Effect->GetVariableByName("g_World_Matrix")->AsMatrix();
 
-	g_MeshRenderer_WorldLight_Vector = g_MeshRenderer_D3D10Effect->GetVariableByName("g_WorldLight_Vector")->AsVector();
-	g_MeshRenderer_Color_Vector = g_MeshRenderer_D3D10Effect->GetVariableByName("g_vColor")->AsVector();
-	g_MeshRenderer_EyePt_Vector = g_MeshRenderer_D3D10Effect->GetVariableByName("g_vEyePt")->AsVector();
+	g_MeshRenderer_WorldViewProj_Matrix =
+		g_MeshRenderer_D3D10Effect->GetVariableByName("g_WorldViewProj_Matrix")->AsMatrix();
 
-	g_MeshRenderer_Time_Scalar = g_MeshRenderer_D3D10Effect->GetVariableByName("g_fTime")->AsScalar();
-	g_MeshRenderer_ElapsedTime_Scalar = g_MeshRenderer_D3D10Effect->GetVariableByName("g_fElapsedTime")->AsScalar();
+	g_MeshRenderer_ViewProj_Matrix =
+		g_MeshRenderer_D3D10Effect->GetVariableByName("g_ViewProj_Matrix")->AsMatrix();
 
-	g_MeshRenderer_Diffuse_Texture = g_MeshRenderer_D3D10Effect->GetVariableByName("g_Diffuse_Texture")->AsShaderResource();
+	g_MeshRenderer_World_Matrix =
+		g_MeshRenderer_D3D10Effect->GetVariableByName("g_World_Matrix")->AsMatrix();
+
+
+	g_MeshRenderer_WorldLight_Vector =
+		g_MeshRenderer_D3D10Effect->GetVariableByName("g_WorldLight_Vector")->AsVector();
+
+	g_MeshRenderer_Color_Vector =
+		g_MeshRenderer_D3D10Effect->GetVariableByName("g_vColor")->AsVector();
+
+	g_MeshRenderer_EyePt_Vector =
+		g_MeshRenderer_D3D10Effect->GetVariableByName("g_vEyePt")->AsVector();
+
+
+	g_MeshRenderer_Time_Scalar =
+		g_MeshRenderer_D3D10Effect->GetVariableByName("g_fTime")->AsScalar();
+
+	g_MeshRenderer_ElapsedTime_Scalar =
+		g_MeshRenderer_D3D10Effect->GetVariableByName("g_fElapsedTime")->AsScalar();
+
+
+	g_MeshRenderer_Diffuse_Texture =
+		g_MeshRenderer_D3D10Effect->GetVariableByName("g_Diffuse_Texture")->AsShaderResource();
 
 	// Create a Vertex Decl for the terrain and basic meshes
 	const D3D10_INPUT_ELEMENT_DESC basiclayout[] =
@@ -178,7 +196,7 @@ CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, render_SkyBox)(
 	/* [r] */ D3DXMATRIX & _world,
 	/* [r] */ const D3D10_Mesh & _mesh)
 {
-	g_MeshRenderer_ViewProj_Matrix->SetMatrix((float *)(_world));
+	g_MeshRenderer_WorldViewProj_Matrix->SetMatrix((float *)(_world));
 	g_MeshRenderer_World_Matrix->SetMatrix((float *)(_world));
 
 	g_MeshRenderer_refDevice->IASetInputLayout(g_MeshRenderer_Basic_inputLayout);

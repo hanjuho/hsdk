@@ -232,7 +232,15 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup_RenderDesc)(
 	D3D10MY_RENDER_DESC & render_Desc =
 		my_Meshs[_indexOfMesh].render_Descs[_indexOfRenderDesc];
 
-	render_Desc.material_id = _material_id;
+	if (_material_id < my_Materials.size())
+	{
+		render_Desc.material_id = _material_id;
+	}
+	else
+	{
+		render_Desc.material_id = -1;
+	}
+
 	render_Desc.indexStart = _indexStart;
 	render_Desc.indexCount = _indexCount;
 	render_Desc.vertexbufferStart = _vertexbufferStart;
@@ -298,7 +306,6 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup_Vertexbuffer)(
 	}
 
 	return hr;
-
 }
 
 //--------------------------------------------------------------------------------------

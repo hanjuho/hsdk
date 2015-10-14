@@ -43,7 +43,6 @@ CLASS_IMPL_FUNC(D3D10_Master, get_Texture)(
 	else
 	{
 		// 데이터가 없는 경우
-
 		HRESULT hr;
 		IF_FAILED(hr = D3DX10CreateShaderResourceViewFromFile(
 			get_D3D10_Device(),
@@ -73,7 +72,6 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshSkyBox)(
 	_mesh.destroy();
 
 	HRESULT hr;
-
 	IF_FAILED(hr = _mesh.setup(
 		get_D3D10_Device(), 6, 1))
 	{
@@ -87,36 +85,36 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshSkyBox)(
 
 	// Build box
 	D3D10_SkyFormat vBox[] = {
-		// fill in the front face vertex data
-		{ { -_size, -_size, -_size }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
-		{ { -_size, _size, -_size }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } },
-		{ { _size, _size, -_size }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
-		{ { _size, -_size, -_size }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } },
-		// fill in the back face vertex data
-		{ { -_size, -_size, _size }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 0.0f } },
-		{ { _size, -_size, _size }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 1.0f } },
-		{ { _size, _size, _size }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 1.0f } },
-		{ { -_size, _size, _size }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 0.0f } },
-		// fill in the top face vertex data
-		{ { -_size, _size, -_size }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 0.0f } },
-		{ { -_size, _size, _size }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 1.0f } },
-		{ { _size, _size, _size }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 1.0f } },
-		{ { _size, _size, -_size }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 0.0f } },
-		// fill in the bottom face vertex data
-		{ { -_size, -_size, -_size }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f } },
-		{ { _size, -_size, -_size }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 1.0f } },
-		{ { _size, -_size, _size }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 1.0f } },
-		{ { -_size, -_size, _size }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
-		// fill in the left face vertex data
-		{ { -_size, -_size, _size }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f } },
-		{ { -_size, _size, _size }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f } },
-		{ { -_size, _size, -_size }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } },
-		{ { -_size, -_size, -_size }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f } },
-		// fill in the right face vertex data
-		{ { _size, -_size, -_size }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f } },
-		{ { _size, _size, -_size }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f } },
-		{ { _size, _size, _size }, { -1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f } },
-		{ { _size, -_size, _size }, { -1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f } } };
+		// front
+		{ D3DXVECTOR3(-1.0f, -1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 1.0f) },
+		{ D3DXVECTOR3(1.0f, -1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 1.0f) },
+		{ D3DXVECTOR3(1.0f, 1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 0.0f) },
+		{ D3DXVECTOR3(-1.0f, 1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 0.0f) },
+		// top
+		{ D3DXVECTOR3(-1.0f, 1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 0.0f) },
+		{ D3DXVECTOR3(1.0f, 1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 0.0f) },
+		{ D3DXVECTOR3(1.0f, 1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 1.0f) },
+		{ D3DXVECTOR3(-1.0f, 1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 1.0f) },
+		// bottom
+		{ D3DXVECTOR3(-1.0f, -1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 1.0f) },
+		{ D3DXVECTOR3(1.0f, -1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 1.0f) },
+		{ D3DXVECTOR3(1.0f, -1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 0.0f) },
+		{ D3DXVECTOR3(-1.0f, -1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 0.0f) },
+		// left
+		{ D3DXVECTOR3(-1.0f, -1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 1.0f) },
+		{ D3DXVECTOR3(-1.0f, -1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 1.0f) },
+		{ D3DXVECTOR3(-1.0f, 1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 0.0f) },
+		{ D3DXVECTOR3(-1.0f, 1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 0.0f) },
+		// rignt
+		{ D3DXVECTOR3(1.0f, -1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 1.0f) },
+		{ D3DXVECTOR3(1.0f, -1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 1.0f) },
+		{ D3DXVECTOR3(1.0f, 1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 0.0f) },
+		{ D3DXVECTOR3(1.0f, 1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 0.0f) },
+		// back
+		{ D3DXVECTOR3(-1.0f, -1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 1.0f) },
+		{ D3DXVECTOR3(1.0f, -1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 1.0f) },
+		{ D3DXVECTOR3(1.0f, 1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 0.0f) },
+		{ D3DXVECTOR3(-1.0f, 1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 0.0f) } };
 
 	// Vertex Buffer
 	D3D10_BUFFER_DESC vBufferDesc;
@@ -138,24 +136,24 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshSkyBox)(
 	}
 
 	unsigned short iBox[] = {
-		// fill in the front face index data
-		0, 1, 2,
-		0, 2, 3,
-		// fill in the back face index data
-		4, 5, 6,
-		4, 6, 7,
-		// fill in the top face index data
-		8, 9, 10,
-		8, 10, 11,
-		// fill in the bottom face index data
-		12, 13, 14,
-		12, 14, 15,
-		// fill in the left face index data
-		16, 17, 18,
-		16, 18, 19,
-		// fill in the right face index data
-		20, 21, 22,
-		20, 22, 23 };
+		// front
+		3, 1, 0,
+		2, 1, 3,
+		// top
+		6, 4, 5,
+		7, 4, 6,
+		// bottom
+		11, 9, 8,
+		10, 9, 11,
+		// left
+		14, 12, 13,
+		15, 12, 14,
+		// rignt
+		19, 17, 16,
+		18, 17, 19,
+		// back
+		22, 20, 21,
+		23, 20, 22 };
 
 	// index Buffer
 	D3D10_BUFFER_DESC iBufferDesc;
@@ -178,7 +176,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshSkyBox)(
 	for (unsigned int index = 0; index < 6; ++index)
 	{
 		IF_FAILED(hr = _mesh.setup_RenderDesc(
-			0, index, 0, index * 6, 6, 0, 0,
+			0, index, index, index * 6, (index * 6) + 6, 0, 0,
 			D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST))
 		{
 			return hr;
@@ -329,7 +327,6 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromMemory)(
 	unsigned long long BufferDataStart =
 		refMeshDescs->headerSize + refMeshDescs->nonBufferDataSize;
 
-
 	HRESULT hr = E_FAIL;
 
 	IF_FAILED(hr = _mesh.setup(
@@ -340,15 +337,12 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromMemory)(
 		return hr;
 	}
 
-
 	// Create Materials
-
 	for (unsigned int m = 0; m < refMeshDescs->numMaterials; ++m)
 	{
 		D3D10MESH_MATERIAL & refMaterial = refMaterialArray[m];
 
 		// Load Materials
-
 		_mesh.setup_Material(
 			m, 0, refMaterial.diffuse);
 
@@ -362,7 +356,6 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromMemory)(
 			m, 3, refMaterial.emissive);
 
 		// Load Textures
-
 		_mesh.setup_Texture(
 			refMaterial.szDiffuseTexture, m, 0);
 
@@ -399,7 +392,6 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromMemory)(
 			}
 
 			// Create VBs
-
 			for (unsigned int v = 0; v < refMesh.numVertexBuffers; ++v)
 			{
 				D3D10MESH_VERTEX_BUFFER_DESC & desc =
@@ -426,7 +418,6 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromMemory)(
 			}
 
 			// Create IBs
-
 			D3D10MESH_INDEX_BUFFER_DESC & desc =
 				refindexBufferArray[refMesh.indexBuffer];
 
@@ -487,20 +478,10 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromMemory)(
 
 		for (unsigned int subseti = 0; subseti < numSubsets; ++subseti)
 		{
-			//&m_pSubsetArray[ currentMesh->pSubsets[subset] ];
 			D3D10MESH_SUBSET * pSubset = &refSubsetArray[currentMesh->subsets[subseti]];
 
 			const unsigned int indexCount = (unsigned int)pSubset->indexCount;
 			const unsigned int indexStart = (unsigned int)pSubset->indexStart;
-
-			/*if( bAdjacent )
-			{
-			IndexCount *= 2;
-			IndexStart *= 2;
-			}*/
-
-			//BYTE * pIndices = NULL;
-			//m_ppIndices[i]
 
 			unsigned int * ind =
 				(unsigned int *)(refBufferData + (refindexBufferArray[currentMesh->indexBuffer].dataOffset - BufferDataStart));
@@ -568,12 +549,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromMemory)(
 				{
 					upper.z = pt->z;
 				}
-
-				//BYTE** m_ppVertices;
-				//BYTE** m_ppIndices;
 			}
-
-			//pd3dDeviceContext->DrawIndexed( IndexCount, IndexStart, VertexStart );
 		}
 
 		D3DXVECTOR3 half = upper - lower;
@@ -584,7 +560,6 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromMemory)(
 			lower + half,
 			half);
 	}
-	// Update 
 
 	return hr;
 }

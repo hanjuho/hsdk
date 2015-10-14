@@ -1103,7 +1103,10 @@ CLASS_IMPL_FUNC_T(Direct3D, void, shutdown)(
 
 	g_Direct3D.pause_Time(true);
 	g_Direct3D.pause_Rendering(true);
-	g_Dispatch.cbCleanUp3DEnvironment(true);
+	if (g_Dispatch.cbCleanUp3DEnvironment)
+	{
+		g_Dispatch.cbCleanUp3DEnvironment(true);
+	}
 
 	// Restore shortcut keys (Windows key, accessibility shortcuts) to original state
 	// This is important to call here if the shortcuts are disabled, 
@@ -1168,12 +1171,12 @@ CLASS_IMPL_FUNC_T(Direct3D, void, pause_Rendering)(
 		--nPauseRenderingCount;
 	}
 
-	if (0 < nPauseRenderingCount)
+	if (nPauseRenderingCount < 0)
 	{
 		nPauseRenderingCount = 0;
 	}
 
-	g_TimeStream.pauseRendering = nPauseRenderingCount > 0;
+	g_TimeStream.pauseRendering = 0 < nPauseRenderingCount;
 
 	g_TimeStream.pauseRenderingCount = nPauseRenderingCount;
 }

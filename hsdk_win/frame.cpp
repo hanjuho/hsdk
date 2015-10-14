@@ -102,6 +102,13 @@ CLASS_IMPL_FUNC_T(Frame, void, message_Proc)(
 	switch (_uMsg)
 	{
 	case WM_MOVE:
+		
+		// 수평 위치
+		set_X((int)LOWORD(_lParam));
+
+		// 수직 위치
+		set_Y((int)HIWORD(_lParam));
+
 		break;
 	case WM_SIZE:
 	{
