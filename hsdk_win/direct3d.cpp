@@ -2116,7 +2116,6 @@ IMPL_FUNC(create_3DEnvironment10)(
 	}
 
 	// Setup the render target view and viewport
-
 	IF_FAILED(hr = setup_D3D10Views(d3d10DeviceDesc))
 	{
 		assert(L"Direct3DERR_CREATINGDEVICEOBJECTS : setup_D3D10Views");
@@ -2944,10 +2943,32 @@ LRESULT CALLBACK direct3D_WndProc(
 		break;
 
 	case WM_KEYDOWN:
+
 		if (_wParam == VK_ESCAPE)
 		{
-			SendMessage(_hWnd, WM_CLOSE, 0, 0);
+			if (g_Direct3D.is_Windowed())
+			{
+				if (MessageBox(_hWnd, L"게임을 종료하시겠습니까? ", L"주의!!", MB_YESNO) == IDYES)
+				{
+					SendMessage(_hWnd, WM_CLOSE, 0, 0);
+				}
+			}
+			else
+			{
+				g_Direct3D.change_Monitor();
+			}
 		}
+		else if (_wParam == VK_F5)
+		{
+			if(g_Direct3D.is_Windowed())
+			{
+				if (MessageBox(_hWnd, L"전체화면으로 하시겠습니까? ", L"주의!!", MB_YESNO) == IDYES)
+				{
+					g_Direct3D.change_Monitor(false);
+				}
+			}
+		}
+
 		break;
 
 	case WM_CLOSE:

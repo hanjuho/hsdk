@@ -52,18 +52,18 @@ CLASS_IMPL_FUNC_T(Frame, void, update)(
 {
 	IF_FALSE(my_ChangedSize)
 	{
-		if (my_FullScreen)
+		if (g_Frame_Master->is_Windowed())
 		{
-			if (g_Frame_Master->is_Windowed())
+			if (my_FullScreen)
 			{
+				// full to window
 				GetWindowRect(g_Frame_Master->get_HWND_WindowScreen(), &my_Rect);
 				g_Frame_Master->change_Monitor(FALSE, 0, 0);
 			}
-		}
-		else
-		{
-			if (g_Frame_Master->is_Windowed())
+			else
 			{
+				// window to window
+
 				// 윈도 사각형 재설정
 				SetWindowPos(
 					g_Frame_Master->get_HWND_WindowScreen(),
@@ -74,8 +74,17 @@ CLASS_IMPL_FUNC_T(Frame, void, update)(
 					(long)get_H(),
 					SWP_NOSIZE);
 			}
+		}
+		else
+		{
+			if (my_FullScreen)
+			{
+				// none action full to full
+			}
 			else
 			{
+				// window to full
+
 				// 윈도 사각형 재설정
 				SetWindowPos(
 					g_Frame_Master->get_HWND_WindowScreen(),
@@ -127,6 +136,7 @@ CLASS_IMPL_FUNC_T(Frame, void, message_Proc)(
 						set_W((float)(width));
 						set_H((float)(height));
 
+						// external control
 						my_ChangedSize = true;
 						update();
 						my_ChangedSize = false;

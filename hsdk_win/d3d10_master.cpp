@@ -24,6 +24,7 @@ CLASS_IMPL_FUNC_T(D3D10_Master, void, destroy_Master)(
 	/* [x] */ void)
 {
 	g_Manager_Texture_Container.clear();
+
 	destroy();
 }
 

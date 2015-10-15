@@ -97,16 +97,6 @@ BOOL CALLBACK IsD3D10DeviceAcceptable(
 	/* [r] */ BOOL _windowed,
 	/* [r/w] */ void * _userContext)
 {
-	D3DXVECTOR3 Eye(1.0f, -1.0f, -1.0f);
-	D3DXVECTOR3 At(0.0f, 0.0f, 0.0f);
-	D3DXVECTOR3 Up(0.0f, 1.0f, 0.0f);
-
-	// Initialize the view matrix
-	D3DXMatrixLookAtLH(&g_View, &Eye, &At, &Up);
-
-	// Initialize the projection matrix
-	D3DXMatrixPerspectiveFovLH(&g_Projection, (float)D3DX_PI * 0.25f, 640.0f / 480.0f, 0.1f, 100.0f);
-
 	return true;
 }
 
@@ -115,6 +105,21 @@ HRESULT CALLBACK OnD3D10CreateDevice(
 	const DXGI_SURFACE_DESC & pBackBufferSurfaceDesc,
 	void * pUserContext)
 {
+	D3DXVECTOR3 Eye(1.0f, -1.0f, -1.0f);
+	D3DXVECTOR3 At(0.0f, 0.0f, 0.0f);
+	D3DXVECTOR3 Up(0.0f, 1.0f, 0.0f);
+
+	// Initialize the view matrix
+	D3DXMatrixLookAtLH(&g_View, &Eye, &At, &Up);
+
+	// Initialize the projection matrix
+	D3DXMatrixPerspectiveFovLH(
+		&g_Projection,
+		(float)D3DX_PI * 0.25f,
+		pBackBufferSurfaceDesc.Width / pBackBufferSurfaceDesc.Height,
+		0.1f,
+		100.0f);
+
 	HRESULT hr;
 
 	hr = g_Window.initialize(&g_Master);
@@ -201,11 +206,6 @@ int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 	{
 		g_Master.mainLoop(); // Enter into the DXUT render loop
 	}
-
-	g_MeshRenderer.destroy();
-	g_MeshSkyBox.destroy();
-	g_Window.destroy();
-	g_Master.destroy_Master();
 
 	return g_Master.get_ExitCode();
 }
