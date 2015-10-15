@@ -95,7 +95,7 @@ DECL_STRUCT(Direct3D_State)
 	volatile long runMainLoop = 0;
 
 	// 설명 :
-	bool createdDevice = false;
+	bool called_userSetDevice = false;
 
 	// 설명 : 
 	BOOL autoChangeAdapter = false;
@@ -552,29 +552,6 @@ CLASS_IMPL_FUNC(Direct3D, initialize_Device)(
 	/* [r] */ int _suggestedWidth,
 	/* [r] */ int _suggestedHeight)
 {
-	Direct3D_DeviceMatchOptions deviceMatOpt =
-		create_DeviceMatOpt_FrominitDesc(g_init);
-
-	if (deviceMatOpt.eResolution == IGNORE_INPUT)
-	{
-		if (_windowed || (_suggestedWidth != 0 && _suggestedHeight != 0))
-		{
-			deviceMatOpt.eResolution = CLOSEST_TO_INPUT;
-		}
-	}
-
-	// Building D3D9 device settings for mathch options.  These
-	// will be converted to D3D10 settings if app can use D3D10	
-	Direct3D_DeviceDescs descs;
-	descs.d3d9DeviceDesc = create_DeviceDesc_FrominitDesc(
-		g_init,
-		_windowed,
-		_suggestedWidth,
-		_suggestedHeight);
-
-	descs.d3d9DeviceDesc.pp.hDeviceWindow =
-		descs.d3d9DeviceDesc.pp.Windowed ? g_Window.windowScreen : g_Window.fullScreen;
-
 	if (g_init.forceAPI == -1)
 	{
 		if (g_Callbacks.isD3D10DeviceAcceptableFunc ||
@@ -597,6 +574,77 @@ CLASS_IMPL_FUNC(Direct3D, initialize_Device)(
 		}
 	}
 
+	// Building D3D9 device settings for mathch options.  These
+	// will be converted to D3D10 settings if app can use D3D10	
+	D3D9_DEVICE_DESC d3d9DeviceDesc = initialize_DeviceDesc(
+		_windowed ? g_Window.windowScreen : g_Window.fullScreen,
+		_windowed,
+		_suggestedWidth,
+		_suggestedHeight);
+
+	if (g_init.adapterOrdinal != -1)
+	{
+		d3d9DeviceDesc.adapterOrdinal = g_init.adapterOrdinal;
+	}
+
+	if (g_init.forceHAL)
+	{
+		d3d9DeviceDesc.deviceType = D3DDEVTYPE_HAL;
+	}
+	if (g_init.forceREF)
+	{
+		d3d9DeviceDesc.deviceType = D3DDEVTYPE_REF;
+	}
+
+	if (g_init.forcePureHWVP)
+	{
+		d3d9DeviceDesc.behaviorFlags = D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_PUREDEVICE;
+	}
+	else if (g_init.forceHWVP)
+	{
+		d3d9DeviceDesc.behaviorFlags = D3DCREATE_HARDWARE_VERTEXPROCESSING;
+	}
+	else if (g_init.forceSWVP)
+	{
+		d3d9DeviceDesc.behaviorFlags = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
+	}
+
+	if (g_init.fullScreen)
+	{
+		d3d9DeviceDesc.pp.Windowed = FALSE;
+	}
+
+	if (g_init.width != 0)
+	{
+		d3d9DeviceDesc.pp.BackBufferWidth = g_init.width;
+	}
+
+	if (g_init.height != 0)
+	{
+		d3d9DeviceDesc.pp.BackBufferHeight = g_init.height;
+	}
+
+	switch (g_init.forceVsync)
+	{
+	case 0:
+		d3d9DeviceDesc.pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+		break;
+	case 1:
+		d3d9DeviceDesc.pp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
+		break;
+	case 2:
+		d3d9DeviceDesc.pp.PresentationInterval = D3DPRESENT_INTERVAL_TWO;
+		break;
+	case 3:
+		d3d9DeviceDesc.pp.PresentationInterval = D3DPRESENT_INTERVAL_THREE;
+		break;
+	case 4:
+		d3d9DeviceDesc.pp.PresentationInterval = D3DPRESENT_INTERVAL_FOUR;
+		break;
+	}
+
+	Direct3D_DeviceDescs descs;
+
 	BOOL bContinue = true;
 	if (g_init.forceAPI == 9)
 	{
@@ -607,14 +655,11 @@ CLASS_IMPL_FUNC(Direct3D, initialize_Device)(
 			return E_ABORT;
 		}
 
-		D3D9_DEVICE_DESC & desc = descs.d3d9DeviceDesc;
-		build_OptimalDeviceDesc(desc, desc, deviceMatOpt);
-
 		HRESULT hr;
 		D3DCAPS9 caps;
 		IF_FAILED(hr = d3d9->GetDeviceCaps(
-			desc.adapterOrdinal,
-			desc.deviceType,
+			d3d9DeviceDesc.adapterOrdinal,
+			d3d9DeviceDesc.deviceType,
 			&caps))
 		{
 			return hr;
@@ -627,13 +672,14 @@ CLASS_IMPL_FUNC(Direct3D, initialize_Device)(
 		{
 			bContinue = callback_acceptable(
 				caps,
-				desc.adapterFormat,
-				desc.pp.BackBufferFormat,
-				desc.pp.Windowed,
+				d3d9DeviceDesc.adapterFormat,
+				d3d9DeviceDesc.pp.BackBufferFormat,
+				d3d9DeviceDesc.pp.Windowed,
 				g_cbUserContext.isD3D9DeviceAcceptableFuncUserContext);
 		}
 
 		descs.version = D3D9_DEVICE;
+		memcpy(&descs.d3d9DeviceDesc, &d3d9DeviceDesc, sizeof(D3D9_DEVICE_DESC));
 	}
 	else if (g_init.forceAPI == 10)
 	{
@@ -646,9 +692,13 @@ CLASS_IMPL_FUNC(Direct3D, initialize_Device)(
 		// Reset the Outside
 		g_Outside.initialize(get_DXGIFactory());
 
-		D3D10_DEVICE_DESC desc = { 0 };
-		convert_DeviceDesc_9to10(desc, descs.d3d9DeviceDesc);
-		build_OptimalDeviceDesc(desc, desc, deviceMatOpt);
+		D3D10_DEVICE_DESC d3d10DeviceDesc = { 0 };
+		convert_DeviceDesc_9to10(d3d10DeviceDesc, d3d9DeviceDesc);
+
+		if (g_init.output != -1)
+		{
+			d3d10DeviceDesc.output = g_init.output;
+		}
 
 		CALLBACK_IS_D3D10_DEVICE_ACCEPTABLE callback_acceptable =
 			g_Callbacks.isD3D10DeviceAcceptableFunc;
@@ -656,16 +706,16 @@ CLASS_IMPL_FUNC(Direct3D, initialize_Device)(
 		if (callback_acceptable)
 		{
 			bContinue = callback_acceptable(
-				desc.adapterOrdinal,
-				desc.output,
-				desc.driverType,
-				desc.sd.BufferDesc.Format,
-				desc.sd.Windowed,
+				d3d10DeviceDesc.adapterOrdinal,
+				d3d10DeviceDesc.output,
+				d3d10DeviceDesc.driverType,
+				d3d10DeviceDesc.sd.BufferDesc.Format,
+				d3d10DeviceDesc.sd.Windowed,
 				g_cbUserContext.isD3D10DeviceAcceptableFuncUserContext);
 		}
 
-		descs.d3d10DeviceDesc = desc;
 		descs.version = D3D10_DEVICE;
+		memcpy(&descs.d3d10DeviceDesc, &d3d10DeviceDesc, sizeof(D3D10_DEVICE_DESC));
 	}
 
 	IF_FALSE(bContinue)
@@ -684,7 +734,9 @@ CLASS_IMPL_FUNC(Direct3D, userSet_Device)(
 	/* [r] */ BOOL _clipWindowToSingleAdapter,
 	/* [r] */ BOOL _resetRecovery)
 {
-	g_State.createdDevice = false;
+	// 함수 시작 - for MsgProc WM_SIZE
+	g_State.called_userSetDevice = true;
+
 	HRESULT hr = E_FAIL;
 
 	// Make a copy of the pNewDeviceSettings on the heap
@@ -760,6 +812,8 @@ CLASS_IMPL_FUNC(Direct3D, userSet_Device)(
 				GetMonitorInfo(g_Outside.get_MonitorFromAdapter(newDesc.d3d10DeviceDesc), &miAdapter);
 			}
 
+			bool changedForm = false;
+
 			// Do something reasonable if the BackBuffer size is greater than the monitor size
 			int nAdapterMonitorWidth = miAdapter.rcWork.left + miAdapter.rcWork.right;
 			int nAdapterMonitorHeight = miAdapter.rcWork.top + miAdapter.rcWork.bottom;
@@ -795,6 +849,8 @@ CLASS_IMPL_FUNC(Direct3D, userSet_Device)(
 				{
 					window.left -= dw;
 				}
+
+				changedForm = true;
 			}
 
 			int cy = window.top + window.bottom;
@@ -813,17 +869,22 @@ CLASS_IMPL_FUNC(Direct3D, userSet_Device)(
 				{
 					window.top -= dh;
 				}
+
+				changedForm = true;
+			}
+
+			if (changedForm)
+			{
+				SetWindowPos(
+					g_Window.windowScreen,
+					0,
+					window.left,
+					window.top,
+					window.right,
+					window.bottom,
+					SWP_NOZORDER);
 			}
 		}
-
-		SetWindowPos(
-			g_Window.windowScreen,
-			0,
-			window.left,
-			window.top,
-			window.right,
-			window.bottom,
-			SWP_NOZORDER);
 	}
 	else
 	{
@@ -842,9 +903,8 @@ CLASS_IMPL_FUNC(Direct3D, userSet_Device)(
 		}
 		else
 		{
-			const VideoCard_Output_info * output_info = g_Outside.get_Output_info(
-				newDesc.d3d10DeviceDesc.adapterOrdinal,
-				newDesc.d3d10DeviceDesc.output);
+			const VideoCard_Output_info * output_info =
+				g_Outside.get_Output_info(newDesc.d3d10DeviceDesc.adapterOrdinal, newDesc.d3d10DeviceDesc.output);
 
 			IF_INVALID(output_info)
 			{
@@ -933,7 +993,9 @@ CLASS_IMPL_FUNC(Direct3D, userSet_Device)(
 
 	// 랜더링 시작
 	pause_Rendering(false);
-	g_State.createdDevice = true;
+
+	// 함수 종료
+	g_State.called_userSetDevice = false;
 
 	return hr;
 }
@@ -1287,7 +1349,7 @@ CLASS_IMPL_FUNC_T(Direct3D, void, change_Monitor)(
 		matchOptions.eAPIVersion = PRESERVE_INPUT;
 		matchOptions.eAdapterOrdinal = PRESERVE_INPUT;
 		matchOptions.eDeviceType = CLOSEST_TO_INPUT;
-		matchOptions.eWindowed = CLOSEST_TO_INPUT;
+		matchOptions.eFullScreen = CLOSEST_TO_INPUT;
 		matchOptions.eAdapterFormat = CLOSEST_TO_INPUT;
 		matchOptions.eVertexProcessing = CLOSEST_TO_INPUT;
 		matchOptions.eResolution = CLOSEST_TO_INPUT;
@@ -1918,8 +1980,7 @@ IMPL_FUNC(create_3DEnvironment10)(
 	IDXGIFactory * const dxgiFactory = g_Device.dxgiFactory;
 	dxgiFactory->MakeWindowAssociation(nullptr, 0);
 
-	const D3D10_DEVICE_DESC & _desc =
-		g_DeviceDescs.d3d10DeviceDesc;
+	const D3D10_DEVICE_DESC & d3d10DeviceDesc = g_DeviceDescs.d3d10DeviceDesc;
 
 	AutoRelease<ID3D10Device> d3d10Device;
 	AutoRelease<ID3D10Device1> d3d10Device1;
@@ -1930,15 +1991,15 @@ IMPL_FUNC(create_3DEnvironment10)(
 	// Only create a Direct3D device if one hasn't been supplied by the app
 	// Try to create the device with the chosen settings
 	HMODULE wrp = nullptr;
-	if (_desc.driverType == D3D10_DRIVER_TYPE_SOFTWARE)
+	if (d3d10DeviceDesc.driverType == D3D10_DRIVER_TYPE_SOFTWARE)
 	{
 		wrp = LoadLibrary(L"D3D10WARP.dll");
 	}
 
 	AutoRelease<IDXGIAdapter> dxgiAdapter;
-	if (_desc.driverType == D3D10_DRIVER_TYPE_HARDWARE)
+	if (d3d10DeviceDesc.driverType == D3D10_DRIVER_TYPE_HARDWARE)
 	{
-		IF_FAILED(hr = dxgiFactory->EnumAdapters(_desc.adapterOrdinal, &dxgiAdapter))
+		IF_FAILED(hr = dxgiFactory->EnumAdapters(d3d10DeviceDesc.adapterOrdinal, &dxgiAdapter))
 		{
 			assert(L"Direct3DERR_CREATINGDEVICE : dxgiFactory::EnumAdapters");
 			return hr;
@@ -1948,9 +2009,9 @@ IMPL_FUNC(create_3DEnvironment10)(
 	// Try creating the D3D10.1 device first
 	if (SUCCEEDED(hr = D3D10CreateDevice1(
 		dxgiAdapter,
-		_desc.driverType,
+		d3d10DeviceDesc.driverType,
 		(HMODULE)wrp,
-		_desc.createFlags,
+		d3d10DeviceDesc.createFlags,
 		D3D10_FEATURE_LEVEL_10_1,
 		D3D10_1_SDK_VERSION,
 		&d3d10Device1)))
@@ -1963,9 +2024,9 @@ IMPL_FUNC(create_3DEnvironment10)(
 		// If D3D10.1 doesn't exist, then fallback to D3D10.0
 		hr = D3D10CreateDevice(
 			dxgiAdapter,
-			_desc.driverType,
+			d3d10DeviceDesc.driverType,
 			(HMODULE)wrp,
-			_desc.createFlags,
+			d3d10DeviceDesc.createFlags,
 			D3D10_SDK_VERSION,
 			&d3d10Device);
 	}
@@ -1976,7 +2037,7 @@ IMPL_FUNC(create_3DEnvironment10)(
 		return hr;
 	}
 
-	if (_desc.driverType != D3D10_DRIVER_TYPE_HARDWARE)
+	if (d3d10DeviceDesc.driverType != D3D10_DRIVER_TYPE_HARDWARE)
 	{
 		AutoRelease<IDXGIDevice> dxgiDev;
 		IF_SUCCEEDED(hr = d3d10Device->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDev))
@@ -2007,7 +2068,7 @@ IMPL_FUNC(create_3DEnvironment10)(
 	// Create the swapchain
 	IF_FAILED(hr = dxgiFactory->CreateSwapChain(
 		d3d10Device,
-		(DXGI_SWAP_CHAIN_DESC *)&_desc.sd,
+		(DXGI_SWAP_CHAIN_DESC *)&d3d10DeviceDesc.sd,
 		&dxgiSwapChain))
 	{
 		assert(L"Direct3DERR_CREATINGDEVICE : CreateSwapChain");
@@ -2015,11 +2076,11 @@ IMPL_FUNC(create_3DEnvironment10)(
 	}
 
 	// If switching to REF, set the exit code to 10.  If switching to HAL and exit code was 10, then set it back to 0.
-	if (_desc.driverType == D3D10_DRIVER_TYPE_REFERENCE && g_ExitCode == 0)
+	if (d3d10DeviceDesc.driverType == D3D10_DRIVER_TYPE_REFERENCE && g_ExitCode == 0)
 	{
 		g_ExitCode = 10;
 	}
-	else if (_desc.driverType == D3D10_DRIVER_TYPE_HARDWARE && g_ExitCode == 10)
+	else if (d3d10DeviceDesc.driverType == D3D10_DRIVER_TYPE_HARDWARE && g_ExitCode == 10)
 	{
 		g_ExitCode = 0;
 	}
@@ -2055,7 +2116,8 @@ IMPL_FUNC(create_3DEnvironment10)(
 	}
 
 	// Setup the render target view and viewport
-	IF_FAILED(hr = setup_D3D10Views(_desc))
+
+	IF_FAILED(hr = setup_D3D10Views(d3d10DeviceDesc))
 	{
 		assert(L"Direct3DERR_CREATINGDEVICEOBJECTS : setup_D3D10Views");
 		cleanup_3DEnvironment10(false);
@@ -2264,7 +2326,6 @@ IMPL_FUNC(setup_D3D10Views)(
 
 	HRESULT hr = S_OK;
 
-	AutoRelease<ID3D10DepthStencilView> d3d10DSV;
 	AutoRelease<ID3D10RenderTargetView> d3d10RTV;
 
 	// Get the back buffer and desc
@@ -2295,11 +2356,7 @@ IMPL_FUNC(setup_D3D10Views)(
 	{
 		return hr;
 	}
-
-	// Create depth stencil texture
-	AutoRelease<ID3D10Texture2D> d3d10DepthStencil;
-	AutoRelease<ID3D10RasterizerState> d3d10RasterizerState;
-
+	
 	if (_desc.autoCreateDepthStencil)
 	{
 		D3D10_TEXTURE2D_DESC descDepth;
@@ -2315,6 +2372,8 @@ IMPL_FUNC(setup_D3D10Views)(
 		descDepth.CPUAccessFlags = 0;
 		descDepth.MiscFlags = 0;
 
+		// Create depth stencil texture
+		AutoRelease<ID3D10Texture2D> d3d10DepthStencil;
 		IF_FAILED(hr = d3d10Device->CreateTexture2D(
 			&descDepth,
 			nullptr,
@@ -2338,6 +2397,7 @@ IMPL_FUNC(setup_D3D10Views)(
 
 		descDSV.Texture2D.MipSlice = 0;
 
+		AutoRelease<ID3D10DepthStencilView> d3d10DSV;
 		IF_FAILED(hr = d3d10Device->CreateDepthStencilView(
 			d3d10DepthStencil,
 			&descDSV,
@@ -2367,21 +2427,23 @@ IMPL_FUNC(setup_D3D10Views)(
 			RSDesc.MultisampleEnable = FALSE;
 		}
 
+		AutoRelease<ID3D10RasterizerState> d3d10RasterizerState;
 		IF_FAILED(hr = d3d10Device->CreateRasterizerState(&RSDesc, &d3d10RasterizerState))
 		{
 			return hr;
 		}
+
+		// Set the render targets
+		d3d10Device->RSSetState(d3d10RasterizerState);
+		d3d10Device->OMSetRenderTargets(1, &d3d10RTV, d3d10DSV);
+
+		g_Device.d3d10DSV = d3d10DSV;
+		g_Device.d3d10DepthStencil = d3d10DepthStencil;
+		g_Device.d3d10DefaultRasterizerState = d3d10RasterizerState;
 	}
 
-	// Set the render targets
-	d3d10Device->RSSetState(d3d10RasterizerState);
-	d3d10Device->OMSetRenderTargets(1, &d3d10RTV, d3d10DSV);
-
 	// initialize
-	g_Device.d3d10DSV = d3d10DSV;
 	g_Device.d3d10RTV = d3d10RTV;
-	g_Device.d3d10DepthStencil = d3d10DepthStencil;
-	g_Device.d3d10DefaultRasterizerState = d3d10RasterizerState;
 
 	return hr;
 }
@@ -2728,7 +2790,7 @@ LRESULT CALLBACK direct3D_WndProc(
 		}
 		else
 		{
-			if (g_State.createdDevice)
+			IF_FALSE(g_State.called_userSetDevice)
 			{
 				unsigned int width = LOWORD(_lParam);
 				unsigned int height = HIWORD(_lParam);
@@ -2783,6 +2845,8 @@ LRESULT CALLBACK direct3D_WndProc(
 			if (g_State.minimizedSize)
 			{
 				g_State.minimizedSize = false;
+
+				// pause_Rendering(true) in SIZE_MINIMIZED
 				g_Direct3D.pause_Rendering(false);
 			}
 			else if (g_State.maximizedSize)

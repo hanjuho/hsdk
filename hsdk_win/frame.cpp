@@ -15,7 +15,7 @@ direct3d::D3D10_Master * g_Frame_Master;
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(Frame, Frame)(void)
-: m_inputEventHelper(this)
+: m_inputEventHelper(this), my_FullScreen(false), my_ChangedSize(false)
 {
 
 }
@@ -42,6 +42,7 @@ CLASS_IMPL_FUNC_T(Frame, void, destroy)(
 	/* [x] */ void)
 {
 	Graphics::destroy();
+
 	g_Frame_Master = 0;
 }
 
@@ -49,31 +50,46 @@ CLASS_IMPL_FUNC_T(Frame, void, destroy)(
 CLASS_IMPL_FUNC_T(Frame, void, update)(
 	/* [x] */ void)
 {
-	IF_FALSE(is_FullScreen())
+	IF_FALSE(my_ChangedSize)
 	{
-		// 윈도 사각형 재설정
-		if (SetWindowPos(
-			g_Frame_Master->get_HWND_Focus(),
-			HWND_TOP,
-			(long)(get_X()),
-			(long)(get_Y()),
-			0,
-			0,
-			SWP_NOSIZE))
+		if (my_FullScreen)
 		{
-			g_Frame_Master->change_Monitor(true, (int)get_W(), (int)get_H());
+			if (g_Frame_Master->is_Windowed())
+			{
+				GetWindowRect(g_Frame_Master->get_HWND_WindowScreen(), &my_Rect);
+				g_Frame_Master->change_Monitor(FALSE, 0, 0);
+			}
+		}
+		else
+		{
+			if (g_Frame_Master->is_Windowed())
+			{
+				// 윈도 사각형 재설정
+				SetWindowPos(
+					g_Frame_Master->get_HWND_WindowScreen(),
+					HWND_TOP,
+					(long)get_X(),
+					(long)get_Y(),
+					(long)get_W(),
+					(long)get_H(),
+					SWP_NOSIZE);
+			}
+			else
+			{
+				// 윈도 사각형 재설정
+				SetWindowPos(
+					g_Frame_Master->get_HWND_WindowScreen(),
+					HWND_TOP,
+					my_Rect.left,
+					my_Rect.top,
+					my_Rect.right - my_Rect.left,
+					my_Rect.bottom - my_Rect.top,
+					SWP_NOSIZE);
+			}
 		}
 	}
 
-	// 상대적 좌표를 사용해서 연산하는 하위 component에게 맞추기 위해 윈도 실제 좌표와는 다르다.
-	if (m_D3D10Graphics)
-	{
-		m_D3D10Graphics->update({
-			0.0f,
-			0.0f,
-			get_W(),
-			get_H() });
-	}
+	my_FullScreen = !g_Frame_Master->is_Windowed();
 
 	// 하위 컴포넌트 갱신
 	std::hash_map<unsigned int, Component *>::iterator iter = m_Container.begin();
@@ -101,28 +117,19 @@ CLASS_IMPL_FUNC_T(Frame, void, message_Proc)(
 {
 	switch (_uMsg)
 	{
-	case WM_MOVE:
-		
-		// 수평 위치
-		set_X((int)LOWORD(_lParam));
-
-		// 수직 위치
-		set_Y((int)HIWORD(_lParam));
-
-		break;
 	case WM_SIZE:
-	{
+	{		
 					unsigned int width = LOWORD(_lParam);
 					unsigned int height = HIWORD(_lParam);
 
 					if (width != 0 && height != 0)
 					{
-						if (width != get_W() || height != get_H())
-						{
-							set_W((float)(width));
-							set_H((float)(height));
-							update();
-						}
+						set_W((float)(width));
+						set_H((float)(height));
+
+						my_ChangedSize = true;
+						update();
+						my_ChangedSize = false;
 					}
 	}
 		return;
@@ -191,9 +198,9 @@ CLASS_IMPL_FUNC(Frame, set_Visible)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Frame, void, set_FullScreen)(
-	/* [r] */ bool _full)
+	/* [r] */ BOOL _full)
 {
-	g_Frame_Master->change_Monitor(!_full, 0, 0);
+	my_FullScreen = _full;
 }
 
 //--------------------------------------------------------------------------------------
