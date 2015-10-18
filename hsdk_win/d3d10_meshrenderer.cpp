@@ -18,7 +18,10 @@ ID3D10Device * g_MeshRenderer_refDevice;
 AutoRelease<ID3D10Effect> g_MeshRenderer_D3D10Effect;
 
 // 설명 : Get the effect variable handles
-ID3D10EffectTechnique * g_MeshRenderer_RenderSky_Technique;
+ID3D10EffectTechnique * g_MeshRenderer_Render_Technique;
+
+// 설명 : 
+ID3D10EffectTechnique * g_MeshRenderer_Texture_Technique;
 
 //--------------------------------------------------------------------------------------
 // Grobal matrix variable
@@ -46,6 +49,9 @@ ID3D10EffectVectorVariable * g_MeshRenderer_Color_Vector;
 // 설명 : 
 ID3D10EffectVectorVariable * g_MeshRenderer_EyePt_Vector;
 
+// 설명 : 
+ID3D10EffectVectorVariable * g_MeshRenderer_TextureCapture_Vector;
+
 //--------------------------------------------------------------------------------------
 // Grobal scalar variable
 //--------------------------------------------------------------------------------------
@@ -69,6 +75,9 @@ ID3D10EffectShaderResourceVariable * g_MeshRenderer_Diffuse_Texture;
 
 // 설명 : 
 AutoRelease<ID3D10InputLayout> g_MeshRenderer_Basic_inputLayout;
+
+// 설명 : 
+AutoRelease<ID3D10InputLayout> g_MeshRenderer_Texture_inputLayout;
 
 //--------------------------------------------------------------------------------------
 // Grobal string variable
@@ -112,11 +121,6 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize)(
 		return hr;
 	}
 
-	// Get the effect variable handles
-	g_MeshRenderer_RenderSky_Technique =
-		g_MeshRenderer_D3D10Effect->GetTechniqueByName("RenderSky10");
-
-
 	g_MeshRenderer_WorldViewProj_Matrix =
 		g_MeshRenderer_D3D10Effect->GetVariableByName("g_WorldViewProj_Matrix")->AsMatrix();
 
@@ -125,7 +129,6 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize)(
 
 	g_MeshRenderer_World_Matrix =
 		g_MeshRenderer_D3D10Effect->GetVariableByName("g_World_Matrix")->AsMatrix();
-
 
 	g_MeshRenderer_WorldLight_Vector =
 		g_MeshRenderer_D3D10Effect->GetVariableByName("g_WorldLight_Vector")->AsVector();
@@ -136,6 +139,8 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize)(
 	g_MeshRenderer_EyePt_Vector =
 		g_MeshRenderer_D3D10Effect->GetVariableByName("g_vEyePt")->AsVector();
 
+	g_MeshRenderer_TextureCapture_Vector =
+		g_MeshRenderer_D3D10Effect->GetVariableByName("g_TextureCapture")->AsVector();
 
 	g_MeshRenderer_Time_Scalar =
 		g_MeshRenderer_D3D10Effect->GetVariableByName("g_fTime")->AsScalar();
@@ -143,11 +148,10 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize)(
 	g_MeshRenderer_ElapsedTime_Scalar =
 		g_MeshRenderer_D3D10Effect->GetVariableByName("g_fElapsedTime")->AsScalar();
 
-
 	g_MeshRenderer_Diffuse_Texture =
 		g_MeshRenderer_D3D10Effect->GetVariableByName("g_Diffuse_Texture")->AsShaderResource();
 
-	// Create a Vertex Decl for the terrain and basic meshes
+	//
 	const D3D10_INPUT_ELEMENT_DESC basiclayout[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D10_INPUT_PER_VERTEX_DATA, 0 },
@@ -155,14 +159,41 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize)(
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D10_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
+	// Get the effect variable handles
+	g_MeshRenderer_Render_Technique =
+		g_MeshRenderer_D3D10Effect->GetTechniqueByName("Render0");
+
 	D3D10_PASS_DESC PassDesc;
-	g_MeshRenderer_RenderSky_Technique->GetPassByIndex(0)->GetDesc(&PassDesc);
+	g_MeshRenderer_Render_Technique->GetPassByIndex(0)->GetDesc(&PassDesc);
 	IF_FAILED(hr = _d3d10Device->CreateInputLayout(
 		basiclayout,
 		sizeof(basiclayout) / sizeof(basiclayout[0]),
 		PassDesc.pIAInputSignature,
 		PassDesc.IAInputSignatureSize,
 		&g_MeshRenderer_Basic_inputLayout))
+	{
+		return hr;
+	}
+	
+	//
+	const D3D10_INPUT_ELEMENT_DESC texturelayout[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D10_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D10_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BLENDINDICES", 0, DXGI_FORMAT_R32_UINT, 0, 24, D3D10_INPUT_PER_VERTEX_DATA, 0 },
+	};
+
+	// Get the effect variable handles
+	g_MeshRenderer_Texture_Technique =
+		g_MeshRenderer_D3D10Effect->GetTechniqueByName("Texture0");
+
+	g_MeshRenderer_Texture_Technique->GetPassByIndex(0)->GetDesc(&PassDesc);
+	IF_FAILED(hr = _d3d10Device->CreateInputLayout(
+		texturelayout,
+		sizeof(texturelayout) / sizeof(texturelayout[0]),
+		PassDesc.pIAInputSignature,
+		PassDesc.IAInputSignatureSize,
+		&g_MeshRenderer_Texture_inputLayout))
 	{
 		return hr;
 	}
@@ -178,7 +209,7 @@ CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, destroy)(
 {
 	g_MeshRenderer_D3D10Effect.~AutoRelease();
 	g_MeshRenderer_Basic_inputLayout.~AutoRelease();
-	g_MeshRenderer_RenderSky_Technique = nullptr;
+	g_MeshRenderer_Render_Technique = nullptr;
 	g_MeshRenderer_WorldViewProj_Matrix = nullptr;
 	g_MeshRenderer_ViewProj_Matrix = nullptr;
 	g_MeshRenderer_World_Matrix = nullptr;
@@ -234,7 +265,7 @@ CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, render_SkyBox)(
 
 			g_MeshRenderer_Diffuse_Texture->SetResource(material.diffuseRV);
 
-			g_MeshRenderer_RenderSky_Technique->GetPassByIndex(0)->Apply(0);
+			g_MeshRenderer_Render_Technique->GetPassByIndex(0)->Apply(0);
 
 			g_MeshRenderer_refDevice->DrawIndexed(
 				desc.indexCount,
@@ -242,4 +273,14 @@ CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, render_SkyBox)(
 				desc.vertexbufferStart);
 		}
 	}
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, render_Texture)(
+	/* [r] */ D3DXMATRIX & _world,
+	/* [r] */ ID3D10Buffer * _vertexbuffer,
+	/* [r] */ ID3D10ShaderResourceView * _texture,
+	/* [r] */ const float(&_clip)[4])
+{
+
 }

@@ -11,7 +11,8 @@ using namespace win::frame;
 //--------------------------------------------------------------------------------------
 // Grobal 
 //--------------------------------------------------------------------------------------
-direct3d::D3D10_Master * g_Frame_Master;
+const direct3d::Direct3D_State * g_Window_State;
+const direct3d::Direct3D_Window * g_Window_Master;
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(Frame, Frame)(void)
@@ -32,7 +33,8 @@ CLASS_IMPL_DESTRUCTOR(Frame, Frame)(void)
 CLASS_IMPL_FUNC(Frame, initialize)(
 	/* [w] */ direct3d::D3D10_Master * _master)
 {
-	g_Frame_Master = _master;
+	g_Window_State = _master->get_State();
+	g_Window_Master = _master->get_Window();
 
 	return Graphics::initialize(_master);
 }
@@ -43,7 +45,8 @@ CLASS_IMPL_FUNC_T(Frame, void, destroy)(
 {
 	Graphics::destroy();
 
-	g_Frame_Master = 0;
+	g_Window_State = nullptr;
+	g_Window_Master = nullptr;
 }
 
 //--------------------------------------------------------------------------------------
@@ -52,13 +55,12 @@ CLASS_IMPL_FUNC_T(Frame, void, update)(
 {
 	IF_FALSE(my_ChangedSize)
 	{
-		if (g_Frame_Master->is_Windowed())
+		if (g_Window_State->windowed)
 		{
 			if (my_FullScreen)
 			{
 				// full to window
-				GetWindowRect(g_Frame_Master->get_HWND_WindowScreen(), &my_Rect);
-				g_Frame_Master->change_Monitor(FALSE, 0, 0);
+				GetWindowRect(g_Window_Master->hwnd, &my_Rect);
 			}
 			else
 			{
@@ -66,7 +68,7 @@ CLASS_IMPL_FUNC_T(Frame, void, update)(
 
 				// 윈도 사각형 재설정
 				SetWindowPos(
-					g_Frame_Master->get_HWND_WindowScreen(),
+					g_Window_Master->hwnd,
 					HWND_TOP,
 					(long)get_X(),
 					(long)get_Y(),
@@ -87,7 +89,7 @@ CLASS_IMPL_FUNC_T(Frame, void, update)(
 
 				// 윈도 사각형 재설정
 				SetWindowPos(
-					g_Frame_Master->get_HWND_WindowScreen(),
+					g_Window_Master->hwnd,
 					HWND_TOP,
 					my_Rect.left,
 					my_Rect.top,
@@ -98,7 +100,7 @@ CLASS_IMPL_FUNC_T(Frame, void, update)(
 		}
 	}
 
-	my_FullScreen = !g_Frame_Master->is_Windowed();
+	my_FullScreen = !g_Window_State->windowed;
 
 	// 하위 컴포넌트 갱신
 	std::hash_map<unsigned int, Component *>::iterator iter = m_Container.begin();
@@ -196,11 +198,11 @@ CLASS_IMPL_FUNC(Frame, set_Visible)(
 {
 	if (_visible)
 	{
-		ShowWindow(g_Frame_Master->get_HWND_Focus(), SW_SHOW);
+		ShowWindow(g_Window_Master->hwnd, SW_SHOW);
 	}
 	else
 	{
-		ShowWindow(g_Frame_Master->get_HWND_Focus(), SW_HIDE);
+		ShowWindow(g_Window_Master->hwnd, SW_HIDE);
 	}
 
 	return Container::set_Visible(_visible);
@@ -217,5 +219,5 @@ CLASS_IMPL_FUNC_T(Frame, void, set_FullScreen)(
 CLASS_IMPL_FUNC_T(Frame, BOOL, is_FullScreen)(
 	/* [x] */ void)const
 {
-	return !g_Frame_Master->is_Windowed();
+	return my_FullScreen;
 }

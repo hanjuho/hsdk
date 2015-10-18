@@ -25,6 +25,11 @@ CLASS_IMPL_FUNC(Direct3D_Outside, initialize)(
 	/* [r] */ BOOL _enumerateAllAdapterFormats,
 	/* [r] */ BOOL _is_in_GammaCorrectMode)
 {
+	IF_INVALID(_factory)
+	{
+		return E_ABORT;
+	}
+
 	g_enumerateAllAdapterFormats = _enumerateAllAdapterFormats;
 	g_is_in_GammaCorrectMode = _is_in_GammaCorrectMode;
 
@@ -275,56 +280,31 @@ CLASS_IMPL_FUNC_T(Direct3D_Outside, HMONITOR, get_MonitorFromAdapter)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D_Outside, unsigned int, get_AdapterOrdinalFromMonitor)(
-	/* [r] */ HMONITOR _monitor,
-	/* [r] */ IDirect3D9 * _d3d9)
+	/* [r] */ HMONITOR _monitor)
 {
-	if (_d3d9)
-	{
-		for (int iAdapter = 0;; ++iAdapter)
-		{
-			const VideoCard_info * card_info =
-				get_info(iAdapter);
+	// Get the monitor handle information
+	MONITORINFOEX mi;
+	mi.cbSize = sizeof(MONITORINFOEX);
+	GetMonitorInfo(_monitor, &mi);
 
-			IF_INVALID(card_info)
+	// Search for this monitor in our enumeration hierarchy.
+	for (int iAdapter = 0;; ++iAdapter)
+	{
+		for (int iOutput = 0;; ++iOutput)
+		{
+			const VideoCard_Output_info * output_info =
+				get_Output_info(iAdapter, iOutput);
+
+			IF_INVALID(output_info)
 			{
 				return -1;
 			}
 
-			HMONITOR hAdapterMonitor =
-				_d3d9->GetAdapterMonitor(card_info->ordinal);
-
-			if (_monitor == hAdapterMonitor)
+			// Convert output device name from MBCS to Unicode
+			unsigned int size = sizeof(mi.szDevice) / sizeof(mi.szDevice[0]);
+			if (wcsncmp(output_info->desc.DeviceName, mi.szDevice, size) == 0)
 			{
-				return card_info->ordinal;
-			}
-		}
-	}
-	else
-	{
-		// Get the monitor handle information
-		MONITORINFOEX mi;
-		mi.cbSize = sizeof(MONITORINFOEX);
-		GetMonitorInfo(_monitor, &mi);
-
-		// Search for this monitor in our enumeration hierarchy.
-		for (int iAdapter = 0;; ++iAdapter)
-		{
-			for (int iOutput = 0;; ++iOutput)
-			{
-				const VideoCard_Output_info * output_info =
-					get_Output_info(iAdapter, iOutput);
-
-				IF_INVALID(output_info)
-				{
-					return -1;
-				}
-
-				// Convert output device name from MBCS to Unicode
-				unsigned int size = sizeof(mi.szDevice) / sizeof(mi.szDevice[0]);
-				if (wcsncmp(output_info->desc.DeviceName, mi.szDevice, size) == 0)
-				{
-					return get_info(iAdapter)->ordinal;
-				}
+				return get_info(iAdapter)->ordinal;
 			}
 		}
 	}

@@ -117,6 +117,12 @@
     <ClCompile Include="direct3d_camera.cpp">
       <Filter>소스 파일\frame\d3d11</Filter>
     </ClCompile>
+    <ClCompile Include="usertimestream.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="direct3d_device.cpp">
+      <Filter>소스 파일\frame\d3d11</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\component.h">
@@ -194,6 +200,12 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\direct3d_camera.h">
       <Filter>헤더 파일\frame\direct3d</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\usertimestream.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\direct3d_device.h">
+      <Filter>헤더 파일\frame\direct3d</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\shader\common.hlsli">
@@ -202,7 +214,7 @@
     <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\common.inl">
       <Filter>헤더 파일\frame\direct3d</Filter>
     </None>
-    <None Include="..\shader\meshrenderer.fx">
+    <None Include="..\Win32Project1\meshrenderer.fx">
       <Filter>리소스 파일</Filter>
     </None>
   </ItemGroup>

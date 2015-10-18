@@ -44,7 +44,7 @@ CLASS_IMPL_FUNC_T(D3D10_Mesh, void, destroy)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_Mesh, setup)(
+CLASS_IMPL_FUNC(D3D10_Mesh, setup0)(
 	/* [r] */ ID3D10Device * _device,
 	/* [r] */ unsigned int _numOfMaterials,
 	/* [r] */ unsigned int _numOfMeshs)
@@ -62,8 +62,8 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_Mesh, setup_Texture)(
-	/* [r] */ const wchar_t * _path,
+CLASS_IMPL_FUNC(D3D10_Mesh, setup1_Texture)(
+	/* [r] */ const wchar_t * _filepath,
 	/* [r] */ unsigned int _indexOfMaterial,
 	/* [r] */ unsigned int _attribute)
 {
@@ -80,27 +80,31 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup_Texture)(
 		switch (_attribute)
 		{
 		case 0:
+
 			return my_refCallback_Create_Texture_FromFile(
 				&material.diffuseRV,
 				my_refD3D10Device,
-				_path,
+				_filepath,
 				my_refUserContext);
 		case 1:
 
 			return my_refCallback_Create_Texture_FromFile(
 				&material.normalRV,
 				my_refD3D10Device,
-				_path,
+				_filepath,
 				my_refUserContext);
 		case 2:
 
 			return my_refCallback_Create_Texture_FromFile(
 				&material.specularRV,
 				my_refD3D10Device,
-				_path,
+				_filepath,
 				my_refUserContext);
+
 		default:
+
 			return E_NOTIMPL;
+
 		};
 	}
 
@@ -108,7 +112,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup_Texture)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_Mesh, setup_Texture)(
+CLASS_IMPL_FUNC(D3D10_Mesh, setup1_Texture)(
 	/* [r] */ unsigned int _indexOfMaterial,
 	/* [r] */ unsigned int _attribute,
 	/* [r] */ ID3D10ShaderResourceView * _resource)
@@ -147,7 +151,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup_Texture)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_Mesh, setup_Material)(
+CLASS_IMPL_FUNC(D3D10_Mesh, setup1_Material)(
 	/* [r] */ unsigned int _indexOfMaterial,
 	/* [r] */ unsigned int _attribute,
 	/* [r] */ const D3DXVECTOR4 & _value)
@@ -187,7 +191,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup_Material)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_Mesh, setup_Mesh)(
+CLASS_IMPL_FUNC(D3D10_Mesh, setup1_Mesh)(
 	/* [r] */ unsigned int _indexOfMesh,
 	/* [r] */ unsigned int _numOfRenderDescs,
 	/* [r] */ unsigned int _numOfVertexBuffers)
@@ -209,7 +213,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup_Mesh)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_Mesh, setup_RenderDesc)(
+CLASS_IMPL_FUNC(D3D10_Mesh, setup2_RenderDesc)(
 	/* [r] */ unsigned int _indexOfMesh,
 	/* [r] */ unsigned int _indexOfRenderDesc,
 	/* [r] */ unsigned int _material_id,
@@ -251,7 +255,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup_RenderDesc)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_Mesh, setup_Vertexbuffer)(
+CLASS_IMPL_FUNC(D3D10_Mesh, setup2_Vertexbuffer)(
 	/* [r] */ unsigned int _indexOfMesh,
 	/* [r] */ unsigned int _indexOfBuffer,
 	/* [r] */ const D3D10_BUFFER_DESC & _desc,
@@ -309,7 +313,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup_Vertexbuffer)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_Mesh, setup_indexbuffer)(
+CLASS_IMPL_FUNC(D3D10_Mesh, setup2_indexbuffer)(
 	/* [r] */ unsigned int _indexOfMesh,
 	/* [r] */ const D3D10_BUFFER_DESC & _desc,
 	/* [r] */ const void * _indices,

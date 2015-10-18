@@ -12,8 +12,23 @@ using namespace direct3d;
 // 
 //--------------------------------------------------------------------------------------
 
+DECL_STRUCT(D3D10MY_TEXTURE)
+{
+
+	// 설명 : 
+	D3DX10_IMAGE_LOAD_INFO info;
+
+	// 설명 : 
+	AutoRelease<ID3D10ShaderResourceView> texture;
+
+};
+
+//--------------------------------------------------------------------------------------
+// 
+//--------------------------------------------------------------------------------------
+
 // 설명 : 
-std::hash_map<std::wstring, AutoRelease<ID3D10ShaderResourceView>> g_Manager_Texture_Container;
+std::hash_map<std::wstring, D3D10MY_TEXTURE> g_Manager_Texture_Container;
 
 //--------------------------------------------------------------------------------------
 // D3D10_Master impl
@@ -31,7 +46,8 @@ CLASS_IMPL_FUNC_T(D3D10_Master, void, destroy_Master)(
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_Master, get_Texture)(
 	/* [w] */ ID3D10ShaderResourceView ** _texture,
-	/* [r] */ const wchar_t * _directory)
+	/* [r] */ const wchar_t * _directory,
+	/* [r] */ D3DX10_IMAGE_LOAD_INFO * _info)
 {
 	// 중복 검사
 	auto iter = g_Manager_Texture_Container.find(_directory);
@@ -39,30 +55,58 @@ CLASS_IMPL_FUNC(D3D10_Master, get_Texture)(
 	if (iter != g_Manager_Texture_Container.end())
 	{
 		// 이미 있는 경우
-		(*_texture) = iter->second;
+		(*_texture) = iter->second.texture;
+
+		if (_info)
+		{
+			(*_info) = iter->second.info;
+		}
 	}
 	else
 	{
+		auto element = g_Manager_Texture_Container[_directory];
+
 		// 데이터가 없는 경우
 		HRESULT hr;
 		IF_FAILED(hr = D3DX10CreateShaderResourceViewFromFile(
-			get_D3D10_Device(),
+			get_Device()->d3d10Device,
 			_directory,
+			&element.info,
 			NULL,
-			NULL,
-			_texture,
+			&element.texture,
 			NULL))
 		{
+			g_Manager_Texture_Container.erase(_directory);
+
 			return hr;
 		}
 
-		// 데이터 추가
-		g_Manager_Texture_Container.insert(
-			std::hash_map<std::wstring, AutoRelease<ID3D10ShaderResourceView>>::value_type(
-			_directory, AutoRelease<ID3D10ShaderResourceView>((*_texture))));
+		// added one count from AutoRelease
+		(*_texture) = element.texture;
+
+		if (_info)
+		{
+			(*_info) = element.info;
+		}
+
 	}
 
 	return S_OK;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(D3D10_Master, const D3DX10_IMAGE_LOAD_INFO *, get_TextureLoadinfo)(
+	/* [r] */ const wchar_t * _directory)
+{
+	// 중복 검사
+	auto iter = g_Manager_Texture_Container.find(_directory);
+
+	if (iter == g_Manager_Texture_Container.end())
+	{
+		return nullptr;
+	}
+
+	return &iter->second.info;
 }
 
 //--------------------------------------------------------------------------------------
@@ -73,19 +117,19 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshSkyBox)(
 	_mesh.destroy();
 
 	HRESULT hr;
-	IF_FAILED(hr = _mesh.setup(
-		get_D3D10_Device(), 6, 1))
+	IF_FAILED(hr = _mesh.setup0(
+		get_Device()->d3d10Device, 6, 1))
 	{
 		return hr;
 	}
 
-	IF_FAILED(hr = _mesh.setup_Mesh(0, 6, 1))
+	IF_FAILED(hr = _mesh.setup1_Mesh(0, 6, 1))
 	{
 		return hr;
 	}
 
 	// Build box
-	D3D10_SkyFormat vBox[] = {
+	D3D10_BasicFormat vBox[] = {
 		// front
 		{ D3DXVECTOR3(-1.0f, -1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 1.0f) },
 		{ D3DXVECTOR3(1.0f, -1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 1.0f) },
@@ -125,13 +169,13 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshSkyBox)(
 	vBufferDesc.CPUAccessFlags = 0;
 	vBufferDesc.MiscFlags = 0;
 
-	IF_FAILED(hr = _mesh.setup_Vertexbuffer(
+	IF_FAILED(hr = _mesh.setup2_Vertexbuffer(
 		0, 0,
 		vBufferDesc,
 		vBox,
-		sizeof(D3D10_SkyFormat),
+		sizeof(D3D10_BasicFormat),
 		0,
-		sizeof(vBox) / sizeof(D3D10_SkyFormat)))
+		sizeof(vBox) / sizeof(D3D10_BasicFormat)))
 	{
 		return hr;
 	}
@@ -164,7 +208,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshSkyBox)(
 	iBufferDesc.CPUAccessFlags = 0;
 	iBufferDesc.MiscFlags = 0;
 
-	IF_FAILED(hr = _mesh.setup_indexbuffer(
+	IF_FAILED(hr = _mesh.setup2_indexbuffer(
 		0,
 		iBufferDesc,
 		iBox,
@@ -176,7 +220,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshSkyBox)(
 
 	for (unsigned int index = 0; index < 6; ++index)
 	{
-		IF_FAILED(hr = _mesh.setup_RenderDesc(
+		IF_FAILED(hr = _mesh.setup2_RenderDesc(
 			0, index, index, index * 6, (index * 6) + 6, 0, 0,
 			D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST))
 		{
@@ -330,8 +374,8 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromMemory)(
 
 	HRESULT hr = E_FAIL;
 
-	IF_FAILED(hr = _mesh.setup(
-		get_D3D10_Device(),
+	IF_FAILED(hr = _mesh.setup0(
+		get_Device()->d3d10Device,
 		refMeshDescs->numMaterials,
 		refMeshDescs->numMeshes))
 	{
@@ -344,26 +388,26 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromMemory)(
 		D3D10MESH_MATERIAL & refMaterial = refMaterialArray[m];
 
 		// Load Materials
-		_mesh.setup_Material(
+		_mesh.setup1_Material(
 			m, 0, refMaterial.diffuse);
 
-		_mesh.setup_Material(
+		_mesh.setup1_Material(
 			m, 1, refMaterial.ambient);
 
-		_mesh.setup_Material(
+		_mesh.setup1_Material(
 			m, 2, refMaterial.specular);
 
-		_mesh.setup_Material(
+		_mesh.setup1_Material(
 			m, 3, refMaterial.emissive);
 
 		// Load Textures
-		_mesh.setup_Texture(
+		_mesh.setup1_Texture(
 			refMaterial.szDiffuseTexture, m, 0);
 
-		_mesh.setup_Texture(
+		_mesh.setup1_Texture(
 			refMaterial.szNormalTexture, m, 1);
 
-		_mesh.setup_Texture(
+		_mesh.setup1_Texture(
 			refMaterial.szSpecularTexture, m, 2);
 	}
 
@@ -371,7 +415,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromMemory)(
 	{
 		D3D10MESH_MESH & refMesh = refMeshArray[m];
 
-		IF_SUCCEEDED(_mesh.setup_Mesh(
+		IF_SUCCEEDED(_mesh.setup1_Mesh(
 			m, refMesh.numSubsets, refMesh.numVertexBuffers))
 		{
 			for (unsigned int s = 0; s < refMesh.numSubsets; ++s)
@@ -379,7 +423,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromMemory)(
 				D3D10MESH_SUBSET & subset =
 					refSubsetArray[refMesh.subsets[s]];
 
-				IF_FAILED(hr = _mesh.setup_RenderDesc(
+				IF_FAILED(hr = _mesh.setup2_RenderDesc(
 					m, s,
 					subset.material_id,
 					subset.indexStart,
@@ -406,7 +450,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromMemory)(
 				bufferDesc.CPUAccessFlags = 0;
 				bufferDesc.MiscFlags = 0;
 
-				IF_FAILED(_mesh.setup_Vertexbuffer(
+				IF_FAILED(_mesh.setup2_Vertexbuffer(
 					m, v,
 					bufferDesc,
 					(refBufferData + (desc.dataOffset - BufferDataStart)),
@@ -430,7 +474,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromMemory)(
 			bufferDesc.CPUAccessFlags = 0;
 			bufferDesc.MiscFlags = 0;
 
-			IF_FAILED(hr = _mesh.setup_indexbuffer(
+			IF_FAILED(hr = _mesh.setup2_indexbuffer(
 				m, bufferDesc,
 				(refBufferData + (desc.dataOffset - BufferDataStart)),
 				desc.indexType == IT_16BIT ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT,

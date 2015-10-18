@@ -2,8 +2,7 @@
 
 
 
-using namespace hsdk;
-using namespace direct3d;
+using namespace hsdk::direct3d;
 
 
 //--------------------------------------------------------------------------------------

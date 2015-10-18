@@ -111,6 +111,8 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClCompile Include="d3d10_animation.cpp" />
     <ClCompile Include="d3d10_meshrenderer.cpp" />
     <ClCompile Include="direct3d_camera.cpp" />
+    <ClCompile Include="usertimestream.cpp" />
+    <ClCompile Include="direct3d_device.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\semaphore.h" />
@@ -128,6 +130,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_animation.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_meshrenderer.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\direct3d_camera.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\direct3d_device.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\frame.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\graphics.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\inputeventhelper.h" />
@@ -138,6 +141,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\thread\thread.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\thread\task.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\wintimer.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\usertimestream.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\common.inl" />
@@ -160,7 +164,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
       <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(HSDK_DIR)include\hsdk\win\shader\%(Filename).h</HeaderFileOutput>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
     </FxCompile>
-    <None Include="..\shader\meshrenderer.fx">
+    <None Include="..\Win32Project1\meshrenderer.fx">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

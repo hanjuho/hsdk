@@ -1,13 +1,12 @@
 #include <hsdk/win/wintimer.h>
 
 
-using namespace hsdk;
-using namespace win;
+
+using namespace hsdk::win;
 
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(WINTimer, WINTimer)(void)
-: m_bTimerStopped(true), m_llQPFTicksPerSec(0), m_llStopTime(0), m_llLastElapsedTime(0), m_llBaseTime(0)
 {	
 	// Use QueryPerformanceFrequency to get the frequency of the counter
 	LARGE_INTEGER qwTicksPerSec = { 0 };
