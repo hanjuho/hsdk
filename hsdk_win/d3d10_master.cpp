@@ -1,6 +1,9 @@
 #include <hsdk/win/frame/direct3d/d3d10_master.h>
 #include <hash_map>
 #include <string>
+#include <assimp/Importer.hpp>      // C++ importer interface
+#include <assimp/scene.h>           // Output data structure
+#include <assimp/postprocess.h>     // Post processing flags
 
 
 
@@ -8,24 +11,18 @@ using namespace hsdk;
 using namespace direct3d;
 
 
-//--------------------------------------------------------------------------------------
-// 
-//--------------------------------------------------------------------------------------
-
-DECL_STRUCT(D3D10MY_TEXTURE)
-{
-
-	// 설명 : 
-	D3DX10_IMAGE_LOAD_INFO info;
-
-	// 설명 : 
-	AutoRelease<ID3D10ShaderResourceView> texture;
-
-};
+// 설명 : 
+D3D10_Master hsdk::direct3d::g_D3D10_Master;
 
 //--------------------------------------------------------------------------------------
 // 
 //--------------------------------------------------------------------------------------
+
+// Create an instance of the Importer class
+Assimp::Importer g_importer;
+
+// 설명 : 
+ID3D10Device * g_refDevice_0 = nullptr;
 
 // 설명 : 
 std::hash_map<std::wstring, D3D10MY_TEXTURE> g_Manager_Texture_Container;
@@ -35,19 +32,35 @@ std::hash_map<std::wstring, D3D10MY_TEXTURE> g_Manager_Texture_Container;
 //--------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(D3D10_Master, void, destroy_Master)(
+CLASS_IMPL_FUNC(D3D10_Master, initialize)(
+	/* [r] */ ID3D10Device * _device)
+{
+	if (nullptr == g_refDevice_0)
+	{
+		g_refDevice_0 = _device;
+	}
+	else if (_device != g_refDevice_0)
+	{
+		destroy();
+
+		g_refDevice_0 = _device;
+	}
+
+	return S_OK;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(D3D10_Master, void, destroy)(
 	/* [x] */ void)
 {
 	g_Manager_Texture_Container.clear();
-
-	destroy();
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_Master, get_Texture)(
 	/* [w] */ ID3D10ShaderResourceView ** _texture,
 	/* [r] */ const wchar_t * _directory,
-	/* [r] */ D3DX10_IMAGE_LOAD_INFO * _info)
+	/* [r] */ const D3DX10_IMAGE_INFO ** _info)
 {
 	// 중복 검사
 	auto iter = g_Manager_Texture_Container.find(_directory);
@@ -59,43 +72,45 @@ CLASS_IMPL_FUNC(D3D10_Master, get_Texture)(
 
 		if (_info)
 		{
-			(*_info) = iter->second.info;
+			(*_info) = &iter->second.info;
 		}
 	}
 	else
 	{
-		auto element = g_Manager_Texture_Container[_directory];
+		auto & element = g_Manager_Texture_Container[_directory];
+		ZeroMemory(&element.info, sizeof(D3DX10_IMAGE_INFO));
 
 		// 데이터가 없는 경우
 		HRESULT hr;
 		IF_FAILED(hr = D3DX10CreateShaderResourceViewFromFile(
-			get_Device()->d3d10Device,
+			g_refDevice_0,
 			_directory,
-			&element.info,
-			NULL,
+			nullptr,
+			nullptr,
 			&element.texture,
-			NULL))
+			nullptr))
 		{
 			g_Manager_Texture_Container.erase(_directory);
 
 			return hr;
 		}
 
+		D3DX10GetImageInfoFromFile(_directory, nullptr, &element.info, nullptr);
+
 		// added one count from AutoRelease
 		(*_texture) = element.texture;
 
 		if (_info)
 		{
-			(*_info) = element.info;
+			(*_info) = &element.info;
 		}
-
 	}
 
 	return S_OK;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(D3D10_Master, const D3DX10_IMAGE_LOAD_INFO *, get_TextureLoadinfo)(
+CLASS_IMPL_FUNC_T(D3D10_Master, const D3DX10_IMAGE_INFO *, get_Texture_info)(
 	/* [r] */ const wchar_t * _directory)
 {
 	// 중복 검사
@@ -114,11 +129,11 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshSkyBox)(
 	/* [w] */ D3D10_Mesh & _mesh,
 	/* [r] */ float _size)
 {
-	_mesh.destroy();
+	_mesh.clear();
 
 	HRESULT hr;
 	IF_FAILED(hr = _mesh.setup0(
-		get_Device()->d3d10Device, 6, 1))
+		g_refDevice_0, 6, 1))
 	{
 		return hr;
 	}
@@ -234,377 +249,237 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshSkyBox)(
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 	/* [w] */ D3D10_Mesh & _mesh,
-	/* [r] */ const wchar_t * _szFileName,
-	/* [r] */ bool _createAdjacencyIndices)
+	/* [r] */ const wchar_t * _szFileName)
 {
-	HRESULT hr = S_OK;
+	char fileName[512];
+	wcstombs_s<512>(nullptr, fileName, _szFileName, sizeof(fileName));
+		
+	const aiScene * scene = g_importer.ReadFile(
+		fileName,
+		aiProcessPreset_TargetRealtime_MaxQuality |
+		aiProcess_FlipUVs |
+		aiProcess_SortByPType |
+		aiProcess_LimitBoneWeights);
 
-	wchar_t meshPath[MAX_PATH];
-
-	// Open the file
-	HANDLE hFile = CreateFile(
-		meshPath,
-		FILE_READ_DATA,
-		FILE_SHARE_READ,
-		nullptr,
-		OPEN_EXISTING,
-		FILE_FLAG_SEQUENTIAL_SCAN,
-		nullptr);
-
-	if (INVALID_HANDLE_VALUE == hFile)
+	IF_INVALID(scene)
 	{
-		return Direct3DERR_MEDIANOTFOUND;
+		return E_INVALIDARG;
 	}
 
-	// Change the path to just the directory
-	wchar_t * lastBSlash = wcsrchr(meshPath, L'\\');
-	if (lastBSlash)
-	{
-		(*(lastBSlash + 1)) = L'\0';
-	}
-	else
-	{
-		(*meshPath) = L'\0';
-	}
-
-	// Get the file size
-	LARGE_INTEGER fileSize;
-	GetFileSizeEx(hFile, &fileSize);
-
-	unsigned int cBytes = fileSize.LowPart;
-
-	// Allocate memory
-	std::vector<unsigned char> meshData(cBytes);
-
-	// Read in the file
-	DWORD dwBytesRead;
-	IF_FALSE(ReadFile(
-		hFile,
-		&meshData[0],
-		cBytes,
-		&dwBytesRead,
-		nullptr))
-	{
-		hr = E_FAIL;
-	}
-
-	CloseHandle(hFile);
-
-	IF_SUCCEEDED(hr)
-	{
-		if (FAILED(hr = create_MeshFromMemory(
-			_mesh,
-			meshPath,
-			&meshData[0],
-			meshData.size(),
-			_createAdjacencyIndices)))
-		{
-			_mesh.destroy();
-		}
-		else
-		{
-			_mesh.userSet_MeshPath(meshPath);
-		}
-	}
-
-	return hr;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromMemory)(
-	/* [w] */ D3D10_Mesh & _mesh,
-	/* [r] */ const wchar_t * _resourcePath,
-	/* [r] */ unsigned char * _data,
-	/* [r] */ unsigned int _dataBytes,
-	/* [r] */ bool _createAdjacencyIndices)
-{
-	_mesh.destroy();
-
-	D3DXVECTOR3 lower;
-	D3DXVECTOR3 upper;
-
-	// Pointer fixup
-	D3D10MESH_DESC * refMeshDescs =
-		(D3D10MESH_DESC *)_data;
-
-	D3D10MESH_VERTEX_BUFFER_DESC * refVertexBufferArray =
-		(D3D10MESH_VERTEX_BUFFER_DESC *)(_data + refMeshDescs->vertexStreamHeadersOffset);
-
-	D3D10MESH_INDEX_BUFFER_DESC * refindexBufferArray =
-		(D3D10MESH_INDEX_BUFFER_DESC *)(_data + refMeshDescs->indexStreamHeadersOffset);
-
-	D3D10MESH_MESH * refMeshArray =
-		(D3D10MESH_MESH*)(_data + refMeshDescs->meshDataOffset);
-
-	D3D10MESH_SUBSET * refSubsetArray =
-		(D3D10MESH_SUBSET*)(_data + refMeshDescs->subsetDataOffset);
-
-	D3D10MESH_FRAME * refFrameArray =
-		(D3D10MESH_FRAME*)(_data + refMeshDescs->frameDataOffset);
-
-	D3D10MESH_MATERIAL * refMaterialArray =
-		(D3D10MESH_MATERIAL*)(_data + refMeshDescs->materialDataOffset);
-
-	// Setup subsets
-	const unsigned int numMeshes =
-		refMeshDescs->numMeshes;
-
-	for (unsigned int i = 0; i < numMeshes; ++i)
-	{
-		refMeshArray[i].subsets =
-			(unsigned int *)(_data + refMeshArray[i].subsetOffset);
-
-		refMeshArray[i].frame_influences =
-			(unsigned int *)(_data + refMeshArray[i].frame_influenceOffset);
-	}
-
-	// error condition
-	if (refMeshDescs->version != SDKMESH_FILE_VERSION)
-	{
-		return E_NOINTERFACE;
-	}
-
-	// Setup buffer data pointer
-	unsigned char * refBufferData =
-		_data + refMeshDescs->headerSize + refMeshDescs->nonBufferDataSize;
-
-	// Get the start of the buffer data
-	unsigned long long BufferDataStart =
-		refMeshDescs->headerSize + refMeshDescs->nonBufferDataSize;
-
-	HRESULT hr = E_FAIL;
+	HRESULT hr;
 
 	IF_FAILED(hr = _mesh.setup0(
-		get_Device()->d3d10Device,
-		refMeshDescs->numMaterials,
-		refMeshDescs->numMeshes))
+		g_refDevice_0,
+		0 == scene->mNumMaterials ? 1 : scene->mNumMaterials,
+		scene->mNumMeshes))
 	{
 		return hr;
 	}
 
-	// Create Materials
-	for (unsigned int m = 0; m < refMeshDescs->numMaterials; ++m)
+	for (unsigned int index = 0; index < scene->mNumMaterials; ++index)
 	{
-		D3D10MESH_MATERIAL & refMaterial = refMaterialArray[m];
+		aiMaterial * matl = scene->mMaterials[index];
 
-		// Load Materials
-		_mesh.setup1_Material(
-			m, 0, refMaterial.diffuse);
-
-		_mesh.setup1_Material(
-			m, 1, refMaterial.ambient);
-
-		_mesh.setup1_Material(
-			m, 2, refMaterial.specular);
-
-		_mesh.setup1_Material(
-			m, 3, refMaterial.emissive);
-
-		// Load Textures
-		_mesh.setup1_Texture(
-			refMaterial.szDiffuseTexture, m, 0);
-
-		_mesh.setup1_Texture(
-			refMaterial.szNormalTexture, m, 1);
-
-		_mesh.setup1_Texture(
-			refMaterial.szSpecularTexture, m, 2);
-	}
-
-	for (unsigned int m = 0; m < refMeshDescs->numMeshes; ++m)
-	{
-		D3D10MESH_MESH & refMesh = refMeshArray[m];
-
-		IF_SUCCEEDED(_mesh.setup1_Mesh(
-			m, refMesh.numSubsets, refMesh.numVertexBuffers))
+		const unsigned int ndt = matl->GetTextureCount(aiTextureType_DIFFUSE);
+		if (ndt)
 		{
-			for (unsigned int s = 0; s < refMesh.numSubsets; ++s)
+			aiString aiPath;
+			if (AI_SUCCESS == matl->GetTexture(aiTextureType_DIFFUSE, 0, &aiPath))
 			{
-				D3D10MESH_SUBSET & subset =
-					refSubsetArray[refMesh.subsets[s]];
+				wchar_t path[512];
+				mbstowcs_s<512>(nullptr, path, aiPath.C_Str(), sizeof(path));
 
-				IF_FAILED(hr = _mesh.setup2_RenderDesc(
-					m, s,
-					subset.material_id,
-					subset.indexStart,
-					subset.indexCount,
-					subset.vertexStart,
-					subset.vertexCount,
-					convert_PrimitiveType((D3D10MESH_PRIMITIVE_TYPE)subset.primitiveType)))
-				{
-					return hr;
-				}
-			}
-
-			// Create VBs
-			for (unsigned int v = 0; v < refMesh.numVertexBuffers; ++v)
-			{
-				D3D10MESH_VERTEX_BUFFER_DESC & desc =
-					refVertexBufferArray[refMesh.vertexBuffers[v]];
-
-				//Vertex Buffer
-				D3D10_BUFFER_DESC bufferDesc;
-				bufferDesc.ByteWidth = (UINT)(desc.sizeBytes);
-				bufferDesc.Usage = D3D10_USAGE_DEFAULT;
-				bufferDesc.BindFlags = D3D10_BIND_VERTEX_BUFFER;
-				bufferDesc.CPUAccessFlags = 0;
-				bufferDesc.MiscFlags = 0;
-
-				IF_FAILED(_mesh.setup2_Vertexbuffer(
-					m, v,
-					bufferDesc,
-					(refBufferData + (desc.dataOffset - BufferDataStart)),
-					desc.strideBytes,
-					0,
-					desc.numVertices))
-				{
-					return hr;
-				}
-			}
-
-			// Create IBs
-			D3D10MESH_INDEX_BUFFER_DESC & desc =
-				refindexBufferArray[refMesh.indexBuffer];
-
-			// Index Buffer
-			D3D10_BUFFER_DESC bufferDesc;
-			bufferDesc.ByteWidth = (UINT)(desc.sizeBytes);
-			bufferDesc.Usage = D3D10_USAGE_DEFAULT;
-			bufferDesc.BindFlags = D3D10_BIND_INDEX_BUFFER;
-			bufferDesc.CPUAccessFlags = 0;
-			bufferDesc.MiscFlags = 0;
-
-			IF_FAILED(hr = _mesh.setup2_indexbuffer(
-				m, bufferDesc,
-				(refBufferData + (desc.dataOffset - BufferDataStart)),
-				desc.indexType == IT_16BIT ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT,
-				desc.numindices))
-			{
-				return hr;
+				_mesh.setup1_Texture(path, index, 0);
 			}
 		}
-	}
 
-	// Create Adjacency Indices
-	if (_createAdjacencyIndices)
-	{
-		/*
-		create_Adjacency_indices(
-		_d3d10Device,
-		0.001f,
-		refBufferData - BufferDataStart);*/
-	}
-
-	hr = S_OK;
-
-	D3D10MESH_MESH * currentMesh =
-		&refMeshArray[0];
-
-	int tris = 0;
-	for (unsigned int meshi = 0; meshi < numMeshes; ++meshi)
-	{
-		lower.x = FLT_MAX; lower.y = FLT_MAX; lower.z = FLT_MAX;
-		upper.x = -FLT_MAX; upper.y = -FLT_MAX; upper.z = -FLT_MAX;
-
-		currentMesh = (D3D10MESH_MESH *)&refMeshArray[meshi];
-
-		INT indsize;
-		if (refindexBufferArray[currentMesh->indexBuffer].indexType == IT_16BIT)
+		const unsigned int nnt = matl->GetTextureCount(aiTextureType_NORMALS);
+		if (nnt)
 		{
-			indsize = 2;
+			aiString aiPath;
+			if (AI_SUCCESS == matl->GetTexture(aiTextureType_NORMALS, 0, &aiPath))
+			{
+				wchar_t path[512];
+				mbstowcs_s<512>(nullptr, path, aiPath.C_Str(), sizeof(path));
+
+				_mesh.setup1_Texture(path, index, 1);
+			}
+		}
+
+		const unsigned int nst = matl->GetTextureCount(aiTextureType_SPECULAR);
+		if (nnt)
+		{
+			aiString aiPath;
+			if (AI_SUCCESS == matl->GetTexture(aiTextureType_SPECULAR, 0, &aiPath))
+			{
+				wchar_t path[512];
+				mbstowcs_s<512>(nullptr, path, aiPath.C_Str(), sizeof(path));
+
+				_mesh.setup1_Texture(path, index, 2);
+			}
+		}
+
+
+		aiColor4D material;
+		if (AI_SUCCESS != aiGetMaterialColor(matl, AI_MATKEY_COLOR_DIFFUSE, &material))
+		{
+			material = aiColor4D(1.0f, 1.0f, 1.0f, 1.0f);
+		}
+
+		_mesh.setup1_Material(
+			index, 0, { material.r, material.g, material.b, material.a });
+
+		if (AI_SUCCESS != aiGetMaterialColor(matl, AI_MATKEY_COLOR_AMBIENT, &material))
+		{
+			material = aiColor4D(0.2f, 0.2f, 0.2f, 1.f);
+		}
+
+		_mesh.setup1_Material(
+			index, 1, { material.r, material.g, material.b, material.a });
+
+		if (AI_SUCCESS != aiGetMaterialColor(matl, AI_MATKEY_COLOR_SPECULAR, &material))
+		{
+			material = aiColor4D(0.f, 0.f, 0.f, 0.f);
+		}
+
+		_mesh.setup1_Material(
+			index, 2, { material.r, material.g, material.b, material.a });
+
+		if (AI_SUCCESS != aiGetMaterialColor(matl, AI_MATKEY_COLOR_EMISSIVE, &material))
+		{
+			material = aiColor4D(0.f, 0.f, 0.f, 0.f);
+		}
+
+		_mesh.setup1_Material(
+			index, 3, { material.r, material.g, material.b, material.a });
+		
+		unsigned int max;
+
+		float shininess, strength;
+		if (AI_SUCCESS == aiGetMaterialFloatArray(matl, AI_MATKEY_SHININESS, &shininess, &(max = 1)))
+		{
+			if (AI_SUCCESS == aiGetMaterialFloatArray(matl, AI_MATKEY_SHININESS_STRENGTH, &strength, &(max = 1)))
+			{
+				shininess *= strength;
+			}
 		}
 		else
 		{
-			indsize = 4;
+			shininess = 0.0f;
 		}
 
-		const unsigned int numSubsets =
-			currentMesh->numSubsets;
-
-		for (unsigned int subseti = 0; subseti < numSubsets; ++subseti)
+		_mesh.setup1_Shininess(index, shininess);
+	}
+	
+	if (scene->mNumMaterials == 0)
+	{
+		_mesh.setup1_Material(0, 0, D3DXVECTOR4(1.f, 1.f, 1.f, 1.f));
+		_mesh.setup1_Material(0, 1, D3DXVECTOR4(0.2f, 0.2f, 0.2f, 1.f));
+		_mesh.setup1_Material(0, 2, D3DXVECTOR4(0.f, 0.f, 0.f, 0.f));
+		_mesh.setup1_Material(0, 3, D3DXVECTOR4(0.f, 0.f, 0.f, 0.f));
+		_mesh.setup1_Shininess(0, 0.0f);
+	}
+	
+	for (unsigned int index = 0; index < scene->mNumMeshes; ++index)
+	{
+		const aiMesh * mesh = scene->mMeshes[index];
+		IF_FAILED(_mesh.setup1_Mesh(index, 1, 1))
 		{
-			D3D10MESH_SUBSET * pSubset = &refSubsetArray[currentMesh->subsets[subseti]];
-
-			const unsigned int indexCount = (unsigned int)pSubset->indexCount;
-			const unsigned int indexStart = (unsigned int)pSubset->indexStart;
-
-			unsigned int * ind =
-				(unsigned int *)(refBufferData + (refindexBufferArray[currentMesh->indexBuffer].dataOffset - BufferDataStart));
-
-			float * verts =
-				(float *)(refBufferData + (refVertexBufferArray[currentMesh->vertexBuffers[0]].dataOffset - BufferDataStart));
-
-			unsigned int stride =
-				(unsigned int)refVertexBufferArray[currentMesh->vertexBuffers[0]].strideBytes;
-
-			stride /= 4;
-			for (unsigned int vertind = indexStart; vertind < indexStart + indexCount; ++vertind)
-			{
-				unsigned int current_ind = 0;
-				if (indsize == 2)
-				{
-					unsigned int ind_div2 = vertind / 2;
-					current_ind = ind[ind_div2];
-
-					if (vertind % 2 == 0)
-					{
-						current_ind = current_ind << 16;
-						current_ind = current_ind >> 16;
-					}
-					else
-					{
-						current_ind = current_ind >> 16;
-					}
-				}
-				else
-				{
-					current_ind = ind[vertind];
-				}
-
-				tris++;
-				D3DXVECTOR3 * pt =
-					(D3DXVECTOR3 *)&(verts[stride * current_ind]);
-
-				if (pt->x < lower.x)
-				{
-					lower.x = pt->x;
-				}
-
-				if (pt->y < lower.y)
-				{
-					lower.y = pt->y;
-				}
-
-				if (pt->z < lower.z)
-				{
-					lower.z = pt->z;
-				}
-
-				if (pt->x > upper.x)
-				{
-					upper.x = pt->x;
-				}
-
-				if (pt->y > upper.y)
-				{
-					upper.y = pt->y;
-				}
-
-				if (pt->z > upper.z)
-				{
-					upper.z = pt->z;
-				}
-			}
+			return hr;
 		}
 
-		D3DXVECTOR3 half = upper - lower;
-		half *= 0.5f;
+		D3D10_PRIMITIVE_TOPOLOGY topology;
+		unsigned int faceSize = 0;
 
-		_mesh.userSet_MeshBoundingBox(
-			meshi,
-			lower + half,
-			half);
+		switch (mesh->mPrimitiveTypes)
+		{
+		case aiPrimitiveType::aiPrimitiveType_POINT:
+			topology = D3D10_PRIMITIVE_TOPOLOGY_POINTLIST;
+			faceSize = 1;
+			break;
+		case aiPrimitiveType::aiPrimitiveType_LINE:
+			topology = D3D10_PRIMITIVE_TOPOLOGY_LINELIST;
+			faceSize = 2;
+			break;
+		case aiPrimitiveType::aiPrimitiveType_TRIANGLE:
+		case aiPrimitiveType::aiPrimitiveType_POLYGON:
+		case aiPrimitiveType::_aiPrimitiveType_Force32Bit:
+			faceSize = 3;
+			topology = D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		};
+
+		std::vector<unsigned int> indices(mesh->mNumFaces * faceSize);
+		unsigned int offsetOrSumOfindices = 0;
+
+		for (unsigned int findex = 0; findex < mesh->mNumFaces; ++findex)
+		{
+			aiFace & face = mesh->mFaces[findex];
+
+			if (face.mNumIndices != faceSize)
+			{
+				continue;
+			}
+
+			memcpy(
+				&indices[offsetOrSumOfindices],
+				face.mIndices,
+				face.mNumIndices * sizeof(unsigned int));
+
+			offsetOrSumOfindices += face.mNumIndices;
+		}
+		
+		// index Buffer
+		D3D10_BUFFER_DESC iBufferDesc;
+		iBufferDesc.ByteWidth = offsetOrSumOfindices * sizeof(unsigned int);
+		iBufferDesc.Usage = D3D10_USAGE_DEFAULT;
+		iBufferDesc.BindFlags = D3D10_BIND_INDEX_BUFFER;
+		iBufferDesc.CPUAccessFlags = 0;
+		iBufferDesc.MiscFlags = 0;
+
+		IF_FAILED(hr = _mesh.setup2_indexbuffer(
+			index,
+			iBufferDesc,
+			&indices[0],
+			DXGI_FORMAT_R32_UINT,
+			offsetOrSumOfindices))
+		{
+			return hr;
+		}
+
+		std::vector<D3D10_SkinnedFormat> vbuffer(mesh->mNumVertices);
+		for (unsigned int vindex = 0; vindex < mesh->mNumVertices; ++vindex)
+		{
+			memcpy(&vbuffer[vindex].pos, &mesh->mVertices[vindex], sizeof(D3DXVECTOR3));
+			memcpy(&vbuffer[vindex].norm, &mesh->mNormals[vindex], sizeof(D3DXVECTOR3));
+			memcpy(&vbuffer[vindex].tex, &mesh->mTextureCoords[0][vindex], sizeof(D3DXVECTOR2));
+			memcpy(&vbuffer[vindex].color, &mesh->mColors[0][vindex], sizeof(D3DXVECTOR4));
+			int a = 0;
+		}
+
+		// Vertex Buffer
+		D3D10_BUFFER_DESC vBufferDesc;
+		vBufferDesc.ByteWidth = mesh->mNumVertices * sizeof(D3D10_SkinnedFormat);
+		vBufferDesc.Usage = D3D10_USAGE_DEFAULT;
+		vBufferDesc.BindFlags = D3D10_BIND_VERTEX_BUFFER;
+		vBufferDesc.CPUAccessFlags = 0;
+		vBufferDesc.MiscFlags = 0;
+		
+		IF_FAILED(hr = _mesh.setup2_Vertexbuffer(
+			index, 0,
+			vBufferDesc,
+			&vbuffer[0],
+			sizeof(D3D10_SkinnedFormat),
+			0, mesh->mNumVertices))
+		{
+			return hr;
+		}
+
+		_mesh.setup2_RenderDesc(
+			index, 0, mesh->mMaterialIndex,
+			0, offsetOrSumOfindices, 0, 1, topology);
 	}
 
-	return hr;
+	g_importer.FreeScene();
+
+	return S_OK;
 }

@@ -30,11 +30,11 @@ CLASS_IMPL_CONSTRUCTOR(D3D10_Mesh, D3D10_Mesh)(
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_DESTRUCTOR(D3D10_Mesh, D3D10_Mesh)(void)
 {
-	destroy();
+	clear();
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(D3D10_Mesh, void, destroy)(
+CLASS_IMPL_FUNC_T(D3D10_Mesh, void, clear)(
 	/* [x] */ void)
 {
 	my_MeshPath = L"";
@@ -156,7 +156,6 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup1_Material)(
 	/* [r] */ unsigned int _attribute,
 	/* [r] */ const D3DXVECTOR4 & _value)
 {
-
 	IF_FALSE(_indexOfMaterial < my_Materials.size())
 	{
 		return E_ACCESSDENIED;
@@ -186,6 +185,24 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup1_Material)(
 	default:
 		return E_NOTIMPL;
 	};
+
+	return S_OK;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC(D3D10_Mesh, setup1_Shininess)(
+	/* [r] */ unsigned int _indexOfMaterial,
+	/* [r] */ unsigned int _shininess)
+{
+	IF_FALSE(_indexOfMaterial < my_Materials.size())
+	{
+		return E_ACCESSDENIED;
+	}
+
+	D3D10MY_MATERIAL & material =
+		my_Materials[_indexOfMaterial];
+
+	material.shininess = _shininess;
 
 	return S_OK;
 }
@@ -293,12 +310,12 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup2_Vertexbuffer)(
 	}
 	else
 	{
-		D3D10_SUBRESOURCE_DATA InitData;
-		InitData.pSysMem = _vertices;
+		D3D10_SUBRESOURCE_DATA initData;
+		initData.pSysMem = _vertices;
 
 		hr = my_refD3D10Device->CreateBuffer(
 			&_desc,
-			&InitData,
+			&initData,
 			&vb);
 	}
 

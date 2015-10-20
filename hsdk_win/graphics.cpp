@@ -1,6 +1,5 @@
 #include <hsdk/win/frame/graphics.h>
-#include <hsdk/win/shader/vs_ui.h>
-#include <hsdk/win/shader/ps_ui.h>
+#include <hsdk/win/frame/direct3d/d3d10_meshrenderer.h>
 
 
 
@@ -9,46 +8,26 @@ using namespace i::frame;
 using namespace win::frame;
 using namespace direct3d;
 
-
-//--------------------------------------------------------------------------------------
-// Grobal declare function
-//--------------------------------------------------------------------------------------
-
-// 설명 : 
-DECL_FUNC_T(D3DCOLORVALUE, get_ColorToValue)(
-	/* [r] */ D3DCOLOR _color);
-
 //--------------------------------------------------------------------------------------
 // Grobal D3D10 Variable
 //--------------------------------------------------------------------------------------
 
-// 설명 : 
-direct3d::D3D10_Master * g_Graphics_refMaster;
+// 설명 :
+Direct3D g_D3D_1;
 
-//--------------------------------------------------------------------------------------
-AutoRelease<ID3D10RasterizerState> CULL_BACK_RASTERIZER;
-AutoRelease<ID3D10DepthStencilState> FRONT_CLIPPING_DEPTH;
+// 설명 :
+const Direct3D_Window * const g_refWindow_0 = g_D3D_1.get_Window();
 
-//--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(Graphics, initialize)(
-	/* [r] */ direct3d::D3D10_Master * _master)
-{
-	g_Graphics_refMaster = _master;
+// 설명 :
+D3D10_Master g_Master_0;
 
-	return S_OK;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Graphics, void, destroy)(
-	/* [x] */ void)
-{
-	g_Graphics_refMaster = nullptr;
-}
+// 설명 :
+D3D10_MeshRenderer g_MeshRenderer_0;
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(Graphics, Graphics)(void)
 {
-
+	D3DXMatrixIdentity(&my_Position);
 }
 
 //--------------------------------------------------------------------------------------
@@ -61,21 +40,34 @@ CLASS_IMPL_DESTRUCTOR(Graphics, Graphics)(void)
 CLASS_IMPL_FUNC_T(Graphics, void, set_Background)(
 	/* [r] */ const float(&_color)[4])
 {
-
+	my_BGColor = _color;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Graphics, void, set_image)(
 	/* [r] */ const wchar_t * _filename)
 {
+	IF_INVALID(_filename)
+	{
+		my_Texture_info = nullptr;
+		my_Texture = nullptr;
+		return;
+	}
 
+	g_Master_0.get_Texture(&my_Texture, _filename, &my_Texture_info);
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Graphics, void, set_imageDetail)(
 	/* [r] */ const float(&_rectangle)[4])
 {
-
+	if (my_Texture_info)
+	{
+		my_Sprite[0] = _rectangle[0] / my_Texture_info->Width;
+		my_Sprite[1] = _rectangle[1] / my_Texture_info->Height;
+		my_Sprite[2] = (_rectangle[0] + _rectangle[2]) / my_Texture_info->Width;
+		my_Sprite[3] = (_rectangle[1] + _rectangle[3]) / my_Texture_info->Height;
+	}
 }
 
 //--------------------------------------------------------------------------------------
@@ -83,7 +75,7 @@ CLASS_IMPL_FUNC_T(Graphics, void, set_Font)(
 	/* [r] */ const wchar_t * _fontname,
 	/* [r] */ unsigned int _fontsize)
 {
-
+	
 }
 
 //--------------------------------------------------------------------------------------
@@ -97,79 +89,51 @@ CLASS_IMPL_FUNC_T(Graphics, void, set_FontColor)(
 CLASS_IMPL_FUNC_T(Graphics, void, set_Text)(
 	/* [r] */ const wchar_t * _text)
 {
-	m_Text = _text;
+
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Graphics, void, update)(
 	/* [r] */ const float(&_rectangle)[4])
 {
-	// Convert the rect from screen coordinates to clip space coordinates.
-	/*float Left, Right, Top, Bottom;
-
-	Left = ((_rectangle[0] / g_Graphics_refMaster->get_Width()) * 2.0f) - 1.0f;
-	Right = ((_rectangle[2] / g_Graphics_refMaster->get_Width()) * 2.0f) - 1.0f;
-	Top = 1.0f - ((_rectangle[1] / g_Graphics_refMaster->get_Height()) * 2.0f);
-	Bottom = 1.0f - ((_rectangle[3] / g_Graphics_refMaster->get_Height()) * 2.0f);
-
-	float uv[4] = {
-	m_uvRectangle[0] / m_imageW,
-	m_uvRectangle[1] / m_imageH,
-	(m_uvRectangle[0] + m_uvRectangle[2]) / m_imageW,
-	(m_uvRectangle[1] + m_uvRectangle[3]) / m_imageH };
-
-	D3D10_UIFormat vertices[4] = {
-	{ { Left, Top, 0.5f }, get_ColorToValue(0), { uv[0], uv[1] } },
-	{ { Right, Top, 0.5f }, get_ColorToValue(0), { uv[2], uv[1] } },
-	{ { Left, Bottom, 0.5f }, get_ColorToValue(0), { uv[0], uv[3] } },
-	{ { Right, Bottom, 0.5f }, get_ColorToValue(0), { uv[2], uv[3] } } };
-
-	D3D10_UIFormat * pVB;
-	if (SUCCEEDED(my_Panel->Map(D3D10_MAP_WRITE_DISCARD, 0, (void**)&pVB)))
-	{
-	CopyMemory(pVB, vertices, sizeof(vertices));
-	my_Panel->Unmap();
-	}*/
+	float screenWidth = g_refWindow_0->width;
+	float screenHeigth = g_refWindow_0->height;
+	float myWidth = _rectangle[2] / g_refWindow_0->width;
+	float myHeight = _rectangle[3] / g_refWindow_0->height;
+	
+	D3DXMATRIX scale;
+	D3DXMatrixScaling(
+		&scale,
+		myWidth,
+		myHeight,
+		0.0f);
+	
+	D3DXMatrixTranslation(
+		&my_Position,
+		(_rectangle[0] / screenWidth * 2.0f) + (myWidth - 1.0f),
+		(1.0f - myHeight) - (_rectangle[1] / screenHeigth * 2.0f),
+		0.0f);
+	
+	D3DXMatrixMultiply(&my_Position, &scale, &my_Position);
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Graphics, void, render)(
-	/* [x] */ void)
+	/* [x] */ float _persent)
 {
-	//ID3D10Device * const device =
-	//	g_Graphics_refMaster->get_D3D10_Device();
-
-	//// Set the quad VB as current
-	//UINT stride = sizeof(D3D10_UIFormat);
-	//UINT offset = 0;
-
-	//device->IASetVertexBuffers(0, 1, &my_Panel, &stride, &offset);
-	//device->IASetInputLayout(g_Graphics_inputLayout);
-	//device->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-
-	//// Draw dialog background
-	//D3D10_TECHNIQUE_DESC techDesc;
-	//g_Graphics_RenderUIUntex_Technique->GetDesc(&techDesc);
-	//for (unsigned int index = 0; index < techDesc.Passes; ++index)
-	//{
-	//	g_Graphics_RenderUI_Technique->GetPassByIndex(index)->Apply(0);
-	//	device->Draw(4, 0);
-	//}
-}
-
-//--------------------------------------------------------------------------------------
-// Grobal implements function
-//--------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------
-IMPL_FUNC_T(D3DCOLORVALUE, get_ColorToValue)(
-	/* [r] */ D3DCOLOR _color)
-{
-	D3DCOLORVALUE value = {
-		((_color >> 16) & 0xFF) / 255.0f,
-		((_color >> 8) & 0xFF) / 255.0f,
-		(_color & 0xFF) / 255.0f,
-		((_color >> 24) & 0xFF) / 255.0f };
-
-	return value;
+	if (my_Texture)
+	{
+		g_MeshRenderer_0.render_UITexture(
+			my_Position,
+			my_Texture,
+			my_Sprite,
+			_persent);
+	}
+	else
+	{
+		g_MeshRenderer_0.render_UIRectangle(
+			my_Position,
+			my_BGColor,
+			_persent);
+	}
 }

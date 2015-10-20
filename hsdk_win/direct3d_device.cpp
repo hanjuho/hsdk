@@ -17,17 +17,17 @@ CLASS_IMPL_FUNC(Direct3D_DeviceFactory, create9)(
 	/* [in] */ const Direct3D_Callbacks * _callback)
 {
 	// Try to create the device with the chosen settings
-	IDirect3D9 * d3d = nullptr;
-	IF_INVALID((d3d = Direct3DCreate9(D3D_SDK_VERSION)))
+	IDirect3D9 * d3d9 = nullptr;
+	IF_INVALID((d3d9 = Direct3DCreate9(D3D_SDK_VERSION)))
 	{
-		DEL_COM(d3d);
+		DEL_COM(d3d9);
 		return E_FAIL;
 	}
 	
 	HRESULT hr = E_FAIL;
 
 	D3DCAPS9 caps;
-	IF_FAILED(hr = d3d->GetDeviceCaps(
+	IF_FAILED(hr = d3d9->GetDeviceCaps(
 		_desc.adapterOrdinal,
 		_desc.deviceType,
 		&caps))
@@ -55,7 +55,7 @@ CLASS_IMPL_FUNC(Direct3D_DeviceFactory, create9)(
 
 	// create device
 	AutoRelease<IDirect3DDevice9> d3d9Device;
-	IF_FAILED(hr = d3d->CreateDevice(
+	IF_FAILED(hr = d3d9->CreateDevice(
 		_desc.adapterOrdinal,
 		_desc.deviceType,
 		_desc.pp.hDeviceWindow,
@@ -92,8 +92,8 @@ CLASS_IMPL_FUNC(Direct3D_DeviceFactory, create9)(
 
 	IF_SUCCEEDED(hr)
 	{
-		_device.direct3D9.~AutoRelease();
-		*(&_device.direct3D9) = d3d;
+		_device.d3d9.~AutoRelease();
+		*(&_device.d3d9) = d3d9;
 
 		_device.d3d9Device = d3d9Device;
 		memcpy(&_device.backBuffer_Desc, &backBufferDesc, sizeof(D3DSURFACE_DESC));
@@ -433,7 +433,7 @@ CLASS_IMPL_FUNC(Direct3D_DeviceFactory, create10)(
 		D3DX10CreateSprite(d3d10Device, 0, &_device.d3d10Sprite);
 	}
 
-	return setup_RenderTarget(_device, _desc, _callback);
+	return setup_RenderTarget(_device, _desc);
 }
 
 //--------------------------------------------------------------------------------------
@@ -447,28 +447,57 @@ CLASS_IMPL_FUNC(Direct3D_DeviceFactory, resize10)(
 	// pDeviceSettings->d3d10.sd.BufferDesc.  SetDoNotStoreBufferSize tells DXUTCheckForDXGIBufferChange
 	// not to store the height and width so that we have the correct values when calling ResizeTarget.
 	HRESULT hr;
-	IF_FAILED(hr = _device.dxgiSwapChain->SetFullscreenState(!_desc.sd.Windowed, NULL))
+
+	unsigned int flag = 0;
+	if (_desc.sd.Windowed)
 	{
-		return hr;
+		IF_FAILED(hr = _device.dxgiSwapChain->SetFullscreenState(FALSE, NULL))
+		{
+			return hr;
+		}		
+	}
+	else
+	{
+		IF_FAILED(hr = _device.dxgiSwapChain->SetFullscreenState(TRUE, NULL))
+		{
+			return hr;
+		}
+
+		flag = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 	}
 
+	_device.d3d10Device->ClearState();
+	
+	// if do not initialize folow, to call ResizeBuffers fail
+	_device.dxgiBackBuffer.~AutoRelease();
+	_device.d3d10RTV.~AutoRelease();
+	_device.d3d10DSV.~AutoRelease();
+	_device.d3d10DepthStencil.~AutoRelease();
+	_device.d3d10DefaultRasterizerState.~AutoRelease();
+	
 	IF_FAILED(hr = _device.dxgiSwapChain->ResizeBuffers(
 		_desc.sd.BufferCount,
 		_desc.sd.BufferDesc.Width,
 		_desc.sd.BufferDesc.Height,
-		_desc.sd.BufferDesc.Format, 0))
+		_desc.sd.BufferDesc.Format, 
+		flag))
 	{
 		return hr;
 	}
 
-	D3D10_TEXTURE2D_DESC TexDesc;
-	_device.dxgiBackBuffer->GetDesc(&TexDesc);
+	AutoRelease<ID3D10Texture2D> dxgiBackBuffer;
+	IF_SUCCEEDED(hr = _device.dxgiSwapChain->GetBuffer(
+		0, __uuidof(*dxgiBackBuffer), (void**)&dxgiBackBuffer))
+	{
+		D3D10_TEXTURE2D_DESC TexDesc;
+		dxgiBackBuffer->GetDesc(&TexDesc);
 
-	DXGI_SURFACE_DESC & dxgiBackBuffer_Desc = _device.dxgiBackBuffer_Desc;
-	dxgiBackBuffer_Desc.Width = (unsigned int)TexDesc.Width;
-	dxgiBackBuffer_Desc.Height = (unsigned int)TexDesc.Height;
-	dxgiBackBuffer_Desc.Format = TexDesc.Format;
-	dxgiBackBuffer_Desc.SampleDesc = TexDesc.SampleDesc;
+		DXGI_SURFACE_DESC & dxgiBackBuffer_Desc = _device.dxgiBackBuffer_Desc;
+		dxgiBackBuffer_Desc.Width = (unsigned int)TexDesc.Width;
+		dxgiBackBuffer_Desc.Height = (unsigned int)TexDesc.Height;
+		dxgiBackBuffer_Desc.Format = TexDesc.Format;
+		dxgiBackBuffer_Desc.SampleDesc = TexDesc.SampleDesc;
+	}
 
 	if (_callback)
 	{
@@ -480,12 +509,14 @@ CLASS_IMPL_FUNC(Direct3D_DeviceFactory, resize10)(
 			hr = callback_SwapChainResized(
 				_device.d3d10Device,
 				_device.dxgiSwapChain,
-				dxgiBackBuffer_Desc,
+				_device.dxgiBackBuffer_Desc,
 				_callback->d3d10SwapChainResizedFuncUserContext);
 		}
 	}
 
-	return S_OK;
+	_device.dxgiBackBuffer = dxgiBackBuffer;
+
+	return setup_RenderTarget(_device, _desc);
 }
 
 //--------------------------------------------------------------------------------------
@@ -554,7 +585,9 @@ CLASS_IMPL_FUNC(Direct3D_DeviceFactory, reset10)(
 			return hr;
 		}
 
-		return setup_RenderTarget(_device, _desc, _callback);
+		_device.dxgiSwapChain = dxgiSwapChain;
+
+		return setup_RenderTarget(_device, _desc);
 	}
 
 	return resize10(_device, _desc, _callback);
@@ -563,15 +596,14 @@ CLASS_IMPL_FUNC(Direct3D_DeviceFactory, reset10)(
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Direct3D_DeviceFactory, setup_RenderTarget)(
 	/* [w] */ Direct3D_Device & _device,
-	/* [r] */ const D3D10_DEVICE_DESC & _desc,
-	/* [in] */ const Direct3D_Callbacks * _callback)
+	/* [r] */ const D3D10_DEVICE_DESC & _desc)
 {
 	HRESULT hr;
 
 	// Setup the viewport to match the backbuffer
 	D3D10_VIEWPORT vp;
-	vp.Width = _device.backBuffer_Desc.Width;
-	vp.Height = _device.backBuffer_Desc.Height;
+	vp.Width = _desc.sd.BufferDesc.Width;
+	vp.Height = _desc.sd.BufferDesc.Height;
 	vp.MinDepth = 0;
 	vp.MaxDepth = 1;
 	vp.TopLeftX = 0;
@@ -592,8 +624,8 @@ CLASS_IMPL_FUNC(Direct3D_DeviceFactory, setup_RenderTarget)(
 	if (_desc.autoCreateDepthStencil)
 	{
 		D3D10_TEXTURE2D_DESC descDepth;
-		descDepth.Width = _device.backBuffer_Desc.Width;
-		descDepth.Height = _device.backBuffer_Desc.Height;
+		descDepth.Width = _desc.sd.BufferDesc.Width;
+		descDepth.Height = _desc.sd.BufferDesc.Height;
 		descDepth.MipLevels = 1;
 		descDepth.ArraySize = 1;
 		descDepth.Format = _desc.autoDepthStencilFormat;
@@ -668,7 +700,8 @@ CLASS_IMPL_FUNC(Direct3D_DeviceFactory, setup_RenderTarget)(
 		// Set the render targets
 		_device.d3d10Device->RSSetState(d3d10RasterizerState);
 		_device.d3d10Device->OMSetRenderTargets(1, &d3d10RTV, d3d10DSV);
-
+		
+		// initialize
 		_device.d3d10DSV = d3d10DSV;
 		_device.d3d10DepthStencil = d3d10DepthStencil;
 		_device.d3d10DefaultRasterizerState = d3d10RasterizerState;

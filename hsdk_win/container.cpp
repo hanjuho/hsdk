@@ -159,6 +159,13 @@ CLASS_IMPL_FUNC_T(Container, void, render)(
 			iter++;
 		}
 
-		m_D3D10Graphics->render();
+		m_D3D10Graphics->render(1.0f);
 	}
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Container, void, clear)(
+	/* [x] */ void)
+{
+	m_Container.clear();
 }

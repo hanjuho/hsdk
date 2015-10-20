@@ -11,6 +11,9 @@ using namespace hsdk;
 using namespace direct3d;
 
 
+// 설명 : 
+Direct3D hsdk::direct3d::g_D3D;
+
 //--------------------------------------------------------------------------------------
 // Grobal thread safety
 //--------------------------------------------------------------------------------------
@@ -25,9 +28,6 @@ BOOL g_bThreadSafe = true;
 //--------------------------------------------------------------------------------------
 // Grobal d3d variable
 //--------------------------------------------------------------------------------------
-
-// 설명 : 
-Direct3D_Outside g_Outside;
 
 // 설명 :
 Direct3D_Callbacks g_Callbacks;
@@ -51,9 +51,6 @@ BOOL g_MouseButtons[5] = { 0 };
 //--------------------------------------------------------------------------------------
 // Grobal device handle variable
 //--------------------------------------------------------------------------------------
-
-// 설명 : 
-Direct3D g_Direct3D;
 
 // 설명 : 
 Direct3D_State g_State;
@@ -203,12 +200,13 @@ CLASS_IMPL_FUNC(Direct3D, setup0_Window)(
 	g_Window.hwnd = hWnd;
 	g_Window.menu = _hMenu;
 
-	g_Window.adapterMonitor =
-		MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
+	g_Window.adapter = -1;
+	g_Window.windowed = -1;
+	g_Window.width = nDefaultWidth;
+	g_Window.height = nDefaultHeight;
 
-	g_State.windowed = TRUE;
-	g_State.width = nDefaultWidth;
-	g_State.height = nDefaultHeight;
+	GetWindowRect(hWnd, &g_Window.windowedRect);
+	g_Window.windowedStyle = GetWindowLong(hWnd, GWL_STYLE);
 
 	return S_OK;
 }
@@ -241,26 +239,41 @@ CLASS_IMPL_FUNC(Direct3D, setup2_Device9)(
 		return E_ACCESSDENIED;
 	}
 
+	if (nullptr == _desc.pp.hDeviceWindow)
+	{
+		_desc.pp.hDeviceWindow = g_Window.hwnd;
+	}
+	else if (_desc.pp.hDeviceWindow != g_Window.hwnd)
+	{
+		return E_INVALIDARG;
+	}
+
 	if (TRUE == InterlockedCompareExchange(&g_State.setupDevice, TRUE, FALSE))
 	{
 		return S_FALSE;
 	}
 
-	g_State.modifyBackBuffer_inMsgProc = false;
+	g_State.calledModifiedBackBuffer = false;
 
 	HRESULT hr;
 	if (FAILED(hr = g_DeviceFactory->create9(g_Device, _desc, &g_Callbacks)))
 	{
 		g_State.setupDevice = FALSE;
+		return hr;
 	}
 	else
 	{
 		g_D3D9Descs = new D3D9_DEVICE_DESC(_desc);
 	}
 
-	g_State.modifyBackBuffer_inMsgProc = true;
+	g_State.calledModifiedBackBuffer = true;
 
-	return hr;
+	return transform(
+		g_D3D9Descs->pp.Windowed,
+		g_D3D9Descs->pp.BackBufferWidth,
+		g_D3D9Descs->pp.BackBufferHeight,
+		true,
+		g_D3D9Descs->adapterOrdinal);
 }
 
 //--------------------------------------------------------------------------------------
@@ -272,42 +285,43 @@ CLASS_IMPL_FUNC(Direct3D, setup2_Device10)(
 		return E_ACCESSDENIED;
 	}
 
+	if (nullptr == _desc.sd.OutputWindow)
+	{
+		_desc.sd.OutputWindow = g_Window.hwnd;
+	}
+	else if (_desc.sd.OutputWindow != g_Window.hwnd)
+	{
+		return E_INVALIDARG;
+	}
+
 	if (TRUE == InterlockedCompareExchange(&g_State.setupDevice, TRUE, FALSE))
 	{
 		return S_FALSE;
 	}
 
-	g_State.modifyBackBuffer_inMsgProc = false;
-	if (g_State.autoChangeAdapter)
-	{
-
-	}
-	else
-	{
-
-	}
+	g_State.calledModifiedBackBuffer = true;
 
 	HRESULT hr;
 	if (FAILED(hr = g_DeviceFactory->create10(g_Device, _desc, &g_Callbacks)))
 	{
 		g_State.setupDevice = FALSE;
+		return hr;
 	}
 	else
 	{
 		g_D3D10Descs = new D3D10_DEVICE_DESC(_desc);
-		g_Outside.initialize(g_Device.dxgiFactory, TRUE, g_State.is_in_GammaCorrectMode);
-
-		g_State.adapter = _desc.adapterOrdinal;
-		g_State.windowed = _desc.sd.Windowed;
-		g_State.width = _desc.sd.BufferDesc.Width;
-		g_State.height = _desc.sd.BufferDesc.Height;
+		g_Direct3D_Outside.initialize(g_Device.dxgiFactory, TRUE, g_State.is_in_GammaCorrectMode);
 	}
 
-	g_State.modifyBackBuffer_inMsgProc = true;
+	g_State.calledModifiedBackBuffer = false;
 
-	return hr;
+	return transform(
+		g_D3D10Descs->sd.Windowed,
+		g_D3D10Descs->sd.BufferDesc.Width,
+		g_D3D10Descs->sd.BufferDesc.Height,
+		true,
+		g_D3D10Descs->adapterOrdinal);
 }
-
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Direct3D, dynamic_WndProc)(
@@ -323,9 +337,344 @@ CLASS_IMPL_FUNC(Direct3D, transform)(
 	/* [r] */ BOOL _windowed,
 	/* [r] */ unsigned long _suggestedWidth,
 	/* [r] */ unsigned long _suggestedHeight,
+	/* [r] */ bool _clipMonitor,
 	/* [r] */ unsigned int _adapter)
 {
-	if (g_State.minimizedSize)
+	IF_FALSE(g_State.setupDevice)
+	{
+		return E_ACCESSDENIED;
+	}
+
+	// 만약 비디오 카드 성능을 확인 할 줄 안다면 밑의 코드에 추가.
+	unsigned int adapter = _adapter;
+	if (g_D3D10Descs)
+	{
+		// version 10
+		const VideoCard_info * info =
+			g_Direct3D_Outside.get_info(adapter);
+
+		IF_INVALID(info)
+		{
+			if (g_State.autoChangeAdapter)
+			{
+				adapter = g_D3D10Descs->adapterOrdinal;
+			}
+			else
+			{
+				return E_INVALIDARG;
+			}
+		}
+	}
+	else if (g_D3D9Descs)
+	{
+		D3DADAPTER_IDENTIFIER9 identifyer9;
+
+		// version 9
+		IF_FAILED(g_Device.d3d9->GetAdapterIdentifier(adapter, D3DENUM_WHQL_LEVEL, &identifyer9))
+		{
+			if (g_State.autoChangeAdapter)
+			{
+				adapter = g_D3D9Descs->adapterOrdinal;
+			}
+			else
+			{
+				return E_INVALIDARG;
+			}
+		}
+	}
+
+	g_State.calledModifiedBackBuffer = true;
+
+	BOOL resultWindowed = _windowed;
+	unsigned int resultWidth = _suggestedWidth;
+	unsigned int resultHeight = _suggestedHeight;
+	unsigned int resultAdapter = adapter;
+
+	HRESULT hr = E_FAIL;
+
+	// window form
+	RECT resultRect = { 0 };
+	if (g_Window.windowed && _windowed)
+	{
+		if (g_Window.width == _suggestedWidth &&
+			g_Window.height == _suggestedHeight)
+		{
+			if (_clipMonitor)
+			{
+				RECT adjRect = { 0 };
+				adjRect.right = g_Window.width;
+				adjRect.bottom = g_Window.height;
+
+				// compute window size that more than backbuffer 
+				AdjustWindowRect(
+					&adjRect,
+					GetWindowLong(g_Window.hwnd, GWL_STYLE),
+					g_Window.menu ? TRUE : FALSE);
+
+				// i just only need position
+				GetWindowRect(g_Window.hwnd, &resultRect);
+				resultRect.right = adjRect.right - adjRect.left;
+				resultRect.bottom = adjRect.bottom - adjRect.top;
+
+				BOOL clip;
+				if (clip = clip_Screen(resultRect, g_Window.windowed))
+				{
+					// clip_Screen에 의해서 width 와 heigth 에 변화가 일어났다면
+					if (IS_FLAG(clip, 2) || IS_FLAG(clip, 8))
+					{
+						GetWindowRect(g_Window.hwnd, &resultRect);
+
+						return transform(
+							g_Window.windowed,
+							resultRect.right - resultRect.left + adjRect.left - 8,
+							resultRect.bottom - resultRect.top + adjRect.top - 8,
+							false,
+							g_Window.adapter);
+					}
+				}
+			}
+		}
+		else
+		{
+			RECT adjRect = { 0 };
+			adjRect.right = _suggestedWidth;
+			adjRect.bottom = _suggestedHeight;
+
+			// compute window size that need more than backbuffer 
+			AdjustWindowRect(
+				&adjRect,
+				GetWindowLong(g_Window.hwnd, GWL_STYLE),
+				g_Window.menu ? TRUE : FALSE);
+
+			// i just only need position
+			GetWindowRect(g_Window.hwnd, &resultRect);
+			resultRect.right = adjRect.right - adjRect.left;
+			resultRect.bottom = adjRect.bottom - adjRect.top;
+
+			if (_clipMonitor)
+			{
+				clip_Screen(resultRect, g_Window.windowed);
+				resultWidth = resultRect.right - resultRect.left + adjRect.left - 8;
+				resultHeight = resultRect.bottom - resultRect.top + adjRect.top - 8;
+			}
+
+			hr = S_OK;
+		}
+	}
+	else if (g_Window.windowed && FALSE == _windowed)
+	{
+		// get fullsize backbuffer
+		clip_Screen(resultRect, _windowed);
+
+		resultWidth = resultRect.right - resultRect.left;
+		resultHeight = resultRect.bottom - resultRect.top;
+
+		hr = S_OK;
+	}
+	else if (FALSE == g_Window.windowed && _windowed)
+	{
+		RECT adjRect = { 0 };
+
+		// compute window size that need more than backbuffer
+		AdjustWindowRect(
+			&adjRect,
+			g_Window.windowedStyle,
+			g_Window.menu ? TRUE : FALSE);
+
+		// restore window form
+		if (_suggestedWidth == 0)
+		{
+			resultWidth =
+				g_Window.windowedRect.right -
+				g_Window.windowedRect.left + adjRect.left - 8;
+		}
+
+		// restore window form
+		if (_suggestedHeight == 0)
+		{
+			resultHeight =
+				g_Window.windowedRect.bottom -
+				g_Window.windowedRect.top + adjRect.top - 8;
+		}
+
+		resultRect.left = g_Window.windowedRect.left;
+		resultRect.top = g_Window.windowedRect.top;
+		resultRect.right = resultWidth - adjRect.left;
+		resultRect.bottom = resultHeight - adjRect.top;
+
+		if (_clipMonitor)
+		{
+			clip_Screen(resultRect, _windowed);
+		}
+
+		hr = S_OK;
+	}
+	else
+	{
+		// do not initialized g_Window from DeviceDesc
+		if (g_Window.adapter != -1 ||
+			g_Window.adapter == resultAdapter)
+		{
+			hr = E_FAIL;
+		}
+	}
+	
+	if (FALSE == resultWindowed)
+	{
+		// do not initialized g_Window from DeviceDesc
+		if (FALSE == g_Window.windowed || g_Window.windowed != -1)
+		{
+			// store window form
+			GetWindowRect(g_Window.hwnd, &g_Window.windowedRect);
+			g_Window.windowedStyle = GetWindowLong(g_Window.hwnd, GWL_STYLE);
+		}
+	}
+
+	IF_SUCCEEDED(hr)
+	{
+		if (g_Window.adapter == -1 ||
+			g_Window.adapter == resultAdapter)
+		{
+			if (g_D3D10Descs)
+			{
+				D3D10_DEVICE_DESC desc(0, 0, 0);
+				memcpy(g_D3D10Descs, &desc, sizeof(D3D10_DEVICE_DESC));
+
+				desc.sd.Windowed = resultWindowed;
+				desc.sd.BufferDesc.Width = resultWidth;
+				desc.sd.BufferDesc.Height = resultHeight;
+
+				CALLBACK_MODIFY_DEVICE10_SETTINGS callback_Modify =
+					g_Callbacks.modifyDevice10SettingsFunc;
+
+				if (callback_Modify)
+				{
+					IF_FALSE(callback_Modify(
+						desc, g_Callbacks.modifyDevice10SettingsFuncUserContext))
+					{
+						return E_FAIL;
+					}
+				}
+
+				IF_FAILED(hr = g_DeviceFactory->resize10(
+					g_Device, desc, &g_Callbacks))
+				{
+					return hr;
+				}
+
+				memcpy(g_D3D10Descs, &desc, sizeof(D3D10_DEVICE_DESC));
+			}
+			else if (g_D3D9Descs)
+			{
+
+				D3D9_DEVICE_DESC desc(0, 0, 0);
+				memcpy(g_D3D9Descs, &desc, sizeof(D3D9_DEVICE_DESC));
+
+				desc.pp.Windowed = resultWindowed;
+				desc.pp.BackBufferWidth = resultWidth;
+				desc.pp.BackBufferHeight = resultHeight;
+
+				CALLBACK_MODIFY_DEVICE9_SETTINGS callback_Modify =
+					g_Callbacks.modifyDevice9SettingsFunc;
+
+				if (callback_Modify)
+				{
+					IF_FALSE(callback_Modify(
+						desc, g_Callbacks.modifyDevice9SettingsFuncUserContext))
+					{
+						return E_FAIL;
+					}
+				}
+
+				IF_FAILED(hr = g_DeviceFactory->restore9(
+					g_Device, desc, &g_Callbacks))
+				{
+					return hr;
+				}
+
+				memcpy(g_D3D9Descs, &desc, sizeof(D3D9_DEVICE_DESC));
+			}
+		}
+		else if (g_Window.adapter != resultAdapter)
+		{
+			if (g_D3D10Descs)
+			{
+				D3D10_DEVICE_DESC desc(0, 0, 0);
+				memcpy(g_D3D10Descs, &desc, sizeof(D3D10_DEVICE_DESC));
+
+				desc.adapterOrdinal = resultAdapter;
+				desc.sd.Windowed = resultWindowed;
+				desc.sd.BufferDesc.Width = resultWidth;
+				desc.sd.BufferDesc.Height = resultHeight;
+
+				CALLBACK_MODIFY_DEVICE10_SETTINGS callback_Modify =
+					g_Callbacks.modifyDevice10SettingsFunc;
+
+				if (callback_Modify)
+				{
+					IF_FALSE(callback_Modify(
+						desc, g_Callbacks.modifyDevice10SettingsFuncUserContext))
+					{
+						return E_FAIL;
+					}
+				}
+
+				IF_FAILED(g_DeviceFactory->reset10(
+					g_Device, desc, &g_Callbacks))
+				{
+					g_State.setupDevice = FALSE;
+					return setup2_Device10(*g_D3D10Descs);
+				}
+
+				memcpy(g_D3D10Descs, &desc, sizeof(D3D10_DEVICE_DESC));
+			}
+			else if (g_D3D9Descs)
+			{
+
+				D3D9_DEVICE_DESC desc(0, 0, 0);
+				memcpy(g_D3D9Descs, &desc, sizeof(D3D9_DEVICE_DESC));
+
+				desc.pp.Windowed = resultWindowed;
+				desc.pp.BackBufferWidth = resultWidth;
+				desc.pp.BackBufferHeight = resultHeight;
+
+				CALLBACK_MODIFY_DEVICE9_SETTINGS callback_Modify =
+					g_Callbacks.modifyDevice9SettingsFunc;
+
+				if (callback_Modify)
+				{
+					IF_FALSE(callback_Modify(
+						desc, g_Callbacks.modifyDevice9SettingsFuncUserContext))
+					{
+						return E_FAIL;
+					}
+				}
+
+				IF_FAILED(g_DeviceFactory->reset9(
+					g_Device, desc, &g_Callbacks))
+				{
+					g_State.setupDevice = FALSE;
+					return setup2_Device9(desc);
+				}
+
+				memcpy(g_D3D9Descs, &desc, sizeof(D3D9_DEVICE_DESC));
+			}
+		}
+	}
+	
+	if (resultWindowed)
+	{
+		SetWindowPos(
+			g_Window.hwnd,
+			HWND_TOP,
+			resultRect.left,
+			resultRect.top,
+			resultRect.right,
+			resultRect.bottom,
+			0);
+	}
+
+	if (g_Window.minimizedSize)
 	{
 		// Need to resize, so if window is maximized or minimized then restore the window
 		if (IsIconic(g_Window.hwnd))
@@ -334,7 +683,7 @@ CLASS_IMPL_FUNC(Direct3D, transform)(
 		}
 	}
 
-	if (g_State.maximizedSize)
+	if (g_Window.maximizedSize)
 	{
 		// doing the IsIconic() check first also handles the WPF_RESTORETOMAXIMIZED case
 		if (IsZoomed(g_Window.hwnd))
@@ -350,7 +699,7 @@ CLASS_IMPL_FUNC(Direct3D, transform)(
 	}
 
 	// Ensure that the display doesn't power down when fullscreen but does when windowed
-	if (g_State.windowed)
+	if (g_Window.windowed)
 	{
 		SetThreadExecutionState(ES_DISPLAY_REQUIRED | ES_CONTINUOUS);
 	}
@@ -358,6 +707,12 @@ CLASS_IMPL_FUNC(Direct3D, transform)(
 	{
 		SetThreadExecutionState(ES_CONTINUOUS);
 	}
+	
+	g_Window.windowed = resultWindowed;
+	g_Window.width = resultWidth;
+	g_Window.height = resultHeight;
+	g_Window.adapter = resultAdapter;
+	g_State.calledModifiedBackBuffer = false;
 
 	return S_OK;
 }
@@ -366,7 +721,7 @@ CLASS_IMPL_FUNC(Direct3D, transform)(
 CLASS_IMPL_FUNC_T(Direct3D, void, destroy)(
 	/* [x] */ void)
 {
-	g_Outside.destroy();
+	g_Direct3D_Outside.destroy();
 	this->shutdown();
 
 	// all clear
@@ -660,17 +1015,17 @@ CLASS_IMPL_FUNC_T(Direct3D, void, userSet_Vsync)(
 //--------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D, void, clip_Screen)(
-	/* [r] */ BOOL _windowed,
-	/* [r] */ RECT & _rect)const
+CLASS_IMPL_FUNC_T(Direct3D, BOOL, clip_Screen)(
+	/* [r] */ RECT & _rect,
+	/* [r] */ BOOL _windowed)const
 {
 	// Get the rect of the monitor attached to the adapter
 	MONITORINFO miAdapter;
 	miAdapter.cbSize = sizeof(MONITORINFO);
 
-	IF_FALSE(GetMonitorInfo(g_Window.adapterMonitor, &miAdapter))
+	IF_FALSE(GetMonitorInfo(MonitorFromWindow(g_Window.hwnd, MONITOR_DEFAULTTOPRIMARY), &miAdapter))
 	{
-		return;
+		return false;
 	}
 
 	if (_windowed)
@@ -694,6 +1049,9 @@ CLASS_IMPL_FUNC_T(Direct3D, void, clip_Screen)(
 			empty_y = 0;
 		}
 
+		BOOL clipX = FALSE;
+		BOOL clipY = FALSE;
+
 		int cx = _rect.left + _rect.right;
 		if (nAdapterMonitorWidth < cx)
 		{
@@ -703,11 +1061,17 @@ CLASS_IMPL_FUNC_T(Direct3D, void, clip_Screen)(
 				_rect.left -= empty_x;
 				dw -= empty_x;
 
-				_rect.right -= dw;
+				clipX = 1;
+				if (dw)
+				{
+					_rect.right -= dw;
+					clipX = 2;
+				}
 			}
 			else
 			{
 				_rect.left -= dw;
+				clipX = 1;
 			}
 		}
 
@@ -720,18 +1084,29 @@ CLASS_IMPL_FUNC_T(Direct3D, void, clip_Screen)(
 				_rect.top -= empty_y;
 				dh -= empty_y;
 
-				_rect.bottom -= dh;
+				clipY = 4;
+				if (dh)
+				{
+					_rect.bottom -= dh;
+					clipY = 8;
+				}
 			}
 			else
 			{
 				_rect.top -= dh;
+				clipY = 4;
 			}
 		}
+
+		return ADD_FLAG(clipX, clipY);
 	}
 	else
 	{
-		_rect = miAdapter.rcWork;
+		_rect = miAdapter.rcMonitor;
+		return 16;
 	}
+
+	return FALSE;
 }
 
 //--------------------------------------------------------------------------------------
@@ -917,6 +1292,8 @@ LRESULT CALLBACK direct3D_WndProc(
 	/* [r] */ unsigned int _wParam,
 	/* [r] */ long _lParam)
 {
+	g_State.calledMsgProc = true;
+
 	// Consolidate the keyboard messages and pass them to the app's keyboard callback
 	if (_uMsg == WM_KEYDOWN || _uMsg == WM_SYSKEYDOWN || _uMsg == WM_KEYUP || _uMsg == WM_SYSKEYUP)
 	{
@@ -1030,21 +1407,21 @@ LRESULT CALLBACK direct3D_WndProc(
 		// Handle paint messages when the app is paused
 		if (g_TimeStream.is_Rendering_Paused())
 		{
-			g_Direct3D.render();
+			g_D3D.render();
 		}
 		break;
 
 	case WM_SIZE:
 		if (SIZE_MINIMIZED == _wParam)
 		{
-			g_State.minimizedSize = true;
+			g_Window.minimizedSize = true;
 
 			// Pause while we're minimized
 			g_TimeStream.pause_Rendering(true);
 		}
 		else
 		{
-			IF_FALSE(g_State.modifyBackBuffer_inMsgProc)
+			IF_FALSE(g_State.calledModifiedBackBuffer)
 			{
 				unsigned int width = LOWORD(_lParam);
 				unsigned int height = HIWORD(_lParam);
@@ -1057,36 +1434,36 @@ LRESULT CALLBACK direct3D_WndProc(
 				{
 					if (g_State.autoChangeAdapter)
 					{
-						g_Direct3D.transform(
-							g_State.windowed,
+						g_D3D.transform(
+							g_Window.windowed,
 							width,
 							height);
 					}
 				}
 				else if (SIZE_MAXIMIZED == _wParam)
 				{
-					if (g_State.windowed)
+					if (g_Window.windowed)
 					{
-						g_Direct3D.transform(
-							g_State.windowed,
+						g_D3D.transform(
+							g_Window.windowed,
 							width,
 							height);
 					}
 
-					g_State.maximizedSize = true;
+					g_Window.maximizedSize = true;
 				}
 			}
 
-			if (g_State.minimizedSize)
+			if (g_Window.minimizedSize)
 			{
-				g_State.minimizedSize = false;
+				g_Window.minimizedSize = false;
 
 				// pause_Rendering(true) in SIZE_MINIMIZED
 				g_TimeStream.pause_Rendering(false);
 			}
-			else if (g_State.maximizedSize)
+			else if (g_Window.maximizedSize)
 			{
-				g_State.maximizedSize = false;
+				g_Window.maximizedSize = false;
 			}
 		}
 		break;
@@ -1101,7 +1478,7 @@ LRESULT CALLBACK direct3D_WndProc(
 		{
 			// Upon returning to this app, potentially disable shortcut keys 
 			// (Windows key, accessibility shortcuts)
-			allow_ShortcutKeys(g_State.windowed);
+			allow_ShortcutKeys(g_Window.windowed);
 		}
 		else if (_wParam == FALSE && g_State.runMainLoop) // Handle only if previously active 
 		{
@@ -1123,7 +1500,7 @@ LRESULT CALLBACK direct3D_WndProc(
 
 	case WM_NCHITTEST:
 		// Prevent the user from selecting the menu in full screen mode
-		IF_FALSE(g_State.windowed)
+		IF_FALSE(g_Window.windowed)
 			return HTCLIENT;
 		break;
 
@@ -1164,21 +1541,21 @@ LRESULT CALLBACK direct3D_WndProc(
 		case SC_SIZE:
 		case SC_MAXIMIZE:
 		case SC_KEYMENU:
-			IF_FALSE(g_State.windowed)
+			IF_FALSE(g_Window.windowed)
 				return 0;
 			break;
 		}
 		break;
 
 	case WM_SYSKEYDOWN:
-		g_Direct3D.destroy();
+		g_D3D.destroy();
 		break;
 
 	case WM_KEYDOWN:
 
 		if (_wParam == VK_ESCAPE)
 		{
-			if (g_State.windowed)
+			if (g_Window.windowed)
 			{
 				if (MessageBox(_hWnd, L"게임을 종료하시겠습니까? ", L"주의!!", MB_YESNO) == IDYES)
 				{
@@ -1187,16 +1564,16 @@ LRESULT CALLBACK direct3D_WndProc(
 			}
 			else
 			{
-				g_Direct3D.transform();
+				g_D3D.transform(true);
 			}
 		}
 		else if (_wParam == VK_F5)
 		{
-			if (g_State.windowed)
+			if (g_Window.windowed)
 			{
 				if (MessageBox(_hWnd, L"전체화면으로 하시겠습니까? ", L"주의!!", MB_YESNO) == IDYES)
 				{
-					g_Direct3D.transform(false);
+					g_D3D.transform(false);
 				}
 			}
 		}
@@ -1225,6 +1602,8 @@ LRESULT CALLBACK direct3D_WndProc(
 		PostQuitMessage(0);
 		break;
 	}
+
+	g_State.calledMsgProc = false;
 
 	// Don't allow the F10 key to act as a shortcut to the menu bar
 	// by not passing these messages to the DefWindowProc only when

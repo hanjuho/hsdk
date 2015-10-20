@@ -210,7 +210,7 @@ CLASS_IMPL_FUNC_T(Component, void, render)(
 {
 	if (is_Visible())
 	{
-		m_D3D10Graphics->render();
+		m_D3D10Graphics->render(1.0f);
 	}
 }
 

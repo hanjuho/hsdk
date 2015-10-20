@@ -5,6 +5,8 @@
 using namespace hsdk;
 using namespace direct3d;
 
+// Ό³Έν : 
+Direct3D_Outside hsdk::direct3d::g_Direct3D_Outside;
 
 //--------------------------------------------------------------------------------------
 // Grobal device handle variable
