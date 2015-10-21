@@ -39,26 +39,7 @@ CLASS_IMPL_FUNC_T(Component, i_Component *, parent)(
 CLASS_IMPL_FUNC_T(Component, i_Graphics *, graphics)(
 	/* [x] */ void)const
 {
-	IF_INVALID(m_D3D10Graphics)
-	{
-		memcpy((void*)&m_D3D10Graphics, new Graphics(), sizeof(int));
-	}
-
-	return m_D3D10Graphics;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Component, void, set_Mouseable)(
-	/* [r] */ i_Mouseable * _mouseable)
-{
-	m_Mouseable = _mouseable;
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Component, i_Mouseable *, get_Mouseable)(
-	/* [x] */ void)const
-{
-	return m_Mouseable;
+	return (i_Graphics *)&m_D3D10Graphics;
 }
 
 //--------------------------------------------------------------------------------------
@@ -157,17 +138,10 @@ CLASS_IMPL_FUNC_T(Component, float, get_H)(
 CLASS_IMPL_FUNC(Component, set_Visible)(
 	/* [r] */ bool _visible)
 {
-	if (m_D3D10Graphics)
-	{
-		bool b = my_Visible;
-		my_Visible = _visible;
+	bool b = my_Visible;
+	my_Visible = _visible;
 
-		return S_OK;
-	}
-	else
-	{
-		return E_ABORT;
-	}
+	return S_OK;
 }
 
 //--------------------------------------------------------------------------------------
@@ -188,20 +162,24 @@ CLASS_IMPL_FUNC_T(Component, bool, event_chain)(
 CLASS_IMPL_FUNC_T(Component, void, update)(
 	/* [x] */ void)
 {
+
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Component, void, reform)(
+	/* [x] */ void)
+{
 	if (my_Parent)
 	{
 		my_AbsX = my_Parent->get_AbsX() + get_X();
 		my_AbsY = my_Parent->get_AbsY() + get_Y();
 	}
 
-	if(m_D3D10Graphics)
-	{
-		m_D3D10Graphics->update({
-			my_AbsX,
-			my_AbsY,
-			my_AbsX + my_Rectangle[2],
-			my_AbsY + my_Rectangle[3] });
-	}
+	m_D3D10Graphics.update({
+		my_AbsX,
+		my_AbsY,
+		my_AbsX + my_Rectangle[2],
+		my_AbsY + my_Rectangle[3] });
 }
 
 //--------------------------------------------------------------------------------------
@@ -210,7 +188,151 @@ CLASS_IMPL_FUNC_T(Component, void, render)(
 {
 	if (is_Visible())
 	{
-		m_D3D10Graphics->render(1.0f);
+		m_D3D10Graphics.render(1.0f);
+	}
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Component, void, reset)(
+	/* [x] */ void)
+{
+
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Component, void, set_Mouseable)(
+	/* [r] */ i_Mouseable * _mouseable)
+{
+	m_Mouseable = _mouseable;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Component, i_Mouseable *, get_Mouseable)(
+	/* [x] */ void)const
+{
+	return m_Mouseable;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Component, void, set_Keyboardable)(
+	/* [set] */ i_Keyboardable * _Keyboardable)
+{
+	m_Keyboardable = _Keyboardable;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Component, i_Keyboardable *, get_Keyboardable)(
+	/* [x] */ void)const
+{
+	return m_Keyboardable;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Component, void, set_Actable)(
+	/* [set] */ i_Actable * _actable)
+{
+	m_Actable = _actable;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Component, i_Actable *, get_Actable)(
+	/* [x] */ void)const
+{
+	return m_Actable;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Component, void, onClick_Down)(
+	/* [r] */ MOUSE_BUTTON _button,
+	/* [r] */ int _x,
+	/* [r] */ int _y)
+{
+	if (m_Mouseable)
+	{
+		m_Mouseable->onClick_Down(_button, _x, _y);
+	}
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Component, void, onClick_Up)(
+	/* [r] */ MOUSE_BUTTON _button,
+	/* [r] */ int _x,
+	/* [r] */ int _y)
+{
+	if (m_Mouseable)
+	{
+		m_Mouseable->onClick_Up(_button, _x, _y);
+	}
+}
+
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Component, void, onDrag)(
+	/* [r] */ MOUSE_BUTTON _button,
+	/* [r] */ int _x,
+	/* [r] */ int _y)
+{
+	if (m_Mouseable)
+	{
+		m_Mouseable->onDrag(_button, _x, _y);
+	}
+}
+
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Component, void, onMove)(
+	/* [r] */ int _x,
+	/* [r] */ int _y)
+{
+	if (m_Mouseable)
+	{
+		m_Mouseable->onMove(_x, _y);
+	}
+}
+
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Component, void, onWheel)(
+	/* [r] */ int _x,
+	/* [r] */ int _y,
+	/* [r] */ int _w)
+{
+	if (m_Mouseable)
+	{
+		m_Mouseable->onWheel(_x, _y, _w);
+	}
+}
+
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Component, void, onKey_Down)(
+	/* [r] */ unsigned char _vKey)
+{
+	if (m_Keyboardable)
+	{
+		m_Keyboardable->onKey_Down(_vKey);
+	}
+}
+
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Component, void, onKey_Up)(
+	/* [r] */ unsigned char _vKey)
+{
+	if (m_Keyboardable)
+	{
+		m_Keyboardable->onKey_Up(_vKey);
+	}
+}
+
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Component, void, onAct)(
+	/* [x] */ void)
+{
+	if (m_Actable)
+	{
+		m_Actable->onAct();
 	}
 }
 
@@ -227,3 +349,4 @@ CLASS_IMPL_FUNC_T(Component, float, get_AbsY)(
 {
 	return my_AbsY;
 }
+

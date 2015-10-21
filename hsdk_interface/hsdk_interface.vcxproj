@@ -82,6 +82,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\frame\actable.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\frame\keyboardable.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk_common.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\autodelete.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\autopointer.h" />

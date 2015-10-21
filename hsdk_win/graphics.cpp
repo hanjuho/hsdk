@@ -12,18 +12,6 @@ using namespace direct3d;
 // Grobal D3D10 Variable
 //--------------------------------------------------------------------------------------
 
-// 설명 :
-Direct3D g_D3D_1;
-
-// 설명 :
-const Direct3D_Window * const g_refWindow_0 = g_D3D_1.get_Window();
-
-// 설명 :
-D3D10_Master g_Master_0;
-
-// 설명 :
-D3D10_MeshRenderer g_MeshRenderer_0;
-
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(Graphics, Graphics)(void)
 {
@@ -54,7 +42,7 @@ CLASS_IMPL_FUNC_T(Graphics, void, set_image)(
 		return;
 	}
 
-	g_Master_0.get_Texture(&my_Texture, _filename, &my_Texture_info);
+	g_D3D10_Master.get_Texture(&my_Texture, _filename, &my_Texture_info);
 }
 
 //--------------------------------------------------------------------------------------
@@ -96,10 +84,10 @@ CLASS_IMPL_FUNC_T(Graphics, void, set_Text)(
 CLASS_IMPL_FUNC_T(Graphics, void, update)(
 	/* [r] */ const float(&_rectangle)[4])
 {
-	float screenWidth = g_refWindow_0->width;
-	float screenHeigth = g_refWindow_0->height;
-	float myWidth = _rectangle[2] / g_refWindow_0->width;
-	float myHeight = _rectangle[3] / g_refWindow_0->height;
+	float screenWidth = g_Direct3D_Window.width;
+	float screenHeigth = g_Direct3D_Window.height;
+	float myWidth = _rectangle[2] / g_Direct3D_Window.width;
+	float myHeight = _rectangle[3] / g_Direct3D_Window.height;
 	
 	D3DXMATRIX scale;
 	D3DXMatrixScaling(
@@ -123,7 +111,7 @@ CLASS_IMPL_FUNC_T(Graphics, void, render)(
 {
 	if (my_Texture)
 	{
-		g_MeshRenderer_0.render_UITexture(
+		g_D3D10_MeshRenderer.render_UITexture(
 			my_Position,
 			my_Texture,
 			my_Sprite,
@@ -131,7 +119,7 @@ CLASS_IMPL_FUNC_T(Graphics, void, render)(
 	}
 	else
 	{
-		g_MeshRenderer_0.render_UIRectangle(
+		g_D3D10_MeshRenderer.render_UIRectangle(
 			my_Position,
 			my_BGColor,
 			_persent);

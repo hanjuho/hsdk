@@ -7,9 +7,6 @@ using namespace hsdk;
 using namespace direct3d;
 
 
-// 설명 : 
-D3D10_MeshRenderer hsdk::direct3d::g_D3D10_MeshRenderer;
-
 //--------------------------------------------------------------------------------------
 // Grobal renderer variable
 //--------------------------------------------------------------------------------------
@@ -324,6 +321,7 @@ CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, destroy)(
 	g_D3D10Effect.~AutoRelease();
 	g_Basic_inputLayout.~AutoRelease();
 	g_Texture_inputLayout.~AutoRelease();
+	g_Skinned_inputLayout.~AutoRelease();
 	g_Sprite_VBuffer.~AutoRelease();
 	g_Sprite_IBuffer.~AutoRelease();
 
@@ -512,3 +510,24 @@ CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, render_UITexture)(
 
 	g_refDevice_1->DrawIndexed(6, 0, 0);
 }
+
+//--------------------------------------------------------------------------------------
+// open variable 
+//--------------------------------------------------------------------------------------
+
+// 설명 : 
+D3D10_MeshRenderer hsdk::direct3d::g_D3D10_MeshRenderer;
+
+// 설명 :
+D3DXMATRIX hsdk::direct3d::g_D3D10_ViewMatrix = {
+	1.0, 0.0, 0.0, 0.0,
+	0.0, 1.0, 0.0, 0.0,
+	0.0, 0.0, 1.0, 0.0,
+	0.0, 0.0, 0.0, 1.0, };
+
+// 설명 :
+D3DXMATRIX hsdk::direct3d::g_D3D10_ProjMatrix = {
+	1.0, 0.0, 0.0, 0.0,
+	0.0, 1.0, 0.0, 0.0,
+	0.0, 0.0, 1.0, 0.0,
+	0.0, 0.0, 0.0, 1.0, };

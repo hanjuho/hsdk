@@ -132,15 +132,15 @@ CLASS_IMPL_FUNC_T(Container, bool, event_chain)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Container, void, update)(
+CLASS_IMPL_FUNC_T(Container, void, reform)(
 	/* [x] */ void)
 {
-	Component::update();
+	Component::reform();
 	std::hash_map<unsigned int, Component *>::iterator iter = m_Container.begin();
 	std::hash_map<unsigned int, Component *>::iterator end = m_Container.end();
 	while (iter != end)
 	{
-		iter->second->update();
+		iter->second->reform();
 		iter++;
 	}
 }
@@ -159,7 +159,7 @@ CLASS_IMPL_FUNC_T(Container, void, render)(
 			iter++;
 		}
 
-		m_D3D10Graphics->render(1.0f);
+		m_D3D10Graphics.render(1.0f);
 	}
 }
 

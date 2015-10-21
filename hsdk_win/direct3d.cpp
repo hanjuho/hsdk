@@ -11,9 +11,6 @@ using namespace hsdk;
 using namespace direct3d;
 
 
-// 설명 : 
-Direct3D hsdk::direct3d::g_D3D;
-
 //--------------------------------------------------------------------------------------
 // Grobal thread safety
 //--------------------------------------------------------------------------------------
@@ -518,7 +515,7 @@ CLASS_IMPL_FUNC(Direct3D, transform)(
 			hr = E_FAIL;
 		}
 	}
-	
+
 	if (FALSE == resultWindowed)
 	{
 		// do not initialized g_Window from DeviceDesc
@@ -661,17 +658,20 @@ CLASS_IMPL_FUNC(Direct3D, transform)(
 			}
 		}
 	}
-	
+
 	if (resultWindowed)
 	{
-		SetWindowPos(
-			g_Window.hwnd,
-			HWND_TOP,
-			resultRect.left,
-			resultRect.top,
-			resultRect.right,
-			resultRect.bottom,
-			0);
+		IF_FALSE(g_State.calledMsgProc)
+		{
+			SetWindowPos(
+				g_Window.hwnd,
+				HWND_TOP,
+				resultRect.left,
+				resultRect.top,
+				resultRect.right,
+				resultRect.bottom,
+				0);
+		}
 	}
 
 	if (g_Window.minimizedSize)
@@ -707,7 +707,7 @@ CLASS_IMPL_FUNC(Direct3D, transform)(
 	{
 		SetThreadExecutionState(ES_CONTINUOUS);
 	}
-	
+
 	g_Window.windowed = resultWindowed;
 	g_Window.width = resultWidth;
 	g_Window.height = resultHeight;
@@ -802,7 +802,7 @@ CLASS_IMPL_FUNC(Direct3D, mainLoop)(
 
 		// If the app called DXUTWasKeyPressed() then do the work 
 		// to store the current state of the keys in bLastKeys
-		if (g_State.calledWasKeyPressed)
+		if (g_State.storeLastKeyPressed)
 		{
 			memcpy(g_LastKeys, g_Keys, sizeof(BOOL)* 256);
 		}
@@ -1314,6 +1314,8 @@ LRESULT CALLBACK direct3D_WndProc(
 				bKeyDown,
 				bAltDown,
 				g_Callbacks.keyboardFuncUserContext);
+
+			return DefWindowProc(_hWnd, _uMsg, _wParam, _lParam);
 		}
 	}
 
@@ -1376,6 +1378,8 @@ LRESULT CALLBACK direct3D_WndProc(
 				xPos,
 				yPos,
 				g_Callbacks.mouseFuncUserContext);
+
+			return DefWindowProc(_hWnd, _uMsg, _wParam, _lParam);
 		}
 	}
 
@@ -1407,7 +1411,7 @@ LRESULT CALLBACK direct3D_WndProc(
 		// Handle paint messages when the app is paused
 		if (g_TimeStream.is_Rendering_Paused())
 		{
-			g_D3D.render();
+			g_Direct3D.render();
 		}
 		break;
 
@@ -1434,7 +1438,7 @@ LRESULT CALLBACK direct3D_WndProc(
 				{
 					if (g_State.autoChangeAdapter)
 					{
-						g_D3D.transform(
+						g_Direct3D.transform(
 							g_Window.windowed,
 							width,
 							height);
@@ -1444,7 +1448,7 @@ LRESULT CALLBACK direct3D_WndProc(
 				{
 					if (g_Window.windowed)
 					{
-						g_D3D.transform(
+						g_Direct3D.transform(
 							g_Window.windowed,
 							width,
 							height);
@@ -1548,7 +1552,7 @@ LRESULT CALLBACK direct3D_WndProc(
 		break;
 
 	case WM_SYSKEYDOWN:
-		g_D3D.destroy();
+		g_Direct3D.destroy();
 		break;
 
 	case WM_KEYDOWN:
@@ -1564,7 +1568,7 @@ LRESULT CALLBACK direct3D_WndProc(
 			}
 			else
 			{
-				g_D3D.transform(true);
+				g_Direct3D.transform(true);
 			}
 		}
 		else if (_wParam == VK_F5)
@@ -1573,7 +1577,7 @@ LRESULT CALLBACK direct3D_WndProc(
 			{
 				if (MessageBox(_hWnd, L"전체화면으로 하시겠습니까? ", L"주의!!", MB_YESNO) == IDYES)
 				{
-					g_D3D.transform(false);
+					g_Direct3D.transform(false);
 				}
 			}
 		}
@@ -1659,3 +1663,25 @@ LRESULT CALLBACK direct3D_LowLevelKeyboardProc(
 			_lParam);
 	}
 }
+
+//--------------------------------------------------------------------------------------
+// open value 
+//--------------------------------------------------------------------------------------
+
+// 설명 : 
+Direct3D hsdk::direct3d::g_Direct3D;
+
+// 설명 : 
+hsdk::win::UserTimeStream & hsdk::direct3d::g_Direct3D_TimeStream = g_TimeStream;
+
+// 설명 : you can read / write
+Direct3D_Callbacks & hsdk::direct3d::g_Direct3D_Callbacks = g_Callbacks;
+
+// 설명 : just only read / do not write force
+const Direct3D_State & hsdk::direct3d::g_Direct3D_State = g_State;
+
+// 설명 : just only read / do not write force
+const Direct3D_Window & hsdk::direct3d::g_Direct3D_Window = g_Window;
+
+// 설명 : just only read / do not write force
+const Direct3D_Device & hsdk::direct3d::g_Direct3D_Device = g_Device;

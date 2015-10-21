@@ -5,8 +5,6 @@
 using namespace hsdk;
 using namespace direct3d;
 
-// 설명 : 
-Direct3D_Outside hsdk::direct3d::g_Direct3D_Outside;
 
 //--------------------------------------------------------------------------------------
 // Grobal device handle variable
@@ -354,3 +352,10 @@ CLASS_IMPL_FUNC_T(Direct3D_Outside, void, destroy)(
 {
 	g_Videos.clear();
 }
+
+//--------------------------------------------------------------------------------------
+// open variable 
+//--------------------------------------------------------------------------------------
+
+// 설명 : 
+Direct3D_Outside hsdk::direct3d::g_Direct3D_Outside;

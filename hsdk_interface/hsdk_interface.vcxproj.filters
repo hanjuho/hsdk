@@ -73,6 +73,12 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk_common.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\frame\actable.h">
+      <Filter>헤더 파일\frame</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\frame\keyboardable.h">
+      <Filter>헤더 파일\frame</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="소스.cpp" />

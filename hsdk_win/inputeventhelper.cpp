@@ -11,7 +11,7 @@ using namespace win::frame;
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(inputEventHelper, inputEventHelper)(
 	/* [r] */ i_Component * _component)
-	: my_FocusComponent(_component), my_FocusMouseable(_component->get_Mouseable())
+	: my_FocusComponent(_component)
 {
 	xy.x = 0;
 	xy.y = 0;
@@ -100,14 +100,11 @@ CLASS_IMPL_FUNC_T(inputEventHelper, void, update)(
 			}
 		}
 	}
-
-	// 마우스 이벤트 갱신.
-	my_FocusMouseable = my_FocusComponent->get_Mouseable();
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(inputEventHelper, void, onClick_Down)(
-	/* [r] */ i::frame::i_Mouseable::MOUSE_BUTTON _button,
+	/* [r] */ i::frame::MOUSE_BUTTON _button,
 	/* [r] */ int _x,
 	/* [r] */ int _y)
 {
@@ -118,15 +115,15 @@ CLASS_IMPL_FUNC_T(inputEventHelper, void, onClick_Down)(
 	update();
 
 	// event 전달.
-	if (my_FocusMouseable)
+	if (my_FocusComponent)
 	{
-		my_FocusMouseable->onClick_Down(_button, _x, _y);
+		my_FocusComponent->onClick_Down(_button, _x, _y);
 	}
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(inputEventHelper, void, onClick_Up)(
-	/* [r] */ i::frame::i_Mouseable::MOUSE_BUTTON _button,
+	/* [r] */ i::frame::MOUSE_BUTTON _button,
 	/* [r] */ int _x,
 	/* [r] */ int _y)
 {
@@ -137,15 +134,15 @@ CLASS_IMPL_FUNC_T(inputEventHelper, void, onClick_Up)(
 	update();
 
 	// event 전달.
-	if (my_FocusMouseable)
+	if (my_FocusComponent)
 	{
-		my_FocusMouseable->onClick_Up(_button, _x, _y);
+		my_FocusComponent->onClick_Up(_button, _x, _y);
 	}
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(inputEventHelper, void, onDrag)(
-	/* [r] */ i::frame::i_Mouseable::MOUSE_BUTTON _button,
+	/* [r] */ i::frame::MOUSE_BUTTON _button,
 	/* [r] */ int _x,
 	/* [r] */ int _y)
 {
@@ -155,9 +152,9 @@ CLASS_IMPL_FUNC_T(inputEventHelper, void, onDrag)(
 	xy.x = _x;
 	xy.y = _y;
 
-	if (my_FocusMouseable)
+	if (my_FocusComponent)
 	{
-		my_FocusMouseable->onDrag(_button, dx, dy);
+		my_FocusComponent->onDrag(_button, dx, dy);
 	}
 }
 
@@ -169,9 +166,9 @@ CLASS_IMPL_FUNC_T(inputEventHelper, void, onMove)(
 	xy.x = _x;
 	xy.y = _y;
 
-	if (my_FocusMouseable)
+	if (my_FocusComponent)
 	{
-		my_FocusMouseable->onMove(_x, _y);
+		my_FocusComponent->onMove(_x, _y);
 	}
 }
 
@@ -184,8 +181,8 @@ CLASS_IMPL_FUNC_T(inputEventHelper, void, onWheel)(
 	xy.x = _x;
 	xy.y = _y;
 
-	if (my_FocusMouseable)
+	if (my_FocusComponent)
 	{
-		my_FocusMouseable->onWheel(_x, _y, _w);
+		my_FocusComponent->onWheel(_x, _y, _w);
 	}
 }

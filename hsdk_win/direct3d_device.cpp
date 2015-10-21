@@ -7,10 +7,6 @@ using namespace hsdk::direct3d;
 
 
 //--------------------------------------------------------------------------------------
-// 
-//--------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Direct3D_DeviceFactory, create9)(
 	/* [w] */ Direct3D_Device & _device,
 	/* [r] */ const D3D9_DEVICE_DESC & _desc,
@@ -486,8 +482,7 @@ CLASS_IMPL_FUNC(Direct3D_DeviceFactory, resize10)(
 	}
 
 	AutoRelease<ID3D10Texture2D> dxgiBackBuffer;
-	IF_SUCCEEDED(hr = _device.dxgiSwapChain->GetBuffer(
-		0, __uuidof(*dxgiBackBuffer), (void**)&dxgiBackBuffer))
+	IF_SUCCEEDED(hr = _device.dxgiSwapChain->GetBuffer(0, __uuidof(*dxgiBackBuffer), (void**)&dxgiBackBuffer))
 	{
 		D3D10_TEXTURE2D_DESC TexDesc;
 		dxgiBackBuffer->GetDesc(&TexDesc);
