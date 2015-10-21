@@ -90,9 +90,6 @@
     <ClCompile Include="graphics.cpp">
       <Filter>소스 파일\frame</Filter>
     </ClCompile>
-    <ClCompile Include="frame.cpp">
-      <Filter>소스 파일\frame</Filter>
-    </ClCompile>
     <ClCompile Include="direct3d_outside.cpp">
       <Filter>소스 파일\frame\d3d11</Filter>
     </ClCompile>
@@ -122,6 +119,9 @@
     </ClCompile>
     <ClCompile Include="direct3d_device.cpp">
       <Filter>소스 파일\frame\d3d11</Filter>
+    </ClCompile>
+    <ClCompile Include="buttoncompo.cpp">
+      <Filter>소스 파일\frame</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -167,9 +167,6 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\graphics.h">
       <Filter>헤더 파일\frame</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\frame.h">
-      <Filter>헤더 파일\frame</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\common.h">
       <Filter>헤더 파일\frame\direct3d</Filter>
     </ClInclude>
@@ -205,6 +202,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\direct3d_device.h">
       <Filter>헤더 파일\frame\direct3d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\buttoncompo.h">
+      <Filter>헤더 파일\frame</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

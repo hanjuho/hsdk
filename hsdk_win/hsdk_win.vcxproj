@@ -90,10 +90,10 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="buttoncompo.cpp" />
     <ClCompile Include="component.cpp" />
     <ClCompile Include="container.cpp" />
     <ClCompile Include="direct3d.cpp" />
-    <ClCompile Include="frame.cpp" />
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="inputeventhelper.cpp" />
     <ClCompile Include="thread.cpp" />
@@ -131,9 +131,9 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_meshrenderer.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\direct3d_camera.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\direct3d_device.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\frame.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\graphics.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\inputeventhelper.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\buttoncompo.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpproxy.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpserver.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpclient.h" />

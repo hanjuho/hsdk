@@ -1310,7 +1310,7 @@ LRESULT CALLBACK direct3D_WndProc(
 		if (callback_Keyboard)
 		{
 			callback_Keyboard(
-				(unsigned int)_wParam,
+				(unsigned char)_wParam,
 				bKeyDown,
 				bAltDown,
 				g_Callbacks.keyboardFuncUserContext);

@@ -13,13 +13,17 @@ volatile unsigned int component_id = 0;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_CONSTRUCTOR(Component, Component)(void)
-: my_id(component_id++), my_Parent(nullptr), my_AbsX(0.0f), my_AbsY(0.0f), my_Visible(false)
+CLASS_IMPL_CONSTRUCTOR(Component, Component)(
+	/* [r] */ float _x,
+	/* [r] */ float _y,
+	/* [r] */ float _w,
+	/* [r] */ float _h)
+	: my_id(component_id++), my_Parent(nullptr), my_AbsX(0.0f), my_AbsY(0.0f), my_Visible(false)
 {
-	my_Rectangle[0] = 0.0f;
-	my_Rectangle[1] = 0.0f;
-	my_Rectangle[2] = 0.0f;
-	my_Rectangle[3] = 0.0f;
+	my_Rectangle[0] = _x;
+	my_Rectangle[1] = _y;
+	my_Rectangle[2] = _w;
+	my_Rectangle[3] = _h;
 }
 
 //--------------------------------------------------------------------------------------

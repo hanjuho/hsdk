@@ -110,8 +110,8 @@ CLASS_IMPL_FUNC_T(Container, bool, event_chain)(
 {
 	if (_eventhelper->chain(this))
 	{
-		std::hash_map<unsigned int, Component *>::iterator iter = m_Container.begin();
-		std::hash_map<unsigned int, Component *>::iterator end = m_Container.end();
+		auto iter = m_Container.begin();
+		auto end = m_Container.end();
 		while (iter != end)
 		{
 			Component * cmp = iter->second;
@@ -132,12 +132,19 @@ CLASS_IMPL_FUNC_T(Container, bool, event_chain)(
 }
 
 //--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Container, void, update)(
+	/* [x] */ void)
+{
+
+}
+
+//--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Container, void, reform)(
 	/* [x] */ void)
 {
 	Component::reform();
-	std::hash_map<unsigned int, Component *>::iterator iter = m_Container.begin();
-	std::hash_map<unsigned int, Component *>::iterator end = m_Container.end();
+	auto iter = m_Container.begin();
+	auto end = m_Container.end();
 	while (iter != end)
 	{
 		iter->second->reform();
@@ -151,8 +158,8 @@ CLASS_IMPL_FUNC_T(Container, void, render)(
 {
 	if (is_Visible())
 	{
-		std::hash_map<unsigned int, Component *>::iterator iter = m_Container.begin();
-		std::hash_map<unsigned int, Component *>::iterator end = m_Container.end();
+		auto iter = m_Container.begin();
+		auto end = m_Container.end();
 		while (iter != end)
 		{
 			iter->second->render();
