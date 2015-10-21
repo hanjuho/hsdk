@@ -118,7 +118,7 @@ PS_BASIC_INPUT VSGUI(VS_TEXTURE_INPUT input)
 {
 	VS_BASIC_INPUT output;
 
-	output.Pos = input.Pos;
+	output.Pos = mul(input.Pos, g_WorldViewProj_Matrix);
 	output.Norm = normalize(mul(input.Norm, (float3x3)g_World_Matrix));
 
 	switch (input.Bindex)

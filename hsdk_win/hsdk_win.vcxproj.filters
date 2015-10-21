@@ -34,9 +34,6 @@
     <Filter Include="소스 파일\thread">
       <UniqueIdentifier>{918440ef-047f-4dbb-b39f-0815ea6842fa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="헤더 파일\shader">
-      <UniqueIdentifier>{41916e44-d8eb-47c4-88b8-e760c061b659}</UniqueIdentifier>
-    </Filter>
     <Filter Include="헤더 파일\frame">
       <UniqueIdentifier>{0649f220-c23d-4f38-9c30-5eab24d27e65}</UniqueIdentifier>
     </Filter>
@@ -51,6 +48,12 @@
     </Filter>
     <Filter Include="헤더 파일\frame\direct3d">
       <UniqueIdentifier>{fb0025f1-3c51-4636-b773-780a4747d314}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\sound">
+      <UniqueIdentifier>{41916e44-d8eb-47c4-88b8-e760c061b659}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\sound">
+      <UniqueIdentifier>{d056a800-56e9-426b-8cf9-957172f7cf2c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -122,6 +125,9 @@
     </ClCompile>
     <ClCompile Include="buttoncompo.cpp">
       <Filter>소스 파일\frame</Filter>
+    </ClCompile>
+    <ClCompile Include="soundclass.cpp">
+      <Filter>소스 파일\sound</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -206,11 +212,11 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\buttoncompo.h">
       <Filter>헤더 파일\frame</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\soundclass.h">
+      <Filter>헤더 파일\sound</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\shader\common.hlsli">
-      <Filter>헤더 파일\shader</Filter>
-    </None>
     <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\common.inl">
       <Filter>헤더 파일\frame\direct3d</Filter>
     </None>
@@ -219,11 +225,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\..\..\..\sdks\hsdk\include\hsdk\win\shader\vs_ui.hlsl">
-      <Filter>헤더 파일\shader</Filter>
-    </FxCompile>
-    <FxCompile Include="..\..\..\..\sdks\hsdk\include\hsdk\win\shader\ps_ui.hlsl">
-      <Filter>헤더 파일\shader</Filter>
+    <FxCompile Include="..\Win32Project1\main.fx">
+      <Filter>리소스 파일</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

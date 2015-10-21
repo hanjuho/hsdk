@@ -177,13 +177,17 @@ CLASS_IMPL_FUNC_T(Component, void, reform)(
 	{
 		my_AbsX = my_Parent->get_AbsX() + get_X();
 		my_AbsY = my_Parent->get_AbsY() + get_Y();
-	}
 
-	m_D3D10Graphics.update({
-		my_AbsX,
-		my_AbsY,
-		my_AbsX + my_Rectangle[2],
-		my_AbsY + my_Rectangle[3] });
+		m_D3D10Graphics.update({
+			my_AbsX,
+			my_AbsY,
+			my_AbsX + my_Rectangle[2],
+			my_AbsY + my_Rectangle[3] });
+	}
+	else
+	{
+		m_D3D10Graphics.update(my_Rectangle);
+	}
 }
 
 //--------------------------------------------------------------------------------------

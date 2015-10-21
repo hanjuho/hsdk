@@ -40,3 +40,13 @@ CLASS_IMPL_FUNC_T(ButtonCompo, void, onClick_Up)(
 		m_GraphicsRenderState = 1.0f;
 	}
 }
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(ButtonCompo, void, render)(
+	/* [x] */ void)
+{
+	if (is_Visible())
+	{
+		m_D3D10Graphics.render(m_GraphicsRenderState);
+	}
+}

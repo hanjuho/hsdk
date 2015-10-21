@@ -2,11 +2,12 @@
 
 
 
-#include <hsdk/win/frame/frame.h>
 #include <hsdk/win/frame/direct3d/d3d10_master.h>
 #include <hsdk/win/frame/direct3d/d3d10_mesh.h>
 #include <hsdk/win/frame/direct3d/d3d10_meshrenderer.h>
 #include <hsdk/win/frame/direct3d/direct3d_camera.h>
+#include <hsdk/win/frame/buttoncompo.h>
+#include <hsdk/win/frame/inputeventhelper.h>
 
 
 
@@ -18,18 +19,16 @@ using namespace direct3d;
 //--------------------------------------------------------------------------------------
 // Grobal Variable
 //--------------------------------------------------------------------------------------
+
 // 설명 : 
-Frame g_Window;
+ButtonCompo g_Button(100.0f, 100.0f, 300.0f, 300.0f);
+inputEventHelper g_Helper(&g_Button);
 
 // 설명 : 
 Direct3D_Camera g_Camera;
 
 // 설명 : 
 D3D10_Mesh g_Mesh;
-
-//
-Graphics graphics_0;
-Graphics graphics_1;
 
 D3DXMATRIX g_World;
 D3DXMATRIX g_View;
@@ -49,7 +48,6 @@ LRESULT CALLBACK MsgProc(
 	LPARAM lParam,
 	void * pUserContext)
 {
-	g_Window.event_Proc(uMsg, wParam, lParam);
 	return 0;
 }
 
@@ -61,11 +59,14 @@ void CALLBACK OnMouse(
 	/* [r] */ int _yPos,
 	/* [r/w] */ void * _userContext)
 {
-
+	if (_buttonsDown[Direct3D_LEFTBUTTON])
+	{
+		g_Helper.onClick_Down(i::frame::LBUTTON, _xPos, _yPos);
+	}
 }
 
 void CALLBACK OnKeyboard(
-	UINT nChar,
+	unsigned char nChar,
 	BOOL bKeyDown,
 	BOOL bAltDown,
 	void * pUserContext)
@@ -124,8 +125,6 @@ HRESULT CALLBACK OnD3D10CreateDevice(
 	hr = S_OK;
 	hr = ADD_FLAG(g_D3D10_Master.initialize(pd3dDevice), hr);
 	hr = ADD_FLAG(g_D3D10_MeshRenderer.initialize(pd3dDevice), hr);
-
-	ID3D10ShaderResourceView * view = nullptr;
 	
 	return hr;
 }
@@ -142,8 +141,8 @@ void CALLBACK OnD3D10FrameRender(
 	pd3dDevice->ClearRenderTargetView(pRTV, ClearColor);
 	ID3D10DepthStencilView * pDSV = g_Direct3D_Device.d3d10DSV;
 	pd3dDevice->ClearDepthStencilView(pDSV, D3D10_CLEAR_DEPTH, 1.0, 0);
-	
 
+	g_Button.render();
 }
 
 void CALLBACK OnD3D10DestroyDevice(
@@ -171,6 +170,10 @@ int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 	hr = ADD_FLAG(g_Direct3D.setup0_Window(L"Skinning10", 800, 800), hr);
 	hr = ADD_FLAG(g_Direct3D.setup1_DeviceFactory(new direct3d::Direct3D_DeviceFactory()), hr);
 	hr = ADD_FLAG(g_Direct3D.setup2_Device10(D3D10_DEVICE_DESC(true, 1600, 1500)), hr);
+
+	g_Button.graphics()->set_Background({ 0.0f, 1.0f, 0.0f, 1.0f });
+	g_Button.reform();
+	g_Button.set_Visible(true);
 
 	IF_SUCCEEDED(hr)
 	{

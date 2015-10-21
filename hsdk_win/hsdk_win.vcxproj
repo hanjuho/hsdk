@@ -96,6 +96,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClCompile Include="direct3d.cpp" />
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="inputeventhelper.cpp" />
+    <ClCompile Include="soundclass.cpp" />
     <ClCompile Include="thread.cpp" />
     <ClCompile Include="semaphore.cpp" />
     <ClCompile Include="autoresetevent.cpp" />
@@ -138,6 +139,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpserver.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpclient.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\common.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\soundclass.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\thread\thread.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\thread\task.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\wintimer.h" />
@@ -145,28 +147,14 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\common.inl" />
-    <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\shader\common.hlsli" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\..\..\..\sdks\hsdk\include\hsdk\win\shader\ps_ui.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">s_%(Filename)</VariableName>
-      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(HSDK_DIR)include\hsdk\win\shader\%(Filename).h</HeaderFileOutput>
-      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">s_%(Filename)</VariableName>
-      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(HSDK_DIR)include\hsdk\win\shader\%(Filename).h</HeaderFileOutput>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-    </FxCompile>
-    <FxCompile Include="..\..\..\..\sdks\hsdk\include\hsdk\win\shader\vs_ui.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">s_%(Filename)</VariableName>
-      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(HSDK_DIR)include\hsdk\win\shader\%(Filename).h</HeaderFileOutput>
-      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">s_%(Filename)</VariableName>
-      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(HSDK_DIR)include\hsdk\win\shader\%(Filename).h</HeaderFileOutput>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-    </FxCompile>
     <None Include="..\Win32Project1\meshrenderer.fx">
       <FileType>Document</FileType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Win32Project1\main.fx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
