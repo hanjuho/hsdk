@@ -2,12 +2,13 @@
 
 
 
+#include <hsdk/win/frame/buttoncompo.h>
+#include <hsdk/win/frame/inputeventhelper.h>
+#include <hsdk/win/frame/direct3d/direct3d.h>
 #include <hsdk/win/frame/direct3d/d3d10_master.h>
 #include <hsdk/win/frame/direct3d/d3d10_mesh.h>
 #include <hsdk/win/frame/direct3d/d3d10_meshrenderer.h>
 #include <hsdk/win/frame/direct3d/direct3d_camera.h>
-#include <hsdk/win/frame/buttoncompo.h>
-#include <hsdk/win/frame/inputeventhelper.h>
 
 
 
@@ -29,10 +30,16 @@ Direct3D_Camera g_Camera;
 
 // Ό³Έν : 
 D3D10_Mesh g_Mesh;
+D3D10_MeshAnimation g_MeshAnimation;
+std::vector<D3DXMATRIX> g_boneMatrixBuffer;
+
+D3D10_Mesh g_SkyBox;
 
 D3DXMATRIX g_World;
 D3DXMATRIX g_View;
 D3DXMATRIX g_Projection;
+
+int x = 0, y = 0;
 
 const wchar_t * image[6] = {
 	L"1.jpg", L"2.jpg", L"3.jpg", L"4.jpg", L"5.jpg", L"6.jpg" };
@@ -52,23 +59,42 @@ LRESULT CALLBACK MsgProc(
 }
 
 void CALLBACK OnMouse(
-	/* [r] */ const BOOL * _buttonsDown,
+	/* [r] */ const short * _buttonsDown,
 	/* [r] */ unsigned int _buttonCount,
 	/* [r] */ int _mouseWheelDelta,
 	/* [r] */ int _xPos,
 	/* [r] */ int _yPos,
 	/* [r/w] */ void * _userContext)
 {
-	if (_buttonsDown[Direct3D_LEFTBUTTON])
+	if (IS_FLAG(_buttonsDown[Direct3D_LEFTBUTTON], 0x01))
 	{
 		g_Helper.onClick_Down(i::frame::LBUTTON, _xPos, _yPos);
+
+		int dx;
+		if (dx = _xPos - x)
+		{
+			g_Camera.rotate_YAxis(D3DXToRadian(dx));
+		}
+
+		int dy;
+		if (dy = _yPos - y)
+		{
+			g_Camera.rotate_XAxis(D3DXToRadian(dy));
+		}
 	}
+	else if (IS_FLAG(_buttonsDown[Direct3D_LEFTBUTTON], 0x02))
+	{
+		g_Helper.onClick_Up(i::frame::LBUTTON, _xPos, _yPos);
+	}
+
+	x = _xPos;
+	y = _yPos;
 }
 
 void CALLBACK OnKeyboard(
 	unsigned char nChar,
-	BOOL bKeyDown,
-	BOOL bAltDown,
+	short bKeyDown,
+	short bAltDown,
 	void * pUserContext)
 {
 
@@ -105,28 +131,19 @@ HRESULT CALLBACK OnD3D10CreateDevice(
 	const DXGI_SURFACE_DESC & pBackBufferSurfaceDesc,
 	void * pUserContext)
 {
-	D3DXVECTOR3 Eye(0.0f, 0.0f, -1.0f);
-	D3DXVECTOR3 At(0.0f, 0.0f, 0.0f);
-	D3DXVECTOR3 Up(0.0f, 1.0f, 0.0f);
-
-	// Initialize the view matrix
-	D3DXMatrixLookAtLH(&g_View, &Eye, &At, &Up);
+	g_Camera.set_Position(D3DXVECTOR3(0.0f, 10.0f, -10.0f));
+	g_Camera.compute_ViewMatrix(g_View);
 
 	// Initialize the projection matrix
 	D3DXMatrixPerspectiveFovLH(
 		&g_Projection,
 		(float)D3DX_PI * 0.25f,
-		pBackBufferSurfaceDesc.Width / pBackBufferSurfaceDesc.Height,
+		(float)pBackBufferSurfaceDesc.Width /
+		(float)pBackBufferSurfaceDesc.Height,
 		0.1f,
 		1000.0f);
 
-	HRESULT hr;
-
-	hr = S_OK;
-	hr = ADD_FLAG(g_D3D10_Master.initialize(pd3dDevice), hr);
-	hr = ADD_FLAG(g_D3D10_MeshRenderer.initialize(pd3dDevice), hr);
-	
-	return hr;
+	return S_OK;
 }
 
 void CALLBACK OnD3D10FrameRender(
@@ -135,6 +152,8 @@ void CALLBACK OnD3D10FrameRender(
 	float fElapsedTime,
 	void * pUserContext)
 {
+	g_Camera.compute_ViewMatrix(g_View);
+
 	// Clear the render target and depth stencil
 	float ClearColor[4] = { 0.2f, 0.2f, 0.2f, 1.0f };
 	ID3D10RenderTargetView * pRTV = g_Direct3D_Device.d3d10RTV;
@@ -142,7 +161,16 @@ void CALLBACK OnD3D10FrameRender(
 	ID3D10DepthStencilView * pDSV = g_Direct3D_Device.d3d10DSV;
 	pd3dDevice->ClearDepthStencilView(pDSV, D3D10_CLEAR_DEPTH, 1.0, 0);
 
-	g_Button.render();
+	g_D3D10_MeshRenderer.render_SkyBox(
+		g_View * g_Projection, g_SkyBox);
+
+	g_D3D10_MeshRenderer.render_Skinned(
+		g_View * g_Projection,
+		g_Mesh,
+		&g_boneMatrixBuffer[0],
+		g_boneMatrixBuffer.size());
+
+	// g_Button.render();
 }
 
 void CALLBACK OnD3D10DestroyDevice(
@@ -171,15 +199,33 @@ int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 	hr = ADD_FLAG(g_Direct3D.setup1_DeviceFactory(new direct3d::Direct3D_DeviceFactory()), hr);
 	hr = ADD_FLAG(g_Direct3D.setup2_Device10(D3D10_DEVICE_DESC(true, 1600, 1500)), hr);
 
-	g_Button.graphics()->set_Background({ 0.0f, 1.0f, 0.0f, 1.0f });
-	g_Button.reform();
-	g_Button.set_Visible(true);
-
-	IF_SUCCEEDED(hr)
+	IF_SUCCEEDED(hr | g_D3D10_MeshRenderer.initialize())
 	{
-		g_Direct3D.mainLoop(); // Enter into the DXUT render loop
+		g_Button.graphics()->set_Background({ 0.0f, 1.0f, 0.0f, 1.0f });
+		g_Button.reform();
+		g_Button.set_Visible(true);
+
+		// g_SkyBox
+		g_D3D10_Master.create_MeshSkyBox(g_SkyBox, 1.0f);
+		g_D3D10_Master.create_MeshFromFile(g_Mesh, nullptr, L"Data/DeathwingHuman.X", &g_MeshAnimation);
+
+		g_boneMatrixBuffer.resize(g_MeshAnimation.get_NumOfBones());
+		g_MeshAnimation.transbone(&g_boneMatrixBuffer[0], g_boneMatrixBuffer.size(), g_D3D10_ViewMatrix);
+
+		g_SkyBox.setup1_Texture(image[0], 0, 0);
+		g_SkyBox.setup1_Texture(image[1], 1, 0);
+		g_SkyBox.setup1_Texture(image[2], 2, 0);
+		g_SkyBox.setup1_Texture(image[3], 3, 0);
+		g_SkyBox.setup1_Texture(image[4], 4, 0);
+		g_SkyBox.setup1_Texture(image[5], 5, 0);
+
+		// Enter into the DXUT render loop
+		g_Direct3D.mainLoop();
 	}
 
+	g_SkyBox.clear();
+	g_MeshAnimation.clear();
+	g_Mesh.clear();
 	g_D3D10_MeshRenderer.destroy();
 	g_D3D10_Master.destroy();
 	g_Direct3D.destroy();

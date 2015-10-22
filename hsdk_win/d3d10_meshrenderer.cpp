@@ -1,4 +1,5 @@
 #include <hsdk/win/frame/direct3d/d3d10_meshrenderer.h>
+#include <hsdk/win/frame/direct3d/direct3d.h>
 #include <d3d10effect.h>
 
 
@@ -17,11 +18,11 @@ ID3D10Device * g_refDevice_1;
 // 설명 : 
 AutoRelease<ID3D10Effect> g_D3D10Effect;
 
-// 설명 : Get the effect variable handles
-ID3D10EffectTechnique * g_Render_Technique;
-
 // 설명 :
 ID3D10EffectTechnique * g_SkinnedBasic_Technique;
+
+// 설명 : Get the effect variable handles
+ID3D10EffectTechnique * g_SkyBox_Technique;
 
 // 설명 : 
 ID3D10EffectTechnique * g_GUI_Technique;
@@ -41,6 +42,9 @@ ID3D10EffectMatrixVariable * g_ViewProj_Matrix;
 
 // 설명 : 
 ID3D10EffectMatrixVariable * g_World_Matrix;
+
+// 설명 : 
+ID3D10EffectMatrixVariable * g_boneWorldMatrix;
 
 //--------------------------------------------------------------------------------------
 // Grobal resource variable
@@ -103,7 +107,7 @@ wchar_t g_szEffect[MAX_PATH];
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize)(
-	/* [r] */ ID3D10Device * _d3d10Device)
+	/* [x] */ void)
 {
 	WIN32_FIND_DATA FindData;
 	HANDLE hFile = FindFirstFile(g_szEffect, &FindData);
@@ -129,16 +133,14 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize)(
 		"fx_4_0",
 		D3D10_SHADER_ENABLE_BACKWARDS_COMPATIBILITY | D3D10_SHADER_DEBUG,
 		0,
-		_d3d10Device,
+		g_Direct3D_Device.d3d10Device,
 		nullptr,
 		nullptr,
 		&effect,
 		&error,
 		nullptr))
 	{
-		std::string err =
-			std::string(LPCSTR(error->GetBufferPointer()), error->GetBufferSize());
-
+		std::string err = std::string(LPCSTR(error->GetBufferPointer()), error->GetBufferSize());
 		MessageBoxA(nullptr, err.c_str(), "warning", MB_OK);
 
 		return hr;
@@ -153,14 +155,14 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize)(
 	};
 
 	// Get the effect variable handles
-	g_Render_Technique =
-		effect->GetTechniqueByName("Render0");
+	g_SkyBox_Technique =
+		effect->GetTechniqueByName("SkyBox0");
 
 	D3D10_PASS_DESC PassDesc;
-	g_Render_Technique->GetPassByIndex(0)->GetDesc(&PassDesc);
+	g_SkyBox_Technique->GetPassByIndex(0)->GetDesc(&PassDesc);
 
 	AutoRelease<ID3D10InputLayout> Basic_inputLayout;
-	IF_FAILED(hr = _d3d10Device->CreateInputLayout(
+	IF_FAILED(hr = g_Direct3D_Device.d3d10Device->CreateInputLayout(
 		basiclayout,
 		sizeof(basiclayout) / sizeof(basiclayout[0]),
 		PassDesc.pIAInputSignature,
@@ -187,7 +189,7 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize)(
 	g_SkinnedBasic_Technique->GetPassByIndex(0)->GetDesc(&PassDesc);
 
 	AutoRelease<ID3D10InputLayout> Skinned_inputLayout;
-	IF_FAILED(hr = _d3d10Device->CreateInputLayout(
+	IF_FAILED(hr = g_Direct3D_Device.d3d10Device->CreateInputLayout(
 		skinnedlayout,
 		sizeof(skinnedlayout) / sizeof(skinnedlayout[0]),
 		PassDesc.pIAInputSignature,
@@ -215,7 +217,7 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize)(
 	g_GUI_Technique->GetPassByIndex(0)->GetDesc(&PassDesc);
 
 	AutoRelease<ID3D10InputLayout> Texture_inputLayout;
-	IF_FAILED(hr = _d3d10Device->CreateInputLayout(
+	IF_FAILED(hr = g_Direct3D_Device.d3d10Device->CreateInputLayout(
 		texturelayout,
 		sizeof(texturelayout) / sizeof(texturelayout[0]),
 		PassDesc.pIAInputSignature,
@@ -233,6 +235,9 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize)(
 
 	g_World_Matrix =
 		effect->GetVariableByName("g_World_Matrix")->AsMatrix();
+
+	g_boneWorldMatrix =
+		effect->GetVariableByName("g_worldBoneMatrixs")->AsMatrix();
 
 	g_Diffuse_Texture =
 		effect->GetVariableByName("g_Diffuse_Texture")->AsShaderResource();
@@ -253,7 +258,7 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize)(
 	g_Basic_inputLayout = Basic_inputLayout;
 	g_Skinned_inputLayout = Skinned_inputLayout;
 	g_Texture_inputLayout = Texture_inputLayout;
-	g_refDevice_1 = _d3d10Device;
+	g_refDevice_1 = g_Direct3D_Device.d3d10Device;
 
 	// Build box
 	D3D10_TextureFormat vBox[] = {
@@ -325,7 +330,8 @@ CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, destroy)(
 	g_Sprite_VBuffer.~AutoRelease();
 	g_Sprite_IBuffer.~AutoRelease();
 
-	g_Render_Technique = nullptr;
+	g_SkinnedBasic_Technique = nullptr;
+	g_SkyBox_Technique = nullptr;
 	g_GUI_Technique = nullptr;
 	g_GUIColor_Technique = nullptr;
 	g_WorldViewProj_Matrix = nullptr;
@@ -341,8 +347,11 @@ CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, destroy)(
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, render_Skinned)(
 	/* [r] */ D3DXMATRIX & _world,
-	/* [r] */ const D3D10_Mesh & _mesh)
+	/* [r] */ const D3D10_Mesh & _mesh,
+	/* [r] */ D3DXMATRIX * _boneMatrixs,
+	/* [r] */ unsigned int _matrixSize)
 {
+	g_boneWorldMatrix->SetMatrixArray((float *)_boneMatrixs, 0, _matrixSize);
 	g_WorldViewProj_Matrix->SetMatrix((float *)(_world));
 	g_World_Matrix->SetMatrix((float *)(_world));
 
@@ -427,14 +436,12 @@ CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, render_SkyBox)(
 			const D3D10MY_RENDER_DESC & desc =
 				mesh.render_Descs[irender];
 
-			const D3D10MY_MATERIAL & material =
-				_mesh.get_Material(desc.material_id);
-
 			g_refDevice_1->IASetPrimitiveTopology(desc.primitiveType);
 
-			g_Diffuse_Texture->SetResource(material.diffuseRV);
+			g_Diffuse_Texture->SetResource(
+				_mesh.get_Material(desc.material_id).diffuseRV);
 
-			g_Render_Technique->GetPassByIndex(0)->Apply(0);
+			g_SkyBox_Technique->GetPassByIndex(0)->Apply(0);
 
 			g_refDevice_1->DrawIndexed(
 				desc.indexCount,

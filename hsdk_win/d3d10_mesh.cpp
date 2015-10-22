@@ -1,4 +1,6 @@
 #include <hsdk/win/frame/direct3d/d3d10_mesh.h>
+#include <hsdk/win/frame/direct3d/d3d10_master.h>
+#include <hsdk/win/frame/direct3d/direct3d.h>
 
 
 
@@ -19,7 +21,6 @@ CLASS_IMPL_CONSTRUCTOR(D3D10_Mesh, D3D10_Mesh)(
 	my_refCallback_Create_VertexBuffer(_callback_Create_VertexBuffer),
 	my_refCallback_Create_indexBuffer(_callback_Create_indexBuffer),
 	my_refUserContext(_userContext),
-	my_refD3D10Device(nullptr),
 	my_MeshPath(L""),
 	my_LoadLock(false)
 {
@@ -44,7 +45,6 @@ CLASS_IMPL_FUNC_T(D3D10_Mesh, void, clear)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_Mesh, setup0)(
-	/* [r] */ ID3D10Device * _device,
 	/* [r] */ unsigned int _numOfMaterials,
 	/* [r] */ unsigned int _numOfMeshs)
 {
@@ -53,7 +53,6 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup0)(
 		return E_ACCESSDENIED;
 	}
 
-	my_refD3D10Device = _device;
 	my_Meshs.resize(_numOfMeshs);
 	my_Materials.resize(_numOfMaterials);
 
@@ -62,7 +61,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup0)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_Mesh, setup1_Texture)(
-	/* [r] */ const wchar_t * _filepath,
+	/* [r] */ const wchar_t * _directory,
 	/* [r] */ unsigned int _indexOfMaterial,
 	/* [r] */ unsigned int _attribute)
 {
@@ -82,22 +81,22 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup1_Texture)(
 
 			return my_refCallback_Create_Texture_FromFile(
 				&material.diffuseRV,
-				my_refD3D10Device,
-				_filepath,
+				g_Direct3D_Device.d3d10Device,
+				_directory,
 				my_refUserContext);
 		case 1:
 
 			return my_refCallback_Create_Texture_FromFile(
 				&material.normalRV,
-				my_refD3D10Device,
-				_filepath,
+				g_Direct3D_Device.d3d10Device,
+				_directory,
 				my_refUserContext);
 		case 2:
 
 			return my_refCallback_Create_Texture_FromFile(
 				&material.specularRV,
-				my_refD3D10Device,
-				_filepath,
+				g_Direct3D_Device.d3d10Device,
+				_directory,
 				my_refUserContext);
 
 		default:
@@ -105,6 +104,51 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup1_Texture)(
 			return E_NOTIMPL;
 
 		};
+	}
+	else
+	{
+		HRESULT hr;
+
+		switch (_attribute)
+		{
+		case 0:
+		
+			IF_SUCCEEDED(hr = g_D3D10_Master.get_Texture(
+				&material.diffuseRV,
+				_directory))
+			{
+				material.diffuseRV->AddRef();
+			}
+
+			return hr;
+
+		case 1:
+
+			IF_SUCCEEDED(hr = g_D3D10_Master.get_Texture(
+				&material.normalRV,
+				_directory))
+			{
+				material.normalRV->AddRef();
+			}
+
+			return hr;
+
+		case 2:
+
+			IF_SUCCEEDED(hr = g_D3D10_Master.get_Texture(
+				&material.specularRV,
+				_directory))
+			{
+				material.specularRV->AddRef();
+			}
+
+			return hr;
+
+		default:
+
+			return E_NOTIMPL;
+
+		}
 	}
 
 	return E_FAIL;
@@ -302,7 +346,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup2_Vertexbuffer)(
 	{
 		hr = my_refCallback_Create_VertexBuffer(
 			&vb,
-			my_refD3D10Device,
+			g_Direct3D_Device.d3d10Device,
 			_desc,
 			_vertices,
 			my_refUserContext);
@@ -312,7 +356,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup2_Vertexbuffer)(
 		D3D10_SUBRESOURCE_DATA initData;
 		initData.pSysMem = _vertices;
 
-		hr = my_refD3D10Device->CreateBuffer(
+		hr = g_Direct3D_Device.d3d10Device->CreateBuffer(
 			&_desc,
 			&initData,
 			&vb);
@@ -350,7 +394,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup2_indexbuffer)(
 	{
 		hr = my_refCallback_Create_indexBuffer(
 			&ib.indexbuffer,
-			my_refD3D10Device,
+			g_Direct3D_Device.d3d10Device,
 			_desc,
 			_indices,
 			my_refUserContext);
@@ -360,7 +404,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup2_indexbuffer)(
 		D3D10_SUBRESOURCE_DATA InitData;
 		InitData.pSysMem = _indices;
 
-		hr = my_refD3D10Device->CreateBuffer(
+		hr = g_Direct3D_Device.d3d10Device->CreateBuffer(
 			&_desc,
 			&InitData,
 			&ib.indexbuffer);
@@ -377,14 +421,14 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup2_indexbuffer)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_Mesh, userSet_MeshPath)(
-	/* [r] */ const wchar_t * _path)
+	/* [r] */ const wchar_t * _directory)
 {
 	if (wcscmp(my_MeshPath.c_str(), L"") != 0)
 	{
 		return E_ACCESSDENIED;
 	}
 
-	my_MeshPath = _path;
+	my_MeshPath = _directory;
 
 	return S_OK;
 }

@@ -1,4 +1,5 @@
 #include <hsdk/win/frame/graphics.h>
+#include <hsdk/win/frame/direct3d/direct3d.h>
 #include <hsdk/win/frame/direct3d/d3d10_meshrenderer.h>
 
 

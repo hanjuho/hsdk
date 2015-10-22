@@ -1,4 +1,5 @@
 #include <hsdk/win/frame/direct3d/d3d10_master.h>
+#include <hsdk/win/frame/direct3d/direct3d.h>
 #include <hash_map>
 #include <list>
 #include <stack>
@@ -19,9 +20,6 @@ using namespace direct3d;
 
 // Create an instance of the Importer class
 Assimp::Importer g_importer;
-
-// 설명 : 
-ID3D10Device * g_refDevice_0 = nullptr;
 
 // 설명 : 
 std::hash_map<std::wstring, D3D10MY_TEXTURE> g_Manager_Texture_Container;
@@ -46,24 +44,6 @@ DECL_FUNC_T(unsigned int, build_MeshAnimationFromAiNode)(
 //--------------------------------------------------------------------------------------
 // D3D10_Master impl
 //--------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_Master, initialize)(
-	/* [r] */ ID3D10Device * _device)
-{
-	if (nullptr == g_refDevice_0)
-	{
-		g_refDevice_0 = _device;
-	}
-	else if (_device != g_refDevice_0)
-	{
-		destroy();
-
-		g_refDevice_0 = _device;
-	}
-
-	return S_OK;
-}
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_Master, void, destroy)(
@@ -99,7 +79,7 @@ CLASS_IMPL_FUNC(D3D10_Master, get_Texture)(
 		// 데이터가 없는 경우
 		HRESULT hr;
 		IF_FAILED(hr = D3DX10CreateShaderResourceViewFromFile(
-			g_refDevice_0,
+			g_Direct3D_Device.d3d10Device,
 			_directory,
 			nullptr,
 			nullptr,
@@ -148,8 +128,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshSkyBox)(
 	_mesh.clear();
 
 	HRESULT hr;
-	IF_FAILED(hr = _mesh.setup0(
-		g_refDevice_0, 6, 1))
+	IF_FAILED(hr = _mesh.setup0(6, 1))
 	{
 		return hr;
 	}
@@ -269,6 +248,12 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 	/* [r] */ const wchar_t * _szFileName,
 	/* [w] */ D3D10_MeshAnimation * _meshAnimation)
 {
+	_mesh.clear();
+	if (_meshAnimation)
+	{
+		_meshAnimation->clear();
+	}
+
 	wchar_t wtoa[512];
 	char atow[512];
 
@@ -303,10 +288,56 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 				wtoa,
 				0);
 		}
+
+		for (unsigned int aindex = 0; aindex < scene->mNumAnimations; ++aindex)
+		{
+			const aiAnimation & animation = *scene->mAnimations[aindex];
+
+			mbstowcs_s<512>(nullptr, wtoa, animation.mName.C_Str(), sizeof(wtoa));
+			_meshAnimation->setup1_Animation(
+				aindex, wtoa,
+				animation.mNumChannels,
+				animation.mTicksPerSecond,
+				animation.mDuration);
+
+			for (unsigned int cindex = 0; cindex < animation.mNumChannels; ++cindex)
+			{
+				const aiNodeAnim & anim = *animation.mChannels[cindex];
+
+				D3D10MY_FRAME_HINT hint;
+				switch (anim.mPostState)
+				{
+				case aiAnimBehaviour_DEFAULT:
+					hint = FRAME_HINT_DEFAULT;
+					break;
+				case aiAnimBehaviour_CONSTANT:
+					hint = FRAME_HINT_CONSTANT;
+					break;
+				case aiAnimBehaviour_LINEAR:
+					hint = FRAME_HINT_LINEAR;
+					break;
+				case aiAnimBehaviour_REPEAT:
+				case _aiAnimBehaviour_Force32Bit:
+					hint = FRAME_HINT_REPEAT;
+				};
+
+				unsigned int keySize = min(anim.mNumPositionKeys, anim.mNumRotationKeys);
+				keySize = min(keySize, anim.mNumScalingKeys);
+
+				mbstowcs_s<512>(nullptr, wtoa, anim.mNodeName.C_Str(), sizeof(wtoa));
+				_meshAnimation->setup2_AnimationBoneKeyFrame(
+					aindex, cindex,
+					_meshAnimation->find_BoneIDFromName(wtoa),
+					keySize,
+					(D3DXVECTOR3 *)anim.mPositionKeys,
+					(D3DXVECTOR3 *)anim.mRotationKeys,
+					(D3DXVECTOR3 *)anim.mScalingKeys,
+					hint);
+			}
+		}
 	}
 
 	IF_FAILED(hr = _mesh.setup0(
-		g_refDevice_0,
 		scene->mNumMaterials ? scene->mNumMaterials : 1,
 		scene->mNumMeshes))
 	{
@@ -443,6 +474,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 		std::vector<unsigned int> indices(mesh.mNumFaces * faceSize);
 		unsigned int offsetOrSumOfindices = 0;
 
+		unsigned int * indicesBuffer = &indices[0];
 		for (unsigned int findex = 0; findex < mesh.mNumFaces; ++findex)
 		{
 			aiFace & face = mesh.mFaces[findex];
@@ -453,7 +485,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 			}
 
 			memcpy(
-				&indices[offsetOrSumOfindices],
+				&indicesBuffer[offsetOrSumOfindices],
 				face.mIndices,
 				face.mNumIndices * sizeof(unsigned int));
 
@@ -481,45 +513,47 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 		std::vector<D3D10_SkinnedFormat> vbuffer(mesh.mNumVertices);
 		ZeroMemory(&vbuffer[0], mesh.mNumVertices * sizeof(D3D10_SkinnedFormat));
 
+		D3D10_SkinnedFormat * formatBuffer = &vbuffer[0];
 		for (unsigned int vindex = 0; vindex < mesh.mNumVertices; ++vindex)
 		{
-			D3D10_SkinnedFormat & format = vbuffer[vindex];
+			D3D10_SkinnedFormat & format = formatBuffer[vindex];
 			memcpy(&format.pos, &mesh.mVertices[vindex], sizeof(D3DXVECTOR3));
 			memcpy(&format.norm, &mesh.mNormals[vindex], sizeof(D3DXVECTOR3));
 			memcpy(&format.tex, &mesh.mTextureCoords[0][vindex], sizeof(D3DXVECTOR2));
 			memcpy(&format.color, &mesh.mColors[0][vindex], sizeof(D3DXVECTOR4));
 		}
 
-		for (unsigned int bindex = 0; bindex < mesh.mNumBones; ++bindex)
+		if (_meshAnimation)
 		{
-			const aiBone & bone = *mesh.mBones[bindex];
-
-			unsigned int nodeBindex = 0;
-			if (_meshAnimation)
+			for (unsigned int bindex = 0; bindex < mesh.mNumBones; ++bindex)
 			{
+				const aiBone & bone = *mesh.mBones[bindex];
+
+				unsigned int nodeBindex = 0;
+
 				mbstowcs_s<512>(nullptr, wtoa, bone.mName.C_Str(), sizeof(wtoa));
-				nodeBindex = _meshAnimation->find_BoneIDFromName(wtoa);			
+				nodeBindex = _meshAnimation->find_BoneIDFromName(wtoa);
 
-				_meshAnimation->setup2_BoneMatrix(
+				_meshAnimation->userSet_BoneMatrix(
 					nodeBindex, (float *)&bone.mOffsetMatrix);
-			}
 
-			for (unsigned int windex = 0; windex < bone.mNumWeights; ++windex)
-			{
-				const aiVertexWeight & wight = bone.mWeights[windex];
-				D3D10_SkinnedFormat & format = vbuffer[wight.mVertexId];
-				
-				for (unsigned int i = 0; i < 4; ++i)
+				for (unsigned int windex = 0; windex < bone.mNumWeights; ++windex)
 				{
-					if (format.bindexs[i])
+					const aiVertexWeight & wight = bone.mWeights[windex];
+					D3D10_SkinnedFormat & format = formatBuffer[wight.mVertexId];
+
+					for (unsigned int i = 0; i < 4; ++i)
 					{
-						continue;
-					}
-					else
-					{
-						format.bindexs[i] = nodeBindex;
-						format.bweight[i] = wight.mWeight;
-						break;
+						if (format.bindexs[i])
+						{
+							continue;
+						}
+						else
+						{
+							format.bindexs[i] = nodeBindex;
+							format.bweight[i] = wight.mWeight;
+							break;
+						}
 					}
 				}
 			}

@@ -45,8 +45,8 @@ CLASS_IMPL_FUNC_T(Direct3D_Camera, void, set_Target)(
 	/* [r] */ const float * _vPos)
 {
 	// 받아온 값의 노말을 계산
-	D3DXVECTOR3 nor = D3DXVECTOR3(_vPos);
-	D3DXVec3Normalize(&nor, &nor);
+	D3DXVECTOR3 nor;
+	D3DXVec3Normalize(&nor, &(D3DXVECTOR3)_vPos);
 
 	D3DXVec3Cross(&my_vYDir, &nor, &my_vZDir);
 	D3DXVec3Normalize(&my_vYDir, &my_vYDir);
@@ -141,7 +141,7 @@ CLASS_IMPL_FUNC_T(Direct3D_Camera, const float *, get_Position)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D_Camera, void, compute_ViewMatrix)(
-	/* [x] */ float(&_mView)[16])const
+	/* [x] */ float * _mView)const
 {
 	float x = -D3DXVec3Dot(&my_vXDir, &my_vPos);
 	float y = -D3DXVec3Dot(&my_vYDir, &my_vPos);

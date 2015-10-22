@@ -26,7 +26,7 @@ struct VS_SKINNED_INPUT
 	float3 Norm		: NORMAL;
 	float2 Tex		: TEXCOORD0;
 	float4 Color	: COLOR0;
-	uint4 Bindex	: BLENDINDICES;
+	uint4 Bindexs	: BLENDINDICES;
 	float4 Bweight	: BLENDWEIGHT;
 };
 
@@ -73,6 +73,11 @@ float g_fTime;
 float g_fElapsedTime;
 
 //-----------------------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------------------
+float4x4 g_worldBoneMatrixs[256];
+
+//-----------------------------------------------------------------------------------------
 // Samplers
 //-----------------------------------------------------------------------------------------
 sampler2D DiffuseSampler = sampler_state
@@ -84,27 +89,58 @@ sampler2D DiffuseSampler = sampler_state
 };
 
 //-----------------------------------------------------------------------------------------
-// VertexShader: VSBasic
-//-----------------------------------------------------------------------------------------
-PS_BASIC_INPUT VSBasic(VS_BASIC_INPUT input)
-{
-	VS_BASIC_INPUT output;
-
-	output.Pos = mul(input.Pos, g_WorldViewProj_Matrix);
-	output.Norm = normalize(mul(input.Norm, (float3x3)g_World_Matrix));
-	output.Tex = input.Tex;
-
-	return output;
-}
-
-//-----------------------------------------------------------------------------------------
 // VertexShader: VSSkinnedBasic
 //-----------------------------------------------------------------------------------------
 PS_BASIC_INPUT VSSkinnedBasic(VS_SKINNED_INPUT input)
 {
 	VS_BASIC_INPUT output;
 
-	output.Pos = mul(input.Pos, g_WorldViewProj_Matrix);
+	float3 pos = 0.0;
+		float3 norm = 0.0;
+
+		uint i = 0;
+	uint w = 0;
+
+	int index;
+	for (index = 0; index < 4; ++index)
+	{
+		i = input.Bindexs[index];
+		w = input.Bweight[index];
+
+		// Bone's VertexBuffer에는 가중치를 주는 뼈의 index와 weight가 순서대로 저장.
+		// 0이 등장했다는 것이 이후에도 없을 것을 확신.
+		if (0 == w)
+		{
+			break;
+		}
+
+		pos += mul(input.Pos, (float4x3)g_worldBoneMatrixs[i]) * w;
+		norm += mul(input.Norm, (float3x3)g_worldBoneMatrixs[i]) * w;
+	}
+
+	// index가 0라는 것은 아무도 가중치를 주지 않았다는 것이고 이는 뼈가 없음을 의미.
+	if (0 == index)
+	{
+		pos = input.Pos.xyz;
+		norm = input.Norm;
+	}
+
+	output.Pos = mul(float4(pos, 1.0f), g_WorldViewProj_Matrix);
+	output.Norm = normalize(mul(norm, (float3x3)g_World_Matrix));
+	output.Tex = input.Tex;
+
+	return output;
+}
+
+//-----------------------------------------------------------------------------------------
+// VertexShader: VSSkyBox
+//-----------------------------------------------------------------------------------------
+PS_BASIC_INPUT VSSkyBox(VS_BASIC_INPUT input)
+{
+	PS_BASIC_INPUT output;
+
+	output.Pos = mul(input.Pos, (float3x4)g_WorldViewProj_Matrix);
+	output.Pos.z = output.Pos.w;
 	output.Norm = normalize(mul(input.Norm, (float3x3)g_World_Matrix));
 	output.Tex = input.Tex;
 
@@ -141,22 +177,19 @@ PS_BASIC_INPUT VSGUI(VS_TEXTURE_INPUT input)
 }
 
 //-----------------------------------------------------------------------------------------
-// PixelShader: PSBasic
-//-----------------------------------------------------------------------------------------
-float4 PSBasic(PS_BASIC_INPUT input) : COLOR0
-{
-	//return float4( input.Tex, 0, 1 );
-	//float2 tex = input.Tex * float2(0.5,0.5);
-	//tex.y += 0.5;
-	return tex2D(DiffuseSampler, input.Tex);
-}
-
-//-----------------------------------------------------------------------------------------
 // PixelShader: PSSkinnedBasic
 //-----------------------------------------------------------------------------------------
 float4 PSSkinnedBasic(PS_BASIC_INPUT input) : COLOR0
 {
-	return float4(0.0f, 0.0f, 0.0f, 1.0f);
+	return float4(1.0f, 1.0f, 0.0f, 1.0f);
+}
+
+//-----------------------------------------------------------------------------------------
+// PixelShader: PSSkyBox
+//-----------------------------------------------------------------------------------------
+float4 PSSkyBox(PS_BASIC_INPUT input) : COLOR0
+{
+	return tex2D(DiffuseSampler, input.Tex);
 }
 
 //-----------------------------------------------------------------------------------------
@@ -176,7 +209,6 @@ float4 PSGUI(PS_BASIC_INPUT input) : COLOR0
 		diffuse.w *= 0.5f;
 		return diffuse;
 	}
-
 }
 
 //-----------------------------------------------------------------------------------------
@@ -258,20 +290,6 @@ RasterizerState CullNone
 //-----------------------------------------------------------------------------------------
 // Technique: Renderer
 //-----------------------------------------------------------------------------------------
-technique10 Render0
-{
-	pass p0
-	{
-		SetVertexShader(CompileShader(vs_4_0, VSBasic()));
-		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_4_0, PSBasic()));
-
-		SetDepthStencilState(EnableDepth, 0);
-		SetBlendState(AdditiveBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-		SetRasterizerState(CullBack);
-	}
-}
-
 technique10 SkinnedBasic0
 {
 	pass p0
@@ -281,6 +299,20 @@ technique10 SkinnedBasic0
 		SetPixelShader(CompileShader(ps_4_0, PSSkinnedBasic()));
 
 		SetDepthStencilState(EnableDepth, 0);
+		SetBlendState(AdditiveBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+		SetRasterizerState(CullBack);
+	}
+}
+
+technique10 SkyBox0
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_4_0, VSSkyBox()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_4_0, PSSkyBox()));
+
+		SetDepthStencilState(DisableDepth, 0);
 		SetBlendState(AdditiveBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 		SetRasterizerState(CullBack);
 	}
