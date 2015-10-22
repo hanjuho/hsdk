@@ -2,8 +2,7 @@
 
 
 
-using namespace hsdk;
-using namespace direct3d;
+using namespace hsdk::direct3d;
 
 
 //--------------------------------------------------------------------------------------
@@ -192,7 +191,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup1_Material)(
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_Mesh, setup1_Shininess)(
 	/* [r] */ unsigned int _indexOfMaterial,
-	/* [r] */ unsigned int _shininess)
+	/* [r] */ float _shininess)
 {
 	IF_FALSE(_indexOfMaterial < my_Materials.size())
 	{

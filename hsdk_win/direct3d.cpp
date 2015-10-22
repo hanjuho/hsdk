@@ -37,13 +37,13 @@ hsdk::win::UserTimeStream g_TimeStream;
 //--------------------------------------------------------------------------------------
 
 // 설명 : array of key state
-BOOL g_Keys[256] = { 0 };
+short g_Keys[256] = { 0 };
 
 // 설명 : array of last key state
-BOOL g_LastKeys[256] = { 0 };
+short g_LastKeys[256] = { 0 };
 
 // 설명 : array of mouse states
-BOOL g_MouseButtons[5] = { 0 };
+short g_MouseButtons[5] = { 0 };
 
 //--------------------------------------------------------------------------------------
 // Grobal device handle variable
@@ -804,8 +804,10 @@ CLASS_IMPL_FUNC(Direct3D, mainLoop)(
 		// to store the current state of the keys in bLastKeys
 		if (g_State.storeLastKeyPressed)
 		{
-			memcpy(g_LastKeys, g_Keys, sizeof(BOOL)* 256);
+			memcpy(g_LastKeys, g_Keys, 256 * sizeof(short));
 		}
+
+		ZeroMemory(g_Keys, 256 * sizeof(short));
 	}
 
 	// Cleanup the accelerator table
@@ -1297,12 +1299,11 @@ LRESULT CALLBACK direct3D_WndProc(
 	// Consolidate the keyboard messages and pass them to the app's keyboard callback
 	if (_uMsg == WM_KEYDOWN || _uMsg == WM_SYSKEYDOWN || _uMsg == WM_KEYUP || _uMsg == WM_SYSKEYUP)
 	{
-		BOOL bKeyDown = (_uMsg == WM_KEYDOWN || _uMsg == WM_SYSKEYDOWN);
+		short bKeyDown = (_uMsg & 0x1) + 1;
 		unsigned long dwMask = (1 << 29);
-		BOOL bAltDown = ((_lParam & dwMask) != 0);
+		short bAltDown = ((_lParam & dwMask) != 0);
 
-		BOOL * bKeys = g_Keys;
-		bKeys[(unsigned char)(_wParam & 0xFF)] = bKeyDown;
+		g_Keys[(unsigned char)(_wParam & 0xFF)] = bKeyDown;
 
 		CALLBACK_KEYBOARD callback_Keyboard =
 			g_Callbacks.keyboardFunc;
@@ -1321,16 +1322,12 @@ LRESULT CALLBACK direct3D_WndProc(
 
 	// Consolidate the mouse button messages and pass them to the app's mouse callback
 	if (_uMsg == WM_LBUTTONDOWN ||
-		_uMsg == WM_LBUTTONUP ||
 		_uMsg == WM_LBUTTONDBLCLK ||
 		_uMsg == WM_MBUTTONDOWN ||
-		_uMsg == WM_MBUTTONUP ||
 		_uMsg == WM_MBUTTONDBLCLK ||
 		_uMsg == WM_RBUTTONDOWN ||
-		_uMsg == WM_RBUTTONUP ||
 		_uMsg == WM_RBUTTONDBLCLK ||
 		_uMsg == WM_XBUTTONDOWN ||
-		_uMsg == WM_XBUTTONUP ||
 		_uMsg == WM_XBUTTONDBLCLK ||
 		_uMsg == WM_MOUSEWHEEL ||
 		_uMsg == WM_MOUSEMOVE)
@@ -1353,18 +1350,17 @@ LRESULT CALLBACK direct3D_WndProc(
 			nMouseWheelDelta = (short)HIWORD(_wParam);
 
 		int nMouseButtonState = LOWORD(_wParam);
-		BOOL bLeftButton = ((nMouseButtonState & MK_LBUTTON) != 0);
-		BOOL bRightButton = ((nMouseButtonState & MK_RBUTTON) != 0);
-		BOOL bMiddleButton = ((nMouseButtonState & MK_MBUTTON) != 0);
-		BOOL bSideButton1 = ((nMouseButtonState & MK_XBUTTON1) != 0);
-		BOOL bSideButton2 = ((nMouseButtonState & MK_XBUTTON2) != 0);
+		short bLeftButton = (IS_FLAG(nMouseButtonState, MK_LBUTTON) != 0);
+		short bMiddleButton = (IS_FLAG(nMouseButtonState, MK_MBUTTON) != 0);
+		short bRightButton = (IS_FLAG(nMouseButtonState, MK_RBUTTON) != 0);
+		short bSideButton1 = (IS_FLAG(nMouseButtonState, MK_XBUTTON1) != 0);
+		short bSideButton2 = (IS_FLAG(nMouseButtonState, MK_XBUTTON2) != 0);
 
-		BOOL * bMouseButtons = g_MouseButtons;
-		bMouseButtons[0] = bLeftButton;
-		bMouseButtons[1] = bMiddleButton;
-		bMouseButtons[2] = bRightButton;
-		bMouseButtons[3] = bSideButton1;
-		bMouseButtons[4] = bSideButton2;
+		g_MouseButtons[0] = bLeftButton;
+		g_MouseButtons[1] = bMiddleButton;
+		g_MouseButtons[2] = bRightButton;
+		g_MouseButtons[3] = bSideButton1;
+		g_MouseButtons[4] = bSideButton2;
 
 		CALLBACK_MOUSE callback_Mouse =
 			g_Callbacks.mouseFunc;
@@ -1372,11 +1368,44 @@ LRESULT CALLBACK direct3D_WndProc(
 		if (callback_Mouse)
 		{
 			callback_Mouse(
-				bMouseButtons,
+				g_MouseButtons,
 				5,
 				nMouseWheelDelta,
 				xPos,
 				yPos,
+				g_Callbacks.mouseFuncUserContext);
+
+			return DefWindowProc(_hWnd, _uMsg, _wParam, _lParam);
+		}
+	}
+	else if (_uMsg == WM_LBUTTONUP ||
+		_uMsg == WM_MBUTTONUP ||
+		_uMsg == WM_RBUTTONUP ||
+		_uMsg == WM_XBUTTONUP)
+	{
+		short bLeftButton = IS_FLAG(_uMsg, 0x2);
+		short bMiddleButton = IS_FLAG(_uMsg, 0x8) >> 2;
+		short bRightButton = IS_FLAG(_uMsg, 0x1) << 1;
+		short bSideButton1 = IS_FLAG(_uMsg, 0x4) >> 1;
+		short bSideButton2 = bSideButton1;
+
+		g_MouseButtons[0] = bLeftButton;
+		g_MouseButtons[1] = bMiddleButton;
+		g_MouseButtons[2] = bRightButton;
+		g_MouseButtons[3] = bSideButton1;
+		g_MouseButtons[4] = bSideButton2;
+
+		CALLBACK_MOUSE callback_Mouse =
+			g_Callbacks.mouseFunc;
+
+		if (callback_Mouse)
+		{
+			callback_Mouse(
+				g_MouseButtons,
+				5,
+				0,
+				(short)LOWORD(_lParam),
+				(short)HIWORD(_lParam),
 				g_Callbacks.mouseFuncUserContext);
 
 			return DefWindowProc(_hWnd, _uMsg, _wParam, _lParam);

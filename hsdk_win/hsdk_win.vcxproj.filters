@@ -105,9 +105,6 @@
     <ClCompile Include="d3d10_mesh.cpp">
       <Filter>소스 파일\frame\d3d11</Filter>
     </ClCompile>
-    <ClCompile Include="d3d10_animation.cpp">
-      <Filter>소스 파일\frame\d3d11</Filter>
-    </ClCompile>
     <ClCompile Include="d3d10_meshrenderer.cpp">
       <Filter>소스 파일\frame\d3d11</Filter>
     </ClCompile>
@@ -128,6 +125,9 @@
     </ClCompile>
     <ClCompile Include="soundclass.cpp">
       <Filter>소스 파일\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="d3d10_meshanimation.cpp">
+      <Filter>소스 파일\frame\d3d11</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -191,9 +191,6 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\direct3d_outside.h">
       <Filter>헤더 파일\frame\direct3d</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_animation.h">
-      <Filter>헤더 파일\frame\direct3d</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_meshrenderer.h">
       <Filter>헤더 파일\frame\direct3d</Filter>
     </ClInclude>
@@ -215,6 +212,9 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\soundclass.h">
       <Filter>헤더 파일\sound</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_meshanimation.h">
+      <Filter>헤더 파일\frame\direct3d</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\common.inl">
@@ -223,10 +223,8 @@
     <None Include="..\Win32Project1\meshrenderer.fx">
       <Filter>리소스 파일</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="..\Win32Project1\main.fx">
+    <None Include="..\Win32Project1\main.fx">
       <Filter>리소스 파일</Filter>
-    </FxCompile>
+    </None>
   </ItemGroup>
 </Project>

@@ -1,5 +1,7 @@
 #include <hsdk/win/frame/direct3d/d3d10_master.h>
 #include <hash_map>
+#include <list>
+#include <stack>
 #include <string>
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
@@ -23,6 +25,23 @@ ID3D10Device * g_refDevice_0 = nullptr;
 
 // 설명 : 
 std::hash_map<std::wstring, D3D10MY_TEXTURE> g_Manager_Texture_Container;
+
+//--------------------------------------------------------------------------------------
+// Grobal decl function
+//--------------------------------------------------------------------------------------
+
+// 설명 :
+DECL_FUNC_T(void, compute_CountOfBonesFromAiNode)(
+	/* [r] */ aiNode * _node,
+	/* [r] */ std::list<aiNode *> & _list);
+
+// 설명 :
+DECL_FUNC_T(unsigned int, build_MeshAnimationFromAiNode)(
+	/* [w] */ D3D10_MeshAnimation * _meshAnimation,
+	/* [r] */ std::list<aiNode *> & _list,
+	/* [r] */ wchar_t(&_buffer)[512],
+	/* [r] */ unsigned int _index = 0,
+	/* [r] */ unsigned int _parentID = 0);
 
 //--------------------------------------------------------------------------------------
 // D3D10_Master impl
@@ -246,13 +265,17 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshSkyBox)(
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 	/* [w] */ D3D10_Mesh & _mesh,
-	/* [r] */ const wchar_t * _szFileName)
+	/* [r] */ const wchar_t * _szFilePath,
+	/* [r] */ const wchar_t * _szFileName,
+	/* [w] */ D3D10_MeshAnimation * _meshAnimation)
 {
-	char fileName[512];
-	wcstombs_s<512>(nullptr, fileName, _szFileName, sizeof(fileName));
-		
+	wchar_t wtoa[512];
+	char atow[512];
+
+	wcstombs_s<512>(nullptr, atow, _szFileName, sizeof(atow));
+
 	const aiScene * scene = g_importer.ReadFile(
-		fileName,
+		atow,
 		aiProcessPreset_TargetRealtime_MaxQuality |
 		aiProcess_FlipUVs |
 		aiProcess_SortByPType |
@@ -265,9 +288,26 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 
 	HRESULT hr;
 
+	if (_meshAnimation)
+	{
+		std::list<aiNode *> bones;
+		compute_CountOfBonesFromAiNode(scene->mRootNode, bones);
+
+		IF_SUCCEEDED(_meshAnimation->setup0(
+			bones.size(),
+			scene->mNumAnimations))
+		{
+			build_MeshAnimationFromAiNode(
+				_meshAnimation,
+				bones,
+				wtoa,
+				0);
+		}
+	}
+
 	IF_FAILED(hr = _mesh.setup0(
 		g_refDevice_0,
-		0 == scene->mNumMaterials ? 1 : scene->mNumMaterials,
+		scene->mNumMaterials ? scene->mNumMaterials : 1,
 		scene->mNumMeshes))
 	{
 		return hr;
@@ -275,50 +315,45 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 
 	for (unsigned int index = 0; index < scene->mNumMaterials; ++index)
 	{
-		aiMaterial * matl = scene->mMaterials[index];
+		const aiMaterial & matl = *scene->mMaterials[index];
+		aiString aiPath;
 
-		const unsigned int ndt = matl->GetTextureCount(aiTextureType_DIFFUSE);
+		const unsigned int ndt = matl.GetTextureCount(aiTextureType_DIFFUSE);
 		if (ndt)
 		{
-			aiString aiPath;
-			if (AI_SUCCESS == matl->GetTexture(aiTextureType_DIFFUSE, 0, &aiPath))
+			// 2개 이상의 디퓨즈 텍스처를 받아들일 수 없음
+			if (AI_SUCCESS == matl.GetTexture(aiTextureType_DIFFUSE, 0, &aiPath))
 			{
-				wchar_t path[512];
-				mbstowcs_s<512>(nullptr, path, aiPath.C_Str(), sizeof(path));
-
-				_mesh.setup1_Texture(path, index, 0);
+				mbstowcs_s<512>(nullptr, wtoa, aiPath.C_Str(), sizeof(wtoa));
+				_mesh.setup1_Texture(wtoa, index, 0);
 			}
 		}
 
-		const unsigned int nnt = matl->GetTextureCount(aiTextureType_NORMALS);
+		const unsigned int nnt = matl.GetTextureCount(aiTextureType_NORMALS);
 		if (nnt)
 		{
-			aiString aiPath;
-			if (AI_SUCCESS == matl->GetTexture(aiTextureType_NORMALS, 0, &aiPath))
+			// 2개 이상의 노말 텍스처를 받아들일 수 없음
+			if (AI_SUCCESS == matl.GetTexture(aiTextureType_NORMALS, 0, &aiPath))
 			{
-				wchar_t path[512];
-				mbstowcs_s<512>(nullptr, path, aiPath.C_Str(), sizeof(path));
-
-				_mesh.setup1_Texture(path, index, 1);
+				mbstowcs_s<512>(nullptr, wtoa, aiPath.C_Str(), sizeof(wtoa));
+				_mesh.setup1_Texture(wtoa, index, 1);
 			}
 		}
 
-		const unsigned int nst = matl->GetTextureCount(aiTextureType_SPECULAR);
+		const unsigned int nst = matl.GetTextureCount(aiTextureType_SPECULAR);
 		if (nnt)
 		{
-			aiString aiPath;
-			if (AI_SUCCESS == matl->GetTexture(aiTextureType_SPECULAR, 0, &aiPath))
+			// 2개 이상의 스펙큘러 텍스처를 받아들일 수 없음
+			if (AI_SUCCESS == matl.GetTexture(aiTextureType_SPECULAR, 0, &aiPath))
 			{
-				wchar_t path[512];
-				mbstowcs_s<512>(nullptr, path, aiPath.C_Str(), sizeof(path));
-
-				_mesh.setup1_Texture(path, index, 2);
+				mbstowcs_s<512>(nullptr, wtoa, aiPath.C_Str(), sizeof(wtoa));
+				_mesh.setup1_Texture(wtoa, index, 2);
 			}
 		}
-
 
 		aiColor4D material;
-		if (AI_SUCCESS != aiGetMaterialColor(matl, AI_MATKEY_COLOR_DIFFUSE, &material))
+
+		if (AI_FAILURE == aiGetMaterialColor(&matl, AI_MATKEY_COLOR_DIFFUSE, &material))
 		{
 			material = aiColor4D(1.0f, 1.0f, 1.0f, 1.0f);
 		}
@@ -326,7 +361,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 		_mesh.setup1_Material(
 			index, 0, { material.r, material.g, material.b, material.a });
 
-		if (AI_SUCCESS != aiGetMaterialColor(matl, AI_MATKEY_COLOR_AMBIENT, &material))
+		if (AI_FAILURE == aiGetMaterialColor(&matl, AI_MATKEY_COLOR_AMBIENT, &material))
 		{
 			material = aiColor4D(0.2f, 0.2f, 0.2f, 1.f);
 		}
@@ -334,7 +369,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 		_mesh.setup1_Material(
 			index, 1, { material.r, material.g, material.b, material.a });
 
-		if (AI_SUCCESS != aiGetMaterialColor(matl, AI_MATKEY_COLOR_SPECULAR, &material))
+		if (AI_FAILURE == aiGetMaterialColor(&matl, AI_MATKEY_COLOR_SPECULAR, &material))
 		{
 			material = aiColor4D(0.f, 0.f, 0.f, 0.f);
 		}
@@ -342,20 +377,20 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 		_mesh.setup1_Material(
 			index, 2, { material.r, material.g, material.b, material.a });
 
-		if (AI_SUCCESS != aiGetMaterialColor(matl, AI_MATKEY_COLOR_EMISSIVE, &material))
+		if (AI_FAILURE == aiGetMaterialColor(&matl, AI_MATKEY_COLOR_EMISSIVE, &material))
 		{
 			material = aiColor4D(0.f, 0.f, 0.f, 0.f);
 		}
 
 		_mesh.setup1_Material(
 			index, 3, { material.r, material.g, material.b, material.a });
-		
+
 		unsigned int max;
 
 		float shininess, strength;
-		if (AI_SUCCESS == aiGetMaterialFloatArray(matl, AI_MATKEY_SHININESS, &shininess, &(max = 1)))
+		if (AI_SUCCESS == aiGetMaterialFloatArray(&matl, AI_MATKEY_SHININESS, &shininess, &(max = 1)))
 		{
-			if (AI_SUCCESS == aiGetMaterialFloatArray(matl, AI_MATKEY_SHININESS_STRENGTH, &strength, &(max = 1)))
+			if (AI_SUCCESS == aiGetMaterialFloatArray(&matl, AI_MATKEY_SHININESS_STRENGTH, &strength, &(max = 1)))
 			{
 				shininess *= strength;
 			}
@@ -367,7 +402,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 
 		_mesh.setup1_Shininess(index, shininess);
 	}
-	
+
 	if (scene->mNumMaterials == 0)
 	{
 		_mesh.setup1_Material(0, 0, D3DXVECTOR4(1.f, 1.f, 1.f, 1.f));
@@ -376,10 +411,10 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 		_mesh.setup1_Material(0, 3, D3DXVECTOR4(0.f, 0.f, 0.f, 0.f));
 		_mesh.setup1_Shininess(0, 0.0f);
 	}
-	
+
 	for (unsigned int index = 0; index < scene->mNumMeshes; ++index)
 	{
-		const aiMesh * mesh = scene->mMeshes[index];
+		const aiMesh & mesh = *scene->mMeshes[index];
 		IF_FAILED(_mesh.setup1_Mesh(index, 1, 1))
 		{
 			return hr;
@@ -388,7 +423,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 		D3D10_PRIMITIVE_TOPOLOGY topology;
 		unsigned int faceSize = 0;
 
-		switch (mesh->mPrimitiveTypes)
+		switch (mesh.mPrimitiveTypes)
 		{
 		case aiPrimitiveType::aiPrimitiveType_POINT:
 			topology = D3D10_PRIMITIVE_TOPOLOGY_POINTLIST;
@@ -405,12 +440,12 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 			topology = D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		};
 
-		std::vector<unsigned int> indices(mesh->mNumFaces * faceSize);
+		std::vector<unsigned int> indices(mesh.mNumFaces * faceSize);
 		unsigned int offsetOrSumOfindices = 0;
 
-		for (unsigned int findex = 0; findex < mesh->mNumFaces; ++findex)
+		for (unsigned int findex = 0; findex < mesh.mNumFaces; ++findex)
 		{
-			aiFace & face = mesh->mFaces[findex];
+			aiFace & face = mesh.mFaces[findex];
 
 			if (face.mNumIndices != faceSize)
 			{
@@ -424,7 +459,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 
 			offsetOrSumOfindices += face.mNumIndices;
 		}
-		
+
 		// index Buffer
 		D3D10_BUFFER_DESC iBufferDesc;
 		iBufferDesc.ByteWidth = offsetOrSumOfindices * sizeof(unsigned int);
@@ -443,42 +478,137 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 			return hr;
 		}
 
-		std::vector<D3D10_SkinnedFormat> vbuffer(mesh->mNumVertices);
-		for (unsigned int vindex = 0; vindex < mesh->mNumVertices; ++vindex)
+		std::vector<D3D10_SkinnedFormat> vbuffer(mesh.mNumVertices);
+		ZeroMemory(&vbuffer[0], mesh.mNumVertices * sizeof(D3D10_SkinnedFormat));
+
+		for (unsigned int vindex = 0; vindex < mesh.mNumVertices; ++vindex)
 		{
-			memcpy(&vbuffer[vindex].pos, &mesh->mVertices[vindex], sizeof(D3DXVECTOR3));
-			memcpy(&vbuffer[vindex].norm, &mesh->mNormals[vindex], sizeof(D3DXVECTOR3));
-			memcpy(&vbuffer[vindex].tex, &mesh->mTextureCoords[0][vindex], sizeof(D3DXVECTOR2));
-			memcpy(&vbuffer[vindex].color, &mesh->mColors[0][vindex], sizeof(D3DXVECTOR4));
-			int a = 0;
+			D3D10_SkinnedFormat & format = vbuffer[vindex];
+			memcpy(&format.pos, &mesh.mVertices[vindex], sizeof(D3DXVECTOR3));
+			memcpy(&format.norm, &mesh.mNormals[vindex], sizeof(D3DXVECTOR3));
+			memcpy(&format.tex, &mesh.mTextureCoords[0][vindex], sizeof(D3DXVECTOR2));
+			memcpy(&format.color, &mesh.mColors[0][vindex], sizeof(D3DXVECTOR4));
+		}
+
+		for (unsigned int bindex = 0; bindex < mesh.mNumBones; ++bindex)
+		{
+			const aiBone & bone = *mesh.mBones[bindex];
+
+			unsigned int nodeBindex = 0;
+			if (_meshAnimation)
+			{
+				mbstowcs_s<512>(nullptr, wtoa, bone.mName.C_Str(), sizeof(wtoa));
+				nodeBindex = _meshAnimation->find_BoneIDFromName(wtoa);			
+
+				_meshAnimation->setup2_BoneMatrix(
+					nodeBindex, (float *)&bone.mOffsetMatrix);
+			}
+
+			for (unsigned int windex = 0; windex < bone.mNumWeights; ++windex)
+			{
+				const aiVertexWeight & wight = bone.mWeights[windex];
+				D3D10_SkinnedFormat & format = vbuffer[wight.mVertexId];
+				
+				for (unsigned int i = 0; i < 4; ++i)
+				{
+					if (format.bindexs[i])
+					{
+						continue;
+					}
+					else
+					{
+						format.bindexs[i] = nodeBindex;
+						format.bweight[i] = wight.mWeight;
+						break;
+					}
+				}
+			}
 		}
 
 		// Vertex Buffer
 		D3D10_BUFFER_DESC vBufferDesc;
-		vBufferDesc.ByteWidth = mesh->mNumVertices * sizeof(D3D10_SkinnedFormat);
+		vBufferDesc.ByteWidth = mesh.mNumVertices * sizeof(D3D10_SkinnedFormat);
 		vBufferDesc.Usage = D3D10_USAGE_DEFAULT;
 		vBufferDesc.BindFlags = D3D10_BIND_VERTEX_BUFFER;
 		vBufferDesc.CPUAccessFlags = 0;
 		vBufferDesc.MiscFlags = 0;
-		
+
 		IF_FAILED(hr = _mesh.setup2_Vertexbuffer(
 			index, 0,
 			vBufferDesc,
 			&vbuffer[0],
 			sizeof(D3D10_SkinnedFormat),
-			0, mesh->mNumVertices))
+			0, mesh.mNumVertices))
 		{
 			return hr;
 		}
 
 		_mesh.setup2_RenderDesc(
-			index, 0, mesh->mMaterialIndex,
+			index, 0, mesh.mMaterialIndex,
 			0, offsetOrSumOfindices, 0, 1, topology);
 	}
 
 	g_importer.FreeScene();
 
 	return S_OK;
+}
+
+//--------------------------------------------------------------------------------------
+// Grobal impl function
+//--------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------
+IMPL_FUNC_T(void, compute_CountOfBonesFromAiNode)(
+	/* [r] */ aiNode * _node,
+	/* [r] */ std::list<aiNode *> & _list)
+{
+	IF_INVALID(_node)
+	{
+		return;
+	}
+
+	_list.push_back(_node);
+
+	for (unsigned int index = 0; index < _node->mNumChildren; ++index)
+	{
+		compute_CountOfBonesFromAiNode(_node->mChildren[index], _list);
+	}
+
+	return;
+}
+
+//--------------------------------------------------------------------------------------
+IMPL_FUNC_T(unsigned int, build_MeshAnimationFromAiNode)(
+	/* [w] */ D3D10_MeshAnimation * _meshAnimation,
+	/* [r] */ std::list<aiNode *> & _list,
+	/* [r] */ wchar_t(&_buffer)[512],
+	/* [r] */ unsigned int _index,
+	/* [r] */ unsigned int _parentID)
+{
+	const aiNode & node = *_list.front();
+	_list.pop_front();
+
+	unsigned int length = 0;
+	for (unsigned int cindex = 0; cindex < node.mNumChildren; ++cindex)
+	{
+		length += build_MeshAnimationFromAiNode(
+			_meshAnimation, _list, _buffer,
+			_meshAnimation->get_NumOfBones() - _list.size(),
+			_index);
+	}
+
+	mbstowcs_s<512>(nullptr, _buffer, node.mName.C_Str(), sizeof(_buffer));
+	if (FAILED(_meshAnimation->setup1_BoneNode(
+		_index,
+		_parentID,
+		length,
+		_buffer,
+		(float*)&node.mTransformation)))
+	{
+		return 0;
+	}
+
+	return length ? length + 1 : 1;
 }
 
 //--------------------------------------------------------------------------------------

@@ -84,10 +84,10 @@ CLASS_IMPL_FUNC_T(Graphics, void, set_Text)(
 CLASS_IMPL_FUNC_T(Graphics, void, update)(
 	/* [r] */ const float(&_rectangle)[4])
 {
-	float screenWidth = g_Direct3D_Window.width;
-	float screenHeigth = g_Direct3D_Window.height;
-	float myWidth = _rectangle[2] / g_Direct3D_Window.width;
-	float myHeight = _rectangle[3] / g_Direct3D_Window.height;
+	float screenWidth = (float)g_Direct3D_Window.width;
+	float screenHeigth = (float)g_Direct3D_Window.height;
+	float myWidth = _rectangle[2] / screenWidth;
+	float myHeight = _rectangle[3] / screenHeigth;
 	
 	D3DXMATRIX scale;
 	D3DXMatrixScaling(

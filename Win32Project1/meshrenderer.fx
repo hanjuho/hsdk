@@ -26,7 +26,7 @@ struct VS_SKINNED_INPUT
 	float3 Norm		: NORMAL;
 	float2 Tex		: TEXCOORD0;
 	float4 Color	: COLOR0;
-	uint Bindex		: BLENDINDICE;
+	uint4 Bindex	: BLENDINDICES;
 	float4 Bweight	: BLENDWEIGHT;
 };
 

@@ -24,6 +24,8 @@ CLASS_IMPL_CONSTRUCTOR(Component, Component)(
 	my_Rectangle[1] = _y;
 	my_Rectangle[2] = _w;
 	my_Rectangle[3] = _h;
+
+	reform();
 }
 
 //--------------------------------------------------------------------------------------
