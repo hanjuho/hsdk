@@ -31,17 +31,17 @@ CLASS_IMPL_DESTRUCTOR(BuildingDataTable, BuildingDataTable)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(BuildingDataTable, read_Table)(
-	/* [r] */ unsigned int _offset,
-	/* [r] */ unsigned int _size,
-	/* [w] */ void * (&_data))const
+	_In_ unsigned int _offset,
+	_In_ unsigned int _size,
+	_Out_ void * (&_data))const
 {
 	return HSDK_FAIL;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(BuildingDataTable, write_Table)(
-	/* [r] */ unsigned int _state,
-	/* [r] */ ...)
+	_In_ unsigned int _state,
+	_In_ ...)
 {
 	return HSDK_FAIL;
 }

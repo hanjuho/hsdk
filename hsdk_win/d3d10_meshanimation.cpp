@@ -15,8 +15,8 @@ CLASS_IMPL_FUNC_T(D3D10_MeshAnimation, void, clear)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_MeshAnimation, setup0)(
-	/* [r] */ unsigned int _numOfBones,
-	/* [r] */ unsigned int _numOfAnimation)
+	_In_ unsigned int _numOfBones,
+	_In_ unsigned int _numOfAnimation)
 {
 	if (my_Bones.size())
 	{
@@ -36,11 +36,11 @@ CLASS_IMPL_FUNC(D3D10_MeshAnimation, setup0)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_MeshAnimation, setup1_BoneNode)(
-	/* [r] */ unsigned int _indexOfBone,
-	/* [r] */ unsigned int _parentID,
-	/* [r] */ unsigned int _lengthOfBone,
-	/* [r] */ const wchar_t * _nameOfBone,
-	/* [r] */ const float * _matrix)
+	_In_ unsigned int _indexOfBone,
+	_In_ unsigned int _parentID,
+	_In_ unsigned int _lengthOfBone,
+	_In_ const wchar_t * _nameOfBone,
+	_In_ const float * _matrix)
 {
 	unsigned int bonesize = my_Bones.size();
 	IF_FALSE(_indexOfBone < bonesize)
@@ -69,8 +69,8 @@ CLASS_IMPL_FUNC(D3D10_MeshAnimation, setup1_BoneNode)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_MeshAnimation, userSet_BoneMatrix)(
-	/* [r] */ unsigned int _indexOfBone,
-	/* [r] */ const float * _matrix)
+	_In_ unsigned int _indexOfBone,
+	_In_ const float * _matrix)
 {
 	IF_FALSE(_indexOfBone < my_Bones.size())
 	{
@@ -84,11 +84,11 @@ CLASS_IMPL_FUNC(D3D10_MeshAnimation, userSet_BoneMatrix)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_MeshAnimation, setup1_Animation)(
-	/* [r] */ unsigned int _indexOfAnimation,
-	/* [r] */ const wchar_t * _nameOfAnimation,
-	/* [r] */ unsigned int _numOfAnimateBones,
-	/* [r] */ double _tickPerSecond,
-	/* [r] */ double _secDuration)
+	_In_ unsigned int _indexOfAnimation,
+	_In_ const wchar_t * _nameOfAnimation,
+	_In_ unsigned int _numOfAnimateBones,
+	_In_ double _tickPerSecond,
+	_In_ double _secDuration)
 {
 	IF_FALSE(_indexOfAnimation < my_Animation.size())
 	{
@@ -110,14 +110,14 @@ CLASS_IMPL_FUNC(D3D10_MeshAnimation, setup1_Animation)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_MeshAnimation, setup2_AnimationBoneKeyFrame)(
-	/* [r] */ unsigned int _indexOfAnimation,
-	/* [r] */ unsigned int _indexOfAnimateBones,
-	/* [r] */ unsigned int _boneID,
-	/* [r] */ unsigned int _numOfAnimateFrameKeys,
-	/* [r] */ const D3DXVECTOR3 * _postionStream,
-	/* [r] */ const D3DXVECTOR3 * _rotationStream,
-	/* [r] */ const D3DXVECTOR3 * _scalingStream,
-	/* [r] */ D3D10MY_FRAME_HINT _frameHint)
+	_In_ unsigned int _indexOfAnimation,
+	_In_ unsigned int _indexOfAnimateBones,
+	_In_ unsigned int _boneID,
+	_In_ unsigned int _numOfAnimateFrameKeys,
+	_In_ const D3DXVECTOR3 * _postionStream,
+	_In_ const D3DXVECTOR3 * _rotationStream,
+	_In_ const D3DXVECTOR3 * _scalingStream,
+	_In_ D3D10MY_FRAME_HINT _frameHint)
 {
 	IF_FALSE(_indexOfAnimation < my_Animation.size())
 	{
@@ -162,12 +162,12 @@ CLASS_IMPL_FUNC(D3D10_MeshAnimation, setup2_AnimationBoneKeyFrame)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_MeshAnimation, userSet_AnimationBoneKey)(
-	/* [r] */ unsigned int _indexOfAnimation,
-	/* [r] */ unsigned int _indexOfAnimateBones,
-	/* [r] */ unsigned int _indexOfAnimateKey,
-	/* [r] */ const D3DXVECTOR3 & _position,
-	/* [r] */ const D3DXVECTOR3 & _rotation,
-	/* [r] */ const D3DXVECTOR3 & _scaling)
+	_In_ unsigned int _indexOfAnimation,
+	_In_ unsigned int _indexOfAnimateBones,
+	_In_ unsigned int _indexOfAnimateKey,
+	_In_ const D3DXVECTOR3 & _position,
+	_In_ const D3DXVECTOR3 & _rotation,
+	_In_ const D3DXVECTOR3 & _scaling)
 {
 	IF_FALSE(_indexOfAnimation < my_Animation.size())
 	{
@@ -205,7 +205,7 @@ CLASS_IMPL_FUNC_T(D3D10_MeshAnimation, unsigned int, get_NumOfBones)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_MeshAnimation, const D3D10MY_BONE *, find_BoneFromName)(
-	/* [r] */ const wchar_t * _nameOfBone)const
+	_In_ const wchar_t * _nameOfBone)const
 {
 	auto iter = my_BoneOfNames.find(_nameOfBone);
 	if (iter == my_BoneOfNames.end())
@@ -218,7 +218,7 @@ CLASS_IMPL_FUNC_T(D3D10_MeshAnimation, const D3D10MY_BONE *, find_BoneFromName)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_MeshAnimation, const D3D10MY_BONE *, find_BoneFromID)(
-	/* [r] */  unsigned int _id)const
+	_In_  unsigned int _id)const
 {
 	IF_FALSE(_id < my_Bones.size())
 	{
@@ -230,7 +230,7 @@ CLASS_IMPL_FUNC_T(D3D10_MeshAnimation, const D3D10MY_BONE *, find_BoneFromID)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_MeshAnimation, unsigned int, find_BoneIDFromName)(
-	/* [r] */ const wchar_t * _nameOfBone)const
+	_In_ const wchar_t * _nameOfBone)const
 {
 	auto iter = my_BoneOfNames.find(_nameOfBone);
 	if (iter == my_BoneOfNames.end())
@@ -243,9 +243,9 @@ CLASS_IMPL_FUNC_T(D3D10_MeshAnimation, unsigned int, find_BoneIDFromName)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_MeshAnimation, void, transbone)(
-	/* [w] */ D3DXMATRIX * _matrixbuffer,
-	/* [w] */ unsigned int _numOfMatrixs,
-	/* [w] */ const D3DXMATRIX _form)
+	_Out_ D3DXMATRIX * _matrixbuffer,
+	_Out_ unsigned int _numOfMatrixs,
+	_Out_ const D3DXMATRIX _form)
 {
 	unsigned int limit = min(_numOfMatrixs, my_Bones.size());
 	const D3D10MY_BONE * my_bones = &my_Bones[0];

@@ -30,18 +30,18 @@ struct VS_SKINNED_INPUT
 	float4 Bweight	: BLENDWEIGHT;
 };
 
-struct VS_TEXTURE_INPUT
-{
-	float4 Pos		: POSITION;
-	float3 Norm		: NORMAL;
-	uint Bindex		: BLENDINDICE;
-};
-
 struct PS_BASIC_INPUT
 {
 	float4 Pos		: SV_POSITION;
 	float3 Norm		: TEXCOORD0;
 	float2 Tex		: TEXCOORD1;
+}; 
+
+struct PS_SKYBOX_INPUT
+{
+	float4 Pos		: SV_POSITION;
+	float3 Norm		: TEXCOORD0;
+	float3 Tex		: TEXCOORD1;
 };
 
 //-----------------------------------------------------------------------------------------
@@ -51,15 +51,19 @@ matrix g_WorldViewProj_Matrix;
 matrix g_ViewProj_Matrix;
 matrix g_World_Matrix;
 
+// 설명 : 
+matrix g_TexCoord_Matrix;
+
+// 설명 : 
+matrix g_Bone_World_Matrixs[256];
+
 //-----------------------------------------------------------------------------------------
 // Textures
 //-----------------------------------------------------------------------------------------
 Texture2D g_Diffuse_Texture;
 
-//-----------------------------------------------------------------------------------------
-// image capture
-//-----------------------------------------------------------------------------------------
-float4 g_TextureCapture;
+// 설명 : 
+TextureCube g_SkyBox_Texture;
 
 //-----------------------------------------------------------------------------------------
 // color
@@ -73,11 +77,6 @@ float g_fTime;
 float g_fElapsedTime;
 
 //-----------------------------------------------------------------------------------------
-//
-//-----------------------------------------------------------------------------------------
-float4x4 g_worldBoneMatrixs[256];
-
-//-----------------------------------------------------------------------------------------
 // Samplers
 //-----------------------------------------------------------------------------------------
 sampler2D DiffuseSampler = sampler_state
@@ -86,6 +85,19 @@ sampler2D DiffuseSampler = sampler_state
 	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = WRAP;
 	AddressV = WRAP;
+	AddressW = WRAP;
+};
+
+//-----------------------------------------------------------------------------------------
+// Samplers
+//-----------------------------------------------------------------------------------------
+sampler2D SkyBoxSampler = sampler_state
+{
+	Texture = (g_SkyBox_Texture);
+	Filter = MIN_MAG_MIP_LINEAR;
+	AddressU = WRAP;
+	AddressV = WRAP;
+	AddressW = WRAP;
 };
 
 //-----------------------------------------------------------------------------------------
@@ -93,11 +105,13 @@ sampler2D DiffuseSampler = sampler_state
 //-----------------------------------------------------------------------------------------
 PS_BASIC_INPUT VSSkinnedBasic(VS_SKINNED_INPUT input)
 {
-	VS_BASIC_INPUT output;
+	PS_BASIC_INPUT output;
 
+	//
 	float3 pos = 0.0;
 		float3 norm = 0.0;
 
+		//
 		uint i = 0;
 	uint w = 0;
 
@@ -114,8 +128,8 @@ PS_BASIC_INPUT VSSkinnedBasic(VS_SKINNED_INPUT input)
 			break;
 		}
 
-		pos += mul(input.Pos, (float4x3)g_worldBoneMatrixs[i]) * w;
-		norm += mul(input.Norm, (float3x3)g_worldBoneMatrixs[i]) * w;
+		pos += mul(input.Pos, g_Bone_World_Matrixs[i]) * w;
+		norm += mul(input.Norm, (float3x3)g_Bone_World_Matrixs[i]) * w;
 	}
 
 	// index가 0라는 것은 아무도 가중치를 주지 않았다는 것이고 이는 뼈가 없음을 의미.
@@ -135,14 +149,16 @@ PS_BASIC_INPUT VSSkinnedBasic(VS_SKINNED_INPUT input)
 //-----------------------------------------------------------------------------------------
 // VertexShader: VSSkyBox
 //-----------------------------------------------------------------------------------------
-PS_BASIC_INPUT VSSkyBox(VS_BASIC_INPUT input)
+PS_SKYBOX_INPUT VSSkyBox(float4 Pos : POSITION)
 {
-	PS_BASIC_INPUT output;
+	PS_SKYBOX_INPUT output;
 
-	output.Pos = mul(input.Pos, (float3x4)g_WorldViewProj_Matrix);
+	output.Pos = mul(Pos, (float3x4)g_WorldViewProj_Matrix);
+	output.Norm = mul(Pos.xyz, (float3x3)g_World_Matrix);
+
 	output.Pos.z = output.Pos.w;
-	output.Norm = normalize(mul(input.Norm, (float3x3)g_World_Matrix));
-	output.Tex = input.Tex;
+
+	output.Tex = Pos.xyz;
 
 	return output;
 }
@@ -150,28 +166,13 @@ PS_BASIC_INPUT VSSkyBox(VS_BASIC_INPUT input)
 //-----------------------------------------------------------------------------------------
 // VertexShader: VSGUI
 //-----------------------------------------------------------------------------------------
-PS_BASIC_INPUT VSGUI(VS_TEXTURE_INPUT input)
+PS_BASIC_INPUT VSGUI(VS_BASIC_INPUT input)
 {
-	VS_BASIC_INPUT output;
+	PS_BASIC_INPUT output;
 
 	output.Pos = mul(input.Pos, g_WorldViewProj_Matrix);
 	output.Norm = normalize(mul(input.Norm, (float3x3)g_World_Matrix));
-
-	switch (input.Bindex)
-	{
-	case 0:
-		output.Tex = float2(g_TextureCapture.xy);
-		break;
-	case 1:
-		output.Tex = float2(g_TextureCapture.yz);
-		break;
-	case 2:
-		output.Tex = float2(g_TextureCapture.zw);
-		break;
-	case 3:
-		output.Tex = float2(g_TextureCapture.wx);
-		break;
-	}
+	output.Tex = mul(float4(input.Tex, 0.0f, 1.0f), g_TexCoord_Matrix).xy;
 
 	return output;
 }
@@ -187,9 +188,9 @@ float4 PSSkinnedBasic(PS_BASIC_INPUT input) : COLOR0
 //-----------------------------------------------------------------------------------------
 // PixelShader: PSSkyBox
 //-----------------------------------------------------------------------------------------
-float4 PSSkyBox(PS_BASIC_INPUT input) : COLOR0
+float4 PSSkyBox(PS_SKYBOX_INPUT input) : COLOR0
 {
-	return tex2D(DiffuseSampler, input.Tex);
+	return tex2D(SkyBoxSampler, input.Tex);
 }
 
 //-----------------------------------------------------------------------------------------
@@ -313,8 +314,8 @@ technique10 SkyBox0
 		SetPixelShader(CompileShader(ps_4_0, PSSkyBox()));
 
 		SetDepthStencilState(DisableDepth, 0);
-		SetBlendState(AdditiveBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-		SetRasterizerState(CullBack);
+		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+		SetRasterizerState(CullFront);
 	}
 }
 

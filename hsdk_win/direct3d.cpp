@@ -76,20 +76,20 @@ hsdk::AutoDelete<D3D10_DEVICE_DESC> g_D3D10Descs;
 shortcut to help prevent accidental task switching.
 */
 DECL_FUNC_T(void, allow_ShortcutKeys)(
-	/* [r] */ BOOL _allowKeys);
+	_In_ BOOL _allowKeys);
 
 // 설명 : Handles window messages 
 LRESULT CALLBACK direct3D_WndProc(
-	/* [r] */ HWND _hWnd,
-	/* [r] */ unsigned int _uMsg,
-	/* [r] */ unsigned int _wParam,
-	/* [r] */ long _lParam);
+	_In_ HWND _hWnd,
+	_In_ unsigned int _uMsg,
+	_In_ unsigned int _wParam,
+	_In_ long _lParam);
 
 // 설명 : Low level keyboard hook to disable Windows key to prevent accidental task switching. 
 LRESULT CALLBACK direct3D_LowLevelKeyboardProc(
-	/* [r] */ int _code,
-	/* [r] */ WPARAM _wParam,
-	/* [r] */ LPARAM _lParam);
+	_In_ int _code,
+	_In_ WPARAM _wParam,
+	_In_ LPARAM _lParam);
 
 //--------------------------------------------------------------------------------------
 // initialize task
@@ -97,12 +97,12 @@ LRESULT CALLBACK direct3D_LowLevelKeyboardProc(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Direct3D, setup0_Window)(
-	/* [r] */ const wchar_t * _strWindowTitle,
-	/* [r] */ int _x,
-	/* [r] */ int _y,
-	/* [r] */ HINSTANCE _hInstance,
-	/* [r] */ HICON _hIcon,
-	/* [r] */ HMENU _hMenu)
+	_In_ const wchar_t * _strWindowTitle,
+	_In_ int _x,
+	_In_ int _y,
+	_In_ HINSTANCE _hInstance,
+	_In_ HICON _hIcon,
+	_In_ HMENU _hMenu)
 {
 	if (TRUE == InterlockedCompareExchange(&g_State.setupWindow, TRUE, FALSE))
 	{
@@ -322,20 +322,20 @@ CLASS_IMPL_FUNC(Direct3D, setup2_Device10)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Direct3D, dynamic_WndProc)(
-	/* [r] */ unsigned int _uMsg,
-	/* [r] */ unsigned int _wParam,
-	/* [r] */ long _lParam)
+	_In_ unsigned int _uMsg,
+	_In_ unsigned int _wParam,
+	_In_ long _lParam)
 {
 	return direct3D_WndProc(g_Window.hwnd, _uMsg, _wParam, _lParam);
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Direct3D, transform)(
-	/* [r] */ BOOL _windowed,
-	/* [r] */ unsigned long _suggestedWidth,
-	/* [r] */ unsigned long _suggestedHeight,
-	/* [r] */ bool _clipMonitor,
-	/* [r] */ unsigned int _adapter)
+	_In_ BOOL _windowed,
+	_In_ unsigned long _suggestedWidth,
+	_In_ unsigned long _suggestedHeight,
+	_In_ bool _clipMonitor,
+	_In_ unsigned int _adapter)
 {
 	IF_FALSE(g_State.setupDevice)
 	{
@@ -742,7 +742,7 @@ CLASS_IMPL_FUNC_T(Direct3D, void, destroy)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Direct3D, mainLoop)(
-	/* [r] */ HACCEL _accel)
+	_In_ HACCEL _accel)
 {
 	if (TRUE == InterlockedCompareExchange(&g_State.runMainLoop, TRUE, FALSE))
 	{
@@ -887,7 +887,7 @@ CLASS_IMPL_FUNC_T(Direct3D, void, render)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D, void, shutdown)(
-	/* [r] */ int _exitCode)
+	_In_ int _exitCode)
 {
 	const HWND & hWnd = g_Window.hwnd;
 	IF_INVALID(hWnd)
@@ -983,8 +983,8 @@ CLASS_IMPL_FUNC_T(Direct3D, void, shutdown)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D, void, userSet_ShortcutKeySettings)(
-	/* [r] */ BOOL _allowWhenFullscreen,
-	/* [r] */ BOOL _allowWhenWindowed)
+	_In_ BOOL _allowWhenFullscreen,
+	_In_ BOOL _allowWhenWindowed)
 {
 	g_State.allowWhenFullscreen = _allowWhenFullscreen;
 	g_State.allowWhenWindowed = _allowWhenWindowed;
@@ -992,21 +992,21 @@ CLASS_IMPL_FUNC_T(Direct3D, void, userSet_ShortcutKeySettings)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D, void, userSet_AutoChangeMoniter)(
-	/* [r] */ BOOL _autoChange)
+	_In_ BOOL _autoChange)
 {
 	g_State.autoChangeAdapter = _autoChange;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D, void, userSet_GammaCorrectMode)(
-	/* [r] */ BOOL _gammaCorrect)
+	_In_ BOOL _gammaCorrect)
 {
 	g_State.is_in_GammaCorrectMode = _gammaCorrect;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D, void, userSet_Vsync)(
-	/* [r] */ BOOL _vsync)
+	_In_ BOOL _vsync)
 {
 	assert(L"미구현");
 }
@@ -1018,8 +1018,8 @@ CLASS_IMPL_FUNC_T(Direct3D, void, userSet_Vsync)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D, BOOL, clip_Screen)(
-	/* [r] */ RECT & _rect,
-	/* [r] */ BOOL _windowed)const
+	_In_ RECT & _rect,
+	_In_ BOOL _windowed)const
 {
 	// Get the rect of the monitor attached to the adapter
 	MONITORINFO miAdapter;
@@ -1113,7 +1113,7 @@ CLASS_IMPL_FUNC_T(Direct3D, BOOL, clip_Screen)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D, BOOL, is_KeyDown)(
-	/* [r] */ unsigned char vKey)const
+	_In_ unsigned char vKey)const
 {
 	if (0x9f < vKey && vKey < 0xA6)
 	{
@@ -1134,14 +1134,14 @@ CLASS_IMPL_FUNC_T(Direct3D, BOOL, is_KeyDown)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D, BOOL, was_KeyPressed)(
-	/* [r] */ unsigned char vKey)const
+	_In_ unsigned char vKey)const
 {
 	return (!g_LastKeys[vKey] && g_Keys[vKey]);
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D, BOOL, is_MouseButtonDown)(
-	/* [r] */ unsigned char vButton)const
+	_In_ unsigned char vButton)const
 {
 	switch (vButton)
 	{
@@ -1218,7 +1218,7 @@ CLASS_IMPL_FUNC_T(Direct3D, const D3D10_DEVICE_DESC *, get_Device10Desc)(
 
 //--------------------------------------------------------------------------------------
 IMPL_FUNC_T(void, allow_ShortcutKeys)(
-	/* [r] */ BOOL _allowKeys)
+	_In_ BOOL _allowKeys)
 {
 	if (_allowKeys)
 	{
@@ -1289,10 +1289,10 @@ IMPL_FUNC_T(void, allow_ShortcutKeys)(
 
 //--------------------------------------------------------------------------------------
 LRESULT CALLBACK direct3D_WndProc(
-	/* [r] */ HWND _hWnd,
-	/* [r] */ unsigned int _uMsg,
-	/* [r] */ unsigned int _wParam,
-	/* [r] */ long _lParam)
+	_In_ HWND _hWnd,
+	_In_ unsigned int _uMsg,
+	_In_ unsigned int _wParam,
+	_In_ long _lParam)
 {
 	g_State.calledMsgProc = true;
 
@@ -1653,9 +1653,9 @@ LRESULT CALLBACK direct3D_WndProc(
 
 //--------------------------------------------------------------------------------------
 LRESULT CALLBACK direct3D_LowLevelKeyboardProc(
-	/* [r] */ int _code,
-	/* [r] */ WPARAM _wParam,
-	/* [r] */ LPARAM _lParam)
+	_In_ int _code,
+	_In_ WPARAM _wParam,
+	_In_ LPARAM _lParam)
 {
 	// do not process message 
 	if (_code < 0 || _code != HC_ACTION)

@@ -21,9 +21,9 @@ CLASS_IMPL_DESTRUCTOR(TCPClient, TCPClient)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(TCPClient, connect)(
-	/* [r] */ const char * _url,
-	/* [r] */ unsigned int _port,
-	/* [r] */ unsigned int _wait)
+	_In_ const char * _url,
+	_In_ unsigned int _port,
+	_In_ unsigned int _wait)
 {
 	SOCKET new_socket;
 
@@ -85,24 +85,24 @@ CLASS_IMPL_FUNC(TCPClient, disconnect)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(TCPClient, send)(
-	/* [r] */ char * _context,
-	/* [r] */ unsigned int _offset,
-	/* [r] */ unsigned int _size)
+	_In_ char * _context,
+	_In_ unsigned int _offset,
+	_In_ unsigned int _size)
 {
 	return m_Proxy.send(_context, _offset, _size);
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(TCPClient, receive)(
-	/* [w] */ char * (&_context),
-	/* [w] */ unsigned int(&_size))
+	_Out_ char * (&_context),
+	_Out_ unsigned int(&_size))
 {
 	return m_Proxy.receive(_context, _size);
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(TCPClient, wait_Recv)(
-	/* [r] */ unsigned int _time)
+	_In_ unsigned int _time)
 {
 	return m_Proxy.wait_Recv(_time);
 }

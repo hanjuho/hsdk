@@ -104,9 +104,9 @@ CLASS_IMPL_FUNC_T(WINTimer, float, get_ElapsedTime)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(WINTimer, void, get_TimeValues)(
-	/* [w] */ double * _fTime,
-	/* [w] */ double * _fAbsoluteTime,
-	/* [w] */ float * _fElapsedTime)
+	_Out_ double * _fTime,
+	_Out_ double * _fAbsoluteTime,
+	_Out_ float * _fElapsedTime)
 {
 	LARGE_INTEGER qwTime = get_AdjustedCurrentTime();
 

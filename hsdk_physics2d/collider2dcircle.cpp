@@ -9,8 +9,8 @@ using namespace physics2d;
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(Collider2DCircle, Collider2DCircle)(
-	/* [r] */ float _radius,
-	/* [r] */ float _density)
+	_In_ float _radius,
+	_In_ float _density)
 	: my_Radius(_radius), my_Density(_density)
 {
 
@@ -32,7 +32,7 @@ CLASS_IMPL_FUNC_T(Collider2DCircle, unsigned int, numOfVerties)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Collider2DCircle, Vector2D, vertex)(
-	/* [r] */ unsigned int _index)const
+	_In_ unsigned int _index)const
 {
 	return Vector2D(0.0f, 0.0f);
 }
@@ -46,7 +46,7 @@ CLASS_IMPL_FUNC_T(Collider2DCircle, const Vector2D *, vertices)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Collider2DCircle, Vector2D, normal)(
-	/* [r] */ unsigned int _index)const
+	_In_ unsigned int _index)const
 {
 	return Vector2D(0.0f, 0.0f);
 }

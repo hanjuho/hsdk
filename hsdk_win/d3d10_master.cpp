@@ -1,5 +1,6 @@
 #include <hsdk/win/frame/direct3d/d3d10_master.h>
 #include <hsdk/win/frame/direct3d/direct3d.h>
+#include <hsdk/win/WICTextureLoader.h>
 #include <hash_map>
 #include <list>
 #include <stack>
@@ -30,16 +31,16 @@ std::hash_map<std::wstring, D3D10MY_TEXTURE> g_Manager_Texture_Container;
 
 // 설명 :
 DECL_FUNC_T(void, compute_CountOfBonesFromAiNode)(
-	/* [r] */ aiNode * _node,
-	/* [r] */ std::list<aiNode *> & _list);
+	_In_ aiNode * _node,
+	_In_ std::list<aiNode *> & _list);
 
 // 설명 :
 DECL_FUNC_T(unsigned int, build_MeshAnimationFromAiNode)(
-	/* [w] */ D3D10_MeshAnimation * _meshAnimation,
-	/* [r] */ std::list<aiNode *> & _list,
-	/* [r] */ wchar_t(&_buffer)[512],
-	/* [r] */ unsigned int _index = 0,
-	/* [r] */ unsigned int _parentID = 0);
+	_Out_ D3D10_MeshAnimation * _meshAnimation,
+	_In_ std::list<aiNode *> & _list,
+	_In_ wchar_t(&_buffer)[512],
+	_In_ unsigned int _index = 0,
+	_In_ unsigned int _parentID = 0);
 
 //--------------------------------------------------------------------------------------
 // D3D10_Master impl
@@ -54,9 +55,9 @@ CLASS_IMPL_FUNC_T(D3D10_Master, void, destroy)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_Master, get_Texture)(
-	/* [w] */ ID3D10ShaderResourceView ** _texture,
-	/* [r] */ const wchar_t * _directory,
-	/* [r] */ const D3DX10_IMAGE_INFO ** _info)
+	_Out_ ID3D10ShaderResourceView ** _texture,
+	_In_ const wchar_t * _directory,
+	_In_ const D3DX10_IMAGE_INFO ** _info)
 {
 	// 중복 검사
 	auto iter = g_Manager_Texture_Container.find(_directory);
@@ -106,8 +107,54 @@ CLASS_IMPL_FUNC(D3D10_Master, get_Texture)(
 }
 
 //--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC(D3D10_Master, create_SkyBoxTexture)(
+	_Out_ ID3D10ShaderResourceView ** _texture,
+	_In_ unsigned int _width,
+	_In_ unsigned int _height,
+	_In_ const wchar_t * _front,
+	_In_ const wchar_t * _back,
+	_In_ const wchar_t * _left,
+	_In_ const wchar_t * _right,
+	_In_ const wchar_t * _top,
+	_In_ const wchar_t * _bottom)
+{
+	const unsigned int maxSize = _width * _height;
+
+	DirectX::Image imageDatas[6];
+
+	std::vector<char> datadf;
+	D3D10_SUBRESOURCE_DATA data[6];
+
+	DirectX::LoadImageFromFile(g_Direct3D_Device.d3d10Device, _front, &imageDatas[0], maxSize);
+
+	D3D10_TEXTURE2D_DESC desc;
+	desc.Width = _width;
+	desc.Height = _height;
+	desc.MipLevels = 1;
+	desc.ArraySize = 6;
+	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Usage = D3D10_USAGE_DEFAULT;
+	desc.BindFlags = D3D10_BIND_SHADER_RESOURCE;
+	desc.CPUAccessFlags = 0;
+	desc.MiscFlags = 0;
+
+	AutoRelease<ID3D10Texture2D> texture;
+	g_Direct3D_Device.d3d10Device->CreateTexture2D(&desc, data, &texture);
+
+	D3D10_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	srvDesc.Format = desc.Format;
+	srvDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURECUBE;
+	srvDesc.TextureCube.MipLevels = desc.MipLevels;
+	srvDesc.TextureCube.MostDetailedMip = 0;
+
+	return g_Direct3D_Device.d3d10Device->CreateShaderResourceView(texture, &srvDesc, _texture);
+}
+
+//--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_Master, const D3DX10_IMAGE_INFO *, get_Texture_info)(
-	/* [r] */ const wchar_t * _directory)
+	_In_ const wchar_t * _directory)
 {
 	// 중복 검사
 	auto iter = g_Manager_Texture_Container.find(_directory);
@@ -122,54 +169,33 @@ CLASS_IMPL_FUNC_T(D3D10_Master, const D3DX10_IMAGE_INFO *, get_Texture_info)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_Master, create_MeshSkyBox)(
-	/* [w] */ D3D10_Mesh & _mesh,
-	/* [r] */ float _size)
+	_Out_ D3D10_Mesh & _mesh,
+	_In_ float _size)
 {
 	_mesh.clear();
 
 	HRESULT hr;
-	IF_FAILED(hr = _mesh.setup0(6, 1))
+	IF_FAILED(hr = _mesh.setup0(1, 1))
 	{
 		return hr;
 	}
 
-	IF_FAILED(hr = _mesh.setup1_Mesh(0, 6, 1))
+	IF_FAILED(hr = _mesh.setup1_Mesh(0, 1, 1))
 	{
 		return hr;
 	}
 
 	// Build box
-	D3D10_BasicFormat vBox[] = {
-		// front
-		{ D3DXVECTOR3(-1.0f, -1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 1.0f) },
-		{ D3DXVECTOR3(1.0f, -1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 1.0f) },
-		{ D3DXVECTOR3(1.0f, 1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 0.0f) },
-		{ D3DXVECTOR3(-1.0f, 1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 0.0f) },
-		// top
-		{ D3DXVECTOR3(-1.0f, 1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 0.0f) },
-		{ D3DXVECTOR3(1.0f, 1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 0.0f) },
-		{ D3DXVECTOR3(1.0f, 1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 1.0f) },
-		{ D3DXVECTOR3(-1.0f, 1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 1.0f) },
-		// bottom
-		{ D3DXVECTOR3(-1.0f, -1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 1.0f) },
-		{ D3DXVECTOR3(1.0f, -1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 1.0f) },
-		{ D3DXVECTOR3(1.0f, -1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 0.0f) },
-		{ D3DXVECTOR3(-1.0f, -1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 0.0f) },
-		// left
-		{ D3DXVECTOR3(-1.0f, -1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 1.0f) },
-		{ D3DXVECTOR3(-1.0f, -1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 1.0f) },
-		{ D3DXVECTOR3(-1.0f, 1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 0.0f) },
-		{ D3DXVECTOR3(-1.0f, 1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 0.0f) },
-		// rignt
-		{ D3DXVECTOR3(1.0f, -1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 1.0f) },
-		{ D3DXVECTOR3(1.0f, -1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 1.0f) },
-		{ D3DXVECTOR3(1.0f, 1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 0.0f) },
-		{ D3DXVECTOR3(1.0f, 1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 0.0f) },
-		// back
-		{ D3DXVECTOR3(-1.0f, -1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 1.0f) },
-		{ D3DXVECTOR3(1.0f, -1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 1.0f) },
-		{ D3DXVECTOR3(1.0f, 1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(0.0f, 0.0f) },
-		{ D3DXVECTOR3(-1.0f, 1.0f, -1.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR2(1.0f, 0.0f) } };
+	D3D10_SkyBoxFormat vBox[] = {
+		D3DXVECTOR3(-1.0f, -1.0f, -1.0f),
+		D3DXVECTOR3(1.0f, -1.0f, -1.0f),
+		D3DXVECTOR3(1.0f, 1.0f, -1.0f),
+		D3DXVECTOR3(-1.0f, 1.0f, -1.0f),
+
+		D3DXVECTOR3(-1.0f, -1.0f, 1.0f),
+		D3DXVECTOR3(1.0f, -1.0f, 1.0f),
+		D3DXVECTOR3(1.0f, 1.0f, 1.0f),
+		D3DXVECTOR3(-1.0f, 1.0f, 1.0f) };
 
 	// Vertex Buffer
 	D3D10_BUFFER_DESC vBufferDesc;
@@ -183,32 +209,32 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshSkyBox)(
 		0, 0,
 		vBufferDesc,
 		vBox,
-		sizeof(D3D10_BasicFormat),
+		sizeof(D3D10_SkyBoxFormat),
 		0,
-		sizeof(vBox) / sizeof(D3D10_BasicFormat)))
+		sizeof(vBox) / sizeof(D3D10_SkyBoxFormat)))
 	{
 		return hr;
 	}
 
 	unsigned short iBox[] = {
-		// front
-		3, 1, 0,
-		2, 1, 3,
-		// top
-		6, 4, 5,
-		7, 4, 6,
-		// bottom
-		11, 9, 8,
-		10, 9, 11,
-		// left
-		14, 12, 13,
-		15, 12, 14,
-		// rignt
-		19, 17, 16,
-		18, 17, 19,
-		// back
-		22, 20, 21,
-		23, 20, 22 };
+		//front
+		0, 2, 3,
+		0, 1, 2,
+		//right
+		1, 6, 2,
+		1, 5, 6,
+		//back
+		5, 7, 6,
+		5, 4, 7,
+		//left
+		4, 3, 7,
+		4, 0, 3,
+		//top
+		3, 6, 7,
+		3, 2, 6,
+		//bottom
+		1, 4, 5,
+		1, 0, 4 };
 
 	// index Buffer
 	D3D10_BUFFER_DESC iBufferDesc;
@@ -228,14 +254,11 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshSkyBox)(
 		return hr;
 	}
 
-	for (unsigned int index = 0; index < 6; ++index)
+	IF_FAILED(hr = _mesh.setup2_RenderDesc(
+		0, 0, 0, 0, 36, 0, 0,
+		D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST))
 	{
-		IF_FAILED(hr = _mesh.setup2_RenderDesc(
-			0, index, index, index * 6, (index * 6) + 6, 0, 0,
-			D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST))
-		{
-			return hr;
-		}
+		return hr;
 	}
 
 	return hr;
@@ -243,10 +266,10 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshSkyBox)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
-	/* [w] */ D3D10_Mesh & _mesh,
-	/* [r] */ const wchar_t * _szFilePath,
-	/* [r] */ const wchar_t * _szFileName,
-	/* [w] */ D3D10_MeshAnimation * _meshAnimation)
+	_Out_ D3D10_Mesh & _mesh,
+	_In_ const wchar_t * _szFilePath,
+	_In_ const wchar_t * _szFileName,
+	_Out_ D3D10_MeshAnimation * _meshAnimation)
 {
 	_mesh.clear();
 	if (_meshAnimation)
@@ -593,8 +616,8 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 
 //--------------------------------------------------------------------------------------
 IMPL_FUNC_T(void, compute_CountOfBonesFromAiNode)(
-	/* [r] */ aiNode * _node,
-	/* [r] */ std::list<aiNode *> & _list)
+	_In_ aiNode * _node,
+	_In_ std::list<aiNode *> & _list)
 {
 	IF_INVALID(_node)
 	{
@@ -613,11 +636,11 @@ IMPL_FUNC_T(void, compute_CountOfBonesFromAiNode)(
 
 //--------------------------------------------------------------------------------------
 IMPL_FUNC_T(unsigned int, build_MeshAnimationFromAiNode)(
-	/* [w] */ D3D10_MeshAnimation * _meshAnimation,
-	/* [r] */ std::list<aiNode *> & _list,
-	/* [r] */ wchar_t(&_buffer)[512],
-	/* [r] */ unsigned int _index,
-	/* [r] */ unsigned int _parentID)
+	_Out_ D3D10_MeshAnimation * _meshAnimation,
+	_In_ std::list<aiNode *> & _list,
+	_In_ wchar_t(&_buffer)[512],
+	_In_ unsigned int _index,
+	_In_ unsigned int _parentID)
 {
 	const aiNode & node = *_list.front();
 	_list.pop_front();

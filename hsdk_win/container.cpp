@@ -22,7 +22,7 @@ CLASS_IMPL_DESTRUCTOR(Container, Container)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Container, add_Component)(
-	/* [r] */ i_Component * _component)
+	_In_ i_Component * _component)
 {
 	if (contain_Component(_component))
 	{
@@ -51,7 +51,7 @@ CLASS_IMPL_FUNC(Container, add_Component)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Container, remove_Component)(
-	/* [r] */ i_Component * _component)
+	_In_ i_Component * _component)
 {
 	if (contain_Component(_component))
 	{
@@ -70,7 +70,7 @@ CLASS_IMPL_FUNC(Container, remove_Component)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Container, bool, contain_Component)(
-	/* [r] */ i_Component * _component)const
+	_In_ i_Component * _component)const
 {
 	std::hash_map<unsigned int, Component *>::const_iterator iter =
 		m_Container.find(_component->get_id());
@@ -87,8 +87,8 @@ CLASS_IMPL_FUNC_T(Container, bool, contain_Component)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Container, get_Component)(
-	/* [w] */ i_Component * (&_component),
-	/* [r] */ unsigned int _id)const
+	_Out_ i_Component * (&_component),
+	_In_ unsigned int _id)const
 {
 	std::hash_map<unsigned int, Component *>::const_iterator iter =
 		m_Container.find(_id);
@@ -106,7 +106,7 @@ CLASS_IMPL_FUNC(Container, get_Component)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Container, bool, event_chain)(
-	/* [r] */ i_inputEventHelper * _eventhelper)
+	_In_ i_inputEventHelper * _eventhelper)
 {
 	if (_eventhelper->chain(this))
 	{

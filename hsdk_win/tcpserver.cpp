@@ -38,7 +38,7 @@ CLASS_IMPL_DESTRUCTOR(TCPServer, TCPServer)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(TCPServer, open)(
-	/* [r] */ unsigned int _port)
+	_In_ unsigned int _port)
 {
 	// 货 家南 
 	SOCKET new_socket;
@@ -120,7 +120,7 @@ CLASS_IMPL_FUNC(TCPServer, open)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(TCPServer, close)(
-	/* [r] */ void)
+	_In_ void)
 {
 	// 凯赴 家南阑 摧澜
 	closesocket(m_Socket);
@@ -130,8 +130,8 @@ CLASS_IMPL_FUNC(TCPServer, close)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(TCPServer, accept)(
-	/* [w] */ i::network::i_Proxy * (&_proxy),
-	/* [r] */ unsigned int _time)
+	_Out_ i::network::i_Proxy * (&_proxy),
+	_In_ unsigned int _time)
 {
 	HRESULT hr;
 
@@ -181,9 +181,9 @@ CLASS_IMPL_FUNC(TCPServer, reset)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(TCPServer, accept)(
-	/* [w] */ SOCKET & _socket,
-	/* [w] */ unsigned int & _ip,
-	/* [r] */ unsigned int _time)
+	_Out_ SOCKET & _socket,
+	_Out_ unsigned int & _ip,
+	_In_ unsigned int _time)
 {
 	HRESULT hr;
 

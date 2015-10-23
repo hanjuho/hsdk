@@ -79,10 +79,10 @@ CLASS_IMPL_FUNC_T(UserTimeStream, void, reset)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(UserTimeStream, add_Timer)(
-	/* [r] */ CALLBACK_ALARM _callbackTimer,
-	/* [r] */ float _fTimeoutInSecs,
-	/* [r] */ unsigned int * _nIDEvent,
-	/* [r] */ void * _userContext)
+	_In_ CALLBACK_ALARM _callbackTimer,
+	_In_ float _fTimeoutInSecs,
+	_In_ unsigned int * _nIDEvent,
+	_Inout_opt_ void * _userContext)
 {
 	static unsigned int timerCount = 0;
 
@@ -112,7 +112,7 @@ CLASS_IMPL_FUNC(UserTimeStream, add_Timer)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(UserTimeStream, remove_Timer)(
-	/* [r] */ unsigned int _nIDEvent)
+	_In_ unsigned int _nIDEvent)
 {
 	auto begin = my_AlarmEvents.begin();
 	auto end = my_AlarmEvents.end();
@@ -131,7 +131,7 @@ CLASS_IMPL_FUNC(UserTimeStream, remove_Timer)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(UserTimeStream, void, pause_Time)(
-	/* [r] */ BOOL _pauseTime)
+	_In_ BOOL _pauseTime)
 {
 	int nPauseTimeCount = my_PauseTimeCount;
 	if (my_PauseTime)
@@ -172,7 +172,7 @@ CLASS_IMPL_FUNC_T(UserTimeStream, BOOL, is_Time_Paused)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(UserTimeStream, void, pause_Rendering)(
-	/* [r] */ BOOL _pauseRendering)
+	_In_ BOOL _pauseRendering)
 {
 	int nPauseRenderingCount = my_PauseRenderingCount;
 	if (my_PauseRendering)
@@ -223,8 +223,8 @@ CLASS_IMPL_FUNC_T(UserTimeStream, float, get_FPS)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(UserTimeStream, void, set_ConstantFrameTime)(
-	/* [r] */ BOOL _constantFrameTime,
-	/* [r] */ float _fTimePerFrame)
+	_In_ BOOL _constantFrameTime,
+	_In_ float _fTimePerFrame)
 {
 	my_ConstantFrameTime = _constantFrameTime;
 	my_ConstantTimePerFrame = _fTimePerFrame;

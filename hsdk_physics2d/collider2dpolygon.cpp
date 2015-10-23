@@ -10,8 +10,8 @@ using namespace physics2d;
 
 // grobal function
 IMPL_FUNC_T(float, compute_Area)(
-	/* [r] */ const std::vector<Vector2D> & _vertices,
-	/* [w] */ float * _mostLength)
+	_In_ const std::vector<Vector2D> & _vertices,
+	_Out_ float * _mostLength)
 {
 	// Calculate centroid and moment of interia
 	// centroid
@@ -46,7 +46,7 @@ IMPL_FUNC_T(float, compute_Area)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(Collider2DPolygon, Collider2DPolygon)(
-	/* [r] */ float _density)
+	_In_ float _density)
 	: m_Density(_density), m_Area(0.0f), m_Radius(0.0f)
 {
 
@@ -68,7 +68,7 @@ CLASS_IMPL_FUNC_T(Collider2DPolygon, unsigned int, numOfVerties)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Collider2DPolygon, Vector2D, vertex)(
-	/* [r] */ unsigned int _index)const
+	_In_ unsigned int _index)const
 {
 	return my_Vertices[_index];
 }
@@ -82,7 +82,7 @@ CLASS_IMPL_FUNC_T(Collider2DPolygon, const Vector2D *, vertices)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Collider2DPolygon, Vector2D, normal)(
-	/* [r] */ unsigned int _index)const
+	_In_ unsigned int _index)const
 {
 	return my_Normals[_index];
 }
@@ -117,8 +117,8 @@ CLASS_IMPL_FUNC_T(Collider2DPolygon, float, radius)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Collider2DPolygon, void, set_Box)(
-	/* [r] */ float _hw,
-	/* [r] */ float _hh)
+	_In_ float _hw,
+	_In_ float _hh)
 {
 	my_Vertices.resize(4);
 	my_Normals.resize(4);
@@ -143,8 +143,8 @@ CLASS_IMPL_FUNC_T(Collider2DPolygon, void, set_Box)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Collider2DPolygon, void, set_Polygon)(
-	/* [r] */ const Vector2D * _vertices,
-	/* [r] */ unsigned int _size)
+	_In_ const Vector2D * _vertices,
+	_In_ unsigned int _size)
 {
 	// No hulls with less than 3 vertices (ensure actual Collider2DPolygon)
 	assert(_size > 2);
@@ -250,7 +250,7 @@ CLASS_IMPL_FUNC_T(Collider2DPolygon, void, set_Polygon)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Collider2DPolygon, Vector2D, support)(
-	/* [r] */ const Vector2D & _dir)const
+	_In_ const Vector2D & _dir)const
 {
 	float bestProjection = -FLT_MAX;
 	const Vector2D * bestVertex = nullptr;

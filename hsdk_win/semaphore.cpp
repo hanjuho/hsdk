@@ -9,8 +9,8 @@ using namespace criticalsection;
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(Semaphore, Semaphore)(
-	/* [r] */ unsigned int _initCount,
-	/* [r] */ unsigned int _maxCount)
+	_In_ unsigned int _initCount,
+	_In_ unsigned int _maxCount)
 	: my_initCount(_initCount), my_maxCount(my_maxCount)
 {
 	IF_FALSE(_initCount < _maxCount)
@@ -35,7 +35,7 @@ CLASS_IMPL_DESTRUCTOR(Semaphore, Semaphore)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Semaphore, enter)(
-	/* [r] */ unsigned long _time)
+	_In_ unsigned long _time)
 {
 	switch (WaitForSingleObject(my_Semaphore, _time))
 	{

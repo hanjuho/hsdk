@@ -106,7 +106,7 @@ CLASS_IMPL_FUNC(Thread, kill)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Thread, wait)(
-	/* [r] */ unsigned int _time)
+	_In_ unsigned int _time)
 {
 	// 스스로가 이 함수를 호출할 수 없음
 	if (m_ThreadID == GetCurrentThreadId())

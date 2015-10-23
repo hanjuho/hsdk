@@ -8,8 +8,8 @@ using namespace hsdk::direct3d;
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Direct3D_DeviceFactory, create9)(
-	/* [w] */ Direct3D_Device & _device,
-	/* [r] */ const D3D9_DEVICE_DESC & _desc,
+	_Out_ Direct3D_Device & _device,
+	_In_ const D3D9_DEVICE_DESC & _desc,
 	/* [in] */ const Direct3D_Callbacks * _callback)
 {
 	// Try to create the device with the chosen settings
@@ -102,8 +102,8 @@ CLASS_IMPL_FUNC(Direct3D_DeviceFactory, create9)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Direct3D_DeviceFactory, reset9)(
-	/* [w] */ Direct3D_Device & _device,
-	/* [r] */ const D3D9_DEVICE_DESC & _desc,
+	_Out_ Direct3D_Device & _device,
+	_In_ const D3D9_DEVICE_DESC & _desc,
 	/* [in] */ const Direct3D_Callbacks * _callback)
 {
 	HRESULT hr;
@@ -153,8 +153,8 @@ CLASS_IMPL_FUNC(Direct3D_DeviceFactory, reset9)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Direct3D_DeviceFactory, restore9)(
-	/* [w] */ Direct3D_Device & _device,
-	/* [r] */ const D3D9_DEVICE_DESC & _desc,
+	_Out_ Direct3D_Device & _device,
+	_In_ const D3D9_DEVICE_DESC & _desc,
 	/* [in] */ const Direct3D_Callbacks * _callback)
 {
 	HRESULT hr;
@@ -241,8 +241,8 @@ CLASS_IMPL_FUNC(Direct3D_DeviceFactory, restore9)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Direct3D_DeviceFactory, create10)(
-	/* [w] */ Direct3D_Device & _device,
-	/* [r] */ const D3D10_DEVICE_DESC & _desc,
+	_Out_ Direct3D_Device & _device,
+	_In_ const D3D10_DEVICE_DESC & _desc,
 	/* [in] */ const Direct3D_Callbacks * _callback)
 {
 	IDXGIFactory * dxgiFactory = nullptr;
@@ -434,8 +434,8 @@ CLASS_IMPL_FUNC(Direct3D_DeviceFactory, create10)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Direct3D_DeviceFactory, resize10)(
-	/* [w] */ Direct3D_Device & _device,
-	/* [r] */ const D3D10_DEVICE_DESC & _desc,
+	_Out_ Direct3D_Device & _device,
+	_In_ const D3D10_DEVICE_DESC & _desc,
 	/* [in] */ const Direct3D_Callbacks * _callback)
 {
 	// SetFullscreenState causes a WM_SIZE message to be sent to the window.  The WM_SIZE message calls
@@ -516,8 +516,8 @@ CLASS_IMPL_FUNC(Direct3D_DeviceFactory, resize10)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Direct3D_DeviceFactory, reset10)(
-	/* [w] */ Direct3D_Device & _device,
-	/* [r] */ const D3D10_DEVICE_DESC & _desc,
+	_Out_ Direct3D_Device & _device,
+	_In_ const D3D10_DEVICE_DESC & _desc,
 	/* [in] */ const Direct3D_Callbacks * _callback,
 	/* [in] */ BOOL _resetAll)
 {
@@ -590,8 +590,8 @@ CLASS_IMPL_FUNC(Direct3D_DeviceFactory, reset10)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Direct3D_DeviceFactory, setup_RenderTarget)(
-	/* [w] */ Direct3D_Device & _device,
-	/* [r] */ const D3D10_DEVICE_DESC & _desc)
+	_Out_ Direct3D_Device & _device,
+	_In_ const D3D10_DEVICE_DESC & _desc)
 {
 	HRESULT hr;
 

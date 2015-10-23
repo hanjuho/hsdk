@@ -38,8 +38,8 @@ CLASS_IMPL_FUNC_T(Physics2DObject, i::i_Collider2D *, collider)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Physics2DObject, void, integrate_Velocity)(
-	/* [r] */ const Vector2D & _gravity,
-	/* [r] */ float _dt)
+	_In_ const Vector2D & _gravity,
+	_In_ float _dt)
 {
 	move(my_RigidBody->velocity() * _dt);
 	rotate(my_RigidBody->angularVelocity() * _dt);
@@ -49,9 +49,9 @@ CLASS_IMPL_FUNC_T(Physics2DObject, void, integrate_Velocity)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Physics2DObject, void, integrate_Forces)(
-	/* [r] */ const Vector2D & _gravity,
-	/* [r] */ float _torque,
-	/* [r] */ float _dt)
+	_In_ const Vector2D & _gravity,
+	_In_ float _torque,
+	_In_ float _dt)
 {
 	my_RigidBody->accelerate(
 		(my_RigidBody->force() * my_RigidBody->mass() + _gravity) * (_dt / 2.0f));

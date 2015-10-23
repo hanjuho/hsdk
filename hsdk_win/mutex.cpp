@@ -27,7 +27,7 @@ CLASS_IMPL_DESTRUCTOR(Mutex, Mutex)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Mutex, enter)(
-	/* [r] */ unsigned long _time)
+	_In_ unsigned long _time)
 {
 	switch (WaitForSingleObject(my_Mutex, _time))
 	{

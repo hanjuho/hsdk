@@ -14,10 +14,10 @@ volatile unsigned int component_id = 0;
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(Component, Component)(
-	/* [r] */ float _x,
-	/* [r] */ float _y,
-	/* [r] */ float _w,
-	/* [r] */ float _h)
+	_In_ float _x,
+	_In_ float _y,
+	_In_ float _w,
+	_In_ float _h)
 	: my_id(component_id++), my_Parent(nullptr), my_AbsX(0.0f), my_AbsY(0.0f), my_Visible(false)
 {
 	my_Rectangle[0] = _x;
@@ -57,22 +57,22 @@ CLASS_IMPL_FUNC(Component, add_Component)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Component, remove_Component)(
-	/* [r] */ i_Component * _component)
+	_In_ i_Component * _component)
 {
 	return 0x8000000;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, bool, contain_Component)(
-	/* [r] */ i_Component * _component)const
+	_In_ i_Component * _component)const
 {
 	return false;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Component, get_Component)(
-	/* [w] */ i_Component * (&_component),
-	/* [r] */ unsigned int _id)const
+	_Out_ i_Component * (&_component),
+	_In_ unsigned int _id)const
 {
 	return 0x8000000;
 }
@@ -86,28 +86,28 @@ CLASS_IMPL_FUNC_T(Component, unsigned int, get_id)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, void, set_X)(
-	/* [r] */ float _value)
+	_In_ float _value)
 {
 	my_Rectangle[0] = _value;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, void, set_Y)(
-	/* [r] */ float _value)
+	_In_ float _value)
 {
 	my_Rectangle[1] = _value;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, void, set_W)(
-	/* [r] */ float _value)
+	_In_ float _value)
 {
 	my_Rectangle[2] = _value;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, void, set_H)(
-	/* [r] */ float _value)
+	_In_ float _value)
 {
 	my_Rectangle[3] = _value;
 }
@@ -142,7 +142,7 @@ CLASS_IMPL_FUNC_T(Component, float, get_H)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Component, set_Visible)(
-	/* [r] */ bool _visible)
+	_In_ bool _visible)
 {
 	bool b = my_Visible;
 	my_Visible = _visible;
@@ -159,7 +159,7 @@ CLASS_IMPL_FUNC_T(Component, bool, is_Visible)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, bool, event_chain)(
-	/* [r] */ i_inputEventHelper * _eventhelper)
+	_In_ i_inputEventHelper * _eventhelper)
 {
 	return _eventhelper->chain(this);
 }
@@ -211,7 +211,7 @@ CLASS_IMPL_FUNC_T(Component, void, reset)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, void, set_Mouseable)(
-	/* [r] */ i_Mouseable * _mouseable)
+	_In_ i_Mouseable * _mouseable)
 {
 	m_Mouseable = _mouseable;
 }
@@ -253,9 +253,9 @@ CLASS_IMPL_FUNC_T(Component, i_Actable *, get_Actable)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, void, onClick_Down)(
-	/* [r] */ MOUSE_BUTTON _button,
-	/* [r] */ int _x,
-	/* [r] */ int _y)
+	_In_ MOUSE_BUTTON _button,
+	_In_ int _x,
+	_In_ int _y)
 {
 	if (m_Mouseable)
 	{
@@ -265,9 +265,9 @@ CLASS_IMPL_FUNC_T(Component, void, onClick_Down)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, void, onClick_Up)(
-	/* [r] */ MOUSE_BUTTON _button,
-	/* [r] */ int _x,
-	/* [r] */ int _y)
+	_In_ MOUSE_BUTTON _button,
+	_In_ int _x,
+	_In_ int _y)
 {
 	if (m_Mouseable)
 	{
@@ -278,9 +278,9 @@ CLASS_IMPL_FUNC_T(Component, void, onClick_Up)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, void, onDrag)(
-	/* [r] */ MOUSE_BUTTON _button,
-	/* [r] */ int _x,
-	/* [r] */ int _y)
+	_In_ MOUSE_BUTTON _button,
+	_In_ int _x,
+	_In_ int _y)
 {
 	if (m_Mouseable)
 	{
@@ -291,8 +291,8 @@ CLASS_IMPL_FUNC_T(Component, void, onDrag)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, void, onMove)(
-	/* [r] */ int _x,
-	/* [r] */ int _y)
+	_In_ int _x,
+	_In_ int _y)
 {
 	if (m_Mouseable)
 	{
@@ -303,9 +303,9 @@ CLASS_IMPL_FUNC_T(Component, void, onMove)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, void, onWheel)(
-	/* [r] */ int _x,
-	/* [r] */ int _y,
-	/* [r] */ int _w)
+	_In_ int _x,
+	_In_ int _y,
+	_In_ int _w)
 {
 	if (m_Mouseable)
 	{
@@ -316,7 +316,7 @@ CLASS_IMPL_FUNC_T(Component, void, onWheel)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, void, onKey_Down)(
-	/* [r] */ unsigned char _vKey)
+	_In_ unsigned char _vKey)
 {
 	if (m_Keyboardable)
 	{
@@ -327,7 +327,7 @@ CLASS_IMPL_FUNC_T(Component, void, onKey_Down)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, void, onKey_Up)(
-	/* [r] */ unsigned char _vKey)
+	_In_ unsigned char _vKey)
 {
 	if (m_Keyboardable)
 	{

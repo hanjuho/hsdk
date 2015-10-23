@@ -8,10 +8,10 @@ using namespace win::frame;
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(ButtonCompo, ButtonCompo)(
-	/* [r] */ float _x,
-	/* [r] */ float _y,
-	/* [r] */ float _w,
-	/* [r] */ float _h)
+	_In_ float _x,
+	_In_ float _y,
+	_In_ float _w,
+	_In_ float _h)
 	: Component(_x, _y, _w, _h)
 {
 
@@ -19,9 +19,9 @@ CLASS_IMPL_CONSTRUCTOR(ButtonCompo, ButtonCompo)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(ButtonCompo, void, onClick_Down)(
-	/* [r] */ i::frame::MOUSE_BUTTON _button,
-	/* [r] */ int _x,
-	/* [r] */ int _y)
+	_In_ i::frame::MOUSE_BUTTON _button,
+	_In_ int _x,
+	_In_ int _y)
 {
 	if (_button == i::frame::LBUTTON)
 	{
@@ -31,9 +31,9 @@ CLASS_IMPL_FUNC_T(ButtonCompo, void, onClick_Down)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(ButtonCompo, void, onClick_Up)(
-	/* [r] */ i::frame::MOUSE_BUTTON _button,
-	/* [r] */ int _x,
-	/* [r] */ int _y)
+	_In_ i::frame::MOUSE_BUTTON _button,
+	_In_ int _x,
+	_In_ int _y)
 {
 	if (_button == i::frame::LBUTTON)
 	{

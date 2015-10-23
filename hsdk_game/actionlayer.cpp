@@ -29,7 +29,7 @@ CLASS_IMPL_FUNC_T(ActionLayer, void, initialize)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(ActionLayer, bool, act)(
-	/* [r] */ float _dt)const
+	_In_ float _dt)const
 {
 	return false;
 }

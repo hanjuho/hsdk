@@ -38,9 +38,9 @@ CLASS_IMPL_DESTRUCTOR(TCPProxy, TCPProxy)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(TCPProxy, send)(
-	/* [r] */ char * _context,
-	/* [r] */ unsigned int _offset,
-	/* [r] */ unsigned int _size)
+	_In_ char * _context,
+	_In_ unsigned int _offset,
+	_In_ unsigned int _size)
 {
 	// 패킷으로 변환된 정보를 꺼내 송신한다.
 	IF_FAILED(::send(m_Socket, &_context[_offset], _size, 0))
@@ -53,8 +53,8 @@ CLASS_IMPL_FUNC(TCPProxy, send)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(TCPProxy, receive)(
-	/* [w] */ char * (&_context),
-	/* [w] */ unsigned int (&_size))
+	_Out_ char * (&_context),
+	_Out_ unsigned int (&_size))
 {
 	unsigned int buffer_len;
 
@@ -76,7 +76,7 @@ CLASS_IMPL_FUNC(TCPProxy, receive)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(TCPProxy, wait_Recv)(
-	/* [r] */ unsigned int _time)
+	_In_ unsigned int _time)
 {
 	HRESULT hr;
 
@@ -126,8 +126,8 @@ CLASS_IMPL_FUNC(TCPProxy, wait_Recv)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(TCPProxy, initailize)(
-	/* [r] */ unsigned int _ip,
-	/* [r] */ SOCKET _socket)
+	_In_ unsigned int _ip,
+	_In_ SOCKET _socket)
 {
 	// 소켓과 이벤트를 연결한다.
 	IF_FAILED(WSAEventSelect(_socket, m_Event, FD_READ | FD_CLOSE))

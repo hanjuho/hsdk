@@ -21,9 +21,9 @@ BOOL g_is_in_GammaCorrectMode;
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Direct3D_Outside, initialize)(
-	/* [r] */ IDXGIFactory * _factory,
-	/* [r] */ BOOL _enumerateAllAdapterFormats,
-	/* [r] */ BOOL _is_in_GammaCorrectMode)
+	_In_ IDXGIFactory * _factory,
+	_In_ BOOL _enumerateAllAdapterFormats,
+	_In_ BOOL _is_in_GammaCorrectMode)
 {
 	IF_INVALID(_factory)
 	{
@@ -107,9 +107,9 @@ CLASS_IMPL_FUNC(Direct3D_Outside, initialize)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Direct3D_Outside, initialize_Outputs)(
-	/* [w] */ VideoCard_Output_info & _output_info,
-	/* [r] */ unsigned int _index,
-	/* [r] */ IDXGIAdapter * _adapter)
+	_Out_ VideoCard_Output_info & _output_info,
+	_In_ unsigned int _index,
+	_In_ IDXGIAdapter * _adapter)
 {
 	HRESULT hr;
 
@@ -141,7 +141,7 @@ CLASS_IMPL_FUNC(Direct3D_Outside, initialize_Outputs)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Direct3D_Outside, initialize_DisplayModes)(
-	/* [w] */ VideoCard_Output_info & _output_info)
+	_Out_ VideoCard_Output_info & _output_info)
 {
 	HRESULT hr = S_OK;
 	DXGI_FORMAT allowedAdapterFormatArray[] =
@@ -231,7 +231,7 @@ CLASS_IMPL_FUNC(Direct3D_Outside, initialize_DisplayModes)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D_Outside, const VideoCard_info *, get_info)(
-	/* [r] */ unsigned int _adapterOrdinal)
+	_In_ unsigned int _adapterOrdinal)
 {
 	IF_FALSE(_adapterOrdinal < g_Videos.size())
 	{
@@ -243,8 +243,8 @@ CLASS_IMPL_FUNC_T(Direct3D_Outside, const VideoCard_info *, get_info)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D_Outside, const VideoCard_Output_info *, get_Output_info)(
-	/* [r] */ unsigned int _adapterOrdinal,
-	/* [r] */ unsigned int _output)
+	_In_ unsigned int _adapterOrdinal,
+	_In_ unsigned int _output)
 {
 	IF_FALSE(_adapterOrdinal < g_Videos.size())
 	{
@@ -263,7 +263,7 @@ CLASS_IMPL_FUNC_T(Direct3D_Outside, const VideoCard_Output_info *, get_Output_in
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D_Outside, HMONITOR, get_MonitorFromAdapter)(
-	/* [r] */ const D3D10_DEVICE_DESC & _desc)
+	_In_ const D3D10_DEVICE_DESC & _desc)
 {
 	const VideoCard_Output_info * output_info =
 		get_Output_info(
@@ -280,7 +280,7 @@ CLASS_IMPL_FUNC_T(Direct3D_Outside, HMONITOR, get_MonitorFromAdapter)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D_Outside, unsigned int, get_AdapterOrdinalFromMonitor)(
-	/* [r] */ HMONITOR _monitor)
+	_In_ HMONITOR _monitor)
 {
 	// Get the monitor handle information
 	MONITORINFOEX mi;
@@ -313,7 +313,7 @@ CLASS_IMPL_FUNC_T(Direct3D_Outside, unsigned int, get_AdapterOrdinalFromMonitor)
 }
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D_Outside, unsigned int, get_OutputOrdinalFromMonitor)(
-	/* [r] */ HMONITOR _monitor)
+	_In_ HMONITOR _monitor)
 {
 	// Get the monitor handle information
 	MONITORINFOEX mi;

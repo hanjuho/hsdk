@@ -9,8 +9,8 @@ using namespace physics2d;
 
 // grobal function
 IMPL_FUNC_T(float, compute_inertia)(
-	/* [r] */ const Vector2D * _vertices,
-	/* [r] */ unsigned int _size)
+	_In_ const Vector2D * _vertices,
+	_In_ unsigned int _size)
 {
 	// Calculate centroid and moment of interia
 	float I = 0.0f;
@@ -34,9 +34,9 @@ IMPL_FUNC_T(float, compute_inertia)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(RigidBody2D, RigidBody2D)(
-	/* [r] */float sFriction,
-	/* [r] */float dFriction,
-	/* [r] */float restitution)
+	_In_ float sFriction,
+	_In_ float dFriction,
+	_In_ float restitution)
 	: m_inertia(0.0f), m_mass(0.0f),
 	m_SFriction(sFriction),
 	m_DFriction(dFriction),
@@ -47,7 +47,7 @@ CLASS_IMPL_CONSTRUCTOR(RigidBody2D, RigidBody2D)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(RigidBody2D, void, apply_Shape)(
-	/* [r] */ const i::i_Collider2D * _collider)
+	_In_ const i::i_Collider2D * _collider)
 {
 	float d = _collider->density();
 	float m = d * _collider->area();
@@ -68,8 +68,8 @@ CLASS_IMPL_FUNC_T(RigidBody2D, void, apply_Shape)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(RigidBody2D, void, impulse)(
-	/* [r] */ const Vector2D & _impulse,
-	/* [r] */ const Vector2D & _contact)
+	_In_ const Vector2D & _impulse,
+	_In_ const Vector2D & _contact)
 {
 	accelerate(_impulse * mass());
 	spin(vector2d::cross(_contact, _impulse) * inertia());
@@ -112,7 +112,7 @@ CLASS_IMPL_FUNC_T(RigidBody2D, float, restitution)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(RigidBody2D, void, fixed)(
-	/* [r] */ void)
+	_In_ void)
 {
 	m_inertia = 0.0f;
 	m_mass = 0.0f;

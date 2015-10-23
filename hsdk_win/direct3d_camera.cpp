@@ -23,7 +23,7 @@ CLASS_IMPL_DESTRUCTOR(Direct3D_Camera, Direct3D_Camera)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D_Camera, void, multiply)(
-	/* [r] */ const float * _mMatrix)
+	_In_ const float * _mMatrix)
 {
 	D3DXVec3TransformNormal(&my_vXDir, &my_vXDir, LPD3DXMATRIX(_mMatrix));
 	D3DXVec3TransformNormal(&my_vYDir, &my_vYDir, LPD3DXMATRIX(_mMatrix));
@@ -33,7 +33,7 @@ CLASS_IMPL_FUNC_T(Direct3D_Camera, void, multiply)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D_Camera, void, set_Position)(
-	/* [r] */ const float * _vPos)
+	_In_ const float * _vPos)
 {
 	my_vPos.x = _vPos[0];
 	my_vPos.y = _vPos[1];
@@ -42,7 +42,7 @@ CLASS_IMPL_FUNC_T(Direct3D_Camera, void, set_Position)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D_Camera, void, set_Target)(
-	/* [r] */ const float * _vPos)
+	_In_ const float * _vPos)
 {
 	// 받아온 값의 노말을 계산
 	D3DXVECTOR3 nor;
@@ -59,28 +59,28 @@ CLASS_IMPL_FUNC_T(Direct3D_Camera, void, set_Target)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D_Camera, void, move_XDir)(
-	/* [r] */ float _value)
+	_In_ float _value)
 {
 	my_vPos += my_vXDir * _value;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D_Camera, void, move_YDir)(
-	/* [r] */ float _value)
+	_In_ float _value)
 {
 	my_vPos += my_vYDir * _value;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D_Camera, void, move_ZDir)(
-	/* [r] */ float _value)
+	_In_ float _value)
 {
 	my_vPos += my_vZDir * _value;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D_Camera, void, rotate_XAxis)(
-	/* [r] */ float _angle)
+	_In_ float _angle)
 {
 	D3DXMATRIX T;
 	D3DXMatrixRotationAxis(&T, &my_vXDir, _angle);
@@ -91,7 +91,7 @@ CLASS_IMPL_FUNC_T(Direct3D_Camera, void, rotate_XAxis)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D_Camera, void, rotate_YAxis)(
-	/* [r] */ float _angle)
+	_In_ float _angle)
 {
 	D3DXMATRIX T;
 	D3DXMatrixRotationAxis(&T, &my_vYDir, _angle);
@@ -102,7 +102,7 @@ CLASS_IMPL_FUNC_T(Direct3D_Camera, void, rotate_YAxis)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D_Camera, void, rotate_ZAxis)(
-	/* [r] */ float _angle)
+	_In_ float _angle)
 {
 	D3DXMATRIX T;
 	D3DXMatrixRotationAxis(&T, &my_vZDir, _angle);

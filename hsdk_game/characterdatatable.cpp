@@ -21,17 +21,17 @@ CLASS_IMPL_DESTRUCTOR(CharacterDataTable, CharacterDataTable)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(CharacterDataTable, read_Table)(
-	/* [r] */ unsigned int _state,
-	/* [w] */ void * (&_data),
-	/* [r] */ unsigned int _size)const
+	_In_ unsigned int _state,
+	_Out_ void * (&_data),
+	_In_ unsigned int _size)const
 {
 	return HSDK_FAIL;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(CharacterDataTable, write_Table)(
-	/* [r] */ unsigned int _state,
-	/* [r] */ ...)
+	_In_ unsigned int _state,
+	_In_ ...)
 {
 	return HSDK_FAIL;
 }

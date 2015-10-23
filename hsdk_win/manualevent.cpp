@@ -39,7 +39,7 @@ CLASS_IMPL_FUNC(ManualEvent, signal)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(ManualEvent, wait)(
-	/* [r] */ unsigned long _time)
+	_In_ unsigned long _time)
 {
 	switch (WaitForSingleObject(my_Event, _time))
 	{

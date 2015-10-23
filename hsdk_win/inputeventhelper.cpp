@@ -10,7 +10,7 @@ using namespace win::frame;
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(inputEventHelper, inputEventHelper)(
-	/* [r] */ i_Component * _component)
+	_In_ i_Component * _component)
 	: my_FocusComponent(_component)
 {
 	xy.x = 0;
@@ -25,7 +25,7 @@ CLASS_IMPL_DESTRUCTOR(inputEventHelper, inputEventHelper)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(inputEventHelper, bool, chain)(
-	/* [r] */ const i::frame::i_Component * _component)
+	_In_ const i::frame::i_Component * _component)
 {
 	IF_FALSE(_component->is_Visible())
 	{
@@ -104,9 +104,9 @@ CLASS_IMPL_FUNC_T(inputEventHelper, void, update)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(inputEventHelper, void, onClick_Down)(
-	/* [r] */ i::frame::MOUSE_BUTTON _button,
-	/* [r] */ int _x,
-	/* [r] */ int _y)
+	_In_ i::frame::MOUSE_BUTTON _button,
+	_In_ int _x,
+	_In_ int _y)
 {
 	xy.x = _x;
 	xy.y = _y;
@@ -123,9 +123,9 @@ CLASS_IMPL_FUNC_T(inputEventHelper, void, onClick_Down)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(inputEventHelper, void, onClick_Up)(
-	/* [r] */ i::frame::MOUSE_BUTTON _button,
-	/* [r] */ int _x,
-	/* [r] */ int _y)
+	_In_ i::frame::MOUSE_BUTTON _button,
+	_In_ int _x,
+	_In_ int _y)
 {
 	xy.x = _x;
 	xy.y = _y;
@@ -142,9 +142,9 @@ CLASS_IMPL_FUNC_T(inputEventHelper, void, onClick_Up)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(inputEventHelper, void, onDrag)(
-	/* [r] */ i::frame::MOUSE_BUTTON _button,
-	/* [r] */ int _x,
-	/* [r] */ int _y)
+	_In_ i::frame::MOUSE_BUTTON _button,
+	_In_ int _x,
+	_In_ int _y)
 {
 	int dx = xy.x - _x;
 	int dy = xy.y - _y;
@@ -160,8 +160,8 @@ CLASS_IMPL_FUNC_T(inputEventHelper, void, onDrag)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(inputEventHelper, void, onMove)(
-	/* [r] */ int _x,
-	/* [r] */ int _y)
+	_In_ int _x,
+	_In_ int _y)
 {
 	xy.x = _x;
 	xy.y = _y;
@@ -174,9 +174,9 @@ CLASS_IMPL_FUNC_T(inputEventHelper, void, onMove)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(inputEventHelper, void, onWheel)(
-	/* [r] */ int _x,
-	/* [r] */ int _y,
-	/* [r] */ int _w)
+	_In_ int _x,
+	_In_ int _y,
+	_In_ int _w)
 {
 	xy.x = _x;
 	xy.y = _y;
