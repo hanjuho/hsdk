@@ -357,6 +357,8 @@ CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, destroy)(
 	g_WorldViewProj_Matrix = nullptr;
 	g_ViewProj_Matrix = nullptr;
 	g_World_Matrix = nullptr;
+	g_TexCoord_Matrix = nullptr;
+	g_Bone_World_Matrixs = nullptr;
 	g_Diffuse_Texture = nullptr;
 	g_Diffuse_Vector = nullptr;
 	g_Time_Scalar = nullptr;

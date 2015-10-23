@@ -35,13 +35,12 @@ struct PS_BASIC_INPUT
 	float4 Pos		: SV_POSITION;
 	float3 Norm		: TEXCOORD0;
 	float2 Tex		: TEXCOORD1;
-}; 
+};
 
 struct PS_SKYBOX_INPUT
 {
 	float4 Pos		: SV_POSITION;
-	float3 Norm		: TEXCOORD0;
-	float3 Tex		: TEXCOORD1;
+	float3 Tex		: TEXCOORD0;
 };
 
 //-----------------------------------------------------------------------------------------
@@ -91,13 +90,13 @@ sampler2D DiffuseSampler = sampler_state
 //-----------------------------------------------------------------------------------------
 // Samplers
 //-----------------------------------------------------------------------------------------
-sampler2D SkyBoxSampler = sampler_state
+samplerCUBE SkyBoxSampler = sampler_state
 {
-	Texture = (g_SkyBox_Texture);
+	Texture = g_SkyBox_Texture;
 	Filter = MIN_MAG_MIP_LINEAR;
-	AddressU = WRAP;
-	AddressV = WRAP;
-	AddressW = WRAP;
+	AddressU = MIRROR;
+	AddressV = MIRROR;
+	AddressW = MIRROR;
 };
 
 //-----------------------------------------------------------------------------------------
@@ -153,10 +152,8 @@ PS_SKYBOX_INPUT VSSkyBox(float4 Pos : POSITION)
 {
 	PS_SKYBOX_INPUT output;
 
-	output.Pos = mul(Pos, (float3x4)g_WorldViewProj_Matrix);
-	output.Norm = mul(Pos.xyz, (float3x3)g_World_Matrix);
-
-	output.Pos.z = output.Pos.w;
+	output.Pos = mul(Pos, g_WorldViewProj_Matrix);
+	output.Pos.z = Pos.w;
 
 	output.Tex = Pos.xyz;
 
@@ -190,7 +187,7 @@ float4 PSSkinnedBasic(PS_BASIC_INPUT input) : COLOR0
 //-----------------------------------------------------------------------------------------
 float4 PSSkyBox(PS_SKYBOX_INPUT input) : COLOR0
 {
-	return tex2D(SkyBoxSampler, input.Tex);
+	return texCUBE(SkyBoxSampler, input.Tex);
 }
 
 //-----------------------------------------------------------------------------------------
@@ -314,8 +311,8 @@ technique10 SkyBox0
 		SetPixelShader(CompileShader(ps_4_0, PSSkyBox()));
 
 		SetDepthStencilState(DisableDepth, 0);
-		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-		SetRasterizerState(CullFront);
+		SetBlendState(AdditiveBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+		SetRasterizerState(CullBack);
 	}
 }
 

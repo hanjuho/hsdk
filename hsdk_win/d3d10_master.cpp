@@ -119,14 +119,32 @@ CLASS_IMPL_FUNC(D3D10_Master, create_SkyBoxTexture)(
 	_In_ const wchar_t * _bottom)
 {
 	const unsigned int maxSize = _width * _height;
+	const unsigned int maxByteSize = maxSize * 4;
 
-	DirectX::Image imageDatas[6];
+	std::vector<char> dataBuffers[6];
+	D3D10_SUBRESOURCE_DATA datas[6];
+	
+	const wchar_t * path[] = {
+		_back, _front, _left,
+		_right, _top, _bottom };
 
-	std::vector<char> datadf;
-	D3D10_SUBRESOURCE_DATA data[6];
+	for (int index = 0; index < 6; ++index)
+	{
+		std::vector<char> & vector = dataBuffers[index];
 
-	DirectX::LoadImageFromFile(g_Direct3D_Device.d3d10Device, _front, &imageDatas[0], maxSize);
+		vector.resize(maxByteSize, 0xF);
+		datas[index].pSysMem = &vector[0];
+		datas[index].SysMemPitch = _width * 4;
+		datas[index].SysMemSlicePitch = maxByteSize;
 
+		DirectX::Image image;
+		IF_SUCCEEDED(DirectX::LoadImageFromFile(g_Direct3D_Device.d3d10Device, path[index], &image, maxSize))
+		{
+			const unsigned int minSize = min(image.getSize(), maxByteSize);
+			memcpy(&vector[0], image.getData(), minSize);
+		}
+	}
+	
 	D3D10_TEXTURE2D_DESC desc;
 	desc.Width = _width;
 	desc.Height = _height;
@@ -138,18 +156,23 @@ CLASS_IMPL_FUNC(D3D10_Master, create_SkyBoxTexture)(
 	desc.Usage = D3D10_USAGE_DEFAULT;
 	desc.BindFlags = D3D10_BIND_SHADER_RESOURCE;
 	desc.CPUAccessFlags = 0;
-	desc.MiscFlags = 0;
+	desc.MiscFlags = D3D10_RESOURCE_MISC_TEXTURECUBE;
 
 	AutoRelease<ID3D10Texture2D> texture;
-	g_Direct3D_Device.d3d10Device->CreateTexture2D(&desc, data, &texture);
+	IF_SUCCEEDED(g_Direct3D_Device.d3d10Device->CreateTexture2D(&desc, datas, &texture))
+	{
+		D3D10_SHADER_RESOURCE_VIEW_DESC srvDesc;
+		srvDesc.Format = desc.Format;
+		srvDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURECUBE;
+		srvDesc.TextureCube.MipLevels = desc.MipLevels;
+		srvDesc.TextureCube.MostDetailedMip = 0;
 
-	D3D10_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	srvDesc.Format = desc.Format;
-	srvDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURECUBE;
-	srvDesc.TextureCube.MipLevels = desc.MipLevels;
-	srvDesc.TextureCube.MostDetailedMip = 0;
-
-	return g_Direct3D_Device.d3d10Device->CreateShaderResourceView(texture, &srvDesc, _texture);
+		return g_Direct3D_Device.d3d10Device->CreateShaderResourceView(texture, &srvDesc, _texture);
+	}
+	else
+	{
+		return E_FAIL;
+	}
 }
 
 //--------------------------------------------------------------------------------------
