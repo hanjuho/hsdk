@@ -6,7 +6,7 @@ using namespace hsdk::framework;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_CONSTRUCTOR(Direct3D_Camera, Direct3D_Camera)(void)
+CLASS_IMPL_CONSTRUCTOR(Framework_Camera, Framework_Camera)(void)
 : my_vPos(0.0f, 0.0f, 0.0f),
 my_vXDir(1.0f, 0.0f, 0.0f),
 my_vYDir(0.0f, 1.0f, 0.0f),
@@ -16,13 +16,13 @@ my_vZDir(0.0f, 0.0f, 1.0f)
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_DESTRUCTOR(Direct3D_Camera, Direct3D_Camera)(void)
+CLASS_IMPL_DESTRUCTOR(Framework_Camera, Framework_Camera)(void)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D_Camera, void, multiply)(
+CLASS_IMPL_FUNC_T(Framework_Camera, void, multiply)(
 	_In_ const float * _mMatrix)
 {
 	D3DXVec3TransformNormal(&my_vXDir, &my_vXDir, LPD3DXMATRIX(_mMatrix));
@@ -32,7 +32,7 @@ CLASS_IMPL_FUNC_T(Direct3D_Camera, void, multiply)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D_Camera, void, set_Position)(
+CLASS_IMPL_FUNC_T(Framework_Camera, void, set_Position)(
 	_In_ const float * _vPos)
 {
 	my_vPos.x = _vPos[0];
@@ -41,7 +41,7 @@ CLASS_IMPL_FUNC_T(Direct3D_Camera, void, set_Position)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D_Camera, void, set_Target)(
+CLASS_IMPL_FUNC_T(Framework_Camera, void, set_Target)(
 	_In_ const float * _vPos)
 {
 	// 받아온 값의 노말을 계산
@@ -58,28 +58,28 @@ CLASS_IMPL_FUNC_T(Direct3D_Camera, void, set_Target)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D_Camera, void, move_XDir)(
+CLASS_IMPL_FUNC_T(Framework_Camera, void, move_XDir)(
 	_In_ float _value)
 {
 	my_vPos += my_vXDir * _value;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D_Camera, void, move_YDir)(
+CLASS_IMPL_FUNC_T(Framework_Camera, void, move_YDir)(
 	_In_ float _value)
 {
 	my_vPos += my_vYDir * _value;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D_Camera, void, move_ZDir)(
+CLASS_IMPL_FUNC_T(Framework_Camera, void, move_ZDir)(
 	_In_ float _value)
 {
 	my_vPos += my_vZDir * _value;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D_Camera, void, rotate_XAxis)(
+CLASS_IMPL_FUNC_T(Framework_Camera, void, rotate_XAxis)(
 	_In_ float _angle)
 {
 	D3DXMATRIX T;
@@ -90,7 +90,7 @@ CLASS_IMPL_FUNC_T(Direct3D_Camera, void, rotate_XAxis)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D_Camera, void, rotate_YAxis)(
+CLASS_IMPL_FUNC_T(Framework_Camera, void, rotate_YAxis)(
 	_In_ float _angle)
 {
 	D3DXMATRIX T;
@@ -101,7 +101,7 @@ CLASS_IMPL_FUNC_T(Direct3D_Camera, void, rotate_YAxis)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D_Camera, void, rotate_ZAxis)(
+CLASS_IMPL_FUNC_T(Framework_Camera, void, rotate_ZAxis)(
 	_In_ float _angle)
 {
 	D3DXMATRIX T;
@@ -112,35 +112,35 @@ CLASS_IMPL_FUNC_T(Direct3D_Camera, void, rotate_ZAxis)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D_Camera, const float *, get_XDir)(
+CLASS_IMPL_FUNC_T(Framework_Camera, const float *, get_XDir)(
 	_X_ void)const
 {
 	return my_vXDir;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D_Camera, const float *, get_YDir)(
+CLASS_IMPL_FUNC_T(Framework_Camera, const float *, get_YDir)(
 	_X_ void)const
 {
 	return my_vYDir;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D_Camera, const float *, get_ZDir)(
+CLASS_IMPL_FUNC_T(Framework_Camera, const float *, get_ZDir)(
 	_X_ void)const
 {
 	return my_vZDir;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D_Camera, const float *, get_Position)(
+CLASS_IMPL_FUNC_T(Framework_Camera, const float *, get_Position)(
 	_X_ void)const
 {
 	return my_vPos;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D_Camera, void, compute_ViewMatrix)(
+CLASS_IMPL_FUNC_T(Framework_Camera, void, compute_ViewMatrix)(
 	_X_ float * _mView)const
 {
 	float x = -D3DXVec3Dot(&my_vXDir, &my_vPos);

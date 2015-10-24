@@ -3,14 +3,12 @@
 
 
 
-using namespace hsdk;
-using namespace i::frame;
-using namespace win::frame;
+using namespace hsdk::frame;
 
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(inputEventHelper, inputEventHelper)(
-	_In_ i_Component * _component)
+	_In_ hsdk::i::frame::i_Component * _component)
 	: my_FocusComponent(_component)
 {
 	xy.x = 0;
@@ -25,7 +23,7 @@ CLASS_IMPL_DESTRUCTOR(inputEventHelper, inputEventHelper)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(inputEventHelper, bool, chain)(
-	_In_ const i::frame::i_Component * _component)
+	_In_ const hsdk::i::frame::i_Component * _component)
 {
 	IF_FALSE(_component->is_Visible())
 	{
@@ -70,7 +68,7 @@ CLASS_IMPL_FUNC_T(inputEventHelper, void, update)(
 			BOOL result;
 
 			// 부모 component.
-			i_Component * parent;
+			hsdk::i::frame::i_Component * parent;
 
 			/*
 			설명 : chain이 실패했다는 것은 마우스의 좌표가 component를 벗어났다는 것.
@@ -104,7 +102,7 @@ CLASS_IMPL_FUNC_T(inputEventHelper, void, update)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(inputEventHelper, void, onClick_Down)(
-	_In_ i::frame::MOUSE_BUTTON _button,
+	_In_ hsdk::i::frame::MOUSE_BUTTON _button,
 	_In_ int _x,
 	_In_ int _y)
 {
@@ -123,7 +121,7 @@ CLASS_IMPL_FUNC_T(inputEventHelper, void, onClick_Down)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(inputEventHelper, void, onClick_Up)(
-	_In_ i::frame::MOUSE_BUTTON _button,
+	_In_ hsdk::i::frame::MOUSE_BUTTON _button,
 	_In_ int _x,
 	_In_ int _y)
 {
@@ -142,7 +140,7 @@ CLASS_IMPL_FUNC_T(inputEventHelper, void, onClick_Up)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(inputEventHelper, void, onDrag)(
-	_In_ i::frame::MOUSE_BUTTON _button,
+	_In_ hsdk::i::frame::MOUSE_BUTTON _button,
 	_In_ int _x,
 	_In_ int _y)
 {

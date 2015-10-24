@@ -2,8 +2,7 @@
 
 
 
-using namespace hsdk;
-using namespace win::frame;
+using namespace hsdk::frame;
 
 
 //--------------------------------------------------------------------------------------
@@ -19,7 +18,7 @@ CLASS_IMPL_CONSTRUCTOR(ButtonCompo, ButtonCompo)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(ButtonCompo, void, onClick_Down)(
-	_In_ i::frame::MOUSE_BUTTON _button,
+	_In_ hsdk::i::frame::MOUSE_BUTTON _button,
 	_In_ int _x,
 	_In_ int _y)
 {
@@ -31,7 +30,7 @@ CLASS_IMPL_FUNC_T(ButtonCompo, void, onClick_Down)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(ButtonCompo, void, onClick_Up)(
-	_In_ i::frame::MOUSE_BUTTON _button,
+	_In_ hsdk::i::frame::MOUSE_BUTTON _button,
 	_In_ int _x,
 	_In_ int _y)
 {

@@ -3,9 +3,7 @@
 
 
 
-using namespace hsdk;
-using namespace i::frame;
-using namespace win::frame;
+using namespace hsdk::frame;
 
 
 // grobal
@@ -35,17 +33,17 @@ CLASS_IMPL_DESTRUCTOR(Component, Component)(void)
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Component, i_Component *, parent)(
+CLASS_IMPL_FUNC_T(Component, hsdk::i::frame::i_Component *, parent)(
 	_X_ void)const
 {
 	return my_Parent;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Component, i_Graphics *, graphics)(
+CLASS_IMPL_FUNC_T(Component, hsdk::i::frame::i_Graphics *, graphics)(
 	_X_ void)const
 {
-	return (i_Graphics *)&m_D3D10Graphics;
+	return (hsdk::i::frame::i_Graphics *)&m_D3D10Graphics;
 }
 
 //--------------------------------------------------------------------------------------
@@ -159,7 +157,7 @@ CLASS_IMPL_FUNC_T(Component, bool, is_Visible)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, bool, event_chain)(
-	_In_ i_inputEventHelper * _eventhelper)
+	_In_ hsdk::i::frame::i_inputEventHelper * _eventhelper)
 {
 	return _eventhelper->chain(this);
 }
@@ -211,13 +209,13 @@ CLASS_IMPL_FUNC_T(Component, void, reset)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, void, set_Mouseable)(
-	_In_ i_Mouseable * _mouseable)
+	_In_ hsdk::i::frame::i_Mouseable * _mouseable)
 {
 	m_Mouseable = _mouseable;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Component, i_Mouseable *, get_Mouseable)(
+CLASS_IMPL_FUNC_T(Component, hsdk::i::frame::i_Mouseable *, get_Mouseable)(
 	_X_ void)const
 {
 	return m_Mouseable;
@@ -225,13 +223,13 @@ CLASS_IMPL_FUNC_T(Component, i_Mouseable *, get_Mouseable)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, void, set_Keyboardable)(
-	/* [set] */ i_Keyboardable * _Keyboardable)
+	/* [set] */ hsdk::i::frame::i_Keyboardable * _Keyboardable)
 {
 	m_Keyboardable = _Keyboardable;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Component, i_Keyboardable *, get_Keyboardable)(
+CLASS_IMPL_FUNC_T(Component, hsdk::i::frame::i_Keyboardable *, get_Keyboardable)(
 	_X_ void)const
 {
 	return m_Keyboardable;
@@ -239,13 +237,13 @@ CLASS_IMPL_FUNC_T(Component, i_Keyboardable *, get_Keyboardable)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, void, set_Actable)(
-	/* [set] */ i_Actable * _actable)
+	/* [set] */ hsdk::i::frame::i_Actable * _actable)
 {
 	m_Actable = _actable;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Component, i_Actable *, get_Actable)(
+CLASS_IMPL_FUNC_T(Component, hsdk::i::frame::i_Actable *, get_Actable)(
 	_X_ void)const
 {
 	return m_Actable;
@@ -253,7 +251,7 @@ CLASS_IMPL_FUNC_T(Component, i_Actable *, get_Actable)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, void, onClick_Down)(
-	_In_ MOUSE_BUTTON _button,
+	_In_ hsdk::i::frame::MOUSE_BUTTON _button,
 	_In_ int _x,
 	_In_ int _y)
 {
@@ -265,7 +263,7 @@ CLASS_IMPL_FUNC_T(Component, void, onClick_Down)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, void, onClick_Up)(
-	_In_ MOUSE_BUTTON _button,
+	_In_ hsdk::i::frame::MOUSE_BUTTON _button,
 	_In_ int _x,
 	_In_ int _y)
 {
@@ -278,7 +276,7 @@ CLASS_IMPL_FUNC_T(Component, void, onClick_Up)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, void, onDrag)(
-	_In_ MOUSE_BUTTON _button,
+	_In_ hsdk::i::frame::MOUSE_BUTTON _button,
 	_In_ int _x,
 	_In_ int _y)
 {

@@ -3,9 +3,7 @@
 
 
 
-using namespace hsdk;
-using namespace i::frame;
-using namespace win::frame;
+using namespace hsdk::frame;
 
 
 //--------------------------------------------------------------------------------------
@@ -106,7 +104,7 @@ CLASS_IMPL_FUNC(Container, get_Component)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Container, bool, event_chain)(
-	_In_ i_inputEventHelper * _eventhelper)
+	_In_ hsdk::i::frame::i_inputEventHelper * _eventhelper)
 {
 	if (_eventhelper->chain(this))
 	{

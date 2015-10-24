@@ -1709,7 +1709,7 @@ Framework_Callbacks & hsdk::framework::g_Direct3D_Callbacks = g_Callbacks;
 const Framework_State & hsdk::framework::g_Direct3D_State = g_State;
 
 // 설명 : just only read / do not write force
-const Framework_Window & hsdk::framework::g_Direct3D_Window = g_Window;
+const Framework_Window & hsdk::framework::g_Framework_Window = g_Window;
 
 // 설명 : just only read / do not write force
 const Framework_Device & hsdk::framework::g_Framework_Device = g_Device;

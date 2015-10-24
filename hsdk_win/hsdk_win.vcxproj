@@ -90,12 +90,12 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundplayer.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundmultiplayer.cpp" />
     <ClCompile Include="buttoncompo.cpp" />
     <ClCompile Include="component.cpp" />
     <ClCompile Include="container.cpp" />
     <ClCompile Include="d3d10_meshanimation.cpp" />
-    <ClCompile Include="d8_sound.cpp" />
+    <ClCompile Include="d8_soundfactory.cpp" />
     <ClCompile Include="framework.cpp" />
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="inputeventhelper.cpp" />
@@ -110,12 +110,13 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClCompile Include="framework_outside.cpp" />
     <ClCompile Include="wictextureloader.cpp" />
     <ClCompile Include="framework_wintimer.cpp" />
-    <ClCompile Include="d3d10_master.cpp" />
+    <ClCompile Include="d3d10_factory.cpp" />
     <ClCompile Include="d3d10_mesh.cpp" />
     <ClCompile Include="d3d10_meshrenderer.cpp" />
     <ClCompile Include="framework_camera.cpp" />
     <ClCompile Include="framework_usertimestream.cpp" />
     <ClCompile Include="framework_device.cpp" />
+    <ClCompile Include="d8_soundplayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\common.h" />
@@ -125,7 +126,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\manualevent.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\mutex.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_common.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_master.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_factory.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_mesh.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_meshanimation.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_meshrenderer.h" />
@@ -142,9 +143,10 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpserver.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpclient.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\common.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_sound.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundplayer.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundfactory.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundmultiplayer.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\common.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundplayer.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\thread\thread.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\thread\task.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\wictextureloader.h" />

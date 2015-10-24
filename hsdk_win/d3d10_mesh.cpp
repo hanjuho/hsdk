@@ -1,5 +1,5 @@
 #include <hsdk/win/direct3d/d3d10_mesh.h>
-#include <hsdk/win/direct3d/d3d10_master.h>
+#include <hsdk/win/direct3d/d3d10_factory.h>
 #include <hsdk/win/framework.h>
 
 
@@ -61,9 +61,9 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup0)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_Mesh, setup1_Texture)(
-	_In_ const wchar_t * _directory,
 	_In_ unsigned int _indexOfMaterial,
-	_In_ unsigned int _attribute)
+	_In_ unsigned int _attribute,
+	_In_ const wchar_t * _directory)
 {
 	IF_FALSE(_indexOfMaterial < my_Materials.size())
 	{
@@ -113,7 +113,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup1_Texture)(
 		{
 		case 0:
 		
-			IF_SUCCEEDED(hr = g_D3D10_Master.get_Texture(
+			IF_SUCCEEDED(hr = g_D3D10_Factory.get_Texture(
 				&material.diffuseRV,
 				_directory))
 			{
@@ -124,7 +124,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup1_Texture)(
 
 		case 1:
 
-			IF_SUCCEEDED(hr = g_D3D10_Master.get_Texture(
+			IF_SUCCEEDED(hr = g_D3D10_Factory.get_Texture(
 				&material.normalRV,
 				_directory))
 			{
@@ -135,7 +135,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup1_Texture)(
 
 		case 2:
 
-			IF_SUCCEEDED(hr = g_D3D10_Master.get_Texture(
+			IF_SUCCEEDED(hr = g_D3D10_Factory.get_Texture(
 				&material.specularRV,
 				_directory))
 			{

@@ -4,10 +4,9 @@
 
 
 
-using namespace hsdk;
-using namespace i::frame;
-using namespace win::frame;
-using namespace direct3d;
+using namespace hsdk::frame;
+using namespace hsdk::direct3d;
+
 
 //--------------------------------------------------------------------------------------
 // Grobal D3D10 Variable
@@ -43,7 +42,7 @@ CLASS_IMPL_FUNC_T(Graphics, void, set_image)(
 		return;
 	}
 
-	g_D3D10_Master.get_Texture(&my_Texture, _filename, &my_Texture_info);
+	g_D3D10_Factory.get_Texture(&my_Texture, _filename, &my_Texture_info);
 }
 
 //--------------------------------------------------------------------------------------
@@ -92,8 +91,8 @@ CLASS_IMPL_FUNC_T(Graphics, void, set_Text)(
 CLASS_IMPL_FUNC_T(Graphics, void, update)(
 	_In_ const float(&_rectangle)[4])
 {
-	float screenWidth = (float)framework::g_Direct3D_Window.width;
-	float screenHeigth = (float)framework::g_Direct3D_Window.height;
+	float screenWidth = (float)framework::g_Framework_Window.width;
+	float screenHeigth = (float)framework::g_Framework_Window.height;
 	float myWidth = _rectangle[2] / screenWidth;
 	float myHeight = _rectangle[3] / screenHeigth;
 

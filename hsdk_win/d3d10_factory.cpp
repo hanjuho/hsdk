@@ -1,6 +1,6 @@
-#include <hsdk/win/direct3d/d3d10_master.h>
-#include <hsdk/win/framework.h>
+#include <hsdk/win/direct3d/d3d10_factory.h>
 #include <hsdk/win/wictextureloader.h>
+#include <hsdk/win/framework.h>
 #include <hash_map>
 #include <list>
 #include <stack>
@@ -42,18 +42,18 @@ DECL_FUNC_T(unsigned int, build_MeshAnimationFromAiNode)(
 	_In_ unsigned int _parentID = 0);
 
 //--------------------------------------------------------------------------------------
-// D3D10_Master impl
+// D3D10_Factory impl
 //--------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(D3D10_Master, void, destroy)(
+CLASS_IMPL_FUNC_T(D3D10_Factory, void, destroy)(
 	_X_ void)
 {
 	g_D3D10Texture_Container.clear();
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_Master, get_Texture)(
+CLASS_IMPL_FUNC(D3D10_Factory, get_Texture)(
 	_Out_ ID3D10ShaderResourceView ** _texture,
 	_In_ const wchar_t * _directory,
 	_In_ const D3DX10_IMAGE_INFO ** _info)
@@ -106,7 +106,7 @@ CLASS_IMPL_FUNC(D3D10_Master, get_Texture)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_Master, create_SkyBoxTexture)(
+CLASS_IMPL_FUNC(D3D10_Factory, create_SkyBoxTexture)(
 	_Out_ ID3D10ShaderResourceView ** _texture,
 	_In_ unsigned int _width,
 	_In_ unsigned int _height,
@@ -176,7 +176,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_SkyBoxTexture)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(D3D10_Master, const D3DX10_IMAGE_INFO *, get_Texture_info)(
+CLASS_IMPL_FUNC_T(D3D10_Factory, const D3DX10_IMAGE_INFO *, get_Texture_info)(
 	_In_ const wchar_t * _directory)
 {
 	// 중복 검사
@@ -191,7 +191,7 @@ CLASS_IMPL_FUNC_T(D3D10_Master, const D3DX10_IMAGE_INFO *, get_Texture_info)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_Master, create_MeshSkyBox)(
+CLASS_IMPL_FUNC(D3D10_Factory, create_MeshSkyBox)(
 	_Out_ D3D10_Mesh & _mesh,
 	_In_ float _size)
 {
@@ -288,7 +288,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshSkyBox)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
+CLASS_IMPL_FUNC(D3D10_Factory, create_MeshFromFile)(
 	_Out_ D3D10_Mesh & _mesh,
 	_In_ const wchar_t * _filePath,
 	_In_ const wchar_t * _fileName,
@@ -408,7 +408,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 			if (AI_SUCCESS == matl.GetTexture(aiTextureType_DIFFUSE, 0, &aiPath))
 			{
 				mbstowcs_s<256>(nullptr, wtoa, aiPath.C_Str(), sizeof(wtoa));
-				_mesh.setup1_Texture(wtoa, index, 0);
+				_mesh.setup1_Texture(index, 0, wtoa);
 			}
 		}
 
@@ -419,7 +419,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 			if (AI_SUCCESS == matl.GetTexture(aiTextureType_NORMALS, 0, &aiPath))
 			{
 				mbstowcs_s<256>(nullptr, wtoa, aiPath.C_Str(), sizeof(wtoa));
-				_mesh.setup1_Texture(wtoa, index, 1);
+				_mesh.setup1_Texture(index, 1, wtoa);
 			}
 		}
 
@@ -430,7 +430,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 			if (AI_SUCCESS == matl.GetTexture(aiTextureType_SPECULAR, 0, &aiPath))
 			{
 				mbstowcs_s<256>(nullptr, wtoa, aiPath.C_Str(), sizeof(wtoa));
-				_mesh.setup1_Texture(wtoa, index, 2);
+				_mesh.setup1_Texture(index, 2, wtoa);
 			}
 		}
 
@@ -702,4 +702,4 @@ IMPL_FUNC_T(unsigned int, build_MeshAnimationFromAiNode)(
 //--------------------------------------------------------------------------------------
 
 // 설명 : 
-D3D10_Master hsdk::direct3d::g_D3D10_Master;
+D3D10_Factory hsdk::direct3d::g_D3D10_Factory;

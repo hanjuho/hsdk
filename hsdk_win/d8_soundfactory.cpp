@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Filename: soundclass.cpp
 ///////////////////////////////////////////////////////////////////////////////
-#include <hsdk/win/sound/d8_sound.h>
-#include <hsdk/autorelease.h>
+#include <hsdk/win/sound/d8_soundfactory.h>
+#include <hsdk/win/framework.h>
 #include <hsdk/autodelete.h>
 #include <string>
 #include <vector>
@@ -28,8 +28,8 @@ std::map<std::wstring, Direct8MY_SOUND> g_Direct8Sound_Container;
 //--------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(Direct8Sound, initialize)(
-	_In_ HWND _hwnd)
+CLASS_IMPL_FUNC(Direct8_SoundFactory, initialize)(
+	_X_ void)
 {
 	hsdk::AutoRelease<IDirectSound8> d8Sound;
 
@@ -41,7 +41,7 @@ CLASS_IMPL_FUNC(Direct8Sound, initialize)(
 	}
 
 	// Set the cooperative level to priority so the format of the primary sound buffer can be modified.
-	IF_FAILED(hr = d8Sound->SetCooperativeLevel(_hwnd, DSSCL_PRIORITY))
+	IF_FAILED(hr = d8Sound->SetCooperativeLevel(framework::g_Framework_Window.hwnd, DSSCL_PRIORITY))
 	{
 		return hr;
 	}
@@ -52,24 +52,24 @@ CLASS_IMPL_FUNC(Direct8Sound, initialize)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct8Sound, void, destroy)(
+CLASS_IMPL_FUNC_T(Direct8_SoundFactory, void, destroy)(
 	_In_ void)
 {
-
+	g_Direct8Sound_Container.clear();
+	g_Direct8Sound.~AutoRelease();
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(Direct8Sound, load_WaveFile)(
-	_Out_ IDirectSoundBuffer8** _d8Sound,
+CLASS_IMPL_FUNC(Direct8_SoundFactory, load_WaveFile)(
 	_In_ const wchar_t * _directory,
-	_Out_ IDirectSound3DBuffer8 ** _d8Sound3D)
+	_Out_ IDirectSoundBuffer8** _d8Sound)
 {
 	auto iter = g_Direct8Sound_Container.find(_directory);
 	HRESULT hr = E_FAIL;
 
 	if (iter != g_Direct8Sound_Container.end())
 	{
-
+		(*_d8Sound) = iter->second.d8Sound;
 
 		return S_OK;
 	}
@@ -233,9 +233,14 @@ CLASS_IMPL_FUNC(Direct8Sound, load_WaveFile)(
 		}
 
 		// Get the 3D interface to the secondary sound buffer.
-		IF_FAILED(hr = sound.d8Sound->QueryInterface(IID_IDirectSound3DBuffer8, (void**)&*sound.d8Sound3D))
+		IF_FAILED(hr = sound.d8Sound->QueryInterface(IID_IDirectSound3DBuffer8, (void**)&sound.d8Sound3D))
 		{
-			return false;
+			goto CREATE_FAIL;
+		}
+
+		if (_d8Sound)
+		{
+			(*_d8Sound) = sound.d8Sound;
 		}
 
 		return S_OK;
@@ -246,3 +251,45 @@ CREATE_FAIL:
 	g_Direct8Sound_Container.erase(_directory);
 	return hr;
 }
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC(Direct8_SoundFactory, create_SoundPlayer)(
+	_Out_ Direct8_SoundStreamPlayer & _player,
+	_In_ const wchar_t ** _directorys,
+	_In_ unsigned int _numOfDirectorys)
+{
+	_player.clear();
+
+	HRESULT hr;
+	IF_FAILED(hr = _player.setup0(_numOfDirectorys))
+	{
+		return hr;
+	}
+
+	for (unsigned int index = 0; index < _numOfDirectorys; ++index)
+	{
+		IDirectSoundBuffer8 * sound;
+		IF_FAILED(hr = load_WaveFile(
+			_directorys[index],
+			&sound))
+		{
+			return hr;
+		}
+
+		IF_FAILED(hr = _player.setup1_Sound(
+			index,
+			sound))
+		{
+			return hr;
+		}
+	}
+
+	return ADD_FLAG(hr, _player.userSet_PlayList(_numOfDirectorys, 0));
+}
+
+//--------------------------------------------------------------------------------------
+// Grobal thread safety
+//--------------------------------------------------------------------------------------
+
+// Ό³Έν : 
+hsdk::sound::Direct8_SoundFactory hsdk::sound::g_Direct8_SoundFactory;

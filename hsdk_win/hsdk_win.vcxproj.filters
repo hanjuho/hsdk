@@ -99,17 +99,11 @@
     <ClCompile Include="d3d10_meshrenderer.cpp">
       <Filter>소스 파일\direct3d</Filter>
     </ClCompile>
-    <ClCompile Include="d3d10_master.cpp">
-      <Filter>소스 파일\direct3d</Filter>
-    </ClCompile>
     <ClCompile Include="buttoncompo.cpp">
       <Filter>소스 파일\frame</Filter>
     </ClCompile>
     <ClCompile Include="d3d10_meshanimation.cpp">
       <Filter>소스 파일\direct3d</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundplayer.cpp">
-      <Filter>소스 파일\sound</Filter>
     </ClCompile>
     <ClCompile Include="wictextureloader.cpp">
       <Filter>소스 파일</Filter>
@@ -132,8 +126,17 @@
     <ClCompile Include="framework_wintimer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="d8_sound.cpp">
+    <ClCompile Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundmultiplayer.cpp">
       <Filter>소스 파일\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="d8_soundplayer.cpp">
+      <Filter>소스 파일\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="d8_soundfactory.cpp">
+      <Filter>소스 파일\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="d3d10_factory.cpp">
+      <Filter>소스 파일\direct3d</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -182,12 +185,6 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\buttoncompo.h">
       <Filter>헤더 파일\frame</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_sound.h">
-      <Filter>헤더 파일\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundplayer.h">
-      <Filter>헤더 파일\sound</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\common.h">
       <Filter>헤더 파일\sound</Filter>
     </ClInclude>
@@ -215,9 +212,6 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_common.h">
       <Filter>헤더 파일\direct3d</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_master.h">
-      <Filter>헤더 파일\direct3d</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_mesh.h">
       <Filter>헤더 파일\direct3d</Filter>
     </ClInclude>
@@ -232,6 +226,18 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework_wintimer.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundmultiplayer.h">
+      <Filter>헤더 파일\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundplayer.h">
+      <Filter>헤더 파일\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundfactory.h">
+      <Filter>헤더 파일\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_factory.h">
+      <Filter>헤더 파일\direct3d</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
