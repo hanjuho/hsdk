@@ -54,14 +54,14 @@ CLASS_IMPL_CONSTRUCTOR(Collider2DPolygon, Collider2DPolygon)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Collider2DPolygon, unsigned int, type)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return 1;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Collider2DPolygon, unsigned int, numOfVerties)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_Vertices.size();
 }
@@ -75,7 +75,7 @@ CLASS_IMPL_FUNC_T(Collider2DPolygon, Vector2D, vertex)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Collider2DPolygon, const Vector2D *, vertices)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return &my_Vertices[0];
 }
@@ -89,28 +89,28 @@ CLASS_IMPL_FUNC_T(Collider2DPolygon, Vector2D, normal)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Collider2DPolygon, const Vector2D *, normals)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return &my_Normals[0];
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Collider2DPolygon, float, density)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return m_Density;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Collider2DPolygon, float, area)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return m_Area;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Collider2DPolygon, float, radius)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return m_Radius;
 }

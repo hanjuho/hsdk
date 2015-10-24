@@ -77,35 +77,35 @@ CLASS_IMPL_FUNC_T(RigidBody2D, void, impulse)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(RigidBody2D, float, mass)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return m_mass;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(RigidBody2D, float, inertia)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return m_inertia;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(RigidBody2D, float, s_Friction)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return m_SFriction;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(RigidBody2D, float, d_Friction)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return m_DFriction;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(RigidBody2D, float, restitution)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return m_Restitution;
 }

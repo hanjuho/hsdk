@@ -2,19 +2,21 @@
 
 
 
+#include <hsdk/win/framework.h>
+#include <hsdk/win/framework_camera.h>
 #include <hsdk/win/frame/buttoncompo.h>
 #include <hsdk/win/frame/inputeventhelper.h>
-#include <hsdk/win/frame/direct3d/direct3d.h>
-#include <hsdk/win/frame/direct3d/d3d10_master.h>
-#include <hsdk/win/frame/direct3d/d3d10_mesh.h>
-#include <hsdk/win/frame/direct3d/d3d10_meshrenderer.h>
-#include <hsdk/win/frame/direct3d/direct3d_camera.h>
+#include <hsdk/win/direct3d/d3d10_factory.h>
+#include <hsdk/win/direct3d/d3d10_mesh.h>
+#include <hsdk/win/direct3d/d3d10_meshrenderer.h>
 
 
 
 using namespace hsdk;
-using namespace win::frame;
+using namespace framework;
 using namespace direct3d;
+using namespace frame;
+
 
 
 //--------------------------------------------------------------------------------------
@@ -26,7 +28,7 @@ ButtonCompo g_Button(100.0f, 100.0f, 300.0f, 300.0f);
 inputEventHelper g_Helper(&g_Button);
 
 // 설명 : 
-Direct3D_Camera g_Camera;
+Framework_Camera g_Camera;
 
 // 설명 : 
 D3D10_Mesh g_Mesh;
@@ -128,7 +130,7 @@ HRESULT CALLBACK OnD3D10CreateDevice(
 	const DXGI_SURFACE_DESC & pBackBufferSurfaceDesc,
 	void * pUserContext)
 {
-	g_Camera.set_Position(D3DXVECTOR3(0.0f, 10.0f, -10.0f));
+	g_Camera.set_Position(D3DXVECTOR3(0.0f, 0.0f, -10.0f));
 	g_Camera.compute_ViewMatrix(g_View);
 
 	// Initialize the projection matrix
@@ -153,17 +155,17 @@ void CALLBACK OnD3D10FrameRender(
 
 	// Clear the render target and depth stencil
 	float ClearColor[4] = { 0.2f, 0.2f, 0.2f, 1.0f };
-	ID3D10RenderTargetView * pRTV = g_Direct3D_Device.d3d10RTV;
+	ID3D10RenderTargetView * pRTV = g_Framework_Device.d3d10RTV;
 	pd3dDevice->ClearRenderTargetView(pRTV, ClearColor);
-	ID3D10DepthStencilView * pDSV = g_Direct3D_Device.d3d10DSV;
+	ID3D10DepthStencilView * pDSV = g_Framework_Device.d3d10DSV;
 	pd3dDevice->ClearDepthStencilView(pDSV, D3D10_CLEAR_DEPTH, 1.0, 0);
 
+	D3DXMATRIX m = g_View * g_Projection;
 	g_D3D10_MeshRenderer.render_SkyBox(
-		g_View, g_SkyBox);
+		m, g_SkyBox);
 
 	g_D3D10_MeshRenderer.render_Skinned(
-		g_View * g_Projection,
-		g_Mesh,
+		m, g_Mesh,
 		&g_boneMatrixBuffer[0],
 		g_boneMatrixBuffer.size());
 
@@ -192,33 +194,36 @@ int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 	g_Direct3D_Callbacks.d3d10FrameRenderFunc = OnD3D10FrameRender;
 
 	HRESULT hr = S_OK;
-	hr = ADD_FLAG(g_Direct3D.setup0_Window(L"Skinning10", 800, 800), hr);
-	hr = ADD_FLAG(g_Direct3D.setup1_DeviceFactory(new direct3d::Direct3D_DeviceFactory()), hr);
-	hr = ADD_FLAG(g_Direct3D.setup2_Device10(D3D10_DEVICE_DESC(true, 1600, 1500)), hr);
+	hr = ADD_FLAG(g_Direct3D.setup0_Window(L"Skinning10", 100, 100), hr);
+	hr = ADD_FLAG(g_Direct3D.setup1_DeviceFactory(new direct3d::Framework_DeviceFactory()), hr);
+	hr = ADD_FLAG(g_Direct3D.setup2_Device10(D3D10_DEVICE_DESC(true, 1280, 960)), hr);
 
 	IF_SUCCEEDED(hr | g_D3D10_MeshRenderer.initialize(L""))
 	{
-		const Direct3D_Window * windpw = &g_Direct3D_Window;
+		const Framework_Window * windpw = &g_Framework_Window;
 
+		// gui
 		g_Button.graphics()->set_Background({ 0.0f, 1.0f, 0.0f, 1.0f });
+		g_Button.graphics()->set_image(L"background/seafloor.dds");
 		g_Button.reform();
 		g_Button.set_Visible(true);
 
-		// g_SkyBox
-		g_D3D10_Master.create_MeshSkyBox(g_SkyBox, 1.0f);
-		g_D3D10_Master.create_MeshFromFile(g_Mesh, nullptr, L"data/DeathwingHuman.X", &g_MeshAnimation);
+		// g_Bone
+		g_D3D10_Factory.create_MeshFromFile(g_Mesh, nullptr, L"data/DeathwingHuman.X", &g_MeshAnimation);
 
 		g_boneMatrixBuffer.resize(g_MeshAnimation.get_NumOfBones());
 		g_MeshAnimation.transbone(&g_boneMatrixBuffer[0], g_boneMatrixBuffer.size(), g_D3D10_ViewMatrix);
 
-		ID3D10ShaderResourceView * texture;
-		g_D3D10_Master.create_SkyBoxTexture(&texture, 512, 512,
-			L"background/jajalien1_front.jpg",// front
-			L"background/jajalien1_back.jpg",// back
-			L"background/jajalien1_left.jpg",// left
-			L"background/jajalien1_right.jpg",// rignt
-			L"background/jajalien1_top.jpg",// top
-			//back
+		// g_SkyBox
+		g_D3D10_Factory.create_MeshSkyBox(g_SkyBox, 10.0f);
+
+		AutoRelease<ID3D10ShaderResourceView> texture;
+		g_D3D10_Factory.create_SkyBoxTexture(&texture, 512, 512,
+			L"background/blood_sport512_front.jpg",
+			L"background/blood_sport512_back.jpg",
+			L"background/blood_sport512_left.jpg",
+			L"background/blood_sport512_right.jpg",
+			L"background/blood_sport512_top.jpg",
 			L"");
 
 		g_SkyBox.setup1_Texture(0, 0, texture);
@@ -231,7 +236,7 @@ int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 	g_MeshAnimation.clear();
 	g_Mesh.clear();
 	g_D3D10_MeshRenderer.destroy();
-	g_D3D10_Master.destroy();
+	g_D3D10_Factory.destroy();
 	g_Direct3D.destroy();
 
 	return 0;

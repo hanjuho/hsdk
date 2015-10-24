@@ -55,14 +55,14 @@ CLASS_IMPL_FUNC_T(GameObject, i::i_ModelRenderer *, renderer)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(GameObject, void, update)(
-	/* [x] */ void)
+	_X_ void)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(GameObject, void, render)(
-	/* [x] */ void)
+	_X_ void)
 {
 	m_Renderer->render();
 }
@@ -94,7 +94,7 @@ CLASS_IMPL_FUNC_T(GameObject, void, listen_Action)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(GameObject, void, act_ActionLayers)(
-	/* [x] */ void)
+	_X_ void)
 {
 	std::list<i::i_ActionLayer *>::iterator begin = my_Effects.begin();
 	std::list<i::i_ActionLayer *>::iterator end = my_Effects.begin();

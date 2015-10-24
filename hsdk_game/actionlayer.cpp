@@ -22,7 +22,7 @@ CLASS_IMPL_DESTRUCTOR(ActionLayer, ActionLayer)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(ActionLayer, void, initialize)(
-	/* [x] */ void)
+	_X_ void)
 {
 
 }
@@ -36,7 +36,7 @@ CLASS_IMPL_FUNC_T(ActionLayer, bool, act)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(ActionLayer, unsigned int, priority)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return 0xffffffff;
 }

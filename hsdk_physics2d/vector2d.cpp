@@ -24,7 +24,7 @@ CLASS_IMPL_CONSTRUCTOR(Vector2D, Vector2D)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Vector2D, Vector2D, operator-)(
-	/* [x] */ void) const
+	_X_ void) const
 {
 	return Vector2D(-x, -y);
 }

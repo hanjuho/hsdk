@@ -18,14 +18,14 @@ CLASS_IMPL_CONSTRUCTOR(Collider2DCircle, Collider2DCircle)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Collider2DCircle, unsigned int, type)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return 0;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Collider2DCircle, unsigned int, numOfVerties)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return 0;
 }
@@ -39,7 +39,7 @@ CLASS_IMPL_FUNC_T(Collider2DCircle, Vector2D, vertex)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Collider2DCircle, const Vector2D *, vertices)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return nullptr;
 }
@@ -53,28 +53,28 @@ CLASS_IMPL_FUNC_T(Collider2DCircle, Vector2D, normal)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Collider2DCircle, const Vector2D *, normals)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return nullptr;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Collider2DCircle, float, density)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_Density;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Collider2DCircle, float, area)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_Radius * PI * 2;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Collider2DCircle, float, radius)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_Radius;
 }

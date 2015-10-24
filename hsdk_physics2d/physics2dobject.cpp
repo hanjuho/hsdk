@@ -24,14 +24,14 @@ CLASS_IMPL_CONSTRUCTOR(Physics2DObject, Physics2DObject)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Physics2DObject, i::i_RigidBody2D *, rigidBody)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_RigidBody;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Physics2DObject, i::i_Collider2D *, collider)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_Collider;
 }
@@ -62,7 +62,7 @@ CLASS_IMPL_FUNC_T(Physics2DObject, void, integrate_Forces)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Physics2DObject, void, initialize_Body)(
-	/* [x] */ void)
+	_X_ void)
 {
 	my_RigidBody->apply_Shape(my_Collider);
 }

@@ -48,21 +48,21 @@ CLASS_IMPL_FUNC(BuildingDataTable, write_Table)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(BuildingDataTable, const wchar_t *, name)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return m_Name.c_str();
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(BuildingDataTable, unsigned int, type)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return m_Type;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(BuildingDataTable, unsigned int, state)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return m_State;
 }

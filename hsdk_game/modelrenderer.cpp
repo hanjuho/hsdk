@@ -21,14 +21,14 @@ CLASS_IMPL_DESTRUCTOR(ModelRenderer, ModelRenderer)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(ModelRenderer, void, initialize)(
-	/* [x] */ void)
+	_X_ void)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(ModelRenderer, void, render)(
-	/* [x] */ void)
+	_X_ void)
 {
 
 }
