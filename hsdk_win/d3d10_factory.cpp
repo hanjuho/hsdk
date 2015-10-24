@@ -75,7 +75,7 @@ CLASS_IMPL_FUNC(D3D10_Factory, get_Texture)(
 	{
 		auto & element = g_D3D10Texture_Container[_directory];
 		ZeroMemory(&element.info, sizeof(D3DX10_IMAGE_INFO));
-		
+
 		// 데이터가 없는 경우
 		HRESULT hr;
 		IF_FAILED(hr = D3DX10CreateShaderResourceViewFromFile(
@@ -87,6 +87,11 @@ CLASS_IMPL_FUNC(D3D10_Factory, get_Texture)(
 			nullptr))
 		{
 			g_D3D10Texture_Container.erase(_directory);
+
+			if (hr != E_INVALIDARG)
+			{
+				return create_Texture(_texture, _directory);
+			}
 
 			return hr;
 		}
@@ -100,6 +105,72 @@ CLASS_IMPL_FUNC(D3D10_Factory, get_Texture)(
 		{
 			(*_info) = &element.info;
 		}
+	}
+
+	return S_OK;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(D3D10_Factory, const D3DX10_IMAGE_INFO *, get_Texture_info)(
+	_In_ const wchar_t * _directory)
+{
+	// 중복 검사
+	auto iter = g_D3D10Texture_Container.find(_directory);
+
+	if (iter == g_D3D10Texture_Container.end())
+	{
+		return nullptr;
+	}
+
+	return &iter->second.info;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC(D3D10_Factory, create_Texture)(
+	_Out_ ID3D10ShaderResourceView ** _texture,
+	_In_ const wchar_t * _directory)
+{
+	DirectX::Image image;
+
+	HRESULT hr;
+	IF_FAILED(hr = DirectX::LoadImageFromFile(
+		framework::g_Framework_Device.d3d10Device, _directory, &image))
+	{
+		return hr;
+	}
+
+	D3D10_TEXTURE2D_DESC desc;
+	desc.Width = image.getWidth();;
+	desc.Height = image.getHeight();
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.Format = image.getFormat();;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Usage = D3D10_USAGE_DEFAULT;
+	desc.BindFlags = D3D10_BIND_SHADER_RESOURCE;
+	desc.CPUAccessFlags = 0;
+	desc.MiscFlags = D3D10_RESOURCE_MISC_TEXTURECUBE;
+
+	D3D10_SUBRESOURCE_DATA data;
+	data.pSysMem = image.getData();
+	data.SysMemPitch = image.getRowPitch();
+	data.SysMemSlicePitch = image.getSize();
+
+	AutoRelease<ID3D10Texture2D> texture;
+	IF_SUCCEEDED(framework::g_Framework_Device.d3d10Device->CreateTexture2D(&desc, &data, &texture))
+	{
+		D3D10_SHADER_RESOURCE_VIEW_DESC srvDesc;
+		srvDesc.Format = desc.Format;
+		srvDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURECUBE;
+		srvDesc.TextureCube.MipLevels = desc.MipLevels;
+		srvDesc.TextureCube.MostDetailedMip = 0;
+
+		return framework::g_Framework_Device.d3d10Device->CreateShaderResourceView(texture, &srvDesc, _texture);
+	}
+	else
+	{
+		return E_FAIL;
 	}
 
 	return S_OK;
@@ -122,7 +193,7 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_SkyBoxTexture)(
 
 	std::vector<char> dataBuffers[6];
 	D3D10_SUBRESOURCE_DATA datas[6];
-	
+
 	const wchar_t * path[] = {
 		_right, _left, _top,
 		_bottom, _front, _back };
@@ -144,7 +215,7 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_SkyBoxTexture)(
 			memcpy(&vector[0], image.getData(), minSize);
 		}
 	}
-	
+
 	D3D10_TEXTURE2D_DESC desc;
 	desc.Width = _width;
 	desc.Height = _height;
@@ -173,21 +244,6 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_SkyBoxTexture)(
 	{
 		return E_FAIL;
 	}
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(D3D10_Factory, const D3DX10_IMAGE_INFO *, get_Texture_info)(
-	_In_ const wchar_t * _directory)
-{
-	// 중복 검사
-	auto iter = g_D3D10Texture_Container.find(_directory);
-
-	if (iter == g_D3D10Texture_Container.end())
-	{
-		return nullptr;
-	}
-
-	return &iter->second.info;
 }
 
 //--------------------------------------------------------------------------------------
@@ -301,16 +357,18 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_MeshFromFile)(
 	}
 
 	wchar_t wtoa[256];
+	ZeroMemory(wtoa, sizeof(wtoa));
+
 	char atow[256];
 
 	wcscat_s<256>(wtoa, _filePath);
 	const unsigned int nameOffset = wcslen(wtoa);
 	const unsigned int bufferSize = 256 - nameOffset;
-	wcscat_s(&wtoa[nameOffset], bufferSize, _filePath);
+	wcscat_s(&wtoa[nameOffset], bufferSize, _fileName);
 
 	_mesh.userSet_MeshPath(wtoa);
 
-	wcstombs_s<256>(nullptr, atow, _fileName, sizeof(atow));
+	wcstombs_s<256>(nullptr, atow, wtoa, sizeof(atow));
 	const aiScene * scene = g_importer.ReadFile(
 		atow,
 		aiProcessPreset_TargetRealtime_MaxQuality |
@@ -327,6 +385,8 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_MeshFromFile)(
 
 	if (_meshAnimation)
 	{
+		wchar_t buffer[256];
+
 		std::list<aiNode *> bones;
 		compute_CountOfBonesFromAiNode(scene->mRootNode, bones);
 
@@ -337,7 +397,7 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_MeshFromFile)(
 			build_MeshAnimationFromAiNode(
 				_meshAnimation,
 				bones,
-				wtoa,
+				buffer,
 				0);
 		}
 
@@ -345,9 +405,9 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_MeshFromFile)(
 		{
 			const aiAnimation & animation = *scene->mAnimations[aindex];
 
-			mbstowcs_s<256>(nullptr, wtoa, animation.mName.C_Str(), sizeof(wtoa));
+			mbstowcs_s<256>(nullptr, buffer, animation.mName.C_Str(), sizeof(buffer));
 			_meshAnimation->setup1_Animation(
-				aindex, wtoa,
+				aindex, buffer,
 				animation.mNumChannels,
 				animation.mTicksPerSecond,
 				animation.mDuration);
@@ -376,10 +436,10 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_MeshFromFile)(
 				unsigned int keySize = min(anim.mNumPositionKeys, anim.mNumRotationKeys);
 				keySize = min(keySize, anim.mNumScalingKeys);
 
-				mbstowcs_s<256>(nullptr, wtoa, anim.mNodeName.C_Str(), sizeof(wtoa));
+				mbstowcs_s<256>(nullptr, buffer, anim.mNodeName.C_Str(), sizeof(buffer));
 				_meshAnimation->setup2_AnimationBoneKeyFrame(
 					aindex, cindex,
-					_meshAnimation->find_BoneIDFromName(wtoa),
+					_meshAnimation->find_BoneIDFromName(buffer),
 					keySize,
 					(D3DXVECTOR3 *)anim.mPositionKeys,
 					(D3DXVECTOR3 *)anim.mRotationKeys,
@@ -407,7 +467,7 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_MeshFromFile)(
 			// 2개 이상의 디퓨즈 텍스처를 받아들일 수 없음
 			if (AI_SUCCESS == matl.GetTexture(aiTextureType_DIFFUSE, 0, &aiPath))
 			{
-				mbstowcs_s<256>(nullptr, wtoa, aiPath.C_Str(), sizeof(wtoa));
+				mbstowcs_s(nullptr, &wtoa[nameOffset], bufferSize, aiPath.C_Str(), bufferSize);
 				_mesh.setup1_Texture(index, 0, wtoa);
 			}
 		}
@@ -418,7 +478,7 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_MeshFromFile)(
 			// 2개 이상의 노말 텍스처를 받아들일 수 없음
 			if (AI_SUCCESS == matl.GetTexture(aiTextureType_NORMALS, 0, &aiPath))
 			{
-				mbstowcs_s<256>(nullptr, wtoa, aiPath.C_Str(), sizeof(wtoa));
+				mbstowcs_s(nullptr, &wtoa[nameOffset], bufferSize, aiPath.C_Str(), bufferSize);
 				_mesh.setup1_Texture(index, 1, wtoa);
 			}
 		}
@@ -429,7 +489,7 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_MeshFromFile)(
 			// 2개 이상의 스펙큘러 텍스처를 받아들일 수 없음
 			if (AI_SUCCESS == matl.GetTexture(aiTextureType_SPECULAR, 0, &aiPath))
 			{
-				mbstowcs_s<256>(nullptr, wtoa, aiPath.C_Str(), sizeof(wtoa));
+				mbstowcs_s(nullptr, &wtoa[nameOffset], bufferSize, aiPath.C_Str(), bufferSize);
 				_mesh.setup1_Texture(index, 2, wtoa);
 			}
 		}

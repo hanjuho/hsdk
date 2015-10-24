@@ -90,12 +90,12 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundmultiplayer.cpp" />
     <ClCompile Include="buttoncompo.cpp" />
     <ClCompile Include="component.cpp" />
     <ClCompile Include="container.cpp" />
     <ClCompile Include="d3d10_meshanimation.cpp" />
     <ClCompile Include="d8_soundfactory.cpp" />
+    <ClCompile Include="d8_soundmultiplayer.cpp" />
     <ClCompile Include="framework.cpp" />
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="inputeventhelper.cpp" />

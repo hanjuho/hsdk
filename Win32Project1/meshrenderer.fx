@@ -151,7 +151,7 @@ PS_SKYBOX_INPUT VSSkyBox(float4 Pos : POSITION)
 	PS_SKYBOX_INPUT output;
 
 	output.Pos = mul(Pos, g_WorldViewProj_Matrix);
-	output.Pos.z = output.Pos.w;
+	//output.Pos.z = output.Pos.w;
 
 	output.Tex = Pos.xyz;
 
@@ -177,7 +177,7 @@ PS_BASIC_INPUT VSGUI(VS_BASIC_INPUT input)
 //-----------------------------------------------------------------------------------------
 float4 PSSkinnedBasic(PS_BASIC_INPUT input) : COLOR0
 {
-	return float4(1.0f, 1.0f, 0.0f, 1.0f);
+	return tex2D(DiffuseSampler, input.Tex);
 }
 
 //-----------------------------------------------------------------------------------------

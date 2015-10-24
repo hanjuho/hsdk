@@ -1439,7 +1439,7 @@ LRESULT CALLBACK direct3D_WndProc(
 		// Handle paint messages when the app is paused
 		if (g_TimeStream.is_Rendering_Paused())
 		{
-			g_Direct3D.render();
+			g_Framework.render();
 		}
 		break;
 
@@ -1466,7 +1466,7 @@ LRESULT CALLBACK direct3D_WndProc(
 				{
 					if (g_State.autoChangeAdapter)
 					{
-						g_Direct3D.transform(
+						g_Framework.transform(
 							g_Window.windowed,
 							width,
 							height);
@@ -1476,7 +1476,7 @@ LRESULT CALLBACK direct3D_WndProc(
 				{
 					if (g_Window.windowed)
 					{
-						g_Direct3D.transform(
+						g_Framework.transform(
 							g_Window.windowed,
 							width,
 							height);
@@ -1580,7 +1580,7 @@ LRESULT CALLBACK direct3D_WndProc(
 		break;
 
 	case WM_SYSKEYDOWN:
-		g_Direct3D.destroy();
+		g_Framework.destroy();
 		break;
 
 	case WM_KEYDOWN:
@@ -1596,7 +1596,7 @@ LRESULT CALLBACK direct3D_WndProc(
 			}
 			else
 			{
-				g_Direct3D.transform(true);
+				g_Framework.transform(true);
 			}
 		}
 		else if (_wParam == VK_F5)
@@ -1605,7 +1605,7 @@ LRESULT CALLBACK direct3D_WndProc(
 			{
 				if (MessageBox(_hWnd, L"전체화면으로 하시겠습니까? ", L"주의!!", MB_YESNO) == IDYES)
 				{
-					g_Direct3D.transform(false);
+					g_Framework.transform(false);
 				}
 			}
 		}
@@ -1697,13 +1697,13 @@ LRESULT CALLBACK direct3D_LowLevelKeyboardProc(
 //--------------------------------------------------------------------------------------
 
 // 설명 : 
-Framework hsdk::framework::g_Direct3D;
+Framework hsdk::framework::g_Framework;
 
 // 설명 : 
 Framework_UserTimeStream & hsdk::framework::g_Direct3D_TimeStream = g_TimeStream;
 
 // 설명 : you can read / write
-Framework_Callbacks & hsdk::framework::g_Direct3D_Callbacks = g_Callbacks;
+Framework_Callbacks & hsdk::framework::g_Framework_Callbacks = g_Callbacks;
 
 // 설명 : just only read / do not write force
 const Framework_State & hsdk::framework::g_Direct3D_State = g_State;

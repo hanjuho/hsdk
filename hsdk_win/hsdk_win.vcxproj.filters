@@ -126,9 +126,6 @@
     <ClCompile Include="framework_wintimer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundmultiplayer.cpp">
-      <Filter>소스 파일\sound</Filter>
-    </ClCompile>
     <ClCompile Include="d8_soundplayer.cpp">
       <Filter>소스 파일\sound</Filter>
     </ClCompile>
@@ -137,6 +134,9 @@
     </ClCompile>
     <ClCompile Include="d3d10_factory.cpp">
       <Filter>소스 파일\direct3d</Filter>
+    </ClCompile>
+    <ClCompile Include="d8_soundmultiplayer.cpp">
+      <Filter>소스 파일\sound</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

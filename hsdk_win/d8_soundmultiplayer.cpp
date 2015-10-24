@@ -122,6 +122,25 @@ CLASS_IMPL_FUNC(Direct8_SoundStreamPlayer, userSet_Volume)(
 }
 
 //--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC(Direct8_SoundStreamPlayer, userSet_Distance)(
+	_In_ unsigned int _indexOfSound,
+	_In_ float _minDistance,
+	_In_ float _maxDistance)
+{
+	IF_FALSE(_indexOfSound < my_SoundStream.size())
+	{
+		return E_INVALIDARG;
+	}
+
+	IDirectSound3DBuffer8 * pointer = my_SoundStream[_indexOfSound].sound3DOption;
+	pointer->SetMinDistance(_minDistance, DS3D_DEFERRED);
+	pointer->SetMaxDistance(_maxDistance, DS3D_DEFERRED);
+
+	return S_OK;
+}
+
+
+//--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Direct8_SoundStreamPlayer, userSet_Translation)(
 	_In_ unsigned int _indexOfSound,
 	_In_ const D3DXVECTOR3 & _position,
