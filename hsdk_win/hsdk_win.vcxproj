@@ -90,14 +90,15 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundplayer.cpp" />
     <ClCompile Include="buttoncompo.cpp" />
     <ClCompile Include="component.cpp" />
     <ClCompile Include="container.cpp" />
     <ClCompile Include="d3d10_meshanimation.cpp" />
-    <ClCompile Include="direct3d.cpp" />
+    <ClCompile Include="framework.cpp" />
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="inputeventhelper.cpp" />
-    <ClCompile Include="soundclass.cpp" />
+    <ClCompile Include="d8_sound.cpp" />
     <ClCompile Include="thread.cpp" />
     <ClCompile Include="semaphore.cpp" />
     <ClCompile Include="autoresetevent.cpp" />
@@ -106,34 +107,34 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClCompile Include="tcpproxy.cpp" />
     <ClCompile Include="tcpserver.cpp" />
     <ClCompile Include="tcpclient.cpp" />
-    <ClCompile Include="direct3d_outside.cpp" />
-    <ClCompile Include="WICTextureLoader.cpp" />
-    <ClCompile Include="wintimer.cpp" />
+    <ClCompile Include="framework_outside.cpp" />
+    <ClCompile Include="wictextureloader.cpp" />
+    <ClCompile Include="framework_wintimer.cpp" />
     <ClCompile Include="d3d10_master.cpp" />
     <ClCompile Include="d3d10_mesh.cpp" />
     <ClCompile Include="d3d10_meshrenderer.cpp" />
-    <ClCompile Include="direct3d_camera.cpp" />
-    <ClCompile Include="usertimestream.cpp" />
-    <ClCompile Include="direct3d_device.cpp" />
+    <ClCompile Include="framework_camera.cpp" />
+    <ClCompile Include="framework_usertimestream.cpp" />
+    <ClCompile Include="framework_device.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\common.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\comptr.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\semaphore.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\autoresetevent.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\manualevent.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\mutex.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_common.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_master.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_mesh.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_meshanimation.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_meshrenderer.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework_camera.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework_device.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework_outside.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\component.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\container.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\common.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\direct3d.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\direct3d_outside.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_master.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_mesh.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_common.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_meshanimation.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_meshrenderer.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\direct3d_camera.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\direct3d_device.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\graphics.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\inputeventhelper.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\buttoncompo.h" />
@@ -141,17 +142,17 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpserver.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpclient.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\common.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\soundclass.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_sound.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundplayer.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\common.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\thread\thread.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\thread\task.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\WICTextureLoader.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\wintimer.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\usertimestream.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\wictextureloader.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework_wintimer.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework_usertimestream.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\common.inl" />
-  </ItemGroup>
-  <ItemGroup>
+    <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\common.inl" />
     <None Include="..\Win32Project1\meshrenderer.fx">
       <FileType>Document</FileType>
     </None>

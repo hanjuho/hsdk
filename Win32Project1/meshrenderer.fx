@@ -84,7 +84,6 @@ sampler2D DiffuseSampler = sampler_state
 	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = WRAP;
 	AddressV = WRAP;
-	AddressW = WRAP;
 };
 
 //-----------------------------------------------------------------------------------------
@@ -94,9 +93,8 @@ samplerCUBE SkyBoxSampler = sampler_state
 {
 	Texture = g_SkyBox_Texture;
 	Filter = MIN_MAG_MIP_LINEAR;
-	AddressU = MIRROR;
-	AddressV = MIRROR;
-	AddressW = MIRROR;
+	AddressU = WRAP;
+	AddressV = WRAP;
 };
 
 //-----------------------------------------------------------------------------------------
@@ -153,7 +151,7 @@ PS_SKYBOX_INPUT VSSkyBox(float4 Pos : POSITION)
 	PS_SKYBOX_INPUT output;
 
 	output.Pos = mul(Pos, g_WorldViewProj_Matrix);
-	output.Pos.z = Pos.w;
+	output.Pos.z = output.Pos.w;
 
 	output.Tex = Pos.xyz;
 
@@ -197,7 +195,7 @@ float4 PSGUI(PS_BASIC_INPUT input) : COLOR0
 {
 	float4 diffuse = tex2D(DiffuseSampler, input.Tex);
 
-	float a = (atan2(0.5f - input.Tex.x, input.Tex.y - 0.5f) * 0.159154f) + 0.5f;
+	float a = (atan2(0.5f + input.Tex.x, input.Tex.y - 0.5f) * 0.159154f) + 0.5f;
 	if (a < g_fTime)
 	{
 		return diffuse;
@@ -326,7 +324,7 @@ technique10 GUI0
 
 		SetDepthStencilState(DisableDepth, 0);
 		SetBlendState(UIBlend, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-		//SetRasterizerState(CullFront);
+		SetRasterizerState(CullNone);
 	}
 }
 
@@ -341,6 +339,6 @@ technique10 GUIColor0
 
 		SetDepthStencilState(DisableDepth, 0);
 		SetBlendState(UIBlend, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-		//SetRasterizerState(CullFront);
+		SetRasterizerState(CullNone);
 	}
 }

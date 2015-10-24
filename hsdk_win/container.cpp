@@ -133,14 +133,14 @@ CLASS_IMPL_FUNC_T(Container, bool, event_chain)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Container, void, update)(
-	/* [x] */ void)
+	_X_ void)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Container, void, reform)(
-	/* [x] */ void)
+	_X_ void)
 {
 	Component::reform();
 	auto iter = m_Container.begin();
@@ -154,7 +154,7 @@ CLASS_IMPL_FUNC_T(Container, void, reform)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Container, void, render)(
-	/* [x] */ void)
+	_X_ void)
 {
 	if (is_Visible())
 	{
@@ -172,7 +172,7 @@ CLASS_IMPL_FUNC_T(Container, void, render)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Container, void, clear)(
-	/* [x] */ void)
+	_X_ void)
 {
 	m_Container.clear();
 }

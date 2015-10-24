@@ -1,16 +1,16 @@
-#include <hsdk/win/frame/direct3d/direct3d_device.h>
+#include <hsdk/win/framework_device.h>
 #include <vector>
 
 
 
-using namespace hsdk::direct3d;
+using namespace hsdk::framework;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(Direct3D_DeviceFactory, create9)(
-	_Out_ Direct3D_Device & _device,
+CLASS_IMPL_FUNC(Framework_DeviceFactory, create9)(
+	_Out_ Framework_Device & _device,
 	_In_ const D3D9_DEVICE_DESC & _desc,
-	/* [in] */ const Direct3D_Callbacks * _callback)
+	/* [in] */ const Framework_Callbacks * _callback)
 {
 	// Try to create the device with the chosen settings
 	IDirect3D9 * d3d9 = nullptr;
@@ -101,10 +101,10 @@ CLASS_IMPL_FUNC(Direct3D_DeviceFactory, create9)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(Direct3D_DeviceFactory, reset9)(
-	_Out_ Direct3D_Device & _device,
+CLASS_IMPL_FUNC(Framework_DeviceFactory, reset9)(
+	_Out_ Framework_Device & _device,
 	_In_ const D3D9_DEVICE_DESC & _desc,
-	/* [in] */ const Direct3D_Callbacks * _callback)
+	/* [in] */ const Framework_Callbacks * _callback)
 {
 	HRESULT hr;
 
@@ -152,10 +152,10 @@ CLASS_IMPL_FUNC(Direct3D_DeviceFactory, reset9)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(Direct3D_DeviceFactory, restore9)(
-	_Out_ Direct3D_Device & _device,
+CLASS_IMPL_FUNC(Framework_DeviceFactory, restore9)(
+	_Out_ Framework_Device & _device,
 	_In_ const D3D9_DEVICE_DESC & _desc,
-	/* [in] */ const Direct3D_Callbacks * _callback)
+	/* [in] */ const Framework_Callbacks * _callback)
 {
 	HRESULT hr;
 	if (SUCCEEDED(hr = _device.d3d9Device->Present(nullptr, nullptr, nullptr, nullptr)))
@@ -240,10 +240,10 @@ CLASS_IMPL_FUNC(Direct3D_DeviceFactory, restore9)(
 //--------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(Direct3D_DeviceFactory, create10)(
-	_Out_ Direct3D_Device & _device,
+CLASS_IMPL_FUNC(Framework_DeviceFactory, create10)(
+	_Out_ Framework_Device & _device,
 	_In_ const D3D10_DEVICE_DESC & _desc,
-	/* [in] */ const Direct3D_Callbacks * _callback)
+	/* [in] */ const Framework_Callbacks * _callback)
 {
 	IDXGIFactory * dxgiFactory = nullptr;
 	IF_FAILED(CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&dxgiFactory))
@@ -433,10 +433,10 @@ CLASS_IMPL_FUNC(Direct3D_DeviceFactory, create10)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(Direct3D_DeviceFactory, resize10)(
-	_Out_ Direct3D_Device & _device,
+CLASS_IMPL_FUNC(Framework_DeviceFactory, resize10)(
+	_Out_ Framework_Device & _device,
 	_In_ const D3D10_DEVICE_DESC & _desc,
-	/* [in] */ const Direct3D_Callbacks * _callback)
+	/* [in] */ const Framework_Callbacks * _callback)
 {
 	// SetFullscreenState causes a WM_SIZE message to be sent to the window.  The WM_SIZE message calls
 	// DXUTCheckForDXGIBufferChange which normally stores the new height and width in 
@@ -515,10 +515,10 @@ CLASS_IMPL_FUNC(Direct3D_DeviceFactory, resize10)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(Direct3D_DeviceFactory, reset10)(
-	_Out_ Direct3D_Device & _device,
+CLASS_IMPL_FUNC(Framework_DeviceFactory, reset10)(
+	_Out_ Framework_Device & _device,
 	_In_ const D3D10_DEVICE_DESC & _desc,
-	/* [in] */ const Direct3D_Callbacks * _callback,
+	/* [in] */ const Framework_Callbacks * _callback,
 	/* [in] */ BOOL _resetAll)
 {
 	DXGI_SWAP_CHAIN_DESC SCDesc;
@@ -589,8 +589,8 @@ CLASS_IMPL_FUNC(Direct3D_DeviceFactory, reset10)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(Direct3D_DeviceFactory, setup_RenderTarget)(
-	_Out_ Direct3D_Device & _device,
+CLASS_IMPL_FUNC(Framework_DeviceFactory, setup_RenderTarget)(
+	_Out_ Framework_Device & _device,
 	_In_ const D3D10_DEVICE_DESC & _desc)
 {
 	HRESULT hr;

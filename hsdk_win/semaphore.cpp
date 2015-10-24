@@ -2,9 +2,7 @@
 
 
 
-using namespace hsdk;
-using namespace win;
-using namespace criticalsection;
+using namespace hsdk::criticalsection;
 
 
 //--------------------------------------------------------------------------------------
@@ -51,7 +49,7 @@ CLASS_IMPL_FUNC(Semaphore, enter)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Semaphore, leave)(
-	/* [x] */ void)
+	_X_ void)
 {
 	IF_FALSE(ReleaseMutex(my_Semaphore))
 	{
@@ -63,7 +61,7 @@ CLASS_IMPL_FUNC(Semaphore, leave)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Semaphore, reset)(
-	/* [x] */ void)
+	_X_ void)
 {
 	try
 	{

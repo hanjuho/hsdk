@@ -1,12 +1,12 @@
-#include <hsdk/win/wintimer.h>
+#include <hsdk/win/framework_wintimer.h>
 
 
 
-using namespace hsdk::win;
+using namespace hsdk::framework;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_CONSTRUCTOR(WINTimer, WINTimer)(void)
+CLASS_IMPL_CONSTRUCTOR(Framework_UserTimer, Framework_UserTimer)(void)
 {	
 	// Use QueryPerformanceFrequency to get the frequency of the counter
 	LARGE_INTEGER qwTicksPerSec = { 0 };
@@ -15,8 +15,8 @@ CLASS_IMPL_CONSTRUCTOR(WINTimer, WINTimer)(void)
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(WINTimer, void, reset)(
-	/* [x] */ void)
+CLASS_IMPL_FUNC_T(Framework_UserTimer, void, reset)(
+	_X_ void)
 {
 	LARGE_INTEGER qwTime = get_AdjustedCurrentTime();
 
@@ -27,8 +27,8 @@ CLASS_IMPL_FUNC_T(WINTimer, void, reset)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(WINTimer, void, start)(
-	/* [x] */ void)
+CLASS_IMPL_FUNC_T(Framework_UserTimer, void, start)(
+	_X_ void)
 {
 	// Get the current time
 	LARGE_INTEGER qwTime = { 0 };
@@ -45,8 +45,8 @@ CLASS_IMPL_FUNC_T(WINTimer, void, start)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(WINTimer, void, stop)(
-	/* [x] */ void)
+CLASS_IMPL_FUNC_T(Framework_UserTimer, void, stop)(
+	_X_ void)
 {
 	IF_FALSE(m_bTimerStopped)
 	{
@@ -59,15 +59,15 @@ CLASS_IMPL_FUNC_T(WINTimer, void, stop)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(WINTimer, void, advance)(
-	/* [x] */ void)
+CLASS_IMPL_FUNC_T(Framework_UserTimer, void, advance)(
+	_X_ void)
 {
 	m_llStopTime += m_llQPFTicksPerSec / 10;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(WINTimer, double, get_AbsoluteTime)(
-	/* [x] */ void)
+CLASS_IMPL_FUNC_T(Framework_UserTimer, double, get_AbsoluteTime)(
+	_X_ void)
 {
 	LARGE_INTEGER qwTime = { 0 };
 	QueryPerformanceCounter(&qwTime);
@@ -76,8 +76,8 @@ CLASS_IMPL_FUNC_T(WINTimer, double, get_AbsoluteTime)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(WINTimer, double, get_Time)(
-	/* [x] */ void)
+CLASS_IMPL_FUNC_T(Framework_UserTimer, double, get_Time)(
+	_X_ void)
 {
 	LARGE_INTEGER qwTime = get_AdjustedCurrentTime();
 
@@ -85,8 +85,8 @@ CLASS_IMPL_FUNC_T(WINTimer, double, get_Time)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(WINTimer, float, get_ElapsedTime)(
-	/* [x] */ void)
+CLASS_IMPL_FUNC_T(Framework_UserTimer, float, get_ElapsedTime)(
+	_X_ void)
 {
 	LARGE_INTEGER qwTime = get_AdjustedCurrentTime();
 
@@ -103,7 +103,7 @@ CLASS_IMPL_FUNC_T(WINTimer, float, get_ElapsedTime)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(WINTimer, void, get_TimeValues)(
+CLASS_IMPL_FUNC_T(Framework_UserTimer, void, get_TimeValues)(
 	_Out_ double * _fTime,
 	_Out_ double * _fAbsoluteTime,
 	_Out_ float * _fElapsedTime)
@@ -131,15 +131,15 @@ CLASS_IMPL_FUNC_T(WINTimer, void, get_TimeValues)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(WINTimer, BOOL, is_Stopped)(
-	/* [x] */ void)
+CLASS_IMPL_FUNC_T(Framework_UserTimer, BOOL, is_Stopped)(
+	_X_ void)
 {
 	return m_bTimerStopped;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(WINTimer, void, limit_ThreadAffinityToCurrentProc)(
-	/* [x] */ void)
+CLASS_IMPL_FUNC_T(Framework_UserTimer, void, limit_ThreadAffinityToCurrentProc)(
+	_X_ void)
 {
 	HANDLE hCurrentProcess = GetCurrentProcess();
 
@@ -166,8 +166,8 @@ CLASS_IMPL_FUNC_T(WINTimer, void, limit_ThreadAffinityToCurrentProc)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(WINTimer, LARGE_INTEGER, get_AdjustedCurrentTime)(
-	/* [x] */ void)
+CLASS_IMPL_FUNC_T(Framework_UserTimer, LARGE_INTEGER, get_AdjustedCurrentTime)(
+	_X_ void)
 {
 	LARGE_INTEGER qwTime;
 

@@ -43,17 +43,17 @@
     <Filter Include="소스 파일\net">
       <UniqueIdentifier>{e17a9fa4-811e-4c2e-aded-a7e1c6e4438a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\frame\d3d11">
-      <UniqueIdentifier>{d5d41e5f-6c7c-462a-8a29-358c8d08ff70}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="헤더 파일\frame\direct3d">
-      <UniqueIdentifier>{fb0025f1-3c51-4636-b773-780a4747d314}</UniqueIdentifier>
-    </Filter>
     <Filter Include="헤더 파일\sound">
       <UniqueIdentifier>{41916e44-d8eb-47c4-88b8-e760c061b659}</UniqueIdentifier>
     </Filter>
     <Filter Include="소스 파일\sound">
       <UniqueIdentifier>{d056a800-56e9-426b-8cf9-957172f7cf2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\direct3d">
+      <UniqueIdentifier>{fb0025f1-3c51-4636-b773-780a4747d314}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\direct3d">
+      <UniqueIdentifier>{d5d41e5f-6c7c-462a-8a29-358c8d08ff70}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -93,43 +93,46 @@
     <ClCompile Include="graphics.cpp">
       <Filter>소스 파일\frame</Filter>
     </ClCompile>
-    <ClCompile Include="direct3d_outside.cpp">
-      <Filter>소스 파일\frame\d3d11</Filter>
-    </ClCompile>
-    <ClCompile Include="wintimer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="direct3d.cpp">
-      <Filter>소스 파일\frame\d3d11</Filter>
-    </ClCompile>
     <ClCompile Include="d3d10_mesh.cpp">
-      <Filter>소스 파일\frame\d3d11</Filter>
+      <Filter>소스 파일\direct3d</Filter>
     </ClCompile>
     <ClCompile Include="d3d10_meshrenderer.cpp">
-      <Filter>소스 파일\frame\d3d11</Filter>
+      <Filter>소스 파일\direct3d</Filter>
     </ClCompile>
     <ClCompile Include="d3d10_master.cpp">
-      <Filter>소스 파일\frame\d3d11</Filter>
-    </ClCompile>
-    <ClCompile Include="direct3d_camera.cpp">
-      <Filter>소스 파일\frame\d3d11</Filter>
-    </ClCompile>
-    <ClCompile Include="usertimestream.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="direct3d_device.cpp">
-      <Filter>소스 파일\frame\d3d11</Filter>
+      <Filter>소스 파일\direct3d</Filter>
     </ClCompile>
     <ClCompile Include="buttoncompo.cpp">
       <Filter>소스 파일\frame</Filter>
     </ClCompile>
-    <ClCompile Include="soundclass.cpp">
+    <ClCompile Include="d3d10_meshanimation.cpp">
+      <Filter>소스 파일\direct3d</Filter>
+    </ClCompile>
+    <ClCompile Include="d8_sound.cpp">
       <Filter>소스 파일\sound</Filter>
     </ClCompile>
-    <ClCompile Include="d3d10_meshanimation.cpp">
-      <Filter>소스 파일\frame\d3d11</Filter>
+    <ClCompile Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundplayer.cpp">
+      <Filter>소스 파일\sound</Filter>
     </ClCompile>
-    <ClCompile Include="WICTextureLoader.cpp">
+    <ClCompile Include="wictextureloader.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="framework.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="framework_camera.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="framework_device.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="framework_outside.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="framework_usertimestream.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="framework_wintimer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -176,64 +179,70 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\graphics.h">
       <Filter>헤더 파일\frame</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\common.h">
-      <Filter>헤더 파일\frame\direct3d</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\direct3d.h">
-      <Filter>헤더 파일\frame\direct3d</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\wintimer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_mesh.h">
-      <Filter>헤더 파일\frame\direct3d</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_common.h">
-      <Filter>헤더 파일\frame\direct3d</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\direct3d_outside.h">
-      <Filter>헤더 파일\frame\direct3d</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_meshrenderer.h">
-      <Filter>헤더 파일\frame\direct3d</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_master.h">
-      <Filter>헤더 파일\frame\direct3d</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\direct3d_camera.h">
-      <Filter>헤더 파일\frame\direct3d</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\usertimestream.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\direct3d_device.h">
-      <Filter>헤더 파일\frame\direct3d</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\buttoncompo.h">
       <Filter>헤더 파일\frame</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\soundclass.h">
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_sound.h">
       <Filter>헤더 파일\sound</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\d3d10_meshanimation.h">
-      <Filter>헤더 파일\frame\direct3d</Filter>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundplayer.h">
+      <Filter>헤더 파일\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\common.h">
+      <Filter>헤더 파일\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\wictextureloader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\common.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\comptr.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\WICTextureLoader.h">
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework_outside.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework_device.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework_camera.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_common.h">
+      <Filter>헤더 파일\direct3d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_master.h">
+      <Filter>헤더 파일\direct3d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_mesh.h">
+      <Filter>헤더 파일\direct3d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_meshanimation.h">
+      <Filter>헤더 파일\direct3d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_meshrenderer.h">
+      <Filter>헤더 파일\direct3d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework_usertimestream.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework_wintimer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\direct3d\common.inl">
-      <Filter>헤더 파일\frame\direct3d</Filter>
-    </None>
     <None Include="..\Win32Project1\meshrenderer.fx">
       <Filter>리소스 파일</Filter>
     </None>
     <None Include="..\Win32Project1\main.fx">
       <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\common.inl">
+      <Filter>헤더 파일</Filter>
     </None>
   </ItemGroup>
 </Project>

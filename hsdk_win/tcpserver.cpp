@@ -3,9 +3,7 @@
 
 
 
-using namespace hsdk;
-using namespace win;
-using namespace network;
+using namespace hsdk::network;
 
 
 //--------------------------------------------------------------------------------------
@@ -130,7 +128,7 @@ CLASS_IMPL_FUNC(TCPServer, close)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(TCPServer, accept)(
-	_Out_ i::network::i_Proxy * (&_proxy),
+	_Out_ hsdk::i::network::i_Proxy * (&_proxy),
 	_In_ unsigned int _time)
 {
 	HRESULT hr;
@@ -174,7 +172,7 @@ CLASS_IMPL_FUNC(TCPServer, accept)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(TCPServer, reset)(
-	/* [x] */ void)
+	_X_ void)
 {
 	return close() | open(m_Port);
 }
@@ -227,7 +225,7 @@ CLASS_IMPL_FUNC(TCPServer, accept)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(TCPServer, SOCKET, get_Socket)(
-	/* [x] */ void)
+	_X_ void)
 {
 	return m_Socket;
 }

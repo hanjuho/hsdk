@@ -1,8 +1,8 @@
-#include <hsdk/win/frame/direct3d/direct3d_camera.h>
+#include <hsdk/win/framework_camera.h>
 
 
 
-using namespace hsdk::direct3d;
+using namespace hsdk::framework;
 
 
 //--------------------------------------------------------------------------------------
@@ -113,35 +113,35 @@ CLASS_IMPL_FUNC_T(Direct3D_Camera, void, rotate_ZAxis)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D_Camera, const float *, get_XDir)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_vXDir;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D_Camera, const float *, get_YDir)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_vYDir;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D_Camera, const float *, get_ZDir)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_vZDir;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D_Camera, const float *, get_Position)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_vPos;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Direct3D_Camera, void, compute_ViewMatrix)(
-	/* [x] */ float * _mView)const
+	_X_ float * _mView)const
 {
 	float x = -D3DXVec3Dot(&my_vXDir, &my_vPos);
 	float y = -D3DXVec3Dot(&my_vYDir, &my_vPos);

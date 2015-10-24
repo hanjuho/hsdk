@@ -1,9 +1,9 @@
-#include <hsdk/win/frame/direct3d/direct3d_outside.h>
+#include <hsdk/win/framework_outside.h>
 
 
 
 using namespace hsdk;
-using namespace direct3d;
+using namespace framework;
 
 
 //--------------------------------------------------------------------------------------
@@ -20,7 +20,7 @@ BOOL g_enumerateAllAdapterFormats;
 BOOL g_is_in_GammaCorrectMode;
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(Direct3D_Outside, initialize)(
+CLASS_IMPL_FUNC(Framework_Outside, initialize)(
 	_In_ IDXGIFactory * _factory,
 	_In_ BOOL _enumerateAllAdapterFormats,
 	_In_ BOOL _is_in_GammaCorrectMode)
@@ -106,7 +106,7 @@ CLASS_IMPL_FUNC(Direct3D_Outside, initialize)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(Direct3D_Outside, initialize_Outputs)(
+CLASS_IMPL_FUNC(Framework_Outside, initialize_Outputs)(
 	_Out_ VideoCard_Output_info & _output_info,
 	_In_ unsigned int _index,
 	_In_ IDXGIAdapter * _adapter)
@@ -140,7 +140,7 @@ CLASS_IMPL_FUNC(Direct3D_Outside, initialize_Outputs)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(Direct3D_Outside, initialize_DisplayModes)(
+CLASS_IMPL_FUNC(Framework_Outside, initialize_DisplayModes)(
 	_Out_ VideoCard_Output_info & _output_info)
 {
 	HRESULT hr = S_OK;
@@ -230,7 +230,7 @@ CLASS_IMPL_FUNC(Direct3D_Outside, initialize_DisplayModes)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D_Outside, const VideoCard_info *, get_info)(
+CLASS_IMPL_FUNC_T(Framework_Outside, const VideoCard_info *, get_info)(
 	_In_ unsigned int _adapterOrdinal)
 {
 	IF_FALSE(_adapterOrdinal < g_Videos.size())
@@ -242,7 +242,7 @@ CLASS_IMPL_FUNC_T(Direct3D_Outside, const VideoCard_info *, get_info)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D_Outside, const VideoCard_Output_info *, get_Output_info)(
+CLASS_IMPL_FUNC_T(Framework_Outside, const VideoCard_Output_info *, get_Output_info)(
 	_In_ unsigned int _adapterOrdinal,
 	_In_ unsigned int _output)
 {
@@ -262,7 +262,7 @@ CLASS_IMPL_FUNC_T(Direct3D_Outside, const VideoCard_Output_info *, get_Output_in
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D_Outside, HMONITOR, get_MonitorFromAdapter)(
+CLASS_IMPL_FUNC_T(Framework_Outside, HMONITOR, get_MonitorFromAdapter)(
 	_In_ const D3D10_DEVICE_DESC & _desc)
 {
 	const VideoCard_Output_info * output_info =
@@ -279,7 +279,7 @@ CLASS_IMPL_FUNC_T(Direct3D_Outside, HMONITOR, get_MonitorFromAdapter)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D_Outside, unsigned int, get_AdapterOrdinalFromMonitor)(
+CLASS_IMPL_FUNC_T(Framework_Outside, unsigned int, get_AdapterOrdinalFromMonitor)(
 	_In_ HMONITOR _monitor)
 {
 	// Get the monitor handle information
@@ -312,7 +312,7 @@ CLASS_IMPL_FUNC_T(Direct3D_Outside, unsigned int, get_AdapterOrdinalFromMonitor)
 	return -1;
 }
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D_Outside, unsigned int, get_OutputOrdinalFromMonitor)(
+CLASS_IMPL_FUNC_T(Framework_Outside, unsigned int, get_OutputOrdinalFromMonitor)(
 	_In_ HMONITOR _monitor)
 {
 	// Get the monitor handle information
@@ -347,8 +347,8 @@ CLASS_IMPL_FUNC_T(Direct3D_Outside, unsigned int, get_OutputOrdinalFromMonitor)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D_Outside, void, destroy)(
-	/* [x] */ void)
+CLASS_IMPL_FUNC_T(Framework_Outside, void, destroy)(
+	_X_ void)
 {
 	g_Videos.clear();
 }
@@ -358,4 +358,4 @@ CLASS_IMPL_FUNC_T(Direct3D_Outside, void, destroy)(
 //--------------------------------------------------------------------------------------
 
 // Ό³Έν : 
-Direct3D_Outside hsdk::direct3d::g_Direct3D_Outside;
+Framework_Outside hsdk::framework::g_Direct3D_Outside;

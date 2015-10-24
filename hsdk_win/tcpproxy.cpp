@@ -1,9 +1,8 @@
 #include <hsdk/win/network/tcpproxy.h>
 
 
-using namespace hsdk;
-using namespace win;
-using namespace network;
+
+using namespace hsdk::network;
 
 
 //--------------------------------------------------------------------------------------
@@ -151,7 +150,7 @@ CLASS_IMPL_FUNC(TCPProxy, initailize)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(TCPProxy, SOCKET, get_Socket)(
-	/* [x] */ void)
+	_X_ void)
 {
 	return m_Socket;
 }

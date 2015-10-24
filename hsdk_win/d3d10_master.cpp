@@ -1,6 +1,6 @@
-#include <hsdk/win/frame/direct3d/d3d10_master.h>
-#include <hsdk/win/frame/direct3d/direct3d.h>
-#include <hsdk/win/WICTextureLoader.h>
+#include <hsdk/win/direct3d/d3d10_master.h>
+#include <hsdk/win/framework.h>
+#include <hsdk/win/wictextureloader.h>
 #include <hash_map>
 #include <list>
 #include <stack>
@@ -11,8 +11,7 @@
 
 
 
-using namespace hsdk;
-using namespace direct3d;
+using namespace hsdk::direct3d;
 
 
 //--------------------------------------------------------------------------------------
@@ -23,7 +22,7 @@ using namespace direct3d;
 Assimp::Importer g_importer;
 
 // 설명 : 
-std::hash_map<std::wstring, D3D10MY_TEXTURE> g_Manager_Texture_Container;
+std::hash_map<std::wstring, D3D10MY_TEXTURE> g_D3D10Texture_Container;
 
 //--------------------------------------------------------------------------------------
 // Grobal decl function
@@ -38,7 +37,7 @@ DECL_FUNC_T(void, compute_CountOfBonesFromAiNode)(
 DECL_FUNC_T(unsigned int, build_MeshAnimationFromAiNode)(
 	_Out_ D3D10_MeshAnimation * _meshAnimation,
 	_In_ std::list<aiNode *> & _list,
-	_In_ wchar_t(&_buffer)[512],
+	_In_ wchar_t(&_buffer)[256],
 	_In_ unsigned int _index = 0,
 	_In_ unsigned int _parentID = 0);
 
@@ -48,9 +47,9 @@ DECL_FUNC_T(unsigned int, build_MeshAnimationFromAiNode)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_Master, void, destroy)(
-	/* [x] */ void)
+	_X_ void)
 {
-	g_Manager_Texture_Container.clear();
+	g_D3D10Texture_Container.clear();
 }
 
 //--------------------------------------------------------------------------------------
@@ -60,9 +59,9 @@ CLASS_IMPL_FUNC(D3D10_Master, get_Texture)(
 	_In_ const D3DX10_IMAGE_INFO ** _info)
 {
 	// 중복 검사
-	auto iter = g_Manager_Texture_Container.find(_directory);
+	auto iter = g_D3D10Texture_Container.find(_directory);
 
-	if (iter != g_Manager_Texture_Container.end())
+	if (iter != g_D3D10Texture_Container.end())
 	{
 		// 이미 있는 경우
 		(*_texture) = iter->second.texture;
@@ -74,20 +73,20 @@ CLASS_IMPL_FUNC(D3D10_Master, get_Texture)(
 	}
 	else
 	{
-		auto & element = g_Manager_Texture_Container[_directory];
+		auto & element = g_D3D10Texture_Container[_directory];
 		ZeroMemory(&element.info, sizeof(D3DX10_IMAGE_INFO));
-
+		
 		// 데이터가 없는 경우
 		HRESULT hr;
 		IF_FAILED(hr = D3DX10CreateShaderResourceViewFromFile(
-			g_Direct3D_Device.d3d10Device,
+			framework::g_Framework_Device.d3d10Device,
 			_directory,
 			nullptr,
 			nullptr,
 			&element.texture,
 			nullptr))
 		{
-			g_Manager_Texture_Container.erase(_directory);
+			g_D3D10Texture_Container.erase(_directory);
 
 			return hr;
 		}
@@ -125,8 +124,8 @@ CLASS_IMPL_FUNC(D3D10_Master, create_SkyBoxTexture)(
 	D3D10_SUBRESOURCE_DATA datas[6];
 	
 	const wchar_t * path[] = {
-		_back, _front, _left,
-		_right, _top, _bottom };
+		_right, _left, _top,
+		_bottom, _front, _back };
 
 	for (int index = 0; index < 6; ++index)
 	{
@@ -138,7 +137,8 @@ CLASS_IMPL_FUNC(D3D10_Master, create_SkyBoxTexture)(
 		datas[index].SysMemSlicePitch = maxByteSize;
 
 		DirectX::Image image;
-		IF_SUCCEEDED(DirectX::LoadImageFromFile(g_Direct3D_Device.d3d10Device, path[index], &image, maxSize))
+		IF_SUCCEEDED(DirectX::LoadImageFromFile(
+			framework::g_Framework_Device.d3d10Device, path[index], &image, maxSize))
 		{
 			const unsigned int minSize = min(image.getSize(), maxByteSize);
 			memcpy(&vector[0], image.getData(), minSize);
@@ -159,7 +159,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_SkyBoxTexture)(
 	desc.MiscFlags = D3D10_RESOURCE_MISC_TEXTURECUBE;
 
 	AutoRelease<ID3D10Texture2D> texture;
-	IF_SUCCEEDED(g_Direct3D_Device.d3d10Device->CreateTexture2D(&desc, datas, &texture))
+	IF_SUCCEEDED(framework::g_Framework_Device.d3d10Device->CreateTexture2D(&desc, datas, &texture))
 	{
 		D3D10_SHADER_RESOURCE_VIEW_DESC srvDesc;
 		srvDesc.Format = desc.Format;
@@ -167,7 +167,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_SkyBoxTexture)(
 		srvDesc.TextureCube.MipLevels = desc.MipLevels;
 		srvDesc.TextureCube.MostDetailedMip = 0;
 
-		return g_Direct3D_Device.d3d10Device->CreateShaderResourceView(texture, &srvDesc, _texture);
+		return framework::g_Framework_Device.d3d10Device->CreateShaderResourceView(texture, &srvDesc, _texture);
 	}
 	else
 	{
@@ -180,9 +180,9 @@ CLASS_IMPL_FUNC_T(D3D10_Master, const D3DX10_IMAGE_INFO *, get_Texture_info)(
 	_In_ const wchar_t * _directory)
 {
 	// 중복 검사
-	auto iter = g_Manager_Texture_Container.find(_directory);
+	auto iter = g_D3D10Texture_Container.find(_directory);
 
-	if (iter == g_Manager_Texture_Container.end())
+	if (iter == g_D3D10Texture_Container.end())
 	{
 		return nullptr;
 	}
@@ -210,15 +210,15 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshSkyBox)(
 
 	// Build box
 	D3D10_SkyBoxFormat vBox[] = {
-		D3DXVECTOR3(-1.0f, -1.0f, -1.0f),
-		D3DXVECTOR3(1.0f, -1.0f, -1.0f),
-		D3DXVECTOR3(1.0f, 1.0f, -1.0f),
-		D3DXVECTOR3(-1.0f, 1.0f, -1.0f),
+		D3DXVECTOR3(-_size, -_size, -_size),
+		D3DXVECTOR3(_size, -_size, -_size),
+		D3DXVECTOR3(_size, _size, -_size),
+		D3DXVECTOR3(-_size, _size, -_size),
 
-		D3DXVECTOR3(-1.0f, -1.0f, 1.0f),
-		D3DXVECTOR3(1.0f, -1.0f, 1.0f),
-		D3DXVECTOR3(1.0f, 1.0f, 1.0f),
-		D3DXVECTOR3(-1.0f, 1.0f, 1.0f) };
+		D3DXVECTOR3(-_size, -_size, _size),
+		D3DXVECTOR3(_size, -_size, _size),
+		D3DXVECTOR3(_size, _size, _size),
+		D3DXVECTOR3(-_size, _size, _size) };
 
 	// Vertex Buffer
 	D3D10_BUFFER_DESC vBufferDesc;
@@ -290,8 +290,8 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshSkyBox)(
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 	_Out_ D3D10_Mesh & _mesh,
-	_In_ const wchar_t * _szFilePath,
-	_In_ const wchar_t * _szFileName,
+	_In_ const wchar_t * _filePath,
+	_In_ const wchar_t * _fileName,
 	_Out_ D3D10_MeshAnimation * _meshAnimation)
 {
 	_mesh.clear();
@@ -300,11 +300,17 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 		_meshAnimation->clear();
 	}
 
-	wchar_t wtoa[512];
-	char atow[512];
+	wchar_t wtoa[256];
+	char atow[256];
 
-	wcstombs_s<512>(nullptr, atow, _szFileName, sizeof(atow));
+	wcscat_s<256>(wtoa, _filePath);
+	const unsigned int nameOffset = wcslen(wtoa);
+	const unsigned int bufferSize = 256 - nameOffset;
+	wcscat_s(&wtoa[nameOffset], bufferSize, _filePath);
 
+	_mesh.userSet_MeshPath(wtoa);
+
+	wcstombs_s<256>(nullptr, atow, _fileName, sizeof(atow));
 	const aiScene * scene = g_importer.ReadFile(
 		atow,
 		aiProcessPreset_TargetRealtime_MaxQuality |
@@ -339,7 +345,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 		{
 			const aiAnimation & animation = *scene->mAnimations[aindex];
 
-			mbstowcs_s<512>(nullptr, wtoa, animation.mName.C_Str(), sizeof(wtoa));
+			mbstowcs_s<256>(nullptr, wtoa, animation.mName.C_Str(), sizeof(wtoa));
 			_meshAnimation->setup1_Animation(
 				aindex, wtoa,
 				animation.mNumChannels,
@@ -370,7 +376,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 				unsigned int keySize = min(anim.mNumPositionKeys, anim.mNumRotationKeys);
 				keySize = min(keySize, anim.mNumScalingKeys);
 
-				mbstowcs_s<512>(nullptr, wtoa, anim.mNodeName.C_Str(), sizeof(wtoa));
+				mbstowcs_s<256>(nullptr, wtoa, anim.mNodeName.C_Str(), sizeof(wtoa));
 				_meshAnimation->setup2_AnimationBoneKeyFrame(
 					aindex, cindex,
 					_meshAnimation->find_BoneIDFromName(wtoa),
@@ -401,7 +407,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 			// 2개 이상의 디퓨즈 텍스처를 받아들일 수 없음
 			if (AI_SUCCESS == matl.GetTexture(aiTextureType_DIFFUSE, 0, &aiPath))
 			{
-				mbstowcs_s<512>(nullptr, wtoa, aiPath.C_Str(), sizeof(wtoa));
+				mbstowcs_s<256>(nullptr, wtoa, aiPath.C_Str(), sizeof(wtoa));
 				_mesh.setup1_Texture(wtoa, index, 0);
 			}
 		}
@@ -412,7 +418,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 			// 2개 이상의 노말 텍스처를 받아들일 수 없음
 			if (AI_SUCCESS == matl.GetTexture(aiTextureType_NORMALS, 0, &aiPath))
 			{
-				mbstowcs_s<512>(nullptr, wtoa, aiPath.C_Str(), sizeof(wtoa));
+				mbstowcs_s<256>(nullptr, wtoa, aiPath.C_Str(), sizeof(wtoa));
 				_mesh.setup1_Texture(wtoa, index, 1);
 			}
 		}
@@ -423,7 +429,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 			// 2개 이상의 스펙큘러 텍스처를 받아들일 수 없음
 			if (AI_SUCCESS == matl.GetTexture(aiTextureType_SPECULAR, 0, &aiPath))
 			{
-				mbstowcs_s<512>(nullptr, wtoa, aiPath.C_Str(), sizeof(wtoa));
+				mbstowcs_s<256>(nullptr, wtoa, aiPath.C_Str(), sizeof(wtoa));
 				_mesh.setup1_Texture(wtoa, index, 2);
 			}
 		}
@@ -577,7 +583,7 @@ CLASS_IMPL_FUNC(D3D10_Master, create_MeshFromFile)(
 
 				unsigned int nodeBindex = 0;
 
-				mbstowcs_s<512>(nullptr, wtoa, bone.mName.C_Str(), sizeof(wtoa));
+				mbstowcs_s<256>(nullptr, wtoa, bone.mName.C_Str(), sizeof(wtoa));
 				nodeBindex = _meshAnimation->find_BoneIDFromName(wtoa);
 
 				_meshAnimation->userSet_BoneMatrix(
@@ -661,7 +667,7 @@ IMPL_FUNC_T(void, compute_CountOfBonesFromAiNode)(
 IMPL_FUNC_T(unsigned int, build_MeshAnimationFromAiNode)(
 	_Out_ D3D10_MeshAnimation * _meshAnimation,
 	_In_ std::list<aiNode *> & _list,
-	_In_ wchar_t(&_buffer)[512],
+	_In_ wchar_t(&_buffer)[256],
 	_In_ unsigned int _index,
 	_In_ unsigned int _parentID)
 {
@@ -677,7 +683,7 @@ IMPL_FUNC_T(unsigned int, build_MeshAnimationFromAiNode)(
 			_index);
 	}
 
-	mbstowcs_s<512>(nullptr, _buffer, node.mName.C_Str(), sizeof(_buffer));
+	mbstowcs_s<256>(nullptr, _buffer, node.mName.C_Str(), sizeof(_buffer));
 	if (FAILED(_meshAnimation->setup1_BoneNode(
 		_index,
 		_parentID,

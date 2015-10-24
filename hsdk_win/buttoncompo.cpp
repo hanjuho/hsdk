@@ -43,7 +43,7 @@ CLASS_IMPL_FUNC_T(ButtonCompo, void, onClick_Up)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(ButtonCompo, void, render)(
-	/* [x] */ void)
+	_X_ void)
 {
 	if (is_Visible())
 	{

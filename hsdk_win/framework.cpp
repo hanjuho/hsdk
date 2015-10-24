@@ -1,5 +1,5 @@
-#include <hsdk/win/frame/direct3d/direct3d.h>
-#include <hsdk/win/frame/direct3d/direct3d_outside.h>
+#include <hsdk/win/framework.h>
+#include <hsdk/win/framework_outside.h>
 
 #define NODEBUG
 #include <assert.h>
@@ -7,8 +7,7 @@
 
 
 
-using namespace hsdk;
-using namespace direct3d;
+using namespace hsdk::framework;
 
 
 //--------------------------------------------------------------------------------------
@@ -27,10 +26,10 @@ BOOL g_bThreadSafe = true;
 //--------------------------------------------------------------------------------------
 
 // 설명 :
-Direct3D_Callbacks g_Callbacks;
+Framework_Callbacks g_Callbacks;
 
 // 설명 : 
-hsdk::win::UserTimeStream g_TimeStream;
+Framework_UserTimeStream g_TimeStream;
 
 //--------------------------------------------------------------------------------------
 // Grobal control variable
@@ -50,16 +49,16 @@ short g_MouseButtons[5] = { 0 };
 //--------------------------------------------------------------------------------------
 
 // 설명 : 
-Direct3D_State g_State;
+Framework_State g_State;
 
 // 설명 : 
-Direct3D_Window g_Window;
+Framework_Window g_Window;
 
 // 설명 : 
-hsdk::AutoDelete<Direct3D_DeviceFactory> g_DeviceFactory;
+hsdk::AutoDelete<Framework_DeviceFactory> g_DeviceFactory;
 
 // 설명 : 
-Direct3D_Device g_Device;
+Framework_Device g_Device;
 
 // 설명 : 
 hsdk::AutoDelete<D3D9_DEVICE_DESC> g_D3D9Descs;
@@ -96,7 +95,7 @@ LRESULT CALLBACK direct3D_LowLevelKeyboardProc(
 //--------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(Direct3D, setup0_Window)(
+CLASS_IMPL_FUNC(Framework, setup0_Window)(
 	_In_ const wchar_t * _strWindowTitle,
 	_In_ int _x,
 	_In_ int _y,
@@ -209,8 +208,8 @@ CLASS_IMPL_FUNC(Direct3D, setup0_Window)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(Direct3D, setup1_DeviceFactory)(
-	/* [set] */ Direct3D_DeviceFactory * _factory)
+CLASS_IMPL_FUNC(Framework, setup1_DeviceFactory)(
+	/* [set] */ Framework_DeviceFactory * _factory)
 {
 	IF_INVALID(_factory)
 	{
@@ -228,7 +227,7 @@ CLASS_IMPL_FUNC(Direct3D, setup1_DeviceFactory)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(Direct3D, setup2_Device9)(
+CLASS_IMPL_FUNC(Framework, setup2_Device9)(
 	/* [set] */ D3D9_DEVICE_DESC & _desc)
 {
 	IF_FALSE(g_State.setupDeviceFactory)
@@ -274,7 +273,7 @@ CLASS_IMPL_FUNC(Direct3D, setup2_Device9)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(Direct3D, setup2_Device10)(
+CLASS_IMPL_FUNC(Framework, setup2_Device10)(
 	/* [set] */ D3D10_DEVICE_DESC & _desc)
 {
 	IF_FALSE(g_State.setupDeviceFactory)
@@ -321,7 +320,7 @@ CLASS_IMPL_FUNC(Direct3D, setup2_Device10)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(Direct3D, dynamic_WndProc)(
+CLASS_IMPL_FUNC(Framework, dynamic_WndProc)(
 	_In_ unsigned int _uMsg,
 	_In_ unsigned int _wParam,
 	_In_ long _lParam)
@@ -330,7 +329,7 @@ CLASS_IMPL_FUNC(Direct3D, dynamic_WndProc)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(Direct3D, transform)(
+CLASS_IMPL_FUNC(Framework, transform)(
 	_In_ BOOL _windowed,
 	_In_ unsigned long _suggestedWidth,
 	_In_ unsigned long _suggestedHeight,
@@ -718,22 +717,22 @@ CLASS_IMPL_FUNC(Direct3D, transform)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D, void, destroy)(
-	/* [x] */ void)
+CLASS_IMPL_FUNC_T(Framework, void, destroy)(
+	_X_ void)
 {
 	g_Direct3D_Outside.destroy();
 	this->shutdown();
 
 	// all clear
-	g_TimeStream = win::UserTimeStream();;
-	g_Callbacks = Direct3D_Callbacks();
+	g_TimeStream = Framework_UserTimeStream();;
+	g_Callbacks = Framework_Callbacks();
 
 	g_D3D10Descs.~AutoDelete();
 	g_D3D9Descs.~AutoDelete();
-	g_Device = Direct3D_Device();
+	g_Device = Framework_Device();
 	g_DeviceFactory.~AutoDelete();
-	g_Window = Direct3D_Window();
-	g_State = Direct3D_State();
+	g_Window = Framework_Window();
+	g_State = Framework_State();
 }
 
 //--------------------------------------------------------------------------------------
@@ -741,7 +740,7 @@ CLASS_IMPL_FUNC_T(Direct3D, void, destroy)(
 //--------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(Direct3D, mainLoop)(
+CLASS_IMPL_FUNC(Framework, mainLoop)(
 	_In_ HACCEL _accel)
 {
 	if (TRUE == InterlockedCompareExchange(&g_State.runMainLoop, TRUE, FALSE))
@@ -820,8 +819,8 @@ CLASS_IMPL_FUNC(Direct3D, mainLoop)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D, void, render)(
-	/* [x] */ void)
+CLASS_IMPL_FUNC_T(Framework, void, render)(
+	_X_ void)
 {
 	// Render a frame during idle time (no messages are waiting)
 	if (g_D3D10Descs)
@@ -886,7 +885,7 @@ CLASS_IMPL_FUNC_T(Direct3D, void, render)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D, void, shutdown)(
+CLASS_IMPL_FUNC_T(Framework, void, shutdown)(
 	_In_ int _exitCode)
 {
 	const HWND & hWnd = g_Window.hwnd;
@@ -964,7 +963,7 @@ CLASS_IMPL_FUNC_T(Direct3D, void, shutdown)(
 	}
 
 	// all clear
-	g_Device = Direct3D_Device();
+	g_Device = Framework_Device();
 
 	// Restore shortcut keys (Windows key, accessibility shortcuts) to original state
 	// This is important to call here if the shortcuts are disabled, 
@@ -982,7 +981,7 @@ CLASS_IMPL_FUNC_T(Direct3D, void, shutdown)(
 //--------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D, void, userSet_ShortcutKeySettings)(
+CLASS_IMPL_FUNC_T(Framework, void, userSet_ShortcutKeySettings)(
 	_In_ BOOL _allowWhenFullscreen,
 	_In_ BOOL _allowWhenWindowed)
 {
@@ -991,21 +990,21 @@ CLASS_IMPL_FUNC_T(Direct3D, void, userSet_ShortcutKeySettings)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D, void, userSet_AutoChangeMoniter)(
+CLASS_IMPL_FUNC_T(Framework, void, userSet_AutoChangeMoniter)(
 	_In_ BOOL _autoChange)
 {
 	g_State.autoChangeAdapter = _autoChange;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D, void, userSet_GammaCorrectMode)(
+CLASS_IMPL_FUNC_T(Framework, void, userSet_GammaCorrectMode)(
 	_In_ BOOL _gammaCorrect)
 {
 	g_State.is_in_GammaCorrectMode = _gammaCorrect;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D, void, userSet_Vsync)(
+CLASS_IMPL_FUNC_T(Framework, void, userSet_Vsync)(
 	_In_ BOOL _vsync)
 {
 	assert(L"미구현");
@@ -1017,7 +1016,7 @@ CLASS_IMPL_FUNC_T(Direct3D, void, userSet_Vsync)(
 //--------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D, BOOL, clip_Screen)(
+CLASS_IMPL_FUNC_T(Framework, BOOL, clip_Screen)(
 	_In_ RECT & _rect,
 	_In_ BOOL _windowed)const
 {
@@ -1112,7 +1111,7 @@ CLASS_IMPL_FUNC_T(Direct3D, BOOL, clip_Screen)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D, BOOL, is_KeyDown)(
+CLASS_IMPL_FUNC_T(Framework, BOOL, is_KeyDown)(
 	_In_ unsigned char vKey)const
 {
 	if (0x9f < vKey && vKey < 0xA6)
@@ -1133,14 +1132,14 @@ CLASS_IMPL_FUNC_T(Direct3D, BOOL, is_KeyDown)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D, BOOL, was_KeyPressed)(
+CLASS_IMPL_FUNC_T(Framework, BOOL, was_KeyPressed)(
 	_In_ unsigned char vKey)const
 {
 	return (!g_LastKeys[vKey] && g_Keys[vKey]);
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D, BOOL, is_MouseButtonDown)(
+CLASS_IMPL_FUNC_T(Framework, BOOL, is_MouseButtonDown)(
 	_In_ unsigned char vButton)const
 {
 	switch (vButton)
@@ -1168,50 +1167,50 @@ CLASS_IMPL_FUNC_T(Direct3D, BOOL, is_MouseButtonDown)(
 //--------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D, Direct3D_Callbacks *, callbacks)(
-	/* [x] */ void)const
+CLASS_IMPL_FUNC_T(Framework, Framework_Callbacks *, callbacks)(
+	_X_ void)const
 {
 	return &g_Callbacks;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D, win::UserTimeStream *, timeStream)(
-	/* [x] */ void)const
+CLASS_IMPL_FUNC_T(Framework, Framework_UserTimeStream *, timeStream)(
+	_X_ void)const
 {
 	return &g_TimeStream;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D, const Direct3D_State *, get_State)(
-	/* [x] */ void)const
+CLASS_IMPL_FUNC_T(Framework, const Framework_State *, get_State)(
+	_X_ void)const
 {
 	return &g_State;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D, const Direct3D_Window *, get_Window)(
-	/* [x] */ void)const
+CLASS_IMPL_FUNC_T(Framework, const Framework_Window *, get_Window)(
+	_X_ void)const
 {
 	return &g_Window;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D, const Direct3D_Device *, get_Device)(
-	/* [x] */ void)const
+CLASS_IMPL_FUNC_T(Framework, const Framework_Device *, get_Device)(
+	_X_ void)const
 {
 	return &g_Device;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D, const D3D9_DEVICE_DESC *, get_Device9Desc)(
-	/* [x] */ void)const
+CLASS_IMPL_FUNC_T(Framework, const D3D9_DEVICE_DESC *, get_Device9Desc)(
+	_X_ void)const
 {
 	return g_D3D9Descs;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Direct3D, const D3D10_DEVICE_DESC *, get_Device10Desc)(
-	/* [x] */ void)const
+CLASS_IMPL_FUNC_T(Framework, const D3D10_DEVICE_DESC *, get_Device10Desc)(
+	_X_ void)const
 {
 	return g_D3D10Descs;
 }
@@ -1698,19 +1697,19 @@ LRESULT CALLBACK direct3D_LowLevelKeyboardProc(
 //--------------------------------------------------------------------------------------
 
 // 설명 : 
-Direct3D hsdk::direct3d::g_Direct3D;
+Framework hsdk::framework::g_Direct3D;
 
 // 설명 : 
-hsdk::win::UserTimeStream & hsdk::direct3d::g_Direct3D_TimeStream = g_TimeStream;
+Framework_UserTimeStream & hsdk::framework::g_Direct3D_TimeStream = g_TimeStream;
 
 // 설명 : you can read / write
-Direct3D_Callbacks & hsdk::direct3d::g_Direct3D_Callbacks = g_Callbacks;
+Framework_Callbacks & hsdk::framework::g_Direct3D_Callbacks = g_Callbacks;
 
 // 설명 : just only read / do not write force
-const Direct3D_State & hsdk::direct3d::g_Direct3D_State = g_State;
+const Framework_State & hsdk::framework::g_Direct3D_State = g_State;
 
 // 설명 : just only read / do not write force
-const Direct3D_Window & hsdk::direct3d::g_Direct3D_Window = g_Window;
+const Framework_Window & hsdk::framework::g_Direct3D_Window = g_Window;
 
 // 설명 : just only read / do not write force
-const Direct3D_Device & hsdk::direct3d::g_Direct3D_Device = g_Device;
+const Framework_Device & hsdk::framework::g_Framework_Device = g_Device;

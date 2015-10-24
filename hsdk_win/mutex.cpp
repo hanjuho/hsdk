@@ -2,9 +2,7 @@
 
 
 
-using namespace hsdk;
-using namespace win;
-using namespace criticalsection;
+using namespace hsdk::criticalsection;
 
 
 //--------------------------------------------------------------------------------------
@@ -43,7 +41,7 @@ CLASS_IMPL_FUNC(Mutex, enter)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Mutex, leave)(
-	/* [x] */ void)
+	_X_ void)
 {
 	IF_FALSE(ReleaseMutex(my_Mutex))
 	{
@@ -55,7 +53,7 @@ CLASS_IMPL_FUNC(Mutex, leave)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Mutex, reset)(
-	/* [x] */ void)
+	_X_ void)
 {
 	try
 	{

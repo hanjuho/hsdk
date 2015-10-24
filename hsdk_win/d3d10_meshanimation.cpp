@@ -1,4 +1,4 @@
-#include <hsdk/win/frame/direct3d/d3d10_meshanimation.h>
+#include <hsdk/win/direct3d/d3d10_meshanimation.h>
 
 
 
@@ -7,7 +7,7 @@ using namespace hsdk::direct3d;
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_MeshAnimation, void, clear)(
-	/* [x] */ void)
+	_X_ void)
 {
 	my_BoneOfNames.clear();
 	my_Bones.clear();
@@ -198,7 +198,7 @@ CLASS_IMPL_FUNC(D3D10_MeshAnimation, userSet_AnimationBoneKey)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_MeshAnimation, unsigned int, get_NumOfBones)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_Bones.size();
 }

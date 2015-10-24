@@ -2,9 +2,7 @@
 
 
 
-using namespace hsdk;
-using namespace win;
-using namespace thread;
+using namespace hsdk::thread;
 
 
 //--------------------------------------------------------------------------------------
@@ -58,7 +56,7 @@ CLASS_IMPL_DESTRUCTOR(Thread, Thread)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Thread, start)(
-	/* [x] */ void)
+	_X_ void)
 {
 	// 스스로가 이 함수를 호출할 수 없음
 	if (m_ThreadID == GetCurrentThreadId())
@@ -82,7 +80,7 @@ CLASS_IMPL_FUNC(Thread, start)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Thread, kill)(
-	/* [x] */ void)
+	_X_ void)
 {
 	// 스스로가 이 함수를 호출할 수 없음
 	if (m_ThreadID == GetCurrentThreadId())
@@ -129,7 +127,7 @@ CLASS_IMPL_FUNC(Thread, wait)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Thread, reset)(
-	/* [x] */ void)
+	_X_ void)
 {
 	try
 	{

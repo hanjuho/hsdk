@@ -36,14 +36,14 @@ CLASS_IMPL_DESTRUCTOR(Component, Component)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, i_Component *, parent)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_Parent;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, i_Graphics *, graphics)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return (i_Graphics *)&m_D3D10Graphics;
 }
@@ -79,7 +79,7 @@ CLASS_IMPL_FUNC(Component, get_Component)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, unsigned int, get_id)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_id;
 }
@@ -114,28 +114,28 @@ CLASS_IMPL_FUNC_T(Component, void, set_H)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, float, get_X)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_Rectangle[0];
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, float, get_Y)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_Rectangle[1];
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, float, get_W)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_Rectangle[2];
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, float, get_H)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_Rectangle[3];
 }
@@ -152,7 +152,7 @@ CLASS_IMPL_FUNC(Component, set_Visible)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, bool, is_Visible)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_Visible;
 }
@@ -166,14 +166,14 @@ CLASS_IMPL_FUNC_T(Component, bool, event_chain)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, void, update)(
-	/* [x] */ void)
+	_X_ void)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, void, reform)(
-	/* [x] */ void)
+	_X_ void)
 {
 	if (my_Parent)
 	{
@@ -194,7 +194,7 @@ CLASS_IMPL_FUNC_T(Component, void, reform)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, void, render)(
-	/* [x] */ void)
+	_X_ void)
 {
 	if (is_Visible())
 	{
@@ -204,7 +204,7 @@ CLASS_IMPL_FUNC_T(Component, void, render)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, void, reset)(
-	/* [x] */ void)
+	_X_ void)
 {
 
 }
@@ -218,7 +218,7 @@ CLASS_IMPL_FUNC_T(Component, void, set_Mouseable)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, i_Mouseable *, get_Mouseable)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return m_Mouseable;
 }
@@ -232,7 +232,7 @@ CLASS_IMPL_FUNC_T(Component, void, set_Keyboardable)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, i_Keyboardable *, get_Keyboardable)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return m_Keyboardable;
 }
@@ -246,7 +246,7 @@ CLASS_IMPL_FUNC_T(Component, void, set_Actable)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, i_Actable *, get_Actable)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return m_Actable;
 }
@@ -338,7 +338,7 @@ CLASS_IMPL_FUNC_T(Component, void, onKey_Up)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, void, onAct)(
-	/* [x] */ void)
+	_X_ void)
 {
 	if (m_Actable)
 	{
@@ -348,14 +348,14 @@ CLASS_IMPL_FUNC_T(Component, void, onAct)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, float, get_AbsX)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_AbsX;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, float, get_AbsY)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_AbsY;
 }

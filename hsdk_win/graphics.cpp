@@ -1,6 +1,6 @@
 #include <hsdk/win/frame/graphics.h>
-#include <hsdk/win/frame/direct3d/direct3d.h>
-#include <hsdk/win/frame/direct3d/d3d10_meshrenderer.h>
+#include <hsdk/win/framework.h>
+#include <hsdk/win/direct3d/d3d10_meshrenderer.h>
 
 
 
@@ -92,8 +92,8 @@ CLASS_IMPL_FUNC_T(Graphics, void, set_Text)(
 CLASS_IMPL_FUNC_T(Graphics, void, update)(
 	_In_ const float(&_rectangle)[4])
 {
-	float screenWidth = (float)g_Direct3D_Window.width;
-	float screenHeigth = (float)g_Direct3D_Window.height;
+	float screenWidth = (float)framework::g_Direct3D_Window.width;
+	float screenHeigth = (float)framework::g_Direct3D_Window.height;
 	float myWidth = _rectangle[2] / screenWidth;
 	float myHeight = _rectangle[3] / screenHeigth;
 
@@ -111,7 +111,7 @@ CLASS_IMPL_FUNC_T(Graphics, void, update)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Graphics, void, render)(
-	/* [x] */ float _persent)
+	_X_ float _persent)
 {
 	if (my_Texture)
 	{

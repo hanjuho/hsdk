@@ -2,9 +2,7 @@
 
 
 
-using namespace hsdk;
-using namespace win;
-using namespace criticalsection;
+using namespace hsdk::criticalsection;
 
 
 //--------------------------------------------------------------------------------------
@@ -27,7 +25,7 @@ CLASS_IMPL_DESTRUCTOR(AutoResetEvent, AutoResetEvent)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(AutoResetEvent, signal)(
-	/* [x] */ void)
+	_X_ void)
 {
 	IF_FALSE(SetEvent(my_Event))
 	{
@@ -55,7 +53,7 @@ CLASS_IMPL_FUNC(AutoResetEvent, wait)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(AutoResetEvent, reset)(
-	/* [x] */ void)
+	_X_ void)
 {
 	try
 	{

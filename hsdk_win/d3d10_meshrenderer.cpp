@@ -1,11 +1,10 @@
-#include <hsdk/win/frame/direct3d/d3d10_meshrenderer.h>
-#include <hsdk/win/frame/direct3d/direct3d.h>
+#include <hsdk/win/direct3d/d3d10_meshrenderer.h>
+#include <hsdk/win/framework.h>
 #include <d3d10effect.h>
 
 
 
-using namespace hsdk;
-using namespace direct3d;
+using namespace hsdk::direct3d;
 
 
 //--------------------------------------------------------------------------------------
@@ -16,7 +15,7 @@ using namespace direct3d;
 ID3D10Device * g_refDevice_1;
 
 // 설명 : 
-AutoRelease<ID3D10Effect> g_D3D10Effect;
+hsdk::AutoRelease<ID3D10Effect> g_D3D10Effect;
 
 // 설명 :
 ID3D10EffectTechnique * g_SkinnedBasic_Technique;
@@ -87,19 +86,19 @@ unsigned int g_Sprite_Stride = sizeof(D3D10_BasicFormat);
 unsigned int g_Sprite_Offset = 0;
 
 // 설명 : 
-AutoRelease<ID3D10Buffer> g_Sprite_VBuffer;
+hsdk::AutoRelease<ID3D10Buffer> g_Sprite_VBuffer;
 
 // 설명 : 
-AutoRelease<ID3D10Buffer> g_Sprite_IBuffer;
+hsdk::AutoRelease<ID3D10Buffer> g_Sprite_IBuffer;
 
 // 설명 : 
-AutoRelease<ID3D10InputLayout> g_Basic_inputLayout;
+hsdk::AutoRelease<ID3D10InputLayout> g_Basic_inputLayout;
 
 // 설명 : 
-AutoRelease<ID3D10InputLayout> g_Skinned_inputLayout;
+hsdk::AutoRelease<ID3D10InputLayout> g_Skinned_inputLayout;
 
 // 설명 : 
-AutoRelease<ID3D10InputLayout> g_Skybox_inputLayout;
+hsdk::AutoRelease<ID3D10InputLayout> g_Skybox_inputLayout;
 
 //--------------------------------------------------------------------------------------
 // Grobal string variable
@@ -110,7 +109,7 @@ wchar_t g_szEffect[MAX_PATH];
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize_Shader)(
-	/* [x] */ const wchar_t * _directory)
+	_X_ const wchar_t * _directory)
 {
 	HRESULT hr = E_FAIL;
 
@@ -124,7 +123,7 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize_Shader)(
 		"fx_4_0",
 		D3D10_SHADER_ENABLE_BACKWARDS_COMPATIBILITY | D3D10_SHADER_DEBUG,
 		0,
-		g_Direct3D_Device.d3d10Device,
+		framework::g_Framework_Device.d3d10Device,
 		nullptr,
 		nullptr,
 		&effect,
@@ -186,7 +185,7 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize_Shader)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize_Layout)(
-	/* [x] */ void)
+	_X_ void)
 {
 	HRESULT hr = E_FAIL;
 
@@ -222,7 +221,7 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize_Layout)(
 	D3D10_PASS_DESC PassDesc;
 	
 	g_GUI_Technique->GetPassByIndex(0)->GetDesc(&PassDesc);
-	IF_FAILED(hr = g_Direct3D_Device.d3d10Device->CreateInputLayout(
+	IF_FAILED(hr = framework::g_Framework_Device.d3d10Device->CreateInputLayout(
 		basiclayout,
 		sizeof(basiclayout) / sizeof(basiclayout[0]),
 		PassDesc.pIAInputSignature,
@@ -233,7 +232,7 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize_Layout)(
 	}
 
 	g_SkinnedBasic_Technique->GetPassByIndex(0)->GetDesc(&PassDesc);
-	IF_FAILED(hr = g_Direct3D_Device.d3d10Device->CreateInputLayout(
+	IF_FAILED(hr = framework::g_Framework_Device.d3d10Device->CreateInputLayout(
 		skinnedlayout,
 		sizeof(skinnedlayout) / sizeof(skinnedlayout[0]),
 		PassDesc.pIAInputSignature,
@@ -244,7 +243,7 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize_Layout)(
 	}
 
 	g_SkyBox_Technique->GetPassByIndex(0)->GetDesc(&PassDesc);
-	IF_FAILED(hr = g_Direct3D_Device.d3d10Device->CreateInputLayout(
+	IF_FAILED(hr = framework::g_Framework_Device.d3d10Device->CreateInputLayout(
 		skyboxlayout,
 		sizeof(skyboxlayout) / sizeof(skyboxlayout[0]),
 		PassDesc.pIAInputSignature,
@@ -263,7 +262,7 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize_Layout)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize)(
-	/* [x] */ const wchar_t * _shaderFilePath)
+	_X_ const wchar_t * _shaderFilePath)
 {
 	HRESULT hr = E_FAIL;
 
@@ -282,9 +281,9 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize)(
 	
 	// build plane
 	D3D10_BasicFormat vBox[] = {
-		{ D3DXVECTOR3(-1.0f, -1.0f, 0.5f), D3DXVECTOR3(0.0f, 0.0f, -1.0f), D3DXVECTOR2(0.0f, 0.0f) },
-		{ D3DXVECTOR3(1.0f, -1.0f, 0.5f), D3DXVECTOR3(0.0f, 0.0f, -1.0f), D3DXVECTOR2(0.0f, 0.0f) },
-		{ D3DXVECTOR3(1.0f, 1.0f, 0.5f), D3DXVECTOR3(0.0f, 0.0f, -1.0f), D3DXVECTOR2(0.0f, 0.0f) },
+		{ D3DXVECTOR3(-1.0f, -1.0f, 0.5f), D3DXVECTOR3(0.0f, 0.0f, -1.0f), D3DXVECTOR2(0.0f, 1.0f) },
+		{ D3DXVECTOR3(1.0f, -1.0f, 0.5f), D3DXVECTOR3(0.0f, 0.0f, -1.0f), D3DXVECTOR2(1.0f, 1.0f) },
+		{ D3DXVECTOR3(1.0f, 1.0f, 0.5f), D3DXVECTOR3(0.0f, 0.0f, -1.0f), D3DXVECTOR2(1.0f, 0.0f) },
 		{ D3DXVECTOR3(-1.0f, 1.0f, 0.5f), D3DXVECTOR3(0.0f, 0.0f, -1.0f), D3DXVECTOR2(0.0f, 0.0f) } };
 
 	// Vertex Buffer
@@ -299,7 +298,7 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize)(
 	vinitData.pSysMem = vBox;
 
 	AutoRelease<ID3D10Buffer> vbuffer;
-	IF_FAILED(hr = g_Direct3D_Device.d3d10Device->CreateBuffer(
+	IF_FAILED(hr = framework::g_Framework_Device.d3d10Device->CreateBuffer(
 		&vBufferDesc,
 		&vinitData,
 		&vbuffer))
@@ -323,7 +322,7 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize)(
 	iinitData.pSysMem = iBox;
 
 	AutoRelease<ID3D10Buffer>ibuffer;
-	IF_FAILED(hr = g_Direct3D_Device.d3d10Device->CreateBuffer(
+	IF_FAILED(hr = framework::g_Framework_Device.d3d10Device->CreateBuffer(
 		&iBufferDesc,
 		&iinitData,
 		&ibuffer))
@@ -334,14 +333,14 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize)(
 	g_Sprite_VBuffer = vbuffer;
 	g_Sprite_IBuffer = ibuffer;
 
-	g_refDevice_1 = g_Direct3D_Device.d3d10Device;
+	g_refDevice_1 = framework::g_Framework_Device.d3d10Device;
 
 	return hr;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, destroy)(
-	/* [x] */ void)
+	_X_ void)
 {
 	g_D3D10Effect.~AutoRelease();
 	g_Basic_inputLayout.~AutoRelease();

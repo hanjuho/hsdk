@@ -55,7 +55,7 @@ CLASS_IMPL_FUNC_T(inputEventHelper, bool, chain)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(inputEventHelper, void, update)(
-	/* [x] */ void)
+	_X_ void)
 {
 	/*
 	설명 : component 갱신 chain 이 유효한지 검사.

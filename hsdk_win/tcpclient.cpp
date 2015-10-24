@@ -1,9 +1,8 @@
 #include <hsdk/win/network/tcpclient.h>
 
 
-using namespace hsdk;
-using namespace win;
-using namespace network;
+
+using namespace hsdk::network;
 
 
 //--------------------------------------------------------------------------------------
@@ -68,7 +67,7 @@ CLASS_IMPL_FUNC(TCPClient, connect)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(TCPClient, disconnect)(
-	/* [x] */ void)
+	_X_ void)
 {
 	try
 	{
@@ -109,14 +108,14 @@ CLASS_IMPL_FUNC(TCPClient, wait_Recv)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(TCPClient, reset)(
-	/* [x] */ void)
+	_X_ void)
 {
 	return disconnect() | connect(m_Url, m_Port, 1000);
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(TCPClient, SOCKET, get_Socket)(
-	/* [x] */ void)
+	_X_ void)
 {
 	return m_Proxy.get_Socket();
 }

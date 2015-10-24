@@ -1,6 +1,6 @@
-#include <hsdk/win/frame/direct3d/d3d10_mesh.h>
-#include <hsdk/win/frame/direct3d/d3d10_master.h>
-#include <hsdk/win/frame/direct3d/direct3d.h>
+#include <hsdk/win/direct3d/d3d10_mesh.h>
+#include <hsdk/win/direct3d/d3d10_master.h>
+#include <hsdk/win/framework.h>
 
 
 
@@ -35,7 +35,7 @@ CLASS_IMPL_DESTRUCTOR(D3D10_Mesh, D3D10_Mesh)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_Mesh, void, clear)(
-	/* [x] */ void)
+	_X_ void)
 {
 	my_MeshPath = L"";
 	my_Materials.clear();
@@ -81,21 +81,21 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup1_Texture)(
 
 			return my_refCallback_Create_Texture_FromFile(
 				&material.diffuseRV,
-				g_Direct3D_Device.d3d10Device,
+				framework::g_Framework_Device.d3d10Device,
 				_directory,
 				my_refUserContext);
 		case 1:
 
 			return my_refCallback_Create_Texture_FromFile(
 				&material.normalRV,
-				g_Direct3D_Device.d3d10Device,
+				framework::g_Framework_Device.d3d10Device,
 				_directory,
 				my_refUserContext);
 		case 2:
 
 			return my_refCallback_Create_Texture_FromFile(
 				&material.specularRV,
-				g_Direct3D_Device.d3d10Device,
+				framework::g_Framework_Device.d3d10Device,
 				_directory,
 				my_refUserContext);
 
@@ -346,7 +346,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup2_Vertexbuffer)(
 	{
 		hr = my_refCallback_Create_VertexBuffer(
 			&vb,
-			g_Direct3D_Device.d3d10Device,
+			framework::g_Framework_Device.d3d10Device,
 			_desc,
 			_vertices,
 			my_refUserContext);
@@ -356,7 +356,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup2_Vertexbuffer)(
 		D3D10_SUBRESOURCE_DATA initData;
 		initData.pSysMem = _vertices;
 
-		hr = g_Direct3D_Device.d3d10Device->CreateBuffer(
+		hr = framework::g_Framework_Device.d3d10Device->CreateBuffer(
 			&_desc,
 			&initData,
 			&vb);
@@ -394,7 +394,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup2_indexbuffer)(
 	{
 		hr = my_refCallback_Create_indexBuffer(
 			&ib.indexbuffer,
-			g_Direct3D_Device.d3d10Device,
+			framework::g_Framework_Device.d3d10Device,
 			_desc,
 			_indices,
 			my_refUserContext);
@@ -404,7 +404,7 @@ CLASS_IMPL_FUNC(D3D10_Mesh, setup2_indexbuffer)(
 		D3D10_SUBRESOURCE_DATA InitData;
 		InitData.pSysMem = _indices;
 
-		hr = g_Direct3D_Device.d3d10Device->CreateBuffer(
+		hr = framework::g_Framework_Device.d3d10Device->CreateBuffer(
 			&_desc,
 			&InitData,
 			&ib.indexbuffer);
@@ -474,35 +474,35 @@ CLASS_IMPL_FUNC(D3D10_Mesh, userSet_MaterialName)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_Mesh, loadLock)(
-	/* [x] */ void)
+	_X_ void)
 {
 	return InterlockedCompareExchange(&my_LoadLock, TRUE, FALSE) == TRUE ? E_ACCESSDENIED : S_OK;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_Mesh, long, is_Load)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_LoadLock;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_Mesh, const wchar_t *, get_MeshPath)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_MeshPath.c_str();
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_Mesh, unsigned int, get_NumMeshes)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_Meshs.size();
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_Mesh, unsigned int, get_NumMaterials)(
-	/* [x] */ void)const
+	_X_ void)const
 {
 	return my_Materials.size();
 }

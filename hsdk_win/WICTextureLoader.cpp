@@ -40,7 +40,7 @@
 #include <memory>
 
 #include <hsdk/win/comptr.h>
-#include <hsdk/win/WICTextureLoader.h>
+#include <hsdk/win/wictextureloader.h>
 
 
 //-------------------------------------------------------------------------------------

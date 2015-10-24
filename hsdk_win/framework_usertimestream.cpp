@@ -1,13 +1,13 @@
-#include <hsdk/win/usertimestream.h>
+#include <hsdk/win/framework_usertimestream.h>
 
 
 
-using namespace hsdk::win;
+using namespace hsdk::framework;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(UserTimeStream, void, update_Time)(
-	/* [x] */ void)
+CLASS_IMPL_FUNC_T(Framework_UserTimeStream, void, update_Time)(
+	_X_ void)
 {
 	// Get the app's time, in seconds. Skip rendering if no time elapsed
 	double fTime, fAbsTime; float fElapsedTime;
@@ -51,8 +51,8 @@ CLASS_IMPL_FUNC_T(UserTimeStream, void, update_Time)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(UserTimeStream, void, update_Frame)(
-	/* [x] */ void)
+CLASS_IMPL_FUNC_T(Framework_UserTimeStream, void, update_Frame)(
+	_X_ void)
 {
 	if (my_OneSecond < 1.0f)
 	{
@@ -69,8 +69,8 @@ CLASS_IMPL_FUNC_T(UserTimeStream, void, update_Frame)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(UserTimeStream, void, reset)(
-	/* [x] */ void)
+CLASS_IMPL_FUNC_T(Framework_UserTimeStream, void, reset)(
+	_X_ void)
 {
 	my_Time = 0.0f;
 	my_ElapsedTime = 0.0f;
@@ -78,7 +78,7 @@ CLASS_IMPL_FUNC_T(UserTimeStream, void, reset)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(UserTimeStream, add_Timer)(
+CLASS_IMPL_FUNC(Framework_UserTimeStream, add_Timer)(
 	_In_ CALLBACK_ALARM _callbackTimer,
 	_In_ float _fTimeoutInSecs,
 	_In_ unsigned int * _nIDEvent,
@@ -111,7 +111,7 @@ CLASS_IMPL_FUNC(UserTimeStream, add_Timer)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(UserTimeStream, remove_Timer)(
+CLASS_IMPL_FUNC(Framework_UserTimeStream, remove_Timer)(
 	_In_ unsigned int _nIDEvent)
 {
 	auto begin = my_AlarmEvents.begin();
@@ -130,7 +130,7 @@ CLASS_IMPL_FUNC(UserTimeStream, remove_Timer)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(UserTimeStream, void, pause_Time)(
+CLASS_IMPL_FUNC_T(Framework_UserTimeStream, void, pause_Time)(
 	_In_ BOOL _pauseTime)
 {
 	int nPauseTimeCount = my_PauseTimeCount;
@@ -164,14 +164,14 @@ CLASS_IMPL_FUNC_T(UserTimeStream, void, pause_Time)(
 
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(UserTimeStream, BOOL, is_Time_Paused)(
-	/* [x] */ void)const
+CLASS_IMPL_FUNC_T(Framework_UserTimeStream, BOOL, is_Time_Paused)(
+	_X_ void)const
 {
 	return my_PauseTime;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(UserTimeStream, void, pause_Rendering)(
+CLASS_IMPL_FUNC_T(Framework_UserTimeStream, void, pause_Rendering)(
 	_In_ BOOL _pauseRendering)
 {
 	int nPauseRenderingCount = my_PauseRenderingCount;
@@ -194,35 +194,35 @@ CLASS_IMPL_FUNC_T(UserTimeStream, void, pause_Rendering)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(UserTimeStream, BOOL, is_Rendering_Paused)(
-	/* [x] */ void)const
+CLASS_IMPL_FUNC_T(Framework_UserTimeStream, BOOL, is_Rendering_Paused)(
+	_X_ void)const
 {
 	return my_PauseRendering;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(UserTimeStream, double, get_Time)(
-	/* [x] */ void)const
+CLASS_IMPL_FUNC_T(Framework_UserTimeStream, double, get_Time)(
+	_X_ void)const
 {
 	return my_Time;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(UserTimeStream, float, get_ElapsedTime)(
-	/* [x] */ void)const
+CLASS_IMPL_FUNC_T(Framework_UserTimeStream, float, get_ElapsedTime)(
+	_X_ void)const
 {
 	return my_ElapsedTime;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(UserTimeStream, float, get_FPS)(
-	/* [x] */ void)const
+CLASS_IMPL_FUNC_T(Framework_UserTimeStream, float, get_FPS)(
+	_X_ void)const
 {
 	return my_Fps;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(UserTimeStream, void, set_ConstantFrameTime)(
+CLASS_IMPL_FUNC_T(Framework_UserTimeStream, void, set_ConstantFrameTime)(
 	_In_ BOOL _constantFrameTime,
 	_In_ float _fTimePerFrame)
 {
