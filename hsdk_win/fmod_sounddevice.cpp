@@ -1,6 +1,3 @@
-///////////////////////////////////////////////////////////////////////////////
-// Filename: soundclass.cpp
-///////////////////////////////////////////////////////////////////////////////
 #include <hsdk/win/sound/fmod_sounddevice.h>
 #include <string>
 #include <vector>
@@ -90,38 +87,50 @@ CLASS_IMPL_FUNC(FMOD_SoundDevice, load_WaveFile)(
 	_Out_ FMOD::Sound ** _sound,
 	_Out_opt_ FMOD_CREATESOUNDEXINFO * info)
 {
-	char atow[256];
-	wcstombs_s<256>(nullptr, atow, _directory, sizeof(atow));
-
-	FILE * file;
-	if (fopen_s(&file, atow, "rb") == 0)
+	auto iter = g_SoundContainer.find(_directory);
+	if (iter != g_SoundContainer.end())
 	{
-		fseek(file, 0, SEEK_END);
-		long len = ftell(file);
-		fseek(file, 0, SEEK_SET);
-
-		std::vector<char> mem(len);
-		fread(&mem[0], 1, len, file);
-
-		fclose(file);
-
-		FMOD_CREATESOUNDEXINFO exinfo;
-		memset(&exinfo, 0, sizeof(FMOD_CREATESOUNDEXINFO));
-		exinfo.cbsize = sizeof(FMOD_CREATESOUNDEXINFO);
-		exinfo.length = len;
-
-		FMOD_RESULT result = g_SoundDevice->createSound(&mem[0], FMOD_OPENMEMORY | FMOD_LOOP_OFF, &exinfo, _sound);
-		if (result != FMOD_OK)
-		{
-			return ADD_FLAG(HSDK_FAIL, result);
-		}
-
-		if (info)
-		{
-			(*info) = exinfo;
-		}
+		(*_sound) = iter->second;
 
 		return FMOD_OK;
+	}
+	else
+	{
+		char atow[256];
+		wcstombs_s<256>(nullptr, atow, _directory, sizeof(atow));
+
+		FILE * file;
+		if (fopen_s(&file, atow, "rb") == 0)
+		{
+			fseek(file, 0, SEEK_END);
+			long len = ftell(file);
+			fseek(file, 0, SEEK_SET);
+
+			std::vector<char> mem(len);
+			fread(&mem[0], 1, len, file);
+
+			fclose(file);
+
+			FMOD_CREATESOUNDEXINFO exinfo;
+			memset(&exinfo, 0, sizeof(FMOD_CREATESOUNDEXINFO));
+			exinfo.cbsize = sizeof(FMOD_CREATESOUNDEXINFO);
+			exinfo.length = len;
+
+			FMOD_RESULT result = g_SoundDevice->createSound(&mem[0], FMOD_OPENMEMORY | FMOD_LOOP_OFF, &exinfo, _sound);
+			if (result != FMOD_OK)
+			{
+				return ADD_FLAG(HSDK_FAIL, result);
+			}
+
+			if (info)
+			{
+				(*info) = exinfo;
+			}
+
+			g_SoundContainer[_directory] = (*_sound);
+
+			return FMOD_OK;
+		}
 	}
 
 	return 0x80070057L;
