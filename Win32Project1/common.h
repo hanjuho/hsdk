@@ -19,10 +19,6 @@
 
 
 using namespace hsdk;
-using namespace framework;
-using namespace frame;
-using namespace direct3d;
-using namespace sound;
 
 
 
@@ -30,19 +26,20 @@ namespace common
 {
 
 	// 설명 : 
-	DECL_FUNC(initialize_Common)(
+	inline DECL_FUNC(initialize_Common)(
 		_X_ void);
 
 	// 설명 : 
-	DECL_FUNC_T(void, destroy_Common)(
+	inline DECL_FUNC_T(void, destroy_Common)(
 		_X_ void);
 
 	// 설명 : 
-	DECL_FUNC(OnD3D10SwapchainResized)(
+	inline DECL_FUNC(OnD3D10SwapchainResized)(
 		_In_ ID3D10Device * _d3dDevice,
 		_In_ IDXGISwapChain * _swapChain,
 		_In_ const DXGI_SURFACE_DESC & _backBufferSurfaceDesc,
 		_Inout_ void * _userContext);
+
 }
 
 

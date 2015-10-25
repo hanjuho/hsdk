@@ -42,7 +42,7 @@ namespace entry
 
 	// 설명 : 
 	DECL_FUNC_T(BOOL, ModifyDeviceSettings)(
-		_In_ const D3D10_DEVICE_DESC & _deviceSettings,
+		_In_ const framework::D3D10_DEVICE_DESC & _deviceSettings,
 		_Inout_ void * _userContext);
 
 	// 설명 : 

@@ -6,17 +6,17 @@
 IMPL_FUNC(common::initialize_Common)(
 	_X_ void)
 {
-	return g_Direct8_SoundDevice.initialize() | g_D3D10_MeshRenderer.initialize(L"");
+	return sound::g_Direct8_SoundDevice.initialize() | direct3d::g_D3D10_MeshRenderer.initialize(L"");
 }
 
 //--------------------------------------------------------------------------------------
 IMPL_FUNC_T(void, common::destroy_Common)(
 	_X_ void)
 {
-	g_Direct8_SoundDevice.destroy();
-	g_D3D10_MeshRenderer.destroy();
-	g_D3D10_Factory.destroy();
-	g_Framework.destroy();
+	sound::g_Direct8_SoundDevice.destroy();
+	direct3d::g_D3D10_MeshRenderer.destroy();
+	direct3d::g_D3D10_Factory.destroy();
+	framework::g_Framework.destroy();
 }
 
 //--------------------------------------------------------------------------------------

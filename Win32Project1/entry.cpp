@@ -7,20 +7,20 @@
 //--------------------------------------------------------------------------------------
 
 // 설명 : 
-ButtonCompo g_Button(100.0f, 100.0f, 540.0f, 413.0f);
-inputEventHelper g_Helper(&g_Button);
+frame::ButtonCompo g_Button(100.0f, 100.0f, 540.0f, 413.0f);
+frame::inputEventHelper g_Helper(&g_Button);
 
 // 설명 : 
-Framework_Camera g_Camera;
+framework::Framework_Camera g_Camera;
 
 // 설명 : 
-D3D10_Mesh g_Mesh;
-D3D10_MeshAnimation g_MeshAnimation;
+direct3d::D3D10_Mesh g_Mesh;
+direct3d::D3D10_MeshAnimation g_MeshAnimation;
 std::vector<D3DXMATRIX> g_boneMatrixBuffer;
 
-D3D10_Mesh g_SkyBox;
+direct3d::D3D10_Mesh g_SkyBox;
 
-Direct8_SoundPlayer g_Player[3];
+sound::Direct8_SoundPlayer g_Player[3];
 
 D3DXMATRIX g_World;
 
@@ -111,7 +111,7 @@ IMPL_FUNC_T(void, OnFrameMove)(
 
 //--------------------------------------------------------------------------------------
 IMPL_FUNC_T(BOOL, ModifyDeviceSettings)(
-	_In_ const D3D10_DEVICE_DESC & _deviceSettings,
+	_In_ const framework::D3D10_DEVICE_DESC & _deviceSettings,
 	_Inout_ void * _userContext)
 {
 	return true;
@@ -145,16 +145,16 @@ IMPL_FUNC(OnD3D10CreateDevice)(
 	g_Button.set_Visible(true);
 
 	// g_Bone
-	g_D3D10_Factory.create_MeshFromFile(g_Mesh, nullptr, L"data/DeathwingHuman.X", &g_MeshAnimation);
+	direct3d::g_D3D10_Factory.create_MeshFromFile(g_Mesh, nullptr, L"data/DeathwingHuman.X", &g_MeshAnimation);
 
 	g_boneMatrixBuffer.resize(g_MeshAnimation.get_NumOfBones());
-	g_MeshAnimation.transbone(&g_boneMatrixBuffer[0], g_boneMatrixBuffer.size(), g_D3D10_ViewMatrix);
+	g_MeshAnimation.transbone(&g_boneMatrixBuffer[0], g_boneMatrixBuffer.size(), direct3d::g_D3D10_ViewMatrix);
 
 	// g_SkyBox
-	g_D3D10_Factory.create_MeshSkyBox(g_SkyBox, 10.0f);
+	direct3d::g_D3D10_Factory.create_MeshSkyBox(g_SkyBox, 10.0f);
 
 	AutoRelease<ID3D10ShaderResourceView> texture;
-	g_D3D10_Factory.create_SkyBoxTexture(&texture, 512, 512,
+	direct3d::g_D3D10_Factory.create_SkyBoxTexture(&texture, 512, 512,
 		L"background/blood_sport512_front.jpg",
 		L"background/blood_sport512_back.jpg",
 		L"background/blood_sport512_left.jpg",
@@ -185,17 +185,17 @@ IMPL_FUNC_T(void, OnD3D10FrameRender)(
 	
 	D3DXMATRIX m = direct3d::g_D3D10_ViewMatrix * direct3d::g_D3D10_ProjMatrix;
 
-	g_D3D10_MeshRenderer.render_SkyBox(
+	direct3d::g_D3D10_MeshRenderer.render_SkyBox(
 		m, g_SkyBox);
 
-	g_D3D10_MeshRenderer.render_Skinned(
+	direct3d::g_D3D10_MeshRenderer.render_Skinned(
 		m, g_Mesh,
 		&g_boneMatrixBuffer[0],
 		g_boneMatrixBuffer.size());
 
 	g_Button.render();
 
-	g_Direct8_SoundDevice.get_SoundListener()->CommitDeferredSettings();
+	sound::g_Direct8_SoundDevice.get_SoundListener()->CommitDeferredSettings();
 }
 
 //--------------------------------------------------------------------------------------
