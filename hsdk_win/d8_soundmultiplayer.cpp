@@ -168,8 +168,6 @@ CLASS_IMPL_FUNC_T(Direct8_SoundStreamPlayer, void, play)(
 	{
 		MY_SOUND & sound = sounds[my_PlayStart + index];
 
-		sound.playtime += _deltaTime;
-		sound.soundPlayer->SetCurrentPosition(sound.playtime);
-		sound.soundPlayer->Play(0, 0, 0);
+
 	}
 }

@@ -39,21 +39,7 @@ namespace entry
 		_In_ double _fTime,
 		_In_ float _fElapsedTime,
 		_Inout_ void * _userContext);
-
-	// 설명 : 
-	DECL_FUNC_T(BOOL, ModifyDeviceSettings)(
-		_In_ const framework::D3D10_DEVICE_DESC & _deviceSettings,
-		_Inout_ void * _userContext);
-
-	// 설명 : 
-	DECL_FUNC_T(BOOL, IsD3D10DeviceAcceptable)(
-		_In_ unsigned int _adapter,
-		_In_ unsigned int _output,
-		_In_ D3D10_DRIVER_TYPE _deviceType,
-		_In_ DXGI_FORMAT _backBufferFormat,
-		_In_ BOOL _windowed,
-		_Inout_ void * _userContext);
-
+	
 	// 설명 : 
 	DECL_FUNC(OnD3D10CreateDevice)(
 		_In_ ID3D10Device * _d3dDevice,

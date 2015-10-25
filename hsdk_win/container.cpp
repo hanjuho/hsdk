@@ -7,6 +7,17 @@ using namespace hsdk::frame;
 
 
 //--------------------------------------------------------------------------------------
+CLASS_IMPL_CONSTRUCTOR(Container, Container)(
+	_In_ float _x,
+	_In_ float _y,
+	_In_ float _w,
+	_In_ float _h)
+	: Component(_x, _y, _w, _h)
+{
+
+}
+
+//--------------------------------------------------------------------------------------
 CLASS_IMPL_DESTRUCTOR(Container, Container)(void)
 {
 	std::hash_map<unsigned int, Component *>::iterator iter = m_Container.begin();

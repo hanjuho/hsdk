@@ -359,15 +359,18 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_MeshFromFile)(
 	wchar_t wtoa[256];
 	ZeroMemory(wtoa, sizeof(wtoa));
 
-	char atow[256];
+	if (_filePath)
+	{
+		wcscat_s<256>(wtoa, _filePath);
+	}
 
-	wcscat_s<256>(wtoa, _filePath);
 	const unsigned int nameOffset = wcslen(wtoa);
 	const unsigned int bufferSize = 256 - nameOffset;
 	wcscat_s(&wtoa[nameOffset], bufferSize, _fileName);
 
 	_mesh.userSet_MeshPath(wtoa);
-
+	
+	char atow[256];
 	wcstombs_s<256>(nullptr, atow, wtoa, sizeof(atow));
 	const aiScene * scene = g_importer.ReadFile(
 		atow,

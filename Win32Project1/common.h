@@ -8,13 +8,15 @@
 
 #include <hsdk/win/framework.h>
 #include <hsdk/win/framework_camera.h>
+
+#include <hsdk/win/frame/container.h>
 #include <hsdk/win/frame/buttoncompo.h>
 #include <hsdk/win/frame/inputeventhelper.h>
+
 #include <hsdk/win/direct3d/d3d10_factory.h>
 #include <hsdk/win/direct3d/d3d10_mesh.h>
 #include <hsdk/win/direct3d/d3d10_meshrenderer.h>
-#include <hsdk/win/sound/d8_sounddevice.h>
-#include <hsdk/win/sound/d8_soundplayer.h>
+#include <hsdk/win/sound/fmod_sounddevice.h>
 
 
 

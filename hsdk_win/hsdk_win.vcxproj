@@ -41,13 +41,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ASSIMP_DIR)include;$(DXSDK_DIR)include;$(HSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ASSIMP_DIR)lib\x86;$(DXSDK_DIR)lib\x86;$(HSDK_DIR)lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SDK_DIR)assimp\include;$(SDK_DIR)fmod\include;$(SDK_DIR)hsdk\include;$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SDK_DIR)assimp\lib\x86;$(SDK_DIR)fmod\lib;$(SDK_DIR)hsdk\lib;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(ASSIMP_DIR)include;$(DXSDK_DIR)include;$(HSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ASSIMP_DIR)lib\x86;$(DXSDK_DIR)lib\x86;$(HSDK_DIR)lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SDK_DIR)assimp\include;$(SDK_DIR)fmod\include;$(SDK_DIR)hsdk\include;$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SDK_DIR)assimp\lib\x86;$(SDK_DIR)fmod\lib;$(SDK_DIR)hsdk\lib;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -96,6 +96,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClCompile Include="d3d10_meshanimation.cpp" />
     <ClCompile Include="d8_sounddevice.cpp" />
     <ClCompile Include="d8_soundmultiplayer.cpp" />
+    <ClCompile Include="fmod_sounddevice.cpp" />
     <ClCompile Include="framework.cpp" />
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="inputeventhelper.cpp" />
@@ -145,8 +146,10 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\common.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_sounddevice.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundmultiplayer.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\common.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_common.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundplayer.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\fmod_common.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\fmod_sounddevice.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\thread\thread.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\thread\task.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\wictextureloader.h" />

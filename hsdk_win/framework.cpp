@@ -252,7 +252,10 @@ CLASS_IMPL_FUNC(Framework, setup2_Device9)(
 	g_State.calledModifiedBackBuffer = false;
 
 	HRESULT hr;
-	if (FAILED(hr = g_DeviceFactory->create9(g_Device, _desc, &g_Callbacks)))
+	if (FAILED(hr = g_DeviceFactory->create9(
+		g_Device, 
+		_desc, 
+		&g_Callbacks)))
 	{
 		g_State.setupDevice = FALSE;
 		return hr;
@@ -298,7 +301,11 @@ CLASS_IMPL_FUNC(Framework, setup2_Device10)(
 	g_State.calledModifiedBackBuffer = true;
 
 	HRESULT hr;
-	if (FAILED(hr = g_DeviceFactory->create10(g_Device, _desc, &g_Callbacks)))
+	if (FAILED(hr = g_DeviceFactory->create10(
+		g_Device,
+		_desc,
+		&g_Callbacks,
+		false)))
 	{
 		g_State.setupDevice = FALSE;
 		return hr;
@@ -533,75 +540,47 @@ CLASS_IMPL_FUNC(Framework, transform)(
 		{
 			if (g_D3D10Descs)
 			{
-				D3D10_DEVICE_DESC desc(0, 0, 0);
-				memcpy(g_D3D10Descs, &desc, sizeof(D3D10_DEVICE_DESC));
+				D3D10_DEVICE_DESC backUp = *g_D3D10Descs;
 
-				desc.sd.Windowed = resultWindowed;
-				desc.sd.BufferDesc.Width = resultWidth;
-				desc.sd.BufferDesc.Height = resultHeight;
-
-				CALLBACK_MODIFY_DEVICE10_SETTINGS callback_Modify =
-					g_Callbacks.modifyDevice10SettingsFunc;
-
-				if (callback_Modify)
-				{
-					IF_FALSE(callback_Modify(
-						desc, g_Callbacks.modifyDevice10SettingsFuncUserContext))
-					{
-						return E_FAIL;
-					}
-				}
+				g_D3D10Descs->sd.Windowed = resultWindowed;
+				g_D3D10Descs->sd.BufferDesc.Width = resultWidth;
+				g_D3D10Descs->sd.BufferDesc.Height = resultHeight;
 
 				IF_FAILED(hr = g_DeviceFactory->resize10(
-					g_Device, desc, &g_Callbacks))
+					g_Device, *g_D3D10Descs, &g_Callbacks))
 				{
+					memcpy(g_D3D10Descs, &backUp, sizeof(D3D10_DEVICE_DESC));
 					return hr;
 				}
-
-				memcpy(g_D3D10Descs, &desc, sizeof(D3D10_DEVICE_DESC));
 			}
 			else if (g_D3D9Descs)
 			{
 
-				D3D9_DEVICE_DESC desc(0, 0, 0);
-				memcpy(g_D3D9Descs, &desc, sizeof(D3D9_DEVICE_DESC));
+				D3D9_DEVICE_DESC backUp = *g_D3D9Descs;
 
-				desc.pp.Windowed = resultWindowed;
-				desc.pp.BackBufferWidth = resultWidth;
-				desc.pp.BackBufferHeight = resultHeight;
-
-				CALLBACK_MODIFY_DEVICE9_SETTINGS callback_Modify =
-					g_Callbacks.modifyDevice9SettingsFunc;
-
-				if (callback_Modify)
-				{
-					IF_FALSE(callback_Modify(
-						desc, g_Callbacks.modifyDevice9SettingsFuncUserContext))
-					{
-						return E_FAIL;
-					}
-				}
+				g_D3D9Descs->pp.Windowed = resultWindowed;
+				g_D3D9Descs->pp.BackBufferWidth = resultWidth;
+				g_D3D9Descs->pp.BackBufferHeight = resultHeight;
 
 				IF_FAILED(hr = g_DeviceFactory->restore9(
-					g_Device, desc, &g_Callbacks))
+					g_Device, *g_D3D9Descs, &g_Callbacks))
 				{
+					memcpy(g_D3D9Descs, &backUp, sizeof(D3D9_DEVICE_DESC));
 					return hr;
 				}
 
-				memcpy(g_D3D9Descs, &desc, sizeof(D3D9_DEVICE_DESC));
 			}
 		}
 		else if (g_Window.adapter != resultAdapter)
 		{
 			if (g_D3D10Descs)
 			{
-				D3D10_DEVICE_DESC desc(0, 0, 0);
-				memcpy(g_D3D10Descs, &desc, sizeof(D3D10_DEVICE_DESC));
+				D3D10_DEVICE_DESC newDesc = *g_D3D10Descs;
 
-				desc.adapterOrdinal = resultAdapter;
-				desc.sd.Windowed = resultWindowed;
-				desc.sd.BufferDesc.Width = resultWidth;
-				desc.sd.BufferDesc.Height = resultHeight;
+				newDesc.adapterOrdinal = resultAdapter;
+				newDesc.sd.Windowed = resultWindowed;
+				newDesc.sd.BufferDesc.Width = resultWidth;
+				newDesc.sd.BufferDesc.Height = resultHeight;
 
 				CALLBACK_MODIFY_DEVICE10_SETTINGS callback_Modify =
 					g_Callbacks.modifyDevice10SettingsFunc;
@@ -609,30 +588,29 @@ CLASS_IMPL_FUNC(Framework, transform)(
 				if (callback_Modify)
 				{
 					IF_FALSE(callback_Modify(
-						desc, g_Callbacks.modifyDevice10SettingsFuncUserContext))
+						newDesc, g_Callbacks.modifyDevice10SettingsFuncUserContext))
 					{
 						return E_FAIL;
 					}
 				}
 
 				IF_FAILED(g_DeviceFactory->reset10(
-					g_Device, desc, &g_Callbacks))
+					g_Device, newDesc, &g_Callbacks))
 				{
 					g_State.setupDevice = FALSE;
 					return setup2_Device10(*g_D3D10Descs);
 				}
-
-				memcpy(g_D3D10Descs, &desc, sizeof(D3D10_DEVICE_DESC));
 			}
 			else if (g_D3D9Descs)
 			{
 
-				D3D9_DEVICE_DESC desc(0, 0, 0);
-				memcpy(g_D3D9Descs, &desc, sizeof(D3D9_DEVICE_DESC));
+				D3D9_DEVICE_DESC newDesc = *g_D3D9Descs;
+				memcpy(g_D3D9Descs, &newDesc, sizeof(D3D9_DEVICE_DESC));
 
-				desc.pp.Windowed = resultWindowed;
-				desc.pp.BackBufferWidth = resultWidth;
-				desc.pp.BackBufferHeight = resultHeight;
+				newDesc.adapterOrdinal = resultAdapter;
+				newDesc.pp.Windowed = resultWindowed;
+				newDesc.pp.BackBufferWidth = resultWidth;
+				newDesc.pp.BackBufferHeight = resultHeight;
 
 				CALLBACK_MODIFY_DEVICE9_SETTINGS callback_Modify =
 					g_Callbacks.modifyDevice9SettingsFunc;
@@ -640,23 +618,26 @@ CLASS_IMPL_FUNC(Framework, transform)(
 				if (callback_Modify)
 				{
 					IF_FALSE(callback_Modify(
-						desc, g_Callbacks.modifyDevice9SettingsFuncUserContext))
+						newDesc, g_Callbacks.modifyDevice9SettingsFuncUserContext))
 					{
 						return E_FAIL;
 					}
 				}
 
 				IF_FAILED(g_DeviceFactory->reset9(
-					g_Device, desc, &g_Callbacks))
+					g_Device, newDesc, &g_Callbacks))
 				{
 					g_State.setupDevice = FALSE;
-					return setup2_Device9(desc);
+					return setup2_Device9(newDesc);
 				}
-
-				memcpy(g_D3D9Descs, &desc, sizeof(D3D9_DEVICE_DESC));
 			}
 		}
 	}
+
+	g_Window.windowed = resultWindowed;
+	g_Window.width = resultWidth;
+	g_Window.height = resultHeight;
+	g_Window.adapter = resultAdapter;
 
 	if (resultWindowed)
 	{
@@ -707,10 +688,6 @@ CLASS_IMPL_FUNC(Framework, transform)(
 		SetThreadExecutionState(ES_CONTINUOUS);
 	}
 
-	g_Window.windowed = resultWindowed;
-	g_Window.width = resultWidth;
-	g_Window.height = resultHeight;
-	g_Window.adapter = resultAdapter;
 	g_State.calledModifiedBackBuffer = false;
 
 	return S_OK;
@@ -1412,39 +1389,8 @@ LRESULT CALLBACK direct3D_WndProc(
 		}
 	}
 
-	// Pass all messages to the app's MsgProc callback, and don't 
-	// process further messages if the apps says not to.
-	CALLBACK_MSGPROC callback_MsgProc =
-		g_Callbacks.windowMsgFunc;
-
-	if (callback_MsgProc)
+	if (_uMsg == WM_SIZE)
 	{
-		BOOL bNoFurtherProcessing = false;
-		LRESULT nResult = callback_MsgProc(
-			&bNoFurtherProcessing,
-			_hWnd,
-			_uMsg,
-			_wParam,
-			_lParam,
-			g_Callbacks.windowMsgFuncUserContext);
-
-		if (bNoFurtherProcessing)
-		{
-			return nResult;
-		}
-	}
-
-	switch (_uMsg)
-	{
-	case WM_PAINT:
-		// Handle paint messages when the app is paused
-		if (g_TimeStream.is_Rendering_Paused())
-		{
-			g_Framework.render();
-		}
-		break;
-
-	case WM_SIZE:
 		if (SIZE_MINIMIZED == _wParam)
 		{
 			g_Window.minimizedSize = true;
@@ -1498,6 +1444,38 @@ LRESULT CALLBACK direct3D_WndProc(
 			{
 				g_Window.maximizedSize = false;
 			}
+		}
+	}
+
+	// Pass all messages to the app's MsgProc callback, and don't 
+	// process further messages if the apps says not to.
+	CALLBACK_MSGPROC callback_MsgProc =
+		g_Callbacks.windowMsgFunc;
+
+	if (callback_MsgProc)
+	{
+		BOOL bNoFurtherProcessing = false;
+		LRESULT nResult = callback_MsgProc(
+			&bNoFurtherProcessing,
+			_hWnd,
+			_uMsg,
+			_wParam,
+			_lParam,
+			g_Callbacks.windowMsgFuncUserContext);
+
+		if (bNoFurtherProcessing)
+		{
+			return nResult;
+		}
+	}
+
+	switch (_uMsg)
+	{
+	case WM_PAINT:
+		// Handle paint messages when the app is paused
+		if (g_TimeStream.is_Rendering_Paused())
+		{
+			g_Framework.render();
 		}
 		break;
 

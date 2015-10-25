@@ -41,13 +41,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Administrator\Desktop\sdks\FW1FontWrapper_1_1\include;$(DXSDK_DIR)include;$(HSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ASSIMP_DIR)lib\x86;$(DXSDK_DIR)lib\x86;$(HSDK_DIR)lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SDK_DIR)assimp\include;$(SDK_DIR)fmod\include;$(SDK_DIR)hsdk\include;$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SDK_DIR)assimp\lib\x86;$(SDK_DIR)fmod\lib;$(SDK_DIR)hsdk\lib;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(DXSDK_DIR)include;$(HSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(DXSDK_DIR)lib\x86;$(HSDK_DIR)lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SDK_DIR)assimp\include;$(SDK_DIR)fmod\include;$(SDK_DIR)hsdk\include;$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SDK_DIR)assimp\lib\x86;$(SDK_DIR)fmod\lib;$(SDK_DIR)hsdk\lib;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

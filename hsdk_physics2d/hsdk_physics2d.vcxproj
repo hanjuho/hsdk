@@ -41,13 +41,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(HSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(HSDK_DIR)lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SDK_DIR)hsdk\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SDK_DIR)hsdk\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(HSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(HSDK_DIR)lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SDK_DIR)hsdk\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SDK_DIR)hsdk\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

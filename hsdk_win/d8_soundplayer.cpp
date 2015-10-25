@@ -93,7 +93,5 @@ CLASS_IMPL_FUNC_T(Direct8_SoundPlayer, void, userSet_Translation)(
 CLASS_IMPL_FUNC_T(Direct8_SoundPlayer, void, play)(
 	_In_ double _deltaTime)
 {
-	my_Playtime += _deltaTime;
-	my_SoundPlayer->SetCurrentPosition(my_Playtime);
-	my_SoundPlayer->Play(0, 0, 0);
+
 }
