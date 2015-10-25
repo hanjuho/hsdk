@@ -72,6 +72,7 @@ CLASS_IMPL_FUNC_T(Framework_UserTimeStream, void, update_Frame)(
 CLASS_IMPL_FUNC_T(Framework_UserTimeStream, void, reset)(
 	_X_ void)
 {
+	my_Timer.reset();
 	my_Time = 0.0f;
 	my_ElapsedTime = 0.0f;
 	my_AbsoluteTime = 0.0f;

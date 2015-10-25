@@ -192,7 +192,7 @@ CLASS_IMPL_FUNC(Framework_Outside, initialize_DisplayModes)(
 			{
 				DEVMODE DevMode;
 				DevMode.dmSize = sizeof(DEVMODE);
-				if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &DevMode))
+				if (EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &DevMode))
 				{
 					numModes = 1;
 					descs[0].Width = DevMode.dmPelsWidth;

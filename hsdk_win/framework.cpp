@@ -757,11 +757,12 @@ CLASS_IMPL_FUNC(Framework, mainLoop)(
 	MSG msg;
 
 	msg.message = WM_NULL;
-	PeekMessage(&msg, NULL, 0U, 0U, PM_NOREMOVE);
+	PeekMessage(&msg, nullptr, 0U, 0U, PM_NOREMOVE);
 
+	g_TimeStream.reset();
 	while (WM_QUIT != msg.message)
 	{
-		while (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
+		while (PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE))
 		{
 			// Translate and dispatch the message
 			IF_FALSE(TranslateAccelerator(hWnd, _accel, &msg))
@@ -1245,7 +1246,7 @@ IMPL_FUNC_T(void, allow_ShortcutKeys)(
 			HHOOK hKeyboardHook = SetWindowsHookEx(
 				WH_KEYBOARD_LL,
 				direct3D_LowLevelKeyboardProc,
-				GetModuleHandle(NULL),
+				GetModuleHandle(nullptr),
 				0);
 
 			g_State.keyboardHook = hKeyboardHook;

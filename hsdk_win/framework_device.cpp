@@ -19,7 +19,7 @@ CLASS_IMPL_FUNC(Framework_DeviceFactory, create9)(
 		DEL_COM(d3d9);
 		return E_FAIL;
 	}
-	
+
 	HRESULT hr = E_FAIL;
 
 	D3DCAPS9 caps;
@@ -66,14 +66,24 @@ CLASS_IMPL_FUNC(Framework_DeviceFactory, create9)(
 
 	// Update back buffer desc before calling app's device callbacks
 	AutoRelease<IDirect3DSurface9> backBuffer;
-	IF_SUCCEEDED(d3d9Device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &backBuffer))
+	IF_FAILED(hr = d3d9Device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &backBuffer))
 	{
-		backBuffer->GetDesc(&backBufferDesc);
+		return hr;
 	}
+
+	backBuffer->GetDesc(&backBufferDesc);
+
+	_device.d3d9.~AutoRelease();
+	*(&_device.d3d9) = d3d9;
+
+	_device.d3d9Device = d3d9Device;
+	memcpy(&_device.backBuffer_Desc, &backBufferDesc, sizeof(D3DSURFACE_DESC));
+
+	D3DXCreateSprite(d3d9Device, &_device.d3d9Sprite);
 
 	if (_callback)
 	{
-		// Call the app's device created callback if non-NULL
+		// Call the app's device created callback if non-nullptr
 		CALLBACK_D3D9_DEVICE_CREATED pCallbackDeviceCreated =
 			_callback->d3d9DeviceCreatedFunc;
 
@@ -84,17 +94,6 @@ CLASS_IMPL_FUNC(Framework_DeviceFactory, create9)(
 				backBufferDesc,
 				_callback->d3d9DeviceCreatedFuncUserContext);
 		}
-	}
-
-	IF_SUCCEEDED(hr)
-	{
-		_device.d3d9.~AutoRelease();
-		*(&_device.d3d9) = d3d9;
-
-		_device.d3d9Device = d3d9Device;
-		memcpy(&_device.backBuffer_Desc, &backBufferDesc, sizeof(D3DSURFACE_DESC));
-
-		D3DXCreateSprite(d3d9Device, &_device.d3d9Sprite);
 	}
 
 	return hr;
@@ -124,10 +123,12 @@ CLASS_IMPL_FUNC(Framework_DeviceFactory, reset9)(
 
 	// Update back buffer desc before calling app's device callbacks
 	AutoRelease<IDirect3DSurface9> backBuffer;
-	IF_SUCCEEDED(_device.d3d9Device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &backBuffer))
+	IF_FAILED(hr = _device.d3d9Device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &backBuffer))
 	{
-		backBuffer->GetDesc(&_device.backBuffer_Desc);
+		return hr;
 	}
+
+	backBuffer->GetDesc(&_device.backBuffer_Desc);
 
 	if (_callback)
 	{
@@ -202,32 +203,32 @@ CLASS_IMPL_FUNC(Framework_DeviceFactory, restore9)(
 	IF_SUCCEEDED(_device.d3d9Device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &backBuffer))
 	{
 		backBuffer->GetDesc(&_device.backBuffer_Desc);
-	}
 
-	if (_callback)
-	{
-		// Call the app's OnDeviceReset callback
-		CALLBACK_D3D9_DEVICE_RESET callback_DeviceReset =
-			_callback->d3d9DeviceResetFunc;
-
-		if (callback_DeviceReset)
+		if (_callback)
 		{
-			IF_FAILED(hr = callback_DeviceReset(
-				_device.d3d9Device,
-				_device.backBuffer_Desc,
-				_callback->d3d9DeviceResetFuncUserContext))
+			// Call the app's OnDeviceReset callback
+			CALLBACK_D3D9_DEVICE_RESET callback_DeviceReset =
+				_callback->d3d9DeviceResetFunc;
+
+			if (callback_DeviceReset)
 			{
-				CALLBACK_D3D9_DEVICE_DESTROYED callback_DeviceDistroyed =
-					_callback->d3d9DeviceDestroyedFunc;
-
-				if (callback_DeviceDistroyed)
+				IF_FAILED(hr = callback_DeviceReset(
+					_device.d3d9Device,
+					_device.backBuffer_Desc,
+					_callback->d3d9DeviceResetFuncUserContext))
 				{
-					callback_DeviceDistroyed(
-						_callback->d3d9DeviceDestroyedFuncUserContext);
-				}
+					CALLBACK_D3D9_DEVICE_DESTROYED callback_DeviceDistroyed =
+						_callback->d3d9DeviceDestroyedFunc;
 
-				// If callback failed				
-				return create9(_device, _desc, _callback);
+					if (callback_DeviceDistroyed)
+					{
+						callback_DeviceDistroyed(
+							_callback->d3d9DeviceDestroyedFuncUserContext);
+					}
+
+					// If callback failed				
+					return create9(_device, _desc, _callback);
+				}
 			}
 		}
 	}
@@ -365,16 +366,30 @@ CLASS_IMPL_FUNC(Framework_DeviceFactory, create10)(
 	DXGI_SURFACE_DESC backBufferSurfaceDesc;
 
 	AutoRelease<ID3D10Texture2D> dxgiBackBuffer;
-	IF_SUCCEEDED(hr = dxgiSwapChain->GetBuffer(0, __uuidof(*dxgiBackBuffer), (void**)&dxgiBackBuffer))
+	IF_FAILED(hr = dxgiSwapChain->GetBuffer(0, __uuidof(*dxgiBackBuffer), (void**)&dxgiBackBuffer))
 	{
-		D3D10_TEXTURE2D_DESC TexDesc;
-		dxgiBackBuffer->GetDesc(&TexDesc);
-
-		backBufferSurfaceDesc.Width = (unsigned int)TexDesc.Width;
-		backBufferSurfaceDesc.Height = (unsigned int)TexDesc.Height;
-		backBufferSurfaceDesc.Format = TexDesc.Format;
-		backBufferSurfaceDesc.SampleDesc = TexDesc.SampleDesc;
+		return hr;
 	}
+
+	D3D10_TEXTURE2D_DESC TexDesc;
+	dxgiBackBuffer->GetDesc(&TexDesc);
+
+	backBufferSurfaceDesc.Width = (unsigned int)TexDesc.Width;
+	backBufferSurfaceDesc.Height = (unsigned int)TexDesc.Height;
+	backBufferSurfaceDesc.Format = TexDesc.Format;
+	backBufferSurfaceDesc.SampleDesc = TexDesc.SampleDesc;
+
+	_device.dxgiFactory.~AutoRelease();
+	*(&_device.dxgiFactory) = dxgiFactory;
+
+	_device.d3d10Device1 = d3d10Device1;
+	_device.d3d10Device = d3d10Device;
+	_device.dxgiSwapChain = dxgiSwapChain;
+	_device.dxgiBackBuffer = dxgiBackBuffer;
+
+	memcpy(&_device.dxgiBackBuffer_Desc, &backBufferSurfaceDesc, sizeof(DXGI_SURFACE_DESC));
+
+	D3DX10CreateSprite(d3d10Device, 0, &_device.d3d10Sprite);
 
 	if (_callback)
 	{
@@ -414,21 +429,6 @@ CLASS_IMPL_FUNC(Framework_DeviceFactory, create10)(
 		}
 	}
 
-	IF_SUCCEEDED(hr)
-	{
-		_device.dxgiFactory.~AutoRelease();
-		*(&_device.dxgiFactory) = dxgiFactory;
-
-		_device.d3d10Device1 = d3d10Device1;
-		_device.d3d10Device = d3d10Device;
-		_device.dxgiSwapChain = dxgiSwapChain;
-		_device.dxgiBackBuffer = dxgiBackBuffer;
-
-		memcpy(&_device.dxgiBackBuffer_Desc, &backBufferSurfaceDesc, sizeof(DXGI_SURFACE_DESC));
-
-		D3DX10CreateSprite(d3d10Device, 0, &_device.d3d10Sprite);
-	}
-
 	return setup_RenderTarget(_device, _desc);
 }
 
@@ -447,14 +447,14 @@ CLASS_IMPL_FUNC(Framework_DeviceFactory, resize10)(
 	unsigned int flag = 0;
 	if (_desc.sd.Windowed)
 	{
-		IF_FAILED(hr = _device.dxgiSwapChain->SetFullscreenState(FALSE, NULL))
+		IF_FAILED(hr = _device.dxgiSwapChain->SetFullscreenState(FALSE, nullptr))
 		{
 			return hr;
-		}		
+		}
 	}
 	else
 	{
-		IF_FAILED(hr = _device.dxgiSwapChain->SetFullscreenState(TRUE, NULL))
+		IF_FAILED(hr = _device.dxgiSwapChain->SetFullscreenState(TRUE, nullptr))
 		{
 			return hr;
 		}
@@ -463,36 +463,41 @@ CLASS_IMPL_FUNC(Framework_DeviceFactory, resize10)(
 	}
 
 	_device.d3d10Device->ClearState();
-	
+
 	// if do not initialize folow, to call ResizeBuffers fail
 	_device.dxgiBackBuffer.~AutoRelease();
 	_device.d3d10RTV.~AutoRelease();
 	_device.d3d10DSV.~AutoRelease();
 	_device.d3d10DepthStencil.~AutoRelease();
 	_device.d3d10DefaultRasterizerState.~AutoRelease();
-	
+
 	IF_FAILED(hr = _device.dxgiSwapChain->ResizeBuffers(
 		_desc.sd.BufferCount,
 		_desc.sd.BufferDesc.Width,
 		_desc.sd.BufferDesc.Height,
-		_desc.sd.BufferDesc.Format, 
+		_desc.sd.BufferDesc.Format,
 		flag))
 	{
 		return hr;
 	}
 
 	AutoRelease<ID3D10Texture2D> dxgiBackBuffer;
-	IF_SUCCEEDED(hr = _device.dxgiSwapChain->GetBuffer(0, __uuidof(*dxgiBackBuffer), (void**)&dxgiBackBuffer))
+	IF_FAILED(hr = _device.dxgiSwapChain->GetBuffer(0, __uuidof(*dxgiBackBuffer), (void**)&dxgiBackBuffer))
 	{
-		D3D10_TEXTURE2D_DESC TexDesc;
-		dxgiBackBuffer->GetDesc(&TexDesc);
+		return hr;
 
-		DXGI_SURFACE_DESC & dxgiBackBuffer_Desc = _device.dxgiBackBuffer_Desc;
-		dxgiBackBuffer_Desc.Width = (unsigned int)TexDesc.Width;
-		dxgiBackBuffer_Desc.Height = (unsigned int)TexDesc.Height;
-		dxgiBackBuffer_Desc.Format = TexDesc.Format;
-		dxgiBackBuffer_Desc.SampleDesc = TexDesc.SampleDesc;
 	}
+
+	D3D10_TEXTURE2D_DESC TexDesc;
+	dxgiBackBuffer->GetDesc(&TexDesc);
+
+	DXGI_SURFACE_DESC & dxgiBackBuffer_Desc = _device.dxgiBackBuffer_Desc;
+	dxgiBackBuffer_Desc.Width = (unsigned int)TexDesc.Width;
+	dxgiBackBuffer_Desc.Height = (unsigned int)TexDesc.Height;
+	dxgiBackBuffer_Desc.Format = TexDesc.Format;
+	dxgiBackBuffer_Desc.SampleDesc = TexDesc.SampleDesc;
+
+	_device.dxgiBackBuffer = dxgiBackBuffer;
 
 	if (_callback)
 	{
@@ -507,9 +512,8 @@ CLASS_IMPL_FUNC(Framework_DeviceFactory, resize10)(
 				_device.dxgiBackBuffer_Desc,
 				_callback->d3d10SwapChainResizedFuncUserContext);
 		}
-	}
 
-	_device.dxgiBackBuffer = dxgiBackBuffer;
+	}
 
 	return setup_RenderTarget(_device, _desc);
 }
@@ -695,7 +699,7 @@ CLASS_IMPL_FUNC(Framework_DeviceFactory, setup_RenderTarget)(
 		// Set the render targets
 		_device.d3d10Device->RSSetState(d3d10RasterizerState);
 		_device.d3d10Device->OMSetRenderTargets(1, &d3d10RTV, d3d10DSV);
-		
+
 		// initialize
 		_device.d3d10DSV = d3d10DSV;
 		_device.d3d10DepthStencil = d3d10DepthStencil;

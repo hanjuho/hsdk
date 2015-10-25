@@ -1,5 +1,5 @@
 #include <hsdk/win/sound/d8_soundmultiplayer.h>
-#include <hsdk/win/sound/d8_soundfactory.h>
+#include <hsdk/win/sound/d8_sounddevice.h>
 
 
 
@@ -41,8 +41,8 @@ CLASS_IMPL_FUNC(Direct8_SoundStreamPlayer, setup1_Sound)(
 
 	HRESULT hr;
 
-	IDirectSoundBuffer8 * sound;
-	IF_SUCCEEDED(hr = g_Direct8_SoundFactory.load_WaveFile(
+	IDirectSoundBuffer * sound;
+	IF_SUCCEEDED(hr = g_Direct8_SoundDevice.load_WaveFile(
 		_directory,
 		&sound))
 	{
@@ -61,7 +61,7 @@ CLASS_IMPL_FUNC(Direct8_SoundStreamPlayer, setup1_Sound)(
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Direct8_SoundStreamPlayer, setup1_Sound)(
 	_In_ unsigned int _indexOfSound,
-	_In_ IDirectSoundBuffer8 * _soundPlayer)
+	_In_ IDirectSoundBuffer * _soundBuffer)
 {
 	IF_FALSE(_indexOfSound < my_SoundStream.size())
 	{
@@ -70,24 +70,23 @@ CLASS_IMPL_FUNC(Direct8_SoundStreamPlayer, setup1_Sound)(
 
 	HRESULT hr;
 
-	// Get the 3D interface to the secondary sound buffer.
-	AutoRelease<IDirectSound3DBuffer8> sound3DOption;
-	IF_FAILED(hr = _soundPlayer->QueryInterface(IID_IDirectSound3DBuffer8, (void**)&sound3DOption))
+	// Test the buffer format against the direct sound 8 interface and create the secondary buffer.
+	AutoRelease<IDirectSoundBuffer8> soundPlayer;
+	IF_FAILED(_soundBuffer->QueryInterface(IID_IDirectSoundBuffer8, (void**)&soundPlayer))
 	{
-		return hr;
+		return false;
 	}
 
-	AutoRelease<IDirectSound3DListener8> sound3DListener;
-	// Test the buffer format against the direct sound 8 interface and create the secondary buffer.
-	IF_FAILED(hr = _soundPlayer->QueryInterface(IID_IDirectSoundBuffer8, (void**)&*sound3DListener))
+	// Get the 3D interface to the secondary sound buffer.
+	AutoRelease<IDirectSound3DBuffer8> sound3DOption;
+	IF_FAILED(hr = soundPlayer->QueryInterface(IID_IDirectSound3DBuffer8, (void**)&sound3DOption))
 	{
 		return hr;
 	}
 
 	MY_SOUND & sound = my_SoundStream[_indexOfSound];
-	sound.soundPlayer = AutoRelease<IDirectSoundBuffer8>(_soundPlayer);
+	sound.soundPlayer = soundPlayer;
 	sound.sound3DOption = sound3DOption;
-	sound.sound3DListener = sound3DListener;
 
 	return S_OK;
 }
@@ -170,7 +169,6 @@ CLASS_IMPL_FUNC_T(Direct8_SoundStreamPlayer, void, play)(
 		MY_SOUND & sound = sounds[my_PlayStart + index];
 
 		sound.playtime += _deltaTime;
-		sound.sound3DListener->CommitDeferredSettings();
 		sound.soundPlayer->SetCurrentPosition(sound.playtime);
 		sound.soundPlayer->Play(0, 0, 0);
 	}

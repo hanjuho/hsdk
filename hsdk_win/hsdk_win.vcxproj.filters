@@ -129,13 +129,13 @@
     <ClCompile Include="d8_soundplayer.cpp">
       <Filter>소스 파일\sound</Filter>
     </ClCompile>
-    <ClCompile Include="d8_soundfactory.cpp">
-      <Filter>소스 파일\sound</Filter>
-    </ClCompile>
     <ClCompile Include="d3d10_factory.cpp">
       <Filter>소스 파일\direct3d</Filter>
     </ClCompile>
     <ClCompile Include="d8_soundmultiplayer.cpp">
+      <Filter>소스 파일\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="d8_sounddevice.cpp">
       <Filter>소스 파일\sound</Filter>
     </ClCompile>
   </ItemGroup>
@@ -233,11 +233,11 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundplayer.h">
       <Filter>헤더 파일\sound</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundfactory.h">
-      <Filter>헤더 파일\sound</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_factory.h">
       <Filter>헤더 파일\direct3d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_sounddevice.h">
+      <Filter>헤더 파일\sound</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

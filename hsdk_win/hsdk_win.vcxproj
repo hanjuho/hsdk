@@ -94,7 +94,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClCompile Include="component.cpp" />
     <ClCompile Include="container.cpp" />
     <ClCompile Include="d3d10_meshanimation.cpp" />
-    <ClCompile Include="d8_soundfactory.cpp" />
+    <ClCompile Include="d8_sounddevice.cpp" />
     <ClCompile Include="d8_soundmultiplayer.cpp" />
     <ClCompile Include="framework.cpp" />
     <ClCompile Include="graphics.cpp" />
@@ -143,7 +143,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpserver.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpclient.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\common.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundfactory.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_sounddevice.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundmultiplayer.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\common.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundplayer.h" />
