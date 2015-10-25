@@ -1,4 +1,4 @@
-#include <hsdk/win/direct3d/d3d10_meshrenderer.h>
+#include <hsdk/win/direct3d/d3d10_renderer.h>
 #include <hsdk/win/framework.h>
 #include <d3d10effect.h>
 
@@ -108,7 +108,7 @@ hsdk::AutoRelease<ID3D10InputLayout> g_Skybox_inputLayout;
 wchar_t g_szEffect[MAX_PATH];
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize_Shader)(
+CLASS_IMPL_FUNC(D3D10_Renderer, initialize_Shader)(
 	_X_ const wchar_t * _directory)
 {
 	HRESULT hr = E_FAIL;
@@ -130,8 +130,15 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize_Shader)(
 		&error,
 		nullptr))
 	{
-		std::string err = std::string(LPCSTR(error->GetBufferPointer()), error->GetBufferSize());
-		MessageBoxA(nullptr, err.c_str(), "warning", MB_OK);
+		if (error)
+		{
+			std::string err = std::string(LPCSTR(error->GetBufferPointer()), error->GetBufferSize());
+			MessageBoxA(nullptr, err.c_str(), "warning", MB_OK);
+		}
+		else
+		{
+			MessageBoxA(nullptr, "not found FX file", "warning", MB_OK);
+		}
 
 		return hr;
 	}
@@ -184,7 +191,7 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize_Shader)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize_Layout)(
+CLASS_IMPL_FUNC(D3D10_Renderer, initialize_Layout)(
 	_X_ void)
 {
 	HRESULT hr = E_FAIL;
@@ -261,7 +268,7 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize_Layout)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize)(
+CLASS_IMPL_FUNC(D3D10_Renderer, initialize)(
 	_X_ const wchar_t * _shaderFilePath)
 {
 	HRESULT hr = E_FAIL;
@@ -339,7 +346,7 @@ CLASS_IMPL_FUNC(D3D10_MeshRenderer, initialize)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, destroy)(
+CLASS_IMPL_FUNC_T(D3D10_Renderer, void, destroy)(
 	_X_ void)
 {
 	g_D3D10Effect.~AutoRelease();
@@ -366,7 +373,7 @@ CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, destroy)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, render_Skinned)(
+CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_Skinned)(
 	_In_ D3DXMATRIX & _world,
 	_In_ const D3D10_Mesh & _mesh,
 	_In_ D3DXMATRIX * _boneMatrixs,
@@ -422,7 +429,7 @@ CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, render_Skinned)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, render_SkyBox)(
+CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_SkyBox)(
 	_In_ D3DXMATRIX & _world,
 	_In_ const D3D10_Mesh & _mesh)
 {
@@ -473,7 +480,7 @@ CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, render_SkyBox)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, render_UIRectangle)(
+CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_UIRectangle)(
 	_In_ D3DXMATRIX & _world,
 	_In_ D3DXVECTOR4 & _color,
 	_In_ float _persent)
@@ -507,7 +514,7 @@ CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, render_UIRectangle)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, render_UITexture)(
+CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_UITexture)(
 	_In_ D3DXMATRIX & _world,
 	_In_ ID3D10ShaderResourceView * _texture,
 	_In_ D3DXMATRIX & _texcoord,
@@ -547,7 +554,7 @@ CLASS_IMPL_FUNC_T(D3D10_MeshRenderer, void, render_UITexture)(
 //--------------------------------------------------------------------------------------
 
 // 설명 : 
-D3D10_MeshRenderer hsdk::direct3d::g_D3D10_MeshRenderer;
+D3D10_Renderer hsdk::direct3d::g_D3D10_Renderer;
 
 // 설명 :
 D3DXMATRIX hsdk::direct3d::g_D3D10_ViewMatrix = {

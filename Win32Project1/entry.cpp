@@ -14,6 +14,7 @@ frame::inputEventHelper g_GUI_Helper0(&g_GUI_Background0);
 
 // 설명 :
 FMOD::Sound * g_Sound_Background0;
+FMOD::Channel * g_Sound_Controller0;
 
 // 설명 : 
 const D3DXMATRIX g_World = {
@@ -51,7 +52,32 @@ IMPL_FUNC_T(void, entry::OnMouse)(
 	_In_ int _yPos,
 	_Inout_ void * _userContext)
 {
+	if (_buttonsDown[FRAMEWORK_LEFTBUTTON] == 1)
+	{
+		g_GUI_Helper0.onClick_Down(i::frame::LBUTTON, _xPos, _yPos);
+	}
+	else if (_buttonsDown[FRAMEWORK_LEFTBUTTON] == 2)
+	{
+		g_GUI_Helper0.onClick_Up(i::frame::LBUTTON, _xPos, _yPos);
+	}
 
+	if (_buttonsDown[FRAMEWORK_MIDDLEBUTTON])
+	{
+		g_GUI_Helper0.onClick_Down(i::frame::WBUTTON, _xPos, _yPos);
+	}
+	else if (_buttonsDown[FRAMEWORK_MIDDLEBUTTON] == 2)
+	{
+		g_GUI_Helper0.onClick_Up(i::frame::LBUTTON, _xPos, _yPos);
+	}
+
+	if (_buttonsDown[FRAMEWORK_RIGHTBUTTON])
+	{
+		g_GUI_Helper0.onClick_Down(i::frame::RBUTTON, _xPos, _yPos);
+	}
+	else if (_buttonsDown[FRAMEWORK_RIGHTBUTTON] == 2)
+	{
+		g_GUI_Helper0.onClick_Up(i::frame::LBUTTON, _xPos, _yPos);
+	}
 }
 
 //--------------------------------------------------------------------------------------
@@ -70,7 +96,7 @@ IMPL_FUNC_T(void, entry::OnFrameMove)(
 	_In_ float _fElapsedTime,
 	_Inout_ void * _userContext)
 {
-
+	sound::g_FMOD_SoundDevice.play();
 }
 
 //--------------------------------------------------------------------------------------
@@ -91,10 +117,24 @@ IMPL_FUNC(entry::OnD3D10CreateDevice)(
 		g_GUI_Background0.reform();
 		g_GUI_Background0.set_Visible(true);
 
+		frame::Component * button = new frame::ButtonCompo(10, 10, 312, 48);
+		button->graphics()->set_image(L"image/layout/button.png");
+		button->set_Visible(true);
+
+		g_GUI_Background0.add_Component(button);
+
 		// sound
-		sound::g_FMOD_SoundDevice.load_WaveFile(
-			L"sound/main_title.wav",
-			&g_Sound_Background0);
+		IF_SUCCEEDED(hr = sound::g_FMOD_SoundDevice.load_WaveFile(
+			&g_Sound_Background0,
+			&g_Sound_Controller0,
+			L"sound/main_title.wav"))
+		{
+			FMOD_VECTOR pos = { 0.0f, 0.0f, 0.0f };
+			FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
+
+			g_Sound_Controller0->setMode(FMOD_LOOP_NORMAL);
+			g_Sound_Controller0->set3DAttributes(&pos, &vel);
+		}
 	}
 
 	return hr;

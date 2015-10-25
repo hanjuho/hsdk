@@ -6,7 +6,14 @@
 IMPL_FUNC(common::initialize_Common)(
 	_X_ void)
 {
-	return sound::g_FMOD_SoundDevice.initialize() | direct3d::g_D3D10_MeshRenderer.initialize(L"");
+	HRESULT hr = sound::g_FMOD_SoundDevice.initialize() | direct3d::g_D3D10_Renderer.initialize(L"shader/");
+	IF_SUCCEEDED(hr)
+	{
+		float pos[3] = { 0.0f, 0.0f, 0.0f };
+		sound::g_FMOD_SoundDevice.move(pos);
+	}
+
+	return 0;
 }
 
 //--------------------------------------------------------------------------------------
@@ -14,7 +21,7 @@ IMPL_FUNC_T(void, common::destroy_Common)(
 	_X_ void)
 {
 	sound::g_FMOD_SoundDevice.destroy();
-	direct3d::g_D3D10_MeshRenderer.destroy();
+	direct3d::g_D3D10_Renderer.destroy();
 	direct3d::g_D3D10_Factory.destroy();
 	framework::g_Framework.destroy();
 }

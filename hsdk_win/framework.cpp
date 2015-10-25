@@ -706,7 +706,6 @@ CLASS_IMPL_FUNC_T(Framework, void, destroy)(
 
 	g_D3D10Descs.~AutoDelete();
 	g_D3D9Descs.~AutoDelete();
-	g_Device = Framework_Device();
 	g_DeviceFactory.~AutoDelete();
 	g_Window = Framework_Window();
 	g_State = Framework_State();

@@ -43,11 +43,13 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SDK_DIR)hsdk\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SDK_DIR)hsdk\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>..\..\..\bin</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SDK_DIR)hsdk\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SDK_DIR)hsdk\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>..\..\..\bin</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -63,8 +65,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>COPY "$(OutDir)hsdk_physics2d.lib" "$(HSDK_DIR)lib" /y
-COPY "$(OutDir)hsdk_physics2d.dll" "$(HSDK_DIR)lib" /y</Command>
+      <Command>COPY "$(OutDir)hsdk_physics2d.lib" "$(SDK_DIR)hsdk\lib" /y
+COPY "$(OutDir)hsdk_physics2d.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -85,8 +87,8 @@ COPY "$(OutDir)hsdk_physics2d.dll" "$(HSDK_DIR)lib" /y</Command>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>COPY "$(OutDir)hsdk_physics2d.lib" "$(HSDK_DIR)lib" /y
-COPY "$(OutDir)hsdk_physics2d.dll" "$(HSDK_DIR)lib" /y</Command>
+      <Command>COPY "$(OutDir)hsdk_physics2d.lib" "$(SDK_DIR)hsdk\lib" /y
+COPY "$(OutDir)hsdk_physics2d.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -112,13 +114,13 @@ COPY "$(OutDir)hsdk_physics2d.dll" "$(HSDK_DIR)lib" /y</Command>
   <ItemGroup>
     <ClCompile Include="collider2dcircle.cpp" />
     <ClCompile Include="collider2dpolygon.cpp" />
-    <ClCompile Include="physics2dengine.cpp" />
     <ClCompile Include="mainfold2d.cpp" />
     <ClCompile Include="matrix2d.cpp" />
+    <ClCompile Include="physics2dengine.cpp" />
     <ClCompile Include="physics2dobject.cpp" />
     <ClCompile Include="rigidbody2d.cpp" />
-    <ClCompile Include="vector2d.cpp" />
     <ClCompile Include="terrain2d.cpp" />
+    <ClCompile Include="vector2d.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

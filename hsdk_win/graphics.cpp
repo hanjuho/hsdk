@@ -1,6 +1,6 @@
 #include <hsdk/win/frame/graphics.h>
 #include <hsdk/win/framework.h>
-#include <hsdk/win/direct3d/d3d10_meshrenderer.h>
+#include <hsdk/win/direct3d/d3d10_renderer.h>
 
 
 
@@ -105,7 +105,7 @@ CLASS_IMPL_FUNC_T(Graphics, void, update)(
 	D3DXMatrixScaling(&s,
 		myWidth, myHeight, 0.0f);
 
-	my_Position = t * s;
+	my_Position = s * t;
 }
 
 //--------------------------------------------------------------------------------------
@@ -114,7 +114,7 @@ CLASS_IMPL_FUNC_T(Graphics, void, render)(
 {
 	if (my_Texture)
 	{
-		g_D3D10_MeshRenderer.render_UITexture(
+		g_D3D10_Renderer.render_UITexture(
 			my_Position,
 			my_Texture,
 			my_Texcoord,
@@ -122,7 +122,7 @@ CLASS_IMPL_FUNC_T(Graphics, void, render)(
 	}
 	else
 	{
-		g_D3D10_MeshRenderer.render_UIRectangle(
+		g_D3D10_Renderer.render_UIRectangle(
 			my_Position,
 			my_BGColor,
 			_persent);

@@ -43,11 +43,13 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SDK_DIR)assimp\include;$(SDK_DIR)fmod\include;$(SDK_DIR)hsdk\include;$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SDK_DIR)assimp\lib\x86;$(SDK_DIR)fmod\lib;$(SDK_DIR)hsdk\lib;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <OutDir>..\..\..\bin</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SDK_DIR)assimp\include;$(SDK_DIR)fmod\include;$(SDK_DIR)hsdk\include;$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SDK_DIR)assimp\lib\x86;$(SDK_DIR)fmod\lib;$(SDK_DIR)hsdk\lib;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <OutDir>..\..\..\bin</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -63,8 +65,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>COPY "$(OutDir)hsdk_win.lib" "$(HSDK_DIR)lib" /y
-COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
+      <Command>COPY "$(OutDir)hsdk_win.lib" "$(SDK_DIR)hsdk\lib" /y
+COPY "$(OutDir)hsdk_win.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -85,18 +87,18 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>COPY "$(OutDir)hsdk_win.lib" "$(HSDK_DIR)lib" /y
-COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
+      <Command>COPY "$(OutDir)hsdk_win.lib" "$(SDK_DIR)hsdk\lib" /y
+COPY "$(OutDir)hsdk_win.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="buttoncompo.cpp" />
     <ClCompile Include="component.cpp" />
     <ClCompile Include="container.cpp" />
+    <ClCompile Include="d3d10_font.cpp" />
     <ClCompile Include="d3d10_meshanimation.cpp" />
     <ClCompile Include="d8_sounddevice.cpp" />
     <ClCompile Include="d8_soundmultiplayer.cpp" />
-    <ClCompile Include="fmod_sounddevice.cpp" />
     <ClCompile Include="framework.cpp" />
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="inputeventhelper.cpp" />
@@ -113,11 +115,12 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClCompile Include="framework_wintimer.cpp" />
     <ClCompile Include="d3d10_factory.cpp" />
     <ClCompile Include="d3d10_mesh.cpp" />
-    <ClCompile Include="d3d10_meshrenderer.cpp" />
+    <ClCompile Include="d3d10_renderer.cpp" />
     <ClCompile Include="framework_camera.cpp" />
     <ClCompile Include="framework_usertimestream.cpp" />
     <ClCompile Include="framework_device.cpp" />
     <ClCompile Include="d8_soundplayer.cpp" />
+    <ClCompile Include="fmod_sounddevice.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\common.h" />
@@ -130,7 +133,8 @@ COPY "$(OutDir)hsdk_win.dll" "$(HSDK_DIR)lib" /y</Command>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_factory.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_mesh.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_meshanimation.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_meshrenderer.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_renderer.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_font.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework_camera.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework_device.h" />

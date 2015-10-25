@@ -96,9 +96,6 @@
     <ClCompile Include="d3d10_mesh.cpp">
       <Filter>소스 파일\direct3d</Filter>
     </ClCompile>
-    <ClCompile Include="d3d10_meshrenderer.cpp">
-      <Filter>소스 파일\direct3d</Filter>
-    </ClCompile>
     <ClCompile Include="buttoncompo.cpp">
       <Filter>소스 파일\frame</Filter>
     </ClCompile>
@@ -140,6 +137,12 @@
     </ClCompile>
     <ClCompile Include="fmod_sounddevice.cpp">
       <Filter>소스 파일\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="d3d10_renderer.cpp">
+      <Filter>소스 파일\direct3d</Filter>
+    </ClCompile>
+    <ClCompile Include="d3d10_font.cpp">
+      <Filter>소스 파일\direct3d</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -218,9 +221,6 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_meshanimation.h">
       <Filter>헤더 파일\direct3d</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_meshrenderer.h">
-      <Filter>헤더 파일\direct3d</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework_usertimestream.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -247,6 +247,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\fmod_sounddevice.h">
       <Filter>헤더 파일\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_font.h">
+      <Filter>헤더 파일\direct3d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_renderer.h">
+      <Filter>헤더 파일\direct3d</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

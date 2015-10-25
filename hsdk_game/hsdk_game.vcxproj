@@ -23,7 +23,7 @@
     <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -43,11 +43,13 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SDK_DIR)hsdk\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SDK_DIR)hsdk\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>..\..\..\bin</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SDK_DIR)hsdk\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SDK_DIR)hsdk\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>..\..\..\bin</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -62,6 +64,10 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>COPY "$(OutDir)hsdk_game.lib" "$(SDK_DIR)hsdk\lib" /y
+COPY "$(OutDir)hsdk_game.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -80,6 +86,10 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Command>COPY "$(OutDir)hsdk_game.lib" "$(SDK_DIR)hsdk\lib" /y
+COPY "$(OutDir)hsdk_game.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\actionlayer.h" />

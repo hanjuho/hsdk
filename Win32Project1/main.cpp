@@ -27,5 +27,7 @@ int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 		framework::g_Framework.mainLoop();
 	}
 
+	common::destroy_Common();
+
 	return 0;
 }

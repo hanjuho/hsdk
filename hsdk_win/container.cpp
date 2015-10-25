@@ -167,6 +167,8 @@ CLASS_IMPL_FUNC_T(Container, void, render)(
 {
 	if (is_Visible())
 	{
+		m_D3D10Graphics.render(1.0f);
+
 		auto iter = m_Container.begin();
 		auto end = m_Container.end();
 		while (iter != end)
@@ -174,8 +176,6 @@ CLASS_IMPL_FUNC_T(Container, void, render)(
 			iter->second->render();
 			iter++;
 		}
-
-		m_D3D10Graphics.render(1.0f);
 	}
 }
 

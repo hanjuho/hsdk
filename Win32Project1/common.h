@@ -15,7 +15,8 @@
 
 #include <hsdk/win/direct3d/d3d10_factory.h>
 #include <hsdk/win/direct3d/d3d10_mesh.h>
-#include <hsdk/win/direct3d/d3d10_meshrenderer.h>
+#include <hsdk/win/direct3d/d3d10_renderer.h>
+
 #include <hsdk/win/sound/fmod_sounddevice.h>
 
 

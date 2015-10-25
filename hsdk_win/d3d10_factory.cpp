@@ -18,6 +18,22 @@ using namespace hsdk::direct3d;
 // 
 //--------------------------------------------------------------------------------------
 
+// 설명 : 
+DECL_STRUCT(D3D10MY_TEXTURE)
+{
+
+	// 설명 : 
+	D3DX10_IMAGE_INFO info;
+
+	// 설명 : 
+	hsdk::AutoRelease<ID3D10ShaderResourceView> texture;
+
+};
+
+//--------------------------------------------------------------------------------------
+// 
+//--------------------------------------------------------------------------------------
+
 // Create an instance of the Importer class
 Assimp::Importer g_importer;
 

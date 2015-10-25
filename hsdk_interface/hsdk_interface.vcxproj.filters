@@ -80,7 +80,4 @@
       <Filter>헤더 파일\frame</Filter>
     </ClInclude>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="소스.cpp" />
-  </ItemGroup>
 </Project>
