@@ -8,7 +8,7 @@ using namespace hsdk::direct3d;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_Font,initialize)(
+CLASS_IMPL_FUNC(D3D10_Font, initialize)(
 	_In_ const char * _fontDirecoty,
 	_In_ const wchar_t * _fontTableDirecoty)
 {
@@ -38,7 +38,7 @@ CLASS_IMPL_FUNC(D3D10_Font,initialize)(
 	// Create the font spacing buffer.
 	my_DataTable.resize(95);
 	D3D10MY_FONTINFO * dispatch = &my_DataTable[0];
-	
+
 	// Read in the 95 used ascii characters for text.
 	char temp;
 	for (unsigned int index = 0; index < 95; ++index)
@@ -63,7 +63,7 @@ CLASS_IMPL_FUNC(D3D10_Font,initialize)(
 	// Close the file.
 	fin.close();
 
-	m_Texture = texture;	
+	my_Texture = texture;
 
 	return hr;
 }
@@ -73,13 +73,13 @@ CLASS_IMPL_FUNC_T(D3D10_Font, void, destory)(
 	_X_ void)
 {
 	my_DataTable.clear();
-	m_Texture.~AutoRelease();
+	my_Texture.~AutoRelease();
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_Font,build_Text)(
+CLASS_IMPL_FUNC(D3D10_Font, build_Text)(
 	_Out_ D3D10MY_CONTEXT & _context,
-	_In_ const char * _text)
+	_In_ const char * _text)const
 {
 	const unsigned int len = strlen(_text);
 
@@ -100,22 +100,31 @@ CLASS_IMPL_FUNC(D3D10_Font,build_Text)(
 		HRESULT hr;
 		IF_FAILED(hr = create_ContexBuffer(
 			&_context.vertexBuffer,
-			len, D3D10_USAGE_DYNAMIC))
+			len, D3D10_USAGE_DEFAULT))
 		{
 			return hr;
 		}
 
+		_context.textSlot = len;
 
+		return S_OK;
 	}
 
 	return E_FAIL;
 }
 
 //--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(D3D10_Font, ID3D10ShaderResourceView *, font)(
+	_X_ void)const
+{
+	return my_Texture;
+}
+
+//--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_Font, create_ContexBuffer)(
 	_Out_ ID3D10Buffer ** _buffer,
 	_In_ unsigned int _width,
-	_In_ D3D10_USAGE _usage)
+	_In_ D3D10_USAGE _usage)const
 {
 	std::vector<D3D10_BasicFormat> format(_width * 4);
 	D3D10_BasicFormat * dispatch = &format[0];
@@ -123,13 +132,13 @@ CLASS_IMPL_FUNC(D3D10_Font, create_ContexBuffer)(
 	if (_usage == D3D10_USAGE_DEFAULT)
 	{
 		// Draw each letter onto a quad.
-			for (unsigned int W = 0, index = 0; W < _width; ++W, index += 4)
-			{
-				dispatch[index] = { D3DXVECTOR3(0.0f + W, -1.0f, 0.5f), D3DXVECTOR3(0.0f, 0.0f, -1.0f), D3DXVECTOR2(0.0f, 1.0f) };
-				dispatch[index + 1] = { D3DXVECTOR3(1.0f + W, -1.0f, 0.5f), D3DXVECTOR3(0.0f, 0.0f, -1.0f), D3DXVECTOR2(1.0f, 1.0f) };
-				dispatch[index + 2] = { D3DXVECTOR3(1.0f + W, 0.0f, 0.5f), D3DXVECTOR3(0.0f, 0.0f, -1.0f), D3DXVECTOR2(1.0f, 0.0f) };
-				dispatch[index + 3] = { D3DXVECTOR3(0.0f + W, 0.0f, 0.5f), D3DXVECTOR3(0.0f, 0.0f, -1.0f), D3DXVECTOR2(0.0f, 0.0f) };
-			}
+		for (unsigned int W = 0, index = 0; W < _width; ++W, index += 4)
+		{
+			dispatch[index] = { D3DXVECTOR3(0.0f + W, -1.0f, 0.5f), D3DXVECTOR3(0.0f, 0.0f, -1.0f), D3DXVECTOR2(0.0f, 1.0f) };
+			dispatch[index + 1] = { D3DXVECTOR3(1.0f + W, -1.0f, 0.5f), D3DXVECTOR3(0.0f, 0.0f, -1.0f), D3DXVECTOR2(1.0f, 1.0f) };
+			dispatch[index + 2] = { D3DXVECTOR3(0.0f + W, 0.0f, 0.5f), D3DXVECTOR3(0.0f, 0.0f, -1.0f), D3DXVECTOR2(0.0f, 0.0f) };
+			dispatch[index + 3] = { D3DXVECTOR3(1.0f + W, 0.0f, 0.5f), D3DXVECTOR3(0.0f, 0.0f, -1.0f), D3DXVECTOR2(1.0f, 0.0f) };
+		}
 	}
 
 	// Vertex Buffer

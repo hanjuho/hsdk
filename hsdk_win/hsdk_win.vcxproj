@@ -162,12 +162,12 @@ COPY "$(OutDir)hsdk_win.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\common.inl" />
-    <None Include="..\Win32Project1\meshrenderer.fx">
-      <FileType>Document</FileType>
-    </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Win32Project1\main.fx">
+    <None Include="..\Win32Project1\shader\main.fx">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\Win32Project1\shader\meshrenderer.fx">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

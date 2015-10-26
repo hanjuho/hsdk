@@ -1,5 +1,7 @@
 #include <hsdk/win/frame/graphics.h>
 #include <hsdk/win/framework.h>
+#include <hsdk/win/direct3d/d3d10_font.h>
+#include <hsdk/win/direct3d/d3d10_factory.h>
 #include <hsdk/win/direct3d/d3d10_renderer.h>
 
 
@@ -11,6 +13,8 @@ using namespace hsdk::direct3d;
 //--------------------------------------------------------------------------------------
 // Grobal D3D10 Variable
 //--------------------------------------------------------------------------------------
+
+D3D10_Font font;
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(Graphics, Graphics)(void)
@@ -70,7 +74,7 @@ CLASS_IMPL_FUNC_T(Graphics, void, set_Font)(
 	_In_ const wchar_t * _fontname,
 	_In_ unsigned int _fontsize)
 {
-
+	
 }
 
 //--------------------------------------------------------------------------------------
@@ -84,7 +88,14 @@ CLASS_IMPL_FUNC_T(Graphics, void, set_FontColor)(
 CLASS_IMPL_FUNC_T(Graphics, void, set_Text)(
 	_In_ const wchar_t * _text)
 {
+	if (font.font() == nullptr)
+	{
+		font.initialize("font/fontdata.txt", L"font/font.dds");
+	}
 
+	char atow[256];
+	wcstombs_s<256>(nullptr, atow, _text, sizeof(atow));
+	font.build_Text(my_Context, atow);
 }
 
 //--------------------------------------------------------------------------------------
@@ -112,6 +123,17 @@ CLASS_IMPL_FUNC_T(Graphics, void, update)(
 CLASS_IMPL_FUNC_T(Graphics, void, render)(
 	_X_ float _persent)
 {
+	if (my_Context.textSlot)
+	{
+		D3DXMATRIX matrix;
+		D3DXMatrixIdentity(&matrix);
+		g_D3D10_Renderer.render_Font(
+			matrix,
+			my_Context,
+			font.font(),
+			_persent);
+	}
+
 	if (my_Texture)
 	{
 		g_D3D10_Renderer.render_UITexture(

@@ -550,6 +550,43 @@ CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_UITexture)(
 }
 
 //--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_Font)(
+	_In_ D3DXMATRIX & _world,
+	_In_ D3D10MY_CONTEXT & _context,
+	_In_ ID3D10ShaderResourceView * _fontTable,
+	_In_ float _persent)
+{
+	g_WorldViewProj_Matrix->SetMatrix((float *)(_world));
+	g_World_Matrix->SetMatrix((float *)(_world));
+
+	g_Diffuse_Vector->SetFloatVector(_context.color);
+	g_Time_Scalar->SetFloat(_persent);
+
+	g_refDevice_1->IASetInputLayout(
+		g_Basic_inputLayout);
+
+	g_refDevice_1->IASetVertexBuffers(
+		0, 1,
+		&_context.vertexBuffer,
+		&g_Sprite_Stride,
+		&g_Sprite_Offset);
+
+	g_refDevice_1->IASetPrimitiveTopology(
+		D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+	g_Diffuse_Texture->SetResource(_fontTable);
+
+	g_GUI_Technique->GetPassByIndex(0)->Apply(0);
+
+	const unsigned int size = _context.textSlot;
+	for (unsigned int index = 0; index < size; ++index)
+	{
+		//g_TexCoord_Matrix->SetMatrix((float*)dispatch[index]);
+		g_refDevice_1->Draw(4, index * 4);
+	}
+}
+
+//--------------------------------------------------------------------------------------
 // open variable 
 //--------------------------------------------------------------------------------------
 

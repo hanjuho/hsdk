@@ -256,14 +256,14 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Win32Project1\meshrenderer.fx">
-      <Filter>리소스 파일</Filter>
-    </None>
-    <None Include="..\Win32Project1\main.fx">
-      <Filter>리소스 파일</Filter>
-    </None>
     <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\common.inl">
       <Filter>헤더 파일</Filter>
+    </None>
+    <None Include="..\Win32Project1\shader\main.fx">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="..\Win32Project1\shader\meshrenderer.fx">
+      <Filter>리소스 파일</Filter>
     </None>
   </ItemGroup>
 </Project>
