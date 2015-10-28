@@ -95,8 +95,8 @@ COPY "$(OutDir)hsdk_win.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
     <ClCompile Include="buttoncompo.cpp" />
     <ClCompile Include="component.cpp" />
     <ClCompile Include="container.cpp" />
-    <ClCompile Include="d3d10_font.cpp" />
     <ClCompile Include="d3d10_animation.cpp" />
+    <ClCompile Include="d3d10_font.cpp" />
     <ClCompile Include="d8_sounddevice.cpp" />
     <ClCompile Include="d8_soundmultiplayer.cpp" />
     <ClCompile Include="framework.cpp" />

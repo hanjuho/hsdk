@@ -59,10 +59,14 @@ IMPL_FUNC_T(void, entry::initialize)(
 
 	if (framework::g_Framework_Callbacks.d3d10DeviceCreatedFunc)
 	{
-		framework::g_Framework_Callbacks.d3d10DeviceCreatedFunc(
+		IF_FAILED(framework::g_Framework_Callbacks.d3d10DeviceCreatedFunc(
 			framework::g_Framework_Device.d3d10Device,
 			framework::g_Framework_Device.dxgiBackBuffer_Desc,
-			framework::g_Framework_Callbacks.d3d10DeviceCreatedFuncUserContext);
+			framework::g_Framework_Callbacks.d3d10DeviceCreatedFuncUserContext))
+		{
+			MessageBox(framework::g_Framework_Window.hwnd, L"초기화에 실패했습니다.\n코드를 확인해주세요", L"Error", MB_OK);
+			framework::g_Framework.shutdown();
+		}
 	}
 }
 

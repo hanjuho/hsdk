@@ -726,7 +726,6 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_MeshFromFile)(
 
 						// 중복이 있어도 무시하고 넣는다.
 						aiMatrix4x4 m = bone.mOffsetMatrix;
-
 						_animation->bones[nodeBindex].mOwn = D3DXMATRIX(
 							m.a1, m.a2, m.a3, m.a4,
 							m.b1, m.b2, m.b3, m.b4,
@@ -853,8 +852,6 @@ IMPL_FUNC_T(unsigned int, build_BonesFromAiNode)(
 	refbone.length = length;
 
 	aiMatrix4x4 m = node.mTransformation;
-	m.Transpose();
-
 	refbone.mRelation = D3DXMATRIX(
 		m.a1, m.a2, m.a3, m.a4,
 		m.b1, m.b2, m.b3, m.b4,
