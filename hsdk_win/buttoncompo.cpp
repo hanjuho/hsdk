@@ -26,6 +26,8 @@ CLASS_IMPL_FUNC_T(ButtonCompo, void, onClick_Down)(
 	{
 		m_GraphicsRenderState = 0.5f;
 	}
+
+	return Component::onClick_Down(_button, _x, _y);
 }
 
 //--------------------------------------------------------------------------------------
@@ -38,6 +40,8 @@ CLASS_IMPL_FUNC_T(ButtonCompo, void, onClick_Up)(
 	{
 		m_GraphicsRenderState = 1.0f;
 	}
+
+	return Component::onClick_Up(_button, _x, _y);
 }
 
 //--------------------------------------------------------------------------------------

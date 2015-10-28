@@ -46,7 +46,7 @@ ID3D10EffectMatrixVariable * g_World_Matrix;
 ID3D10EffectMatrixVariable * g_TexCoord_Matrix;
 
 // 설명 : 
-ID3D10EffectMatrixVariable * g_Bone_World_Matrixs;
+ID3D10EffectMatrixVariable * g_Bone_World_Matrices;
 
 //--------------------------------------------------------------------------------------
 // Grobal resource variable
@@ -105,12 +105,17 @@ hsdk::AutoRelease<ID3D10InputLayout> g_Skybox_inputLayout;
 //--------------------------------------------------------------------------------------
 
 // 설명 : 
-wchar_t g_szEffect[MAX_PATH];
+std::wstring g_EffectPath;
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_Renderer, initialize_Shader)(
 	_X_ const wchar_t * _directory)
 {
+	if (g_D3D10Effect && (g_EffectPath == _directory))
+	{
+		return S_OK;
+	}
+
 	HRESULT hr = E_FAIL;
 
 	AutoRelease<ID3D10Effect> effect;
@@ -167,8 +172,8 @@ CLASS_IMPL_FUNC(D3D10_Renderer, initialize_Shader)(
 	g_TexCoord_Matrix =
 		effect->GetVariableByName("g_TexCoord_Matrix")->AsMatrix();
 
-	g_Bone_World_Matrixs =
-		effect->GetVariableByName("g_Bone_World_Matrixs")->AsMatrix();
+	g_Bone_World_Matrices =
+		effect->GetVariableByName("g_Bone_World_Matrices")->AsMatrix();
 
 	g_Diffuse_Texture =
 		effect->GetVariableByName("g_Diffuse_Texture")->AsShaderResource();
@@ -186,6 +191,7 @@ CLASS_IMPL_FUNC(D3D10_Renderer, initialize_Shader)(
 		effect->GetVariableByName("g_fElapsedTime")->AsScalar();
 	
 	g_D3D10Effect = effect;
+	g_EffectPath = _directory;
 
 	return hr;
 }
@@ -364,7 +370,7 @@ CLASS_IMPL_FUNC_T(D3D10_Renderer, void, destroy)(
 	g_ViewProj_Matrix = nullptr;
 	g_World_Matrix = nullptr;
 	g_TexCoord_Matrix = nullptr;
-	g_Bone_World_Matrixs = nullptr;
+	g_Bone_World_Matrices = nullptr;
 	g_Diffuse_Texture = nullptr;
 	g_Diffuse_Vector = nullptr;
 	g_Time_Scalar = nullptr;
@@ -376,47 +382,52 @@ CLASS_IMPL_FUNC_T(D3D10_Renderer, void, destroy)(
 CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_Skinned)(
 	_In_ D3DXMATRIX & _world,
 	_In_ const D3D10_Mesh & _mesh,
-	_In_ D3DXMATRIX * _boneMatrixs,
-	_In_ unsigned int _matrixSize)
+	_In_ const D3D10_Animation & _animation,
+	_In_ const D3D10_Animation_Recorder & _pos)
 {
-	g_Bone_World_Matrixs->SetMatrixArray((float *)_boneMatrixs, 0, _matrixSize);
-	g_WorldViewProj_Matrix->SetMatrix((float *)(_world));
+	g_WorldViewProj_Matrix->SetMatrix((float *)_world);
 	g_World_Matrix->SetMatrix((float *)(_world));
 
 	g_refDevice_1->IASetInputLayout(g_Skinned_inputLayout);
+		
+	auto begin = _mesh.meshs.begin();
+	auto end = _mesh.meshs.end();
 
-	const unsigned int numMeshs =
-		_mesh.get_NumMeshes();
-
-	for (unsigned int imesh = 0; imesh < numMeshs; ++imesh)
+	while (begin != end)
 	{
-		const D3D10MY_MESH & mesh =
-			_mesh.get_Mesh(imesh);
-
 		g_refDevice_1->IASetVertexBuffers(
-			0, mesh.vertexbuffers.size(),
-			&mesh.vertexbuffers[0],
-			&mesh.vertexbuffers_Strides[0],
-			&mesh.vertexbuffers_Offsets[0]);
+			0, 1,
+			&begin->vetexbuffer.vertexbuffer,
+			&begin->vetexbuffer.vertexbuffers_Strides,
+			&begin->vetexbuffer.vertexbuffers_Offsets);
 
 		g_refDevice_1->IASetIndexBuffer(
-			mesh.indexbuffer.indexbuffer,
-			mesh.indexbuffer.indexType, 0);
+			begin->indexbuffer.indexbuffer,
+			begin->indexbuffer.indexType, 0);
 
-		const unsigned int numRenders =
-			mesh.render_Descs.size();
+		const unsigned int boneSize = begin->boneNode.size();
 
-		for (unsigned int irender = 0; irender < numRenders; ++irender)
+		if (boneSize)
 		{
-			const D3D10MY_RENDER_DESC & desc =
-				mesh.render_Descs[irender];
+			D3DXMATRIX boneMatrices[80];
+			animation::build_MeshBoneMatrix(
+				boneMatrices,
+				&begin->boneNode[0],
+				begin->boneNode.size(),
+				_animation,
+				_pos);
 
-			const D3D10MY_MATERIAL & material =
-				_mesh.get_Material(desc.material_id);
+			g_Bone_World_Matrices->SetMatrixArray((float *)boneMatrices, 0, 80);
+		}
+
+		for (unsigned int irender = 0; irender < begin->subsets.size(); ++irender)
+		{
+			const D3D10MY_RENDER_DESC & desc = begin->subsets[irender];
 
 			g_refDevice_1->IASetPrimitiveTopology(desc.primitiveType);
 
-			g_Diffuse_Texture->SetResource(material.diffuseRV);
+			g_Diffuse_Texture->SetResource(
+				_mesh.materials[desc.material_id].diffuseRV);
 
 			g_SkinnedBasic_Technique->GetPassByIndex(0)->Apply(0);
 
@@ -425,6 +436,8 @@ CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_Skinned)(
 				desc.indexStart,
 				desc.vertexbufferStart);
 		}
+
+		++begin;
 	}
 }
 
@@ -433,41 +446,34 @@ CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_SkyBox)(
 	_In_ D3DXMATRIX & _world,
 	_In_ const D3D10_Mesh & _mesh)
 {
-	g_WorldViewProj_Matrix->SetMatrix((float *)(_world));
-	g_World_Matrix->SetMatrix((float *)(_world));
+	g_WorldViewProj_Matrix->SetMatrix((float *)_world);
+	g_World_Matrix->SetMatrix((float *)_world);
 
 	g_refDevice_1->IASetInputLayout(g_Skybox_inputLayout);
+	
+	auto begin = _mesh.meshs.begin();
+	auto end = _mesh.meshs.end();
 
-	const unsigned int numMeshs =
-		_mesh.get_NumMeshes();
-
-	for (unsigned int imesh = 0; imesh < numMeshs; ++imesh)
+	while (begin != end)
 	{
-		const D3D10MY_MESH & mesh =
-			_mesh.get_Mesh(imesh);
-
 		g_refDevice_1->IASetVertexBuffers(
-			0, mesh.vertexbuffers.size(),
-			&mesh.vertexbuffers[0],
-			&mesh.vertexbuffers_Strides[0],
-			&mesh.vertexbuffers_Offsets[0]);
+			0, 1,
+			&begin->vetexbuffer.vertexbuffer,
+			&begin->vetexbuffer.vertexbuffers_Strides,
+			&begin->vetexbuffer.vertexbuffers_Offsets);
 
 		g_refDevice_1->IASetIndexBuffer(
-			mesh.indexbuffer.indexbuffer,
-			mesh.indexbuffer.indexType, 0);
-
-		const unsigned int numRenders =
-			mesh.render_Descs.size();
-
-		for (unsigned int irender = 0; irender < numRenders; ++irender)
+			begin->indexbuffer.indexbuffer,
+			begin->indexbuffer.indexType, 0);
+		
+		for (unsigned int irender = 0; irender < begin->subsets.size(); ++irender)
 		{
-			const D3D10MY_RENDER_DESC & desc =
-				mesh.render_Descs[irender];
+			const D3D10MY_RENDER_DESC & desc = begin->subsets[irender];
 
 			g_refDevice_1->IASetPrimitiveTopology(desc.primitiveType);
 
 			g_SkyBox_Texture->SetResource(
-				_mesh.get_Material(desc.material_id).diffuseRV);
+				_mesh.materials[desc.material_id].diffuseRV);
 
 			g_SkyBox_Technique->GetPassByIndex(0)->Apply(0);
 
@@ -476,6 +482,8 @@ CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_SkyBox)(
 				desc.indexStart,
 				desc.vertexbufferStart);
 		}
+
+		++begin;
 	}
 }
 
@@ -485,8 +493,8 @@ CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_UIRectangle)(
 	_In_ D3DXVECTOR4 & _color,
 	_In_ float _persent)
 {
-	g_WorldViewProj_Matrix->SetMatrix((float *)(_world));
-	g_World_Matrix->SetMatrix((float *)(_world));
+	g_WorldViewProj_Matrix->SetMatrix((float *)_world);
+	g_World_Matrix->SetMatrix((float *)_world);
 
 	g_Diffuse_Vector->SetFloatVector(_color);
 
@@ -520,8 +528,8 @@ CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_UITexture)(
 	_In_ D3DXMATRIX & _texcoord,
 	_In_ float _persent)
 {
-	g_WorldViewProj_Matrix->SetMatrix((float *)(_world));
-	g_World_Matrix->SetMatrix((float *)(_world));
+	g_WorldViewProj_Matrix->SetMatrix((float *)_world);
+	g_World_Matrix->SetMatrix((float *)_world);
 
 	g_TexCoord_Matrix->SetMatrix(_texcoord);
 	g_Time_Scalar->SetFloat(_persent);
@@ -556,8 +564,8 @@ CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_Font)(
 	_In_ ID3D10ShaderResourceView * _fontTable,
 	_In_ float _persent)
 {
-	g_WorldViewProj_Matrix->SetMatrix((float *)(_world));
-	g_World_Matrix->SetMatrix((float *)(_world));
+	g_WorldViewProj_Matrix->SetMatrix((float *)_world);
+	g_World_Matrix->SetMatrix((float *)_world);
 
 	g_Diffuse_Vector->SetFloatVector(_context.color);
 	g_Time_Scalar->SetFloat(_persent);

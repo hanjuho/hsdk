@@ -96,7 +96,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
     <ClCompile Include="component.cpp" />
     <ClCompile Include="container.cpp" />
     <ClCompile Include="d3d10_font.cpp" />
-    <ClCompile Include="d3d10_meshanimation.cpp" />
+    <ClCompile Include="d3d10_animation.cpp" />
     <ClCompile Include="d8_sounddevice.cpp" />
     <ClCompile Include="d8_soundmultiplayer.cpp" />
     <ClCompile Include="framework.cpp" />
@@ -132,7 +132,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_common.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_factory.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_mesh.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_meshanimation.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_animation.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_renderer.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_font.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework.h" />
@@ -164,6 +164,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
     <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\common.inl" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_animation.inl" />
     <None Include="..\Win32Project1\shader\main.fx">
       <FileType>Document</FileType>
     </None>

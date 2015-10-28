@@ -1,7 +1,5 @@
 #include "common.h"
 
-
-
 //--------------------------------------------------------------------------------------
 IMPL_FUNC(common::initialize_Common)(
 	_X_ void)
@@ -13,17 +11,15 @@ IMPL_FUNC(common::initialize_Common)(
 		sound::g_FMOD_SoundDevice.move(pos);
 	}
 
-	return 0;
+	return hr;
 }
 
 //--------------------------------------------------------------------------------------
 IMPL_FUNC_T(void, common::destroy_Common)(
 	_X_ void)
 {
-	sound::g_FMOD_SoundDevice.destroy();
-	direct3d::g_D3D10_Renderer.destroy();
-	direct3d::g_D3D10_Factory.destroy();
-	framework::g_Framework.destroy();
+	sound::g_FMOD_SoundDevice.clear();
+	direct3d::g_D3D10_Factory.clear();
 }
 
 //--------------------------------------------------------------------------------------
@@ -39,7 +35,7 @@ IMPL_FUNC(common::OnD3D10SwapchainResized)(
 		(float)D3DX_PI * 0.25f,
 		(float)_backBufferSurfaceDesc.Width /
 		(float)_backBufferSurfaceDesc.Height,
-		0.1f, 1000.0f);
+		0.1f, 10000.0f);
 
 	return S_OK;
 }

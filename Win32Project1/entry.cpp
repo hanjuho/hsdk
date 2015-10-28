@@ -1,6 +1,21 @@
 #include "entry.h"
+#include "game.h"
 
 
+class ToGameButtonEvent :
+	public common::MouseableAdapter
+{
+public:
+	
+	INTERFACE_DECL_FUNC_T(void, onClick_Up)(
+		_In_ i::frame::MOUSE_BUTTON _button,
+		_In_ int _x,
+		_In_ int _y)
+	{
+		game::initialize();
+	}
+
+};
 
 //--------------------------------------------------------------------------------------
 // Grobal Variable
@@ -22,6 +37,34 @@ const D3DXMATRIX g_World = {
 	0.0f, 1.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 1.0f, 0.0f,
 	0.0f, 0.0f, 0.0f, 1.0f };
+
+//--------------------------------------------------------------------------------------
+IMPL_FUNC_T(void, entry::initialize)(
+	_X_ void)
+{
+	if (framework::g_Framework_Callbacks.d3d10DeviceDestroyedFunc)
+	{
+		framework::g_Framework_Callbacks.d3d10DeviceDestroyedFunc(
+			framework::g_Framework_Callbacks.d3d10DeviceDestroyedFuncUserContext);
+	}
+	
+	framework::g_Framework_Callbacks.windowMsgFunc = entry::OnMsgProc;
+	framework::g_Framework_Callbacks.mouseFunc = entry::OnMouse;
+	framework::g_Framework_Callbacks.keyboardFunc = entry::OnKeyboard;
+	framework::g_Framework_Callbacks.frameMoveFunc = entry::OnFrameMove;
+
+	framework::g_Framework_Callbacks.d3d10DeviceCreatedFunc = entry::OnD3D10CreateDevice;
+	framework::g_Framework_Callbacks.d3d10DeviceDestroyedFunc = entry::OnD3D10DestroyDevice;
+	framework::g_Framework_Callbacks.d3d10FrameRenderFunc = entry::OnD3D10FrameRender;
+
+	if (framework::g_Framework_Callbacks.d3d10DeviceCreatedFunc)
+	{
+		framework::g_Framework_Callbacks.d3d10DeviceCreatedFunc(
+			framework::g_Framework_Device.d3d10Device,
+			framework::g_Framework_Device.dxgiBackBuffer_Desc,
+			framework::g_Framework_Callbacks.d3d10DeviceCreatedFuncUserContext);
+	}
+}
 
 //--------------------------------------------------------------------------------------
 IMPL_FUNC_T(LRESULT, entry::OnMsgProc)(
@@ -106,6 +149,7 @@ IMPL_FUNC(entry::OnD3D10CreateDevice)(
 	_Inout_ void * _userContext)
 {
 	HRESULT hr = E_FAIL;
+
 	IF_SUCCEEDED(hr = common::initialize_Common())
 	{
 		// gui
@@ -118,6 +162,7 @@ IMPL_FUNC(entry::OnD3D10CreateDevice)(
 		g_GUI_Background0.set_Visible(true);
 
 		frame::Component * button = new frame::ButtonCompo(10, 10, 312, 48);
+		button->set_Mouseable(new ToGameButtonEvent());
 		button->graphics()->set_image(L"image/layout/button.png");
 		button->set_Visible(true);
 
@@ -127,7 +172,7 @@ IMPL_FUNC(entry::OnD3D10CreateDevice)(
 		IF_SUCCEEDED(hr = sound::g_FMOD_SoundDevice.load_WaveFile(
 			&g_Sound_Background0,
 			&g_Sound_Controller0,
-			L"sound/main_title.wav"))
+			L"sound/entry_background.wav"))
 		{
 			FMOD_VECTOR pos = { 0.0f, 0.0f, 0.0f };
 			FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
@@ -161,5 +206,7 @@ IMPL_FUNC_T(void, entry::OnD3D10FrameRender)(
 DECL_FUNC_T(void, entry::OnD3D10DestroyDevice)(
 	_Inout_ void * _userContext)
 {
+	common::destroy_Common();
+
 	g_GUI_Background0.clear();
 }

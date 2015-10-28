@@ -9,6 +9,10 @@
 namespace entry
 {
 
+	// 설명 :
+	DECL_FUNC_T(void, initialize)(
+		_X_ void);
+
 	// 설명 : 
 	DECL_FUNC_T(LRESULT, OnMsgProc)(
 		_Out_opt_ BOOL * _bNoFurtherProcessing,

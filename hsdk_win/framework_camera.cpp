@@ -45,8 +45,8 @@ CLASS_IMPL_FUNC_T(Framework_Camera, void, set_Target)(
 	_In_ const float * _vPos)
 {
 	// 받아온 값의 노말을 계산
-	D3DXVECTOR3 nor;
-	D3DXVec3Normalize(&nor, &(D3DXVECTOR3)_vPos);
+	D3DXVECTOR3 nor = my_vPos - (D3DXVECTOR3)_vPos;
+	D3DXVec3Normalize(&nor, &nor);
 
 	D3DXVec3Cross(&my_vYDir, &nor, &my_vZDir);
 	D3DXVec3Normalize(&my_vYDir, &my_vYDir);

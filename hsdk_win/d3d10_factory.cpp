@@ -45,24 +45,24 @@ std::hash_map<std::wstring, D3D10MY_TEXTURE> g_D3D10Texture_Container;
 //--------------------------------------------------------------------------------------
 
 // 설명 :
-DECL_FUNC_T(void, compute_CountOfBonesFromAiNode)(
+DECL_FUNC_T(void, sort_BonesFromAiNode)(
 	_In_ aiNode * _node,
 	_In_ std::list<aiNode *> & _list);
 
 // 설명 :
-DECL_FUNC_T(unsigned int, build_MeshAnimationFromAiNode)(
-	_Out_ D3D10_MeshAnimation * _meshAnimation,
+DECL_FUNC_T(unsigned int, build_BonesFromAiNode)(
+	_Out_ std::vector<D3D10MY_BONE> & _bones,
 	_In_ std::list<aiNode *> & _list,
 	_In_ wchar_t(&_buffer)[256],
 	_In_ unsigned int _index = 0,
-	_In_ unsigned int _parentID = 0);
+	_In_ unsigned int _parent = 0);
 
 //--------------------------------------------------------------------------------------
 // D3D10_Factory impl
 //--------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(D3D10_Factory, void, destroy)(
+CLASS_IMPL_FUNC_T(D3D10_Factory, void, clear)(
 	_X_ void)
 {
 	g_D3D10Texture_Container.clear();
@@ -267,93 +267,112 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_MeshSkyBox)(
 	_Out_ D3D10_Mesh & _mesh,
 	_In_ float _size)
 {
-	_mesh.clear();
+	_mesh.materials.resize(1);
+	_mesh.meshs.resize(1);
 
-	HRESULT hr;
-	IF_FAILED(hr = _mesh.setup0(1, 1))
+	D3D10MY_MESH & refmesh =
+		_mesh.meshs[0];
+
+	HRESULT hr = E_FAIL;
+
 	{
-		return hr;
+		// Build box
+		D3D10_SkyBoxFormat vBox[] = {
+			D3DXVECTOR3(-_size, -_size, -_size),
+			D3DXVECTOR3(_size, -_size, -_size),
+			D3DXVECTOR3(_size, _size, -_size),
+			D3DXVECTOR3(-_size, _size, -_size),
+
+			D3DXVECTOR3(-_size, -_size, _size),
+			D3DXVECTOR3(_size, -_size, _size),
+			D3DXVECTOR3(_size, _size, _size),
+			D3DXVECTOR3(-_size, _size, _size) };
+
+		// Vertex Buffer
+		D3D10_BUFFER_DESC vBufferDesc;
+		vBufferDesc.ByteWidth = sizeof(vBox);
+		vBufferDesc.Usage = D3D10_USAGE_DEFAULT;
+		vBufferDesc.BindFlags = D3D10_BIND_VERTEX_BUFFER;
+		vBufferDesc.CPUAccessFlags = 0;
+		vBufferDesc.MiscFlags = 0;
+
+		D3D10_SUBRESOURCE_DATA vinitData;
+		vinitData.pSysMem = &vBox[0];
+
+		D3D10MY_VERTEXBUFFER & refvb =
+			refmesh.vetexbuffer;
+
+		IF_FAILED(hr = framework::g_Framework_Device.d3d10Device->CreateBuffer(
+			&vBufferDesc,
+			&vinitData,
+			&refvb.vertexbuffer))
+		{
+			return hr;
+		}
+
+		refvb.numOfVertices = sizeof(vBox) / sizeof(D3D10_SkyBoxFormat);
+		refvb.vertexbuffers_Strides = sizeof(D3D10_SkyBoxFormat);
+		refvb.vertexbuffers_Offsets = 0;
 	}
 
-	IF_FAILED(hr = _mesh.setup1_Mesh(0, 1, 1))
 	{
-		return hr;
+		unsigned short iBox[] = {
+			//front
+			0, 2, 3,
+			0, 1, 2,
+			//right
+			1, 6, 2,
+			1, 5, 6,
+			//back
+			5, 7, 6,
+			5, 4, 7,
+			//left
+			4, 3, 7,
+			4, 0, 3,
+			//top
+			3, 6, 7,
+			3, 2, 6,
+			//bottom
+			1, 4, 5,
+			1, 0, 4 };
+
+		// index Buffer
+		D3D10_BUFFER_DESC iBufferDesc;
+		iBufferDesc.ByteWidth = sizeof(iBox);
+		iBufferDesc.Usage = D3D10_USAGE_DEFAULT;
+		iBufferDesc.BindFlags = D3D10_BIND_INDEX_BUFFER;
+		iBufferDesc.CPUAccessFlags = 0;
+		iBufferDesc.MiscFlags = 0;
+
+		D3D10_SUBRESOURCE_DATA iinitData;
+		iinitData.pSysMem = &iBox[0];
+
+		D3D10MY_INDEXBUFFER & refib =
+			refmesh.indexbuffer;
+
+		IF_FAILED(hr = framework::g_Framework_Device.d3d10Device->CreateBuffer(
+			&iBufferDesc,
+			&iinitData,
+			&refib.indexbuffer))
+		{
+			return hr;
+		}
+
+		refib.indexType = DXGI_FORMAT_R16_UINT;
+		refib.numOfindices = sizeof(iBox) / sizeof(unsigned short);
 	}
 
-	// Build box
-	D3D10_SkyBoxFormat vBox[] = {
-		D3DXVECTOR3(-_size, -_size, -_size),
-		D3DXVECTOR3(_size, -_size, -_size),
-		D3DXVECTOR3(_size, _size, -_size),
-		D3DXVECTOR3(-_size, _size, -_size),
-
-		D3DXVECTOR3(-_size, -_size, _size),
-		D3DXVECTOR3(_size, -_size, _size),
-		D3DXVECTOR3(_size, _size, _size),
-		D3DXVECTOR3(-_size, _size, _size) };
-
-	// Vertex Buffer
-	D3D10_BUFFER_DESC vBufferDesc;
-	vBufferDesc.ByteWidth = sizeof(vBox);
-	vBufferDesc.Usage = D3D10_USAGE_DEFAULT;
-	vBufferDesc.BindFlags = D3D10_BIND_VERTEX_BUFFER;
-	vBufferDesc.CPUAccessFlags = 0;
-	vBufferDesc.MiscFlags = 0;
-
-	IF_FAILED(hr = _mesh.setup2_Vertexbuffer(
-		0, 0,
-		vBufferDesc,
-		vBox,
-		sizeof(D3D10_SkyBoxFormat),
-		0,
-		sizeof(vBox) / sizeof(D3D10_SkyBoxFormat)))
 	{
-		return hr;
-	}
+		refmesh.subsets.resize(1);
+		D3D10MY_RENDER_DESC & refdesc =
+			refmesh.subsets[0];
 
-	unsigned short iBox[] = {
-		//front
-		0, 2, 3,
-		0, 1, 2,
-		//right
-		1, 6, 2,
-		1, 5, 6,
-		//back
-		5, 7, 6,
-		5, 4, 7,
-		//left
-		4, 3, 7,
-		4, 0, 3,
-		//top
-		3, 6, 7,
-		3, 2, 6,
-		//bottom
-		1, 4, 5,
-		1, 0, 4 };
-
-	// index Buffer
-	D3D10_BUFFER_DESC iBufferDesc;
-	iBufferDesc.ByteWidth = sizeof(iBox);
-	iBufferDesc.Usage = D3D10_USAGE_DEFAULT;
-	iBufferDesc.BindFlags = D3D10_BIND_INDEX_BUFFER;
-	iBufferDesc.CPUAccessFlags = 0;
-	iBufferDesc.MiscFlags = 0;
-
-	IF_FAILED(hr = _mesh.setup2_indexbuffer(
-		0,
-		iBufferDesc,
-		iBox,
-		DXGI_FORMAT_R16_UINT,
-		sizeof(iBox) / sizeof(unsigned short)))
-	{
-		return hr;
-	}
-
-	IF_FAILED(hr = _mesh.setup2_RenderDesc(
-		0, 0, 0, 0, 36, 0, 0,
-		D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST))
-	{
-		return hr;
+		refdesc.material_id = 0;
+		refdesc.indexCount = 36;
+		refdesc.indexStart = 0;
+		refdesc.vertexbufferCount = 0;
+		refdesc.vertexbufferStart = 0;
+		refdesc.primitiveType = D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	}
 
 	return hr;
@@ -364,14 +383,8 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_MeshFromFile)(
 	_Out_ D3D10_Mesh & _mesh,
 	_In_ const wchar_t * _filePath,
 	_In_ const wchar_t * _fileName,
-	_Out_ D3D10_MeshAnimation * _meshAnimation)
+	_Out_ D3D10_Animation * _animation)
 {
-	_mesh.clear();
-	if (_meshAnimation)
-	{
-		_meshAnimation->clear();
-	}
-
 	wchar_t wtoa[256];
 	ZeroMemory(wtoa, sizeof(wtoa));
 
@@ -384,8 +397,6 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_MeshFromFile)(
 	const unsigned int bufferSize = 256 - nameOffset;
 	wcscat_s(&wtoa[nameOffset], bufferSize, _fileName);
 
-	_mesh.userSet_MeshPath(wtoa);
-	
 	char atow[256];
 	wcstombs_s<256>(nullptr, atow, wtoa, sizeof(atow));
 	const aiScene * scene = g_importer.ReadFile(
@@ -400,187 +411,207 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_MeshFromFile)(
 		return E_INVALIDARG;
 	}
 
+	{
+		_mesh.meshPath = wtoa;
+	}
+
 	HRESULT hr;
 
-	if (_meshAnimation)
+	if (_animation)
 	{
-		wchar_t buffer[256];
-
 		std::list<aiNode *> bones;
-		compute_CountOfBonesFromAiNode(scene->mRootNode, bones);
+		sort_BonesFromAiNode(scene->mRootNode, bones);
 
-		IF_SUCCEEDED(_meshAnimation->setup0(
-			bones.size(),
-			scene->mNumAnimations))
+		_animation->bones.resize(bones.size());
+		_animation->animations.resize(scene->mNumAnimations);
+
 		{
-			build_MeshAnimationFromAiNode(
-				_meshAnimation,
-				bones,
-				buffer,
-				0);
+			wchar_t buffer[256];
+			build_BonesFromAiNode(
+				_animation->bones,
+				bones, buffer, 0);
+
+			auto begin = _animation->bones.begin();
+			auto end = _animation->bones.end();
+
+			while (begin != end)
+			{
+				_animation->bonePath[begin->name] = begin->id;
+				++begin;
+			}
 		}
 
-		for (unsigned int aindex = 0; aindex < scene->mNumAnimations; ++aindex)
 		{
-			const aiAnimation & animation = *scene->mAnimations[aindex];
-
-			mbstowcs_s<256>(nullptr, buffer, animation.mName.C_Str(), sizeof(buffer));
-			_meshAnimation->setup1_Animation(
-				aindex, buffer,
-				animation.mNumChannels,
-				animation.mTicksPerSecond,
-				animation.mDuration);
-
-			for (unsigned int cindex = 0; cindex < animation.mNumChannels; ++cindex)
+			wchar_t buffer[256];
+			for (unsigned int aindex = 0; aindex < scene->mNumAnimations; ++aindex)
 			{
-				const aiNodeAnim & anim = *animation.mChannels[cindex];
-
-				D3D10MY_FRAME_HINT hint;
-				switch (anim.mPostState)
+				const aiAnimation & animation = *scene->mAnimations[aindex];
+				D3D10MY_ANIMATION & refanimation = _animation->animations[aindex];
 				{
-				case aiAnimBehaviour_DEFAULT:
-					hint = FRAME_HINT_DEFAULT;
-					break;
-				case aiAnimBehaviour_CONSTANT:
-					hint = FRAME_HINT_CONSTANT;
-					break;
-				case aiAnimBehaviour_LINEAR:
-					hint = FRAME_HINT_LINEAR;
-					break;
-				case aiAnimBehaviour_REPEAT:
-				case _aiAnimBehaviour_Force32Bit:
-					hint = FRAME_HINT_REPEAT;
-				};
+					refanimation.animID = aindex;
 
-				unsigned int keySize = min(anim.mNumPositionKeys, anim.mNumRotationKeys);
-				keySize = min(keySize, anim.mNumScalingKeys);
+					mbstowcs_s<256>(nullptr, buffer, animation.mName.C_Str(), sizeof(buffer));
+					refanimation.name = buffer;
 
-				mbstowcs_s<256>(nullptr, buffer, anim.mNodeName.C_Str(), sizeof(buffer));
-				_meshAnimation->setup2_AnimationBoneKeyFrame(
-					aindex, cindex,
-					_meshAnimation->find_BoneIDFromName(buffer),
-					keySize,
-					(D3DXVECTOR3 *)anim.mPositionKeys,
-					(D3DXVECTOR3 *)anim.mRotationKeys,
-					(D3DXVECTOR3 *)anim.mScalingKeys,
-					hint);
+					refanimation.boneKeyFrames.resize(animation.mNumChannels);
+					refanimation.tickPerSecond = animation.mTicksPerSecond;
+					refanimation.duration = animation.mDuration;
+				}
+
+				for (unsigned int cindex = 0; cindex < animation.mNumChannels; ++cindex)
+				{
+					const aiNodeAnim & anim = *animation.mChannels[cindex];
+					D3D10MY_BONE_KEYFRAME & keyFrame = refanimation.boneKeyFrames[cindex];
+					{
+						mbstowcs_s<256>(nullptr, buffer, anim.mNodeName.C_Str(), sizeof(buffer));
+						keyFrame.boneID = _animation->bonePath[buffer];
+
+						keyFrame.postFrameMoveHint = anim.mPostState;
+						keyFrame.preFrameMoveHint = anim.mPreState;
+
+						keyFrame.positionKeyFrame = std::vector<aiVectorKey>(
+							&anim.mPositionKeys[0],
+							&anim.mPositionKeys[anim.mNumPositionKeys]);
+
+						keyFrame.rotationKeyFrame = std::vector<aiQuatKey>(
+							&anim.mRotationKeys[0],
+							&anim.mRotationKeys[anim.mNumRotationKeys]);
+
+						keyFrame.scaleKeyFrame = std::vector<aiVectorKey>(
+							&anim.mScalingKeys[0],
+							&anim.mScalingKeys[anim.mNumScalingKeys]);
+					}
+				}
+			}
+
+			{
+				auto begin = _animation->animations.begin();
+				auto end = _animation->animations.end();
+
+				while (begin != end)
+				{
+					_animation->animationPath[begin->name] = begin->animID;
+					++begin;
+				}
 			}
 		}
 	}
 
-	IF_FAILED(hr = _mesh.setup0(
-		scene->mNumMaterials ? scene->mNumMaterials : 1,
-		scene->mNumMeshes))
 	{
-		return hr;
+		_mesh.materials.resize(scene->mNumMaterials ? scene->mNumMaterials : 1);
+		_mesh.meshs.resize(scene->mNumMeshes);
 	}
 
-	for (unsigned int index = 0; index < scene->mNumMaterials; ++index)
+	for (unsigned int mindex = 0; mindex < scene->mNumMaterials; ++mindex)
 	{
-		const aiMaterial & matl = *scene->mMaterials[index];
-		aiString aiPath;
-
-		const unsigned int ndt = matl.GetTextureCount(aiTextureType_DIFFUSE);
-		if (ndt)
+		const aiMaterial & matl = *scene->mMaterials[mindex];
+		D3D10MY_MATERIAL & refmaterial = _mesh.materials[mindex];
 		{
-			// 2개 이상의 디퓨즈 텍스처를 받아들일 수 없음
-			if (AI_SUCCESS == matl.GetTexture(aiTextureType_DIFFUSE, 0, &aiPath))
+			aiString aiPath;
+			const unsigned int ndt = matl.GetTextureCount(aiTextureType_DIFFUSE);
+			if (ndt)
 			{
-				mbstowcs_s(nullptr, &wtoa[nameOffset], bufferSize, aiPath.C_Str(), bufferSize);
-				_mesh.setup1_Texture(index, 0, wtoa);
+				// 2개 이상의 디퓨즈 텍스처를 받아들일 수 없음
+				if (AI_SUCCESS == matl.GetTexture(aiTextureType_DIFFUSE, 0, &aiPath))
+				{
+					mbstowcs_s(nullptr, &wtoa[nameOffset], bufferSize, aiPath.C_Str(), bufferSize);
+					D3DX10CreateShaderResourceViewFromFile(
+						framework::g_Framework_Device.d3d10Device,
+						wtoa, nullptr, nullptr, &refmaterial.diffuseRV, nullptr);
+				}
+			}
+
+			const unsigned int nnt = matl.GetTextureCount(aiTextureType_NORMALS);
+			if (nnt)
+			{
+				// 2개 이상의 노말 텍스처를 받아들일 수 없음
+				if (AI_SUCCESS == matl.GetTexture(aiTextureType_NORMALS, 0, &aiPath))
+				{
+					mbstowcs_s(nullptr, &wtoa[nameOffset], bufferSize, aiPath.C_Str(), bufferSize);
+					D3DX10CreateShaderResourceViewFromFile(
+						framework::g_Framework_Device.d3d10Device,
+						wtoa, nullptr, nullptr, &refmaterial.normalRV, nullptr);
+				}
+			}
+
+			const unsigned int nst = matl.GetTextureCount(aiTextureType_SPECULAR);
+			if (nnt)
+			{
+				// 2개 이상의 스펙큘러 텍스처를 받아들일 수 없음
+				if (AI_SUCCESS == matl.GetTexture(aiTextureType_SPECULAR, 0, &aiPath))
+				{
+					mbstowcs_s(nullptr, &wtoa[nameOffset], bufferSize, aiPath.C_Str(), bufferSize);
+					D3DX10CreateShaderResourceViewFromFile(
+						framework::g_Framework_Device.d3d10Device,
+						wtoa, nullptr, nullptr, &refmaterial.specularRV, nullptr);
+				}
 			}
 		}
 
-		const unsigned int nnt = matl.GetTextureCount(aiTextureType_NORMALS);
-		if (nnt)
 		{
-			// 2개 이상의 노말 텍스처를 받아들일 수 없음
-			if (AI_SUCCESS == matl.GetTexture(aiTextureType_NORMALS, 0, &aiPath))
+			aiColor4D material;
+			if (AI_FAILURE == aiGetMaterialColor(&matl, AI_MATKEY_COLOR_DIFFUSE, &material))
 			{
-				mbstowcs_s(nullptr, &wtoa[nameOffset], bufferSize, aiPath.C_Str(), bufferSize);
-				_mesh.setup1_Texture(index, 1, wtoa);
+				material = aiColor4D(1.0f, 1.0f, 1.0f, 1.0f);
 			}
-		}
 
-		const unsigned int nst = matl.GetTextureCount(aiTextureType_SPECULAR);
-		if (nnt)
-		{
-			// 2개 이상의 스펙큘러 텍스처를 받아들일 수 없음
-			if (AI_SUCCESS == matl.GetTexture(aiTextureType_SPECULAR, 0, &aiPath))
+			refmaterial.diffuse = { material.r, material.g, material.b, material.a };
+
+			if (AI_FAILURE == aiGetMaterialColor(&matl, AI_MATKEY_COLOR_AMBIENT, &material))
 			{
-				mbstowcs_s(nullptr, &wtoa[nameOffset], bufferSize, aiPath.C_Str(), bufferSize);
-				_mesh.setup1_Texture(index, 2, wtoa);
+				material = aiColor4D(0.2f, 0.2f, 0.2f, 1.f);
 			}
-		}
 
-		aiColor4D material;
+			refmaterial.ambient = { material.r, material.g, material.b, material.a };
 
-		if (AI_FAILURE == aiGetMaterialColor(&matl, AI_MATKEY_COLOR_DIFFUSE, &material))
-		{
-			material = aiColor4D(1.0f, 1.0f, 1.0f, 1.0f);
-		}
-
-		_mesh.setup1_Material(
-			index, 0, { material.r, material.g, material.b, material.a });
-
-		if (AI_FAILURE == aiGetMaterialColor(&matl, AI_MATKEY_COLOR_AMBIENT, &material))
-		{
-			material = aiColor4D(0.2f, 0.2f, 0.2f, 1.f);
-		}
-
-		_mesh.setup1_Material(
-			index, 1, { material.r, material.g, material.b, material.a });
-
-		if (AI_FAILURE == aiGetMaterialColor(&matl, AI_MATKEY_COLOR_SPECULAR, &material))
-		{
-			material = aiColor4D(0.f, 0.f, 0.f, 0.f);
-		}
-
-		_mesh.setup1_Material(
-			index, 2, { material.r, material.g, material.b, material.a });
-
-		if (AI_FAILURE == aiGetMaterialColor(&matl, AI_MATKEY_COLOR_EMISSIVE, &material))
-		{
-			material = aiColor4D(0.f, 0.f, 0.f, 0.f);
-		}
-
-		_mesh.setup1_Material(
-			index, 3, { material.r, material.g, material.b, material.a });
-
-		unsigned int max;
-
-		float shininess, strength;
-		if (AI_SUCCESS == aiGetMaterialFloatArray(&matl, AI_MATKEY_SHININESS, &shininess, &(max = 1)))
-		{
-			if (AI_SUCCESS == aiGetMaterialFloatArray(&matl, AI_MATKEY_SHININESS_STRENGTH, &strength, &(max = 1)))
+			if (AI_FAILURE == aiGetMaterialColor(&matl, AI_MATKEY_COLOR_SPECULAR, &material))
 			{
-				shininess *= strength;
+				material = aiColor4D(0.f, 0.f, 0.f, 0.f);
 			}
-		}
-		else
-		{
-			shininess = 0.0f;
+
+			refmaterial.specular = { material.r, material.g, material.b, material.a };
+
+			if (AI_FAILURE == aiGetMaterialColor(&matl, AI_MATKEY_COLOR_EMISSIVE, &material))
+			{
+				material = aiColor4D(0.f, 0.f, 0.f, 0.f);
+			}
+
+			refmaterial.emissive = { material.r, material.g, material.b, material.a };
+
 		}
 
-		_mesh.setup1_Shininess(index, shininess);
+		{
+			unsigned int max; float shininess, strength;
+
+			if (AI_SUCCESS == aiGetMaterialFloatArray(&matl, AI_MATKEY_SHININESS, &shininess, &(max = 1)))
+			{
+				if (AI_SUCCESS == aiGetMaterialFloatArray(&matl, AI_MATKEY_SHININESS_STRENGTH, &strength, &(max = 1)))
+				{
+					shininess *= strength;
+				}
+			}
+			else
+			{
+				shininess = 0.0f;
+			}
+
+			refmaterial.shininess = shininess;
+		}
 	}
 
 	if (scene->mNumMaterials == 0)
 	{
-		_mesh.setup1_Material(0, 0, D3DXVECTOR4(1.f, 1.f, 1.f, 1.f));
-		_mesh.setup1_Material(0, 1, D3DXVECTOR4(0.2f, 0.2f, 0.2f, 1.f));
-		_mesh.setup1_Material(0, 2, D3DXVECTOR4(0.f, 0.f, 0.f, 0.f));
-		_mesh.setup1_Material(0, 3, D3DXVECTOR4(0.f, 0.f, 0.f, 0.f));
-		_mesh.setup1_Shininess(0, 0.0f);
+		_mesh.materials[0].diffuse = D3DXVECTOR4(1.f, 1.f, 1.f, 1.f);
+		_mesh.materials[0].ambient = D3DXVECTOR4(0.2f, 0.2f, 0.2f, 1.f);
+		_mesh.materials[0].specular = D3DXVECTOR4(0.f, 0.f, 0.f, 0.f);
+		_mesh.materials[0].emissive = D3DXVECTOR4(0.f, 0.f, 0.f, 0.f);
+		_mesh.materials[0].shininess = 0.0f;
 	}
 
 	for (unsigned int index = 0; index < scene->mNumMeshes; ++index)
 	{
 		const aiMesh & mesh = *scene->mMeshes[index];
-		IF_FAILED(_mesh.setup1_Mesh(index, 1, 1))
-		{
-			return hr;
-		}
+		D3D10MY_MESH & refmesh = _mesh.meshs[index];
 
 		D3D10_PRIMITIVE_TOPOLOGY topology;
 		unsigned int faceSize = 0;
@@ -602,115 +633,169 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_MeshFromFile)(
 			topology = D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		};
 
-		std::vector<unsigned int> indices(mesh.mNumFaces * faceSize);
 		unsigned int offsetOrSumOfindices = 0;
-
-		unsigned int * indicesBuffer = &indices[0];
-		for (unsigned int findex = 0; findex < mesh.mNumFaces; ++findex)
 		{
-			aiFace & face = mesh.mFaces[findex];
+			std::vector<unsigned int> indices(mesh.mNumFaces * faceSize);
+			unsigned int * indicesBuffer = &indices[0];
 
-			if (face.mNumIndices != faceSize)
+			for (unsigned int findex = 0; findex < mesh.mNumFaces; ++findex)
 			{
-				continue;
+				aiFace & face = mesh.mFaces[findex];
+
+				if (face.mNumIndices != faceSize)
+				{
+					continue;
+				}
+
+				memcpy(
+					&indicesBuffer[offsetOrSumOfindices],
+					face.mIndices,
+					face.mNumIndices * sizeof(unsigned int));
+
+				offsetOrSumOfindices += face.mNumIndices;
 			}
 
-			memcpy(
-				&indicesBuffer[offsetOrSumOfindices],
-				face.mIndices,
-				face.mNumIndices * sizeof(unsigned int));
+			// index Buffer
+			D3D10_BUFFER_DESC iBufferDesc;
+			iBufferDesc.ByteWidth = offsetOrSumOfindices * sizeof(unsigned int);
+			iBufferDesc.Usage = D3D10_USAGE_DEFAULT;
+			iBufferDesc.BindFlags = D3D10_BIND_INDEX_BUFFER;
+			iBufferDesc.CPUAccessFlags = 0;
+			iBufferDesc.MiscFlags = 0;
 
-			offsetOrSumOfindices += face.mNumIndices;
-		}
+			D3D10_SUBRESOURCE_DATA iinitData;
+			iinitData.pSysMem = &indices[0];
 
-		// index Buffer
-		D3D10_BUFFER_DESC iBufferDesc;
-		iBufferDesc.ByteWidth = offsetOrSumOfindices * sizeof(unsigned int);
-		iBufferDesc.Usage = D3D10_USAGE_DEFAULT;
-		iBufferDesc.BindFlags = D3D10_BIND_INDEX_BUFFER;
-		iBufferDesc.CPUAccessFlags = 0;
-		iBufferDesc.MiscFlags = 0;
+			D3D10MY_INDEXBUFFER & refib =
+				refmesh.indexbuffer;
 
-		IF_FAILED(hr = _mesh.setup2_indexbuffer(
-			index,
-			iBufferDesc,
-			&indices[0],
-			DXGI_FORMAT_R32_UINT,
-			offsetOrSumOfindices))
-		{
-			return hr;
-		}
-
-		std::vector<D3D10_SkinnedFormat> vbuffer(mesh.mNumVertices);
-		ZeroMemory(&vbuffer[0], mesh.mNumVertices * sizeof(D3D10_SkinnedFormat));
-
-		D3D10_SkinnedFormat * formatBuffer = &vbuffer[0];
-		for (unsigned int vindex = 0; vindex < mesh.mNumVertices; ++vindex)
-		{
-			D3D10_SkinnedFormat & format = formatBuffer[vindex];
-			memcpy(&format.pos, &mesh.mVertices[vindex], sizeof(D3DXVECTOR3));
-			memcpy(&format.norm, &mesh.mNormals[vindex], sizeof(D3DXVECTOR3));
-			memcpy(&format.tex, &mesh.mTextureCoords[0][vindex], sizeof(D3DXVECTOR2));
-			memcpy(&format.color, &mesh.mColors[0][vindex], sizeof(D3DXVECTOR4));
-		}
-
-		if (_meshAnimation)
-		{
-			for (unsigned int bindex = 0; bindex < mesh.mNumBones; ++bindex)
+			IF_FAILED(hr = framework::g_Framework_Device.d3d10Device->CreateBuffer(
+				&iBufferDesc,
+				&iinitData,
+				&refib.indexbuffer))
 			{
-				const aiBone & bone = *mesh.mBones[bindex];
+				return hr;
+			}
 
-				unsigned int nodeBindex = 0;
+			refib.indexType = DXGI_FORMAT_R32_UINT;
+			refib.numOfindices = offsetOrSumOfindices;
+		}
 
-				mbstowcs_s<256>(nullptr, wtoa, bone.mName.C_Str(), sizeof(wtoa));
-				nodeBindex = _meshAnimation->find_BoneIDFromName(wtoa);
+		{
+			std::vector<D3D10_SkinnedFormat> vbuffer(mesh.mNumVertices);
+			D3D10_SkinnedFormat * formatBuffer = &vbuffer[0];
 
-				_meshAnimation->userSet_BoneMatrix(
-					nodeBindex, (float *)&bone.mOffsetMatrix);
+			{
+				ZeroMemory(formatBuffer, mesh.mNumVertices * sizeof(D3D10_SkinnedFormat));
+			}
 
-				for (unsigned int windex = 0; windex < bone.mNumWeights; ++windex)
+			for (unsigned int vindex = 0; vindex < mesh.mNumVertices; ++vindex)
+			{
+				D3D10_SkinnedFormat & format = formatBuffer[vindex];
+				memcpy(&format.pos, &mesh.mVertices[vindex], sizeof(D3DXVECTOR3));
+
+				if (mesh.mNormals)
 				{
-					const aiVertexWeight & wight = bone.mWeights[windex];
-					D3D10_SkinnedFormat & format = formatBuffer[wight.mVertexId];
+					memcpy(&format.norm, &mesh.mNormals[vindex], sizeof(D3DXVECTOR3));
+				}
 
-					for (unsigned int i = 0; i < 4; ++i)
+				if (mesh.mTextureCoords[0])
+				{
+					memcpy(&format.tex, &mesh.mTextureCoords[0][vindex], sizeof(D3DXVECTOR2));
+				}
+
+				if (mesh.mColors[0])
+				{
+					memcpy(&format.color, &mesh.mColors[0][vindex], sizeof(D3DXVECTOR4));
+				}
+			}
+
+			if (_animation)
+			{
+				refmesh.boneNode.resize(mesh.mNumBones);
+				for (unsigned int bindex = 0; bindex < mesh.mNumBones; ++bindex)
+				{
+					const aiBone & bone = *mesh.mBones[bindex];
+
+					unsigned int nodeBindex = 0;
 					{
-						if (format.bindexs[i])
+						mbstowcs_s<256>(nullptr, wtoa, bone.mName.C_Str(), sizeof(wtoa));
+						nodeBindex = _animation->bonePath[wtoa];
+
+						refmesh.boneNode[bindex] = nodeBindex;
+
+						// 중복이 있어도 무시하고 넣는다.
+						aiMatrix4x4 m = bone.mOffsetMatrix;
+
+						_animation->bones[nodeBindex].mOwn = D3DXMATRIX(
+							m.a1, m.a2, m.a3, m.a4,
+							m.b1, m.b2, m.b3, m.b4,
+							m.c1, m.c2, m.c3, m.c4,
+							m.d1, m.d2, m.d3, m.d4);
+					}
+
+					for (unsigned int windex = 0; windex < bone.mNumWeights; ++windex)
+					{
+						const aiVertexWeight & wight = bone.mWeights[windex];
+						D3D10_SkinnedFormat & format = formatBuffer[wight.mVertexId];
+
+						for (unsigned int i = 0; i < 4; ++i)
 						{
-							continue;
-						}
-						else
-						{
-							format.bindexs[i] = nodeBindex;
-							format.bweight[i] = wight.mWeight;
-							break;
+							if (format.bweight[i])
+							{
+								continue;
+							}
+							else
+							{
+								// bones[ refmesh.boneNode[format.bindexs] ]
+								format.bindexs[i] = bindex;
+								format.bweight[i] = wight.mWeight;
+								break;
+							}
 						}
 					}
 				}
 			}
+
+			// Vertex Buffer
+			D3D10_BUFFER_DESC vBufferDesc;
+			vBufferDesc.ByteWidth = mesh.mNumVertices * sizeof(D3D10_SkinnedFormat);
+			vBufferDesc.Usage = D3D10_USAGE_DEFAULT;
+			vBufferDesc.BindFlags = D3D10_BIND_VERTEX_BUFFER;
+			vBufferDesc.CPUAccessFlags = 0;
+			vBufferDesc.MiscFlags = 0;
+
+			D3D10_SUBRESOURCE_DATA vinitData;
+			vinitData.pSysMem = formatBuffer;
+
+			D3D10MY_VERTEXBUFFER & refvb =
+				refmesh.vetexbuffer;
+
+			IF_FAILED(hr = framework::g_Framework_Device.d3d10Device->CreateBuffer(
+				&vBufferDesc,
+				&vinitData,
+				&refvb.vertexbuffer))
+			{
+				return hr;
+			}
+
+			refvb.numOfVertices = mesh.mNumVertices;
+			refvb.vertexbuffers_Strides = sizeof(D3D10_SkinnedFormat);
+			refvb.vertexbuffers_Offsets = 0;
 		}
 
-		// Vertex Buffer
-		D3D10_BUFFER_DESC vBufferDesc;
-		vBufferDesc.ByteWidth = mesh.mNumVertices * sizeof(D3D10_SkinnedFormat);
-		vBufferDesc.Usage = D3D10_USAGE_DEFAULT;
-		vBufferDesc.BindFlags = D3D10_BIND_VERTEX_BUFFER;
-		vBufferDesc.CPUAccessFlags = 0;
-		vBufferDesc.MiscFlags = 0;
-
-		IF_FAILED(hr = _mesh.setup2_Vertexbuffer(
-			index, 0,
-			vBufferDesc,
-			&vbuffer[0],
-			sizeof(D3D10_SkinnedFormat),
-			0, mesh.mNumVertices))
 		{
-			return hr;
-		}
+			refmesh.subsets.resize(1);
+			D3D10MY_RENDER_DESC & refdesc =
+				refmesh.subsets[0];
 
-		_mesh.setup2_RenderDesc(
-			index, 0, mesh.mMaterialIndex,
-			0, offsetOrSumOfindices, 0, 1, topology);
+			refdesc.material_id = mesh.mMaterialIndex;
+			refdesc.indexCount = offsetOrSumOfindices;
+			refdesc.indexStart = 0;
+			refdesc.vertexbufferCount = 0;
+			refdesc.vertexbufferStart = 0;
+			refdesc.primitiveType = topology;
+		}
 	}
 
 	g_importer.FreeScene();
@@ -723,7 +808,7 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_MeshFromFile)(
 //--------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------
-IMPL_FUNC_T(void, compute_CountOfBonesFromAiNode)(
+IMPL_FUNC_T(void, sort_BonesFromAiNode)(
 	_In_ aiNode * _node,
 	_In_ std::list<aiNode *> & _list)
 {
@@ -736,19 +821,19 @@ IMPL_FUNC_T(void, compute_CountOfBonesFromAiNode)(
 
 	for (unsigned int index = 0; index < _node->mNumChildren; ++index)
 	{
-		compute_CountOfBonesFromAiNode(_node->mChildren[index], _list);
+		sort_BonesFromAiNode(_node->mChildren[index], _list);
 	}
 
 	return;
 }
 
 //--------------------------------------------------------------------------------------
-IMPL_FUNC_T(unsigned int, build_MeshAnimationFromAiNode)(
-	_Out_ D3D10_MeshAnimation * _meshAnimation,
+IMPL_FUNC_T(unsigned int, build_BonesFromAiNode)(
+	_Out_ std::vector<D3D10MY_BONE> & _bones,
 	_In_ std::list<aiNode *> & _list,
 	_In_ wchar_t(&_buffer)[256],
 	_In_ unsigned int _index,
-	_In_ unsigned int _parentID)
+	_In_ unsigned int _parent)
 {
 	const aiNode & node = *_list.front();
 	_list.pop_front();
@@ -756,22 +841,28 @@ IMPL_FUNC_T(unsigned int, build_MeshAnimationFromAiNode)(
 	unsigned int length = 0;
 	for (unsigned int cindex = 0; cindex < node.mNumChildren; ++cindex)
 	{
-		length += build_MeshAnimationFromAiNode(
-			_meshAnimation, _list, _buffer,
-			_meshAnimation->get_NumOfBones() - _list.size(),
+		length += build_BonesFromAiNode(
+			_bones, _list, _buffer,
+			_bones.size() - _list.size(),
 			_index);
 	}
 
+	D3D10MY_BONE & refbone = _bones[_index];
+	refbone.id = _index;
+	refbone.parent = _parent;
+	refbone.length = length;
+
+	aiMatrix4x4 m = node.mTransformation;
+	m.Transpose();
+
+	refbone.mRelation = D3DXMATRIX(
+		m.a1, m.a2, m.a3, m.a4,
+		m.b1, m.b2, m.b3, m.b4,
+		m.c1, m.c2, m.c3, m.c4,
+		m.d1, m.d2, m.d3, m.d4);
+
 	mbstowcs_s<256>(nullptr, _buffer, node.mName.C_Str(), sizeof(_buffer));
-	if (FAILED(_meshAnimation->setup1_BoneNode(
-		_index,
-		_parentID,
-		length,
-		_buffer,
-		(float*)&node.mTransformation)))
-	{
-		return 0;
-	}
+	refbone.name = _buffer;
 
 	return length ? length + 1 : 1;
 }

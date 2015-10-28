@@ -28,9 +28,6 @@
     <Filter Include="소스 파일\ctst">
       <UniqueIdentifier>{bc1e3553-6811-44b1-b375-4abedb23f830}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\db">
-      <UniqueIdentifier>{78b1d013-4332-4a8c-aac1-8762a10b2bf0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\thread">
       <UniqueIdentifier>{918440ef-047f-4dbb-b39f-0815ea6842fa}</UniqueIdentifier>
     </Filter>
@@ -54,6 +51,9 @@
     </Filter>
     <Filter Include="소스 파일\direct3d">
       <UniqueIdentifier>{d5d41e5f-6c7c-462a-8a29-358c8d08ff70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\db">
+      <UniqueIdentifier>{78b1d013-4332-4a8c-aac1-8762a10b2bf0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -99,9 +99,6 @@
     <ClCompile Include="buttoncompo.cpp">
       <Filter>소스 파일\frame</Filter>
     </ClCompile>
-    <ClCompile Include="d3d10_meshanimation.cpp">
-      <Filter>소스 파일\direct3d</Filter>
-    </ClCompile>
     <ClCompile Include="wictextureloader.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -142,6 +139,9 @@
       <Filter>소스 파일\direct3d</Filter>
     </ClCompile>
     <ClCompile Include="d3d10_font.cpp">
+      <Filter>소스 파일\direct3d</Filter>
+    </ClCompile>
+    <ClCompile Include="d3d10_animation.cpp">
       <Filter>소스 파일\direct3d</Filter>
     </ClCompile>
   </ItemGroup>
@@ -218,9 +218,6 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_mesh.h">
       <Filter>헤더 파일\direct3d</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_meshanimation.h">
-      <Filter>헤더 파일\direct3d</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework_usertimestream.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -254,6 +251,9 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_renderer.h">
       <Filter>헤더 파일\direct3d</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_animation.h">
+      <Filter>헤더 파일\direct3d</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\common.inl">
@@ -264,6 +264,9 @@
     </None>
     <None Include="..\Win32Project1\shader\meshrenderer.fx">
       <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_animation.inl">
+      <Filter>헤더 파일\direct3d</Filter>
     </None>
   </ItemGroup>
 </Project>

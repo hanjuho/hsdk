@@ -85,18 +85,25 @@ CLASS_IMPL_FUNC_T(FMOD_SoundDevice, void, destroy)(
 {
 	if (g_SoundDevice)
 	{
-		auto begin = g_SoundContainer.begin();
-		auto end = g_SoundContainer.end();
-		while (begin != end)
-		{
-			begin->second->release();
-			++begin;
-		}
-		g_SoundContainer.clear();
+		clear();
 
 		g_SoundDevice->release();
 		g_SoundDevice = nullptr;
 	}
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(FMOD_SoundDevice, void, clear)(
+	_X_ void)
+{
+	auto begin = g_SoundContainer.begin();
+	auto end = g_SoundContainer.end();
+	while (begin != end)
+	{
+		begin->second->release();
+		++begin;
+	}
+	g_SoundContainer.clear();
 }
 
 //--------------------------------------------------------------------------------------

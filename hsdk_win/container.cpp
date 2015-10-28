@@ -184,4 +184,5 @@ CLASS_IMPL_FUNC_T(Container, void, clear)(
 	_X_ void)
 {
 	m_Container.clear();
+	m_D3D10Graphics = Graphics();
 }
