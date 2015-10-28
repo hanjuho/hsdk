@@ -2,6 +2,35 @@
 
 
 //--------------------------------------------------------------------------------------
+//
+//--------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------
+DECL_FUNC_T(void, updatePos)(
+	_Out_ D3DXMATRIX * _matrixBuffer,
+	_In_ const hsdk::direct3d::D3D10MY_BONE * _boneBuffer,
+	_In_ const bool * _animateBoneBuffer,
+	_In_ unsigned int _countBuffer)
+{
+	for (unsigned int index = 0; index < _countBuffer; ++index)
+	{
+		if (_animateBoneBuffer[index])
+		{
+			_matrixBuffer[index] = _matrixBuffer[_boneBuffer[index].parent] * _matrixBuffer[index];
+		}
+		else
+		{
+			const hsdk::direct3d::D3D10MY_BONE & bone = _boneBuffer[index];
+			_matrixBuffer[index] = _matrixBuffer[bone.parent] * bone.mRelation;
+		}
+	}
+}
+
+//--------------------------------------------------------------------------------------
+//
+//--------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------
 DLL_DECL_FUNC_T(void, hsdk::direct3d::animation::animationClear)(
 	_Out_ D3D10_Animation & _animation)
 {
@@ -41,63 +70,167 @@ DLL_DECL_FUNC_T(void, hsdk::direct3d::animation::build_MeshBoneMatrix)(
 }
 
 //--------------------------------------------------------------------------------------
-IMPL_FUNC_T(unsigned int, hsdk::direct3d::animation::create_Pos)(
+IMPL_FUNC(hsdk::direct3d::animation::create_Pos)(
 	_Out_ D3D10_Animation_Recorder & _pos,
 	_In_ const D3D10_Animation & _animation,
 	_In_ unsigned int _animationPos,
 	_In_ double _time)
 {
-	const D3D10MY_BONE * boneDispatch = &_animation.bones[0];
-
 	unsigned int limit = _animation.bones.size();
-	if (_pos.pos.size() < limit)
+	if (limit == 0 || _animationPos < _animation.animations.size())
 	{
-		_pos.pos.resize(limit);
+		return E_FAIL;
 	}
+
+	_pos.pos.resize(limit);
+	_pos.keyframe.resize(_animation.animations[_animationPos].boneKeyFrames.size);
+	memset(&_pos.keyframe[0], -1, sizeof(D3D10MY_KEYFRAME_RECORD)* _pos.keyframe.size());
 
 	D3DXMATRIX * dispatch = &_pos.pos[0];
 	D3DXMatrixIdentity(&dispatch[0]);
 
 	bool animateBone[256] = { 0 };
 	{
-		const D3D10MY_ANIMATION & animation = _animation.animations[_animationPos];
+		const D3D10MY_ANIMATION & animation = 
 		const unsigned int length = animation.boneKeyFrames.size();
 
 		{
-			_pos.keyframe.resize(length);
-			memset(&_pos.keyframe[0], -1, sizeof(D3D10MY_KEYFRAME_RECORD)* length);
+		}
+
+		double duration = animation.duration;
+		double time = _time * animation.tickPerSecond;
+		if (time < duration)
+		{
+			_pos.time = _time;
+		}
+		else
+		{
+			time = std::fmod(time, duration);
+			_pos.time = time / duration;
 		}
 
 		for (unsigned int index = 0; index < length; ++index)
 		{
 			const D3D10MY_BONE_KEYFRAME & boneKeyFrame = animation.boneKeyFrames[index];
-			D3D10MY_KEYFRAME_RECORD & refrecord = _pos.keyframe[index];
 
 			dispatch[boneKeyFrame.boneID] = compute_MatrixFromBoneKeyFrame(
-				boneKeyFrame, animation.duration, _time, &refrecord);
+				boneKeyFrame, duration, time, &_pos.keyframe[index]);
 
 			animateBone[boneKeyFrame.boneID] = true;
-			refrecord.boneID = boneKeyFrame.boneID;
 		}
+
 	}
 
-	for (unsigned int index = 0; index < limit; ++index)
-	{
-		const D3D10MY_BONE & bone = boneDispatch[index];
-
-		if (animateBone[index])
-		{
-			dispatch[index] = dispatch[bone.parent] * dispatch[index];
-		}
-		else
-		{
-			dispatch[index] = dispatch[bone.parent] * bone.mRelation;
-		}
-	}
+	updatePos(
+		dispatch,
+		&_animation.bones[0],
+		animateBone,
+		limit);
 
 	_pos.aniamtionID = _animationPos;
 
-	return limit;
+	return S_OK;
+}
+
+//--------------------------------------------------------------------------------------
+IMPL_FUNC_T(void, hsdk::direct3d::animation::animate_Pos)(
+	_Out_ D3D10_Animation_Recorder & _pos,
+	_In_ const D3D10_Animation & _animation)
+{
+	D3DXMATRIX * dispatch = &_pos.pos[0];
+	bool animateBone[256] = { 0 };
+	{
+		const D3D10MY_ANIMATION & animation = 
+			_animation.animations[_pos.aniamtionID];
+
+		double duration = animation.duration;
+		double time = _pos.time * animation.tickPerSecond;
+		
+		// 시간 초과
+		if (duration < time)
+		{
+			// 최대 시간 만큼 감소
+			time -= duration;
+
+			// 그럼에도 크다면
+			if (duration < time)
+			{
+				// 최대 시간으로 나머지를 구함(오버헤드가 높음)
+				time = std::fmod(time, duration);
+			}
+
+			// 새로운 타임을 저장
+			_pos.time = time / animation.tickPerSecond;
+		}
+		// 시간이 0보다 작음
+		else if (time < 0)
+		{
+			// 최대 시간 만큼 증가
+			time += duration;
+
+			// 그럼에도 작다면
+			if (time < 0)
+			{
+				// 최대 시간으로 나머지를 구한 뒤 최대시간에서 감소
+				time = duration - std::fmod(time, duration);
+			}
+
+			// 새로운 타임을 저장
+			_pos.time = time / animation.tickPerSecond;
+		}
+
+		const unsigned int length = animation.boneKeyFrames.size();
+		for (unsigned int index = 0; index < length; ++index)
+		{
+			const D3D10MY_BONE_KEYFRAME & boneKeyFrame = animation.boneKeyFrames[index];
+
+			dispatch[boneKeyFrame.boneID] = compute_MatrixFromBoneKeyFrame(
+			boneKeyFrame, duration, time, &_pos.keyframe[index]);
+
+			animateBone[boneKeyFrame.boneID] = true;
+		}
+	}
+
+	updatePos(
+		dispatch,
+		&_animation.bones[0],
+		animateBone,
+		_animation.bones.size());
+}
+
+//--------------------------------------------------------------------------------------
+IMPL_FUNC(hsdk::direct3d::animation::trans_Pos)(
+	_Out_ D3D10_Animation_Recorder & _pos,
+	_In_ const D3D10_Animation & _animation,
+	_In_ unsigned int _animationPos)
+{
+	IF_FALSE(_animationPos < _animation.animations.size())
+	{
+		return E_FAIL;
+	}
+
+	_pos.aniamtionID = _animationPos;
+	reset_Pos(_pos, _animation);	
+}
+
+//--------------------------------------------------------------------------------------
+IMPL_FUNC_T(void, hsdk::direct3d::animation::reset_Pos)(
+	_Out_ D3D10_Animation_Recorder & _pos,
+	_In_ const D3D10_Animation & _animation)
+{
+	_pos.time = 0.0f;		
+	auto begin = _pos.keyframe.begin();
+	auto end = _pos.keyframe.end();
+	while (begin != end)
+	{
+		begin->positionKey = 0;
+		begin->rotationKey = 0;
+		begin->scaleKey = 0;
+
+		++begin;
+	}
+
+	animate_Pos(_pos, _animation);
 }
 
 //--------------------------------------------------------------------------------------
