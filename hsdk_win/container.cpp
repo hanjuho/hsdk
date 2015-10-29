@@ -11,8 +11,9 @@ CLASS_IMPL_CONSTRUCTOR(Container, Container)(
 	_In_ float _x,
 	_In_ float _y,
 	_In_ float _w,
-	_In_ float _h)
-	: Component(_x, _y, _w, _h)
+	_In_ float _h,
+	_In_ hsdk::i::frame::FRAME_FORM _form)
+	: Component(_x, _y, _w, _h, _form)
 {
 
 }

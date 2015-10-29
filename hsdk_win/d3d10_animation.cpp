@@ -2,35 +2,6 @@
 
 
 //--------------------------------------------------------------------------------------
-//
-//--------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------
-DECL_FUNC_T(void, updatePos)(
-	_Out_ D3DXMATRIX * _matrixBuffer,
-	_In_ const hsdk::direct3d::D3D10MY_BONE * _boneBuffer,
-	_In_ const bool * _animateBoneBuffer,
-	_In_ unsigned int _countBuffer)
-{
-	for (unsigned int index = 0; index < _countBuffer; ++index)
-	{
-		if (_animateBoneBuffer[index])
-		{
-			_matrixBuffer[index] = _matrixBuffer[_boneBuffer[index].parent] * _matrixBuffer[index];
-		}
-		else
-		{
-			const hsdk::direct3d::D3D10MY_BONE & bone = _boneBuffer[index];
-			_matrixBuffer[index] = _matrixBuffer[bone.parent] * bone.mRelation;
-		}
-	}
-}
-
-//--------------------------------------------------------------------------------------
-//
-//--------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------
 DLL_DECL_FUNC_T(void, hsdk::direct3d::animation::animationClear)(
 	_Out_ D3D10_Animation & _animation)
 {
@@ -46,7 +17,6 @@ DLL_DECL_FUNC_T(void, hsdk::direct3d::animation::animationRecordClear)(
 	_Out_ D3D10_Animation_Recorder & _recorder)
 {
 	_recorder.aniamtionID = -1;
-	_recorder.keyframe.clear();
 	_recorder.pos.clear();
 	_recorder.time = 0.0f;
 }
@@ -77,57 +47,17 @@ IMPL_FUNC(hsdk::direct3d::animation::create_Pos)(
 	_In_ double _time)
 {
 	unsigned int limit = _animation.bones.size();
-	if (limit == 0 || _animationPos < _animation.animations.size())
+	IF_FALSE(limit && _animationPos < _animation.animations.size())
 	{
 		return E_FAIL;
 	}
 
-	_pos.pos.resize(limit);
-	_pos.keyframe.resize(_animation.animations[_animationPos].boneKeyFrames.size);
-	memset(&_pos.keyframe[0], -1, sizeof(D3D10MY_KEYFRAME_RECORD)* _pos.keyframe.size());
-
-	D3DXMATRIX * dispatch = &_pos.pos[0];
-	D3DXMatrixIdentity(&dispatch[0]);
-
-	bool animateBone[256] = { 0 };
-	{
-		const D3D10MY_ANIMATION & animation = 
-		const unsigned int length = animation.boneKeyFrames.size();
-
-		{
-		}
-
-		double duration = animation.duration;
-		double time = _time * animation.tickPerSecond;
-		if (time < duration)
-		{
-			_pos.time = _time;
-		}
-		else
-		{
-			time = std::fmod(time, duration);
-			_pos.time = time / duration;
-		}
-
-		for (unsigned int index = 0; index < length; ++index)
-		{
-			const D3D10MY_BONE_KEYFRAME & boneKeyFrame = animation.boneKeyFrames[index];
-
-			dispatch[boneKeyFrame.boneID] = compute_MatrixFromBoneKeyFrame(
-				boneKeyFrame, duration, time, &_pos.keyframe[index]);
-
-			animateBone[boneKeyFrame.boneID] = true;
-		}
-
-	}
-
-	updatePos(
-		dispatch,
-		&_animation.bones[0],
-		animateBone,
-		limit);
-
 	_pos.aniamtionID = _animationPos;
+	_pos.pos.resize(limit);
+	
+	D3DXMatrixIdentity(&_pos.pos[0]);
+
+	animate_Pos(_pos, _animation);
 
 	return S_OK;
 }
@@ -138,7 +68,7 @@ IMPL_FUNC_T(void, hsdk::direct3d::animation::animate_Pos)(
 	_In_ const D3D10_Animation & _animation)
 {
 	D3DXMATRIX * dispatch = &_pos.pos[0];
-	bool animateBone[256] = { 0 };
+	bool animateBuffer[256] = { 0 };
 	{
 		const D3D10MY_ANIMATION & animation = 
 			_animation.animations[_pos.aniamtionID];
@@ -182,20 +112,33 @@ IMPL_FUNC_T(void, hsdk::direct3d::animation::animate_Pos)(
 		const unsigned int length = animation.boneKeyFrames.size();
 		for (unsigned int index = 0; index < length; ++index)
 		{
-			const D3D10MY_BONE_KEYFRAME & boneKeyFrame = animation.boneKeyFrames[index];
+			const D3D10MY_BONE_KEYFRAME & boneKeyFrame =
+				animation.boneKeyFrames[index];
 
-			dispatch[boneKeyFrame.boneID] = compute_MatrixFromBoneKeyFrame(
-			boneKeyFrame, duration, time, &_pos.keyframe[index]);
+			dispatch[boneKeyFrame.boneID] =
+				compute_MatrixFromBoneKeyFrame(
+				boneKeyFrame,
+				duration,
+				time);
 
-			animateBone[boneKeyFrame.boneID] = true;
+			animateBuffer[boneKeyFrame.boneID] = true;
 		}
 	}
 
-	updatePos(
-		dispatch,
-		&_animation.bones[0],
-		animateBone,
-		_animation.bones.size());
+	const D3D10MY_BONE * bones = &_animation.bones[0];
+	const unsigned int _countBuffer = _animation.bones.size();
+	for (unsigned int index = 0; index < _countBuffer; ++index)
+	{
+		if (animateBuffer[index])
+		{
+			dispatch[index] = dispatch[bones[index].parent] * dispatch[index];
+		}
+		else
+		{
+			const hsdk::direct3d::D3D10MY_BONE & bone = bones[index];
+			dispatch[index] = dispatch[bone.parent] * bone.mRelation;
+		}
+	}
 }
 
 //--------------------------------------------------------------------------------------
@@ -210,7 +153,9 @@ IMPL_FUNC(hsdk::direct3d::animation::trans_Pos)(
 	}
 
 	_pos.aniamtionID = _animationPos;
-	reset_Pos(_pos, _animation);	
+	reset_Pos(_pos, _animation);
+
+	return S_OK;
 }
 
 //--------------------------------------------------------------------------------------
@@ -218,18 +163,7 @@ IMPL_FUNC_T(void, hsdk::direct3d::animation::reset_Pos)(
 	_Out_ D3D10_Animation_Recorder & _pos,
 	_In_ const D3D10_Animation & _animation)
 {
-	_pos.time = 0.0f;		
-	auto begin = _pos.keyframe.begin();
-	auto end = _pos.keyframe.end();
-	while (begin != end)
-	{
-		begin->positionKey = 0;
-		begin->rotationKey = 0;
-		begin->scaleKey = 0;
-
-		++begin;
-	}
-
+	_pos.time = 0.0f;
 	animate_Pos(_pos, _animation);
 }
 
@@ -237,8 +171,7 @@ IMPL_FUNC_T(void, hsdk::direct3d::animation::reset_Pos)(
 IMPL_FUNC_T(D3DXMATRIX, hsdk::direct3d::animation::compute_MatrixFromBoneKeyFrame)(
 	_In_ const D3D10MY_BONE_KEYFRAME & _boneKeyframe,
 	_In_ double _duration,
-	_In_ double _time,
-	_Out_opt_ D3D10MY_KEYFRAME_RECORD * _keyFrame)
+	_In_ double _time)
 {
 	aiVector3D position;
 	aiQuaternion rotation;
@@ -247,40 +180,20 @@ IMPL_FUNC_T(D3DXMATRIX, hsdk::direct3d::animation::compute_MatrixFromBoneKeyFram
 	const aiAnimBehaviour preFrameHint = _boneKeyframe.preFrameMoveHint;
 	const aiAnimBehaviour postFrameHint = _boneKeyframe.postFrameMoveHint;
 
-	if (_keyFrame)
-	{
 		position = compute_VectorFromKeyFrame<aiVectorKey, aiVector3D>(
 			_boneKeyframe.positionKeyFrame,
 			preFrameHint, postFrameHint,
-			_duration, _time, &_keyFrame->positionKey);
+			_duration, _time);
 
 		rotation = compute_VectorFromKeyFrame<aiQuatKey, aiQuaternion>(
 			_boneKeyframe.rotationKeyFrame,
 			preFrameHint, postFrameHint,
-			_duration, _time, &_keyFrame->rotationKey);
+			_duration, _time);
 
 		scale = compute_VectorFromKeyFrame<aiVectorKey, aiVector3D>(
 			_boneKeyframe.scaleKeyFrame,
 			preFrameHint, postFrameHint,
-			_duration, _time, &_keyFrame->scaleKey);
-	}
-	else
-	{
-		position = compute_VectorFromKeyFrame<aiVectorKey, aiVector3D>(
-			_boneKeyframe.positionKeyFrame,
-			preFrameHint, postFrameHint,
-			_duration, _time, nullptr);
-
-		rotation = compute_VectorFromKeyFrame<aiQuatKey, aiQuaternion>(
-			_boneKeyframe.rotationKeyFrame,
-			preFrameHint, postFrameHint,
-			_duration, _time, nullptr);
-
-		scale = compute_VectorFromKeyFrame<aiVectorKey, aiVector3D>(
-			_boneKeyframe.scaleKeyFrame,
-			preFrameHint, postFrameHint,
-			_duration, _time, nullptr);
-	}
+			_duration, _time);
 
 	D3DXMATRIX t, r, s;
 	D3DXMATRIX tt, tr;

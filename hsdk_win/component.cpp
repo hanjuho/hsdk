@@ -15,8 +15,14 @@ CLASS_IMPL_CONSTRUCTOR(Component, Component)(
 	_In_ float _x,
 	_In_ float _y,
 	_In_ float _w,
-	_In_ float _h)
-	: my_id(component_id++), my_Parent(nullptr), my_AbsX(0.0f), my_AbsY(0.0f), my_Visible(false)
+	_In_ float _h,
+	_In_ hsdk::i::frame::FRAME_FORM _form)
+	: my_id(component_id++),
+	my_Parent(nullptr),
+	my_Form(_form),
+	my_AbsX(0.0f),
+	my_AbsY(0.0f),
+	my_Visible(false)
 {
 	my_Rectangle[0] = _x;
 	my_Rectangle[1] = _y;
@@ -136,6 +142,26 @@ CLASS_IMPL_FUNC_T(Component, float, get_H)(
 	_X_ void)const
 {
 	return my_Rectangle[3];
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Component, void, set_Form)(
+	_In_ hsdk::i::frame::FRAME_FORM _form)
+{
+	if (_form == my_Form)
+	{
+		return;
+	}
+
+	my_Form = _form;
+	reform();
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Component, hsdk::i::frame::FRAME_FORM, get_Form)(
+	_X_  void)const
+{
+	return my_Form;
 }
 
 //--------------------------------------------------------------------------------------

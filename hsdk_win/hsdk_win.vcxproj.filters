@@ -144,6 +144,9 @@
     <ClCompile Include="d3d10_animation.cpp">
       <Filter>소스 파일\direct3d</Filter>
     </ClCompile>
+    <ClCompile Include="rendertargetcontainer.cpp">
+      <Filter>소스 파일\frame</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\component.h">
@@ -254,19 +257,31 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_animation.h">
       <Filter>헤더 파일\direct3d</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\rendertargetcontainer.h">
+      <Filter>헤더 파일\frame</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\common.inl">
       <Filter>헤더 파일</Filter>
     </None>
-    <None Include="..\Win32Project1\shader\main.fx">
-      <Filter>리소스 파일</Filter>
-    </None>
-    <None Include="..\Win32Project1\shader\meshrenderer.fx">
-      <Filter>리소스 파일</Filter>
-    </None>
     <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_animation.inl">
       <Filter>헤더 파일\direct3d</Filter>
+    </None>
+    <None Include="..\Win32Project1\shader\shader.fx">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="..\Win32Project1\shader\format.fx">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="..\Win32Project1\shader\function.fx">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="..\Win32Project1\shader\grobal.fx">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="..\Win32Project1\shader\main.fx">
+      <Filter>리소스 파일</Filter>
     </None>
   </ItemGroup>
 </Project>

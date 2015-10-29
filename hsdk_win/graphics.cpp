@@ -125,28 +125,24 @@ CLASS_IMPL_FUNC_T(Graphics, void, render)(
 {
 	if (my_Context.textSlot)
 	{
-		D3DXMATRIX matrix;
-		D3DXMatrixIdentity(&matrix);
-		g_D3D10_Renderer.render_Font(
-			matrix,
-			my_Context,
-			font.font(),
-			_persent);
+
 	}
 
+	g_D3D10_Renderer.set_MatrixWorldViewProj(&my_Position);
+	g_D3D10_Renderer.set_ScalarPSTime(_persent);
 	if (my_Texture)
 	{
+		g_D3D10_Renderer.set_ScalarVSFlag(VS_TEXMATRIX_0);
+		g_D3D10_Renderer.set_ScalarPSFlag(PS_TEXTURE_0 | PS_CALLFUNCTION_0);
 		g_D3D10_Renderer.render_UITexture(
-			my_Position,
 			my_Texture,
-			my_Texcoord,
-			_persent);
+			&my_Texcoord);
 	}
 	else
 	{
+		g_D3D10_Renderer.set_ScalarVSFlag(0);
+		g_D3D10_Renderer.set_ScalarPSFlag(PS_MARERIAL_0 | PS_CALLFUNCTION_0);
 		g_D3D10_Renderer.render_UIRectangle(
-			my_Position,
-			my_BGColor,
-			_persent);
+			&my_BGColor);
 	}
 }

@@ -121,6 +121,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
     <ClCompile Include="framework_device.cpp" />
     <ClCompile Include="d8_soundplayer.cpp" />
     <ClCompile Include="fmod_sounddevice.cpp" />
+    <ClCompile Include="rendertargetcontainer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\common.h" />
@@ -144,6 +145,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\graphics.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\inputeventhelper.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\buttoncompo.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\rendertargetcontainer.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpproxy.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpserver.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpclient.h" />
@@ -165,10 +167,21 @@ COPY "$(OutDir)hsdk_win.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_animation.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Win32Project1\shader\format.fx">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\Win32Project1\shader\function.fx">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\Win32Project1\shader\grobal.fx">
+      <FileType>Document</FileType>
+    </None>
     <None Include="..\Win32Project1\shader\main.fx">
       <FileType>Document</FileType>
     </None>
-    <None Include="..\Win32Project1\shader\meshrenderer.fx">
+    <None Include="..\Win32Project1\shader\shader.fx">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

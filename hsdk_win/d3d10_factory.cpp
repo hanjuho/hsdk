@@ -454,7 +454,7 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_MeshFromFile)(
 					refanimation.name = buffer;
 
 					refanimation.boneKeyFrames.resize(animation.mNumChannels);
-					refanimation.tickPerSecond = animation.mTicksPerSecond;
+					refanimation.tickPerSecond = animation.mTicksPerSecond ? animation.mTicksPerSecond : 5000.0f;
 					refanimation.duration = animation.mDuration;
 				}
 
@@ -696,7 +696,7 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_MeshFromFile)(
 
 				if (mesh.mNormals)
 				{
-					memcpy(&format.norm, &mesh.mNormals[vindex], sizeof(D3DXVECTOR3));
+					memcpy(&format.nor, &mesh.mNormals[vindex], sizeof(D3DXVECTOR3));
 				}
 
 				if (mesh.mTextureCoords[0])
