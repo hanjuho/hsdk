@@ -1,4 +1,5 @@
 #include <hsdk/win/frame/buttoncompo.h>
+#include <hsdk/win/direct3d/d3d10_renderer.h>
 
 
 
@@ -50,6 +51,22 @@ CLASS_IMPL_FUNC_T(ButtonCompo, void, render)(
 {
 	if (is_Visible())
 	{
-		m_Graphics.render(m_GraphicsRenderState);
+		direct3d::g_D3D10_Renderer.set_MatrixWorldViewProj(&m_Position);
+		direct3d::g_D3D10_Renderer.set_ScalarPSTime(m_GraphicsRenderState);
+		if (m_Graphics.texture)
+		{
+			direct3d::g_D3D10_Renderer.set_ScalarVSFlag(0);
+			direct3d::g_D3D10_Renderer.set_ScalarPSFlag(direct3d::PS_TEXTURE_0 | direct3d::PS_CALLFUNCTION_0 | direct3d::PS_TEXMATRIX_0);
+			direct3d::g_D3D10_Renderer.render_UITexture(
+				m_Graphics.texture,
+				&m_Graphics.mTexcoord);
+		}
+		else
+		{
+			direct3d::g_D3D10_Renderer.set_ScalarVSFlag(0);
+			direct3d::g_D3D10_Renderer.set_ScalarPSFlag(direct3d::PS_MARERIAL_0 | direct3d::PS_CALLFUNCTION_0);
+			direct3d::g_D3D10_Renderer.render_UIRectangle(
+				&m_Graphics.bgColor);
+		}
 	}
 }

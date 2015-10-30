@@ -1,5 +1,7 @@
 #include <hsdk/win/frame/component.h>
 #include <hsdk/interface/frame/inputeventhelper.h>
+#include <hsdk/win/direct3d/d3d10_renderer.h>
+#include <hsdk/win/framework.h>
 
 
 
@@ -60,10 +62,10 @@ CLASS_IMPL_FUNC(Component, remove_Component)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Component, bool, contain_Component)(
+CLASS_IMPL_FUNC(Component, contain_Component)(
 	_In_ i_Component * _component)const
 {
-	return false;
+	return E_NOTIMPL;
 }
 
 //--------------------------------------------------------------------------------------
@@ -176,17 +178,23 @@ CLASS_IMPL_FUNC_T(Component, void, reform)(
 	{
 		my_AbsX = my_Parent->my_AbsX + my_Rectangle[1];
 		my_AbsY = my_Parent->my_AbsY + my_Rectangle[2];
+	}
 
-		m_Graphics.update({
-			my_AbsX,
-			my_AbsY,
-			my_AbsX + my_Rectangle[2],
-			my_AbsY + my_Rectangle[3] });
-	}
-	else
-	{
-		m_Graphics.update(my_Rectangle);
-	}
+	float screenWidth = (float)framework::g_Framework_Window.width;
+	float screenHeigth = (float)framework::g_Framework_Window.height;
+	float myWidth = my_Rectangle[2] / screenWidth;
+	float myHeight = my_Rectangle[3] / screenHeigth;
+
+	D3DXMATRIX t;
+	D3DXMatrixTranslation(&t,
+		(my_AbsX / screenWidth * 2.0f) + (myWidth - 1.0f),
+		(1.0f - myHeight) - (my_AbsY / screenHeigth * 2.0f), 0.0f);
+
+	D3DXMATRIX s;
+	D3DXMatrixScaling(&s,
+		myWidth, myHeight, 0.0f);
+
+	m_Position = s * t;
 }
 
 //--------------------------------------------------------------------------------------
@@ -195,7 +203,23 @@ CLASS_IMPL_FUNC_T(Component, void, render)(
 {
 	if (is_Visible())
 	{
-		m_Graphics.render(1.0f);
+		direct3d::g_D3D10_Renderer.set_MatrixWorldViewProj(&m_Position);
+		direct3d::g_D3D10_Renderer.set_ScalarPSTime(1.0f);
+		if (m_Graphics.texture)
+		{
+			direct3d::g_D3D10_Renderer.set_ScalarVSFlag(0);
+			direct3d::g_D3D10_Renderer.set_ScalarPSFlag(direct3d::PS_TEXTURE_0 | direct3d::PS_CALLFUNCTION_0 | direct3d::PS_TEXMATRIX_0);
+			direct3d::g_D3D10_Renderer.render_UITexture(
+				m_Graphics.texture,
+				&m_Graphics.mTexcoord);
+		}
+		else
+		{
+			direct3d::g_D3D10_Renderer.set_ScalarVSFlag(0);
+			direct3d::g_D3D10_Renderer.set_ScalarPSFlag(direct3d::PS_MARERIAL_0 | direct3d::PS_CALLFUNCTION_0);
+			direct3d::g_D3D10_Renderer.render_UIRectangle(
+				&m_Graphics.bgColor);
+		}
 	}
 }
 

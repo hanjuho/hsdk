@@ -11,7 +11,7 @@ PS_BASIC_INPUT VS_0(VS_BASIC_INPUT input)
 	
 	output.Pos = mul(input.Pos, g_mWorldViewProj);
 	output.Nor = normalize(mul(input.Nor, (float3x3)g_mWorld));
-	output.Tex = tex;
+	output.Tex = input.Tex;
 
 	if (g_vsFlag & VS_CALLFUNCTION_0)
 	{
@@ -44,7 +44,7 @@ PS_BASIC_INPUT VS_Skinned(VS_SKINNED_INPUT input)
 			break;
 		}
 
-		pos += mul(input.Pos, g_mBone[i]) * w;
+		pos += mul(input.Pos, (float4x3)g_mBone[i]) * w;
 		nor += mul(input.Nor, (float3x3)g_mBone[i]) * w;
 	}
 
@@ -57,7 +57,7 @@ PS_BASIC_INPUT VS_Skinned(VS_SKINNED_INPUT input)
 
 	output.Pos = mul(float4(pos, 1.0f), g_mWorldViewProj);
 	output.Nor = normalize(mul(nor, (float3x3)g_mWorld));
-	output.Tex = tex;
+	output.Tex = input.Tex;
 
 	if (g_vsFlag & VS_CALLFUNCTION_0)
 	{
@@ -163,7 +163,7 @@ float4 PS_SkyBox(PS_SKYBOX_INPUT input) : COLOR0
 
 	if (g_psFlag & PS_TEXMATRIX_0)
 	{
-		input.Tex = mul(float4(input.Tex, 0.0f, 1.0f), g_mTexture).xy;
+		input.Tex = mul(float4(input.Tex, 1.0f), g_mTexture).xyz;
 	}
 
 	// texture color

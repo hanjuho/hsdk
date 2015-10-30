@@ -103,7 +103,6 @@ COPY "$(OutDir)hsdk_win.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
     <ClCompile Include="framework.cpp" />
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="inputeventhelper.cpp" />
-    <ClCompile Include="layout.cpp" />
     <ClCompile Include="thread.cpp" />
     <ClCompile Include="semaphore.cpp" />
     <ClCompile Include="autoresetevent.cpp" />
