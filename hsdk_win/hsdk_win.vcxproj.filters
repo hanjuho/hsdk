@@ -156,6 +156,12 @@
     <ClCompile Include="d3d10_rendertarget.cpp">
       <Filter>소스 파일\direct3d</Filter>
     </ClCompile>
+    <ClCompile Include="borderlayout.cpp">
+      <Filter>소스 파일\frame\layout</Filter>
+    </ClCompile>
+    <ClCompile Include="소스.cpp">
+      <Filter>소스 파일\frame\layout</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\component.h">
@@ -271,6 +277,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_rendertarget.h">
       <Filter>헤더 파일\direct3d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\layout\borderlayout.h">
+      <Filter>헤더 파일\frame\layout</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

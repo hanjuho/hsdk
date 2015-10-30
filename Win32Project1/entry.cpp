@@ -1,6 +1,7 @@
 #include "entry.h"
 #include "game.h"
 #include <hsdk/win/frame/rendertargetcontainer.h>
+#include <hsdk/win/frame/layout/borderlayout.h>
 
 
 class ToGameButtonEvent :
@@ -22,24 +23,11 @@ public:
 // Grobal Variable
 //--------------------------------------------------------------------------------------
 
-frame::RenderTargetContainer container(500, 300);
+// 설명 : 
+frame::Container g_GUI_Entry;
 
 // 설명 : 
-frame::Container g_GUI_Background0;
-
-// 설명 : 
-frame::inputEventHelper g_GUI_Helper0(&g_GUI_Background0);
-
-// 설명 :
-FMOD::Sound * g_Sound_Background0;
-FMOD::Channel * g_Sound_Controller0;
-
-// 설명 : 
-const D3DXMATRIX g_World = {
-	1.0f, 0.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f, 0.0f,
-	0.0f, 0.0f, 1.0f, 0.0f,
-	0.0f, 0.0f, 0.0f, 1.0f };
+frame::inputEventHelper g_GUIHelper_Entry(&g_GUI_Entry);
 
 //--------------------------------------------------------------------------------------
 IMPL_FUNC_T(void, entry::initialize)(
@@ -85,9 +73,9 @@ IMPL_FUNC_T(LRESULT, entry::OnMsgProc)(
 	switch (_uMsg)
 	{
 	case WM_SIZE:
-		g_GUI_Background0.set_W((float)LOWORD(_lParam));
-		g_GUI_Background0.set_H((float)HIWORD(_lParam));
-		g_GUI_Background0.reform();
+		g_GUI_Entry.set_W((float)LOWORD(_lParam));
+		g_GUI_Entry.set_H((float)HIWORD(_lParam));
+		g_GUI_Entry.reform();
 	}
 
 	return 0;
@@ -104,29 +92,29 @@ IMPL_FUNC_T(void, entry::OnMouse)(
 {
 	if (_buttonsDown[FRAMEWORK_LEFTBUTTON] == 1)
 	{
-		g_GUI_Helper0.onClick_Down(i::frame::LBUTTON, _xPos, _yPos);
+		g_GUI_Entry.onClick_Down(i::frame::LBUTTON, _xPos, _yPos);
 	}
 	else if (_buttonsDown[FRAMEWORK_LEFTBUTTON] == 2)
 	{
-		g_GUI_Helper0.onClick_Up(i::frame::LBUTTON, _xPos, _yPos);
+		g_GUI_Entry.onClick_Up(i::frame::LBUTTON, _xPos, _yPos);
 	}
 
 	if (_buttonsDown[FRAMEWORK_MIDDLEBUTTON])
 	{
-		g_GUI_Helper0.onClick_Down(i::frame::WBUTTON, _xPos, _yPos);
+		g_GUI_Entry.onClick_Down(i::frame::WBUTTON, _xPos, _yPos);
 	}
 	else if (_buttonsDown[FRAMEWORK_MIDDLEBUTTON] == 2)
 	{
-		g_GUI_Helper0.onClick_Up(i::frame::LBUTTON, _xPos, _yPos);
+		g_GUI_Entry.onClick_Up(i::frame::LBUTTON, _xPos, _yPos);
 	}
 
 	if (_buttonsDown[FRAMEWORK_RIGHTBUTTON])
 	{
-		g_GUI_Helper0.onClick_Down(i::frame::RBUTTON, _xPos, _yPos);
+		g_GUI_Entry.onClick_Down(i::frame::RBUTTON, _xPos, _yPos);
 	}
 	else if (_buttonsDown[FRAMEWORK_RIGHTBUTTON] == 2)
 	{
-		g_GUI_Helper0.onClick_Up(i::frame::LBUTTON, _xPos, _yPos);
+		g_GUI_Entry.onClick_Up(i::frame::LBUTTON, _xPos, _yPos);
 	}
 }
 
@@ -162,14 +150,27 @@ IMPL_FUNC(entry::OnD3D10CreateDevice)(
 		float w = (float)_backBufferSurfaceDesc.Width;
 		float h = (float)_backBufferSurfaceDesc.Height;
 
+		// layout
+		{
+			// 메인 컨테이너
+			frame::layout::BorderLayout * borderLayout = new frame::layout::BorderLayout();
+			
+
+
+			g_GUI_Entry.set_Layout(borderLayout);
+			g_GUI_Entry.set_Visible(true);
+			g_GUI_Entry.set_X(0.0f);
+			g_GUI_Entry.set_Y(0.0f);
+			g_GUI_Entry.set_W(w);
+			g_GUI_Entry.set_H(h);
+			g_GUI_Entry.graphics()->set_image(L"image/background/entry.png");
+
+			// 상태 정보 창
+			frame::RenderTargetContainer stateLayout(0.0f, 0.0f);
+
+		}
 		// gui
-		g_GUI_Background0.graphics()->set_image(L"image/background/entry.png");
-		g_GUI_Background0.set_X(0.0f);
-		g_GUI_Background0.set_Y(0.0f);
-		g_GUI_Background0.set_W(w);
-		g_GUI_Background0.set_H(h);
 		g_GUI_Background0.reform();
-		g_GUI_Background0.set_Visible(true);
 
 		frame::Component * pannel = new frame::Component(
 			0, 0, w * 0.6f, h * 0.6f);

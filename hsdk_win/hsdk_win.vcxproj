@@ -123,6 +123,8 @@ COPY "$(OutDir)hsdk_win.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
     <ClCompile Include="d8_soundplayer.cpp" />
     <ClCompile Include="fmod_sounddevice.cpp" />
     <ClCompile Include="rendertargetcontainer.cpp" />
+    <ClCompile Include="borderlayout.cpp" />
+    <ClCompile Include="소스.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\common.h" />
@@ -147,6 +149,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\graphics.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\inputeventhelper.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\buttoncompo.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\layout\borderlayout.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\rendertargetcontainer.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpproxy.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpserver.h" />

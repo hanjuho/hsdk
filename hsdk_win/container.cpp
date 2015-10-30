@@ -34,7 +34,11 @@ CLASS_IMPL_FUNC_T(Container, void, set_Layout)(
 	_In_ hsdk::i::frame::i_Layout * _layout)
 {
 	m_Layout = _layout;
-	reform();
+	if (m_Layout)
+	{
+		m_Layout->resize(get_W(), get_H());
+		reform();
+	}
 }
 
 //--------------------------------------------------------------------------------------
@@ -65,13 +69,14 @@ CLASS_IMPL_FUNC(Container, add_Component)(
 
 	if (m_Layout)
 	{
-		m_Layout->get_Position(
+		m_Layout->get_Form(
 			component->my_Rectangle,
 			_composition);
 	}
 
 	// 부모관계 추가
 	component->my_Parent = this;
+	component->m_Composition = _composition;
 
 	// 컨테이너에 추가
 	m_Container.push_back(component);
@@ -115,7 +120,7 @@ CLASS_IMPL_FUNC(Container, remove_Component)(
 		component->my_Parent = nullptr;
 
 		// 컨테이너에서 제거
-		m_Container.remove(component);
+		m_Container.erase(iter);
 	}
 
 	return S_OK;
@@ -218,7 +223,12 @@ CLASS_IMPL_FUNC_T(Container, bool, event_chain)(
 CLASS_IMPL_FUNC_T(Container, void, update)(
 	_X_ void)
 {
-
+	auto begin = m_Container.begin();
+	auto end = m_Container.end();
+	while (begin != end)
+	{
+		(*begin)->update();
+	}
 }
 
 //--------------------------------------------------------------------------------------
@@ -227,11 +237,24 @@ CLASS_IMPL_FUNC_T(Container, void, reform)(
 {
 	Component::reform();
 
+	if (m_Layout)
+	{
+		m_Layout->resize(get_W(), get_H());
+	}
+
 	auto begin = m_Container.begin();
 	auto end = m_Container.end();
 	while (begin != end)
 	{
-		(*begin)->reform();
+		Component * compo = (*begin);
+		if (m_Layout)
+		{
+			m_Layout->get_Form(
+				compo->my_Rectangle,
+				compo->m_Composition);
+		}
+
+		compo->reform();
 		++begin;
 	}
 }
@@ -255,9 +278,17 @@ CLASS_IMPL_FUNC_T(Container, void, render)(
 }
 
 //--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Container, void, reset)(
+	_X_ void)
+{
+	clear();
+	m_Layout.~AutoDelete();
+	m_Graphics = Graphics();
+}
+
+//--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Container, void, clear)(
 	_X_ void)
 {
 	m_Container.clear();
-	m_Graphics = Graphics();
 }
