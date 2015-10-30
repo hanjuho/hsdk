@@ -55,6 +55,9 @@
     <Filter Include="소스 파일\db">
       <UniqueIdentifier>{78b1d013-4332-4a8c-aac1-8762a10b2bf0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="헤더 파일\frame\layout">
+      <UniqueIdentifier>{6b6c3485-d93d-492e-80ac-5536b0ad55ab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="component.cpp">
@@ -145,6 +148,12 @@
       <Filter>소스 파일\direct3d</Filter>
     </ClCompile>
     <ClCompile Include="rendertargetcontainer.cpp">
+      <Filter>소스 파일\frame</Filter>
+    </ClCompile>
+    <ClCompile Include="d3d10_rendertarget.cpp">
+      <Filter>소스 파일\direct3d</Filter>
+    </ClCompile>
+    <ClCompile Include="layout.cpp">
       <Filter>소스 파일\frame</Filter>
     </ClCompile>
   </ItemGroup>
@@ -259,6 +268,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\rendertargetcontainer.h">
       <Filter>헤더 파일\frame</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_rendertarget.h">
+      <Filter>헤더 파일\direct3d</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

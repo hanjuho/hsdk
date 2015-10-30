@@ -1,12 +1,13 @@
 #include "entry.h"
 #include "game.h"
+#include <hsdk/win/frame/rendertargetcontainer.h>
 
 
 class ToGameButtonEvent :
 	public common::MouseableAdapter
 {
 public:
-	
+
 	INTERFACE_DECL_FUNC_T(void, onClick_Up)(
 		_In_ i::frame::MOUSE_BUTTON _button,
 		_In_ int _x,
@@ -20,6 +21,8 @@ public:
 //--------------------------------------------------------------------------------------
 // Grobal Variable
 //--------------------------------------------------------------------------------------
+
+frame::RenderTargetContainer container(500, 300);
 
 // Ό³Έν : 
 frame::Container g_GUI_Background0;
@@ -47,7 +50,7 @@ IMPL_FUNC_T(void, entry::initialize)(
 		framework::g_Framework_Callbacks.d3d10DeviceDestroyedFunc(
 			framework::g_Framework_Callbacks.d3d10DeviceDestroyedFuncUserContext);
 	}
-	
+
 	framework::g_Framework_Callbacks.windowMsgFunc = entry::OnMsgProc;
 	framework::g_Framework_Callbacks.mouseFunc = entry::OnMouse;
 	framework::g_Framework_Callbacks.keyboardFunc = entry::OnKeyboard;
@@ -156,21 +159,36 @@ IMPL_FUNC(entry::OnD3D10CreateDevice)(
 
 	IF_SUCCEEDED(hr = common::initialize_Common())
 	{
+		float w = (float)_backBufferSurfaceDesc.Width;
+		float h = (float)_backBufferSurfaceDesc.Height;
+
 		// gui
 		g_GUI_Background0.graphics()->set_image(L"image/background/entry.png");
 		g_GUI_Background0.set_X(0.0f);
 		g_GUI_Background0.set_Y(0.0f);
-		g_GUI_Background0.set_W((float)_backBufferSurfaceDesc.Width);
-		g_GUI_Background0.set_H((float)_backBufferSurfaceDesc.Height);
+		g_GUI_Background0.set_W(w);
+		g_GUI_Background0.set_H(h);
 		g_GUI_Background0.reform();
 		g_GUI_Background0.set_Visible(true);
 
-		frame::Component * button = new frame::ButtonCompo(10, 10, 312, 48);
+		frame::Component * pannel = new frame::Component(
+			0, 0, w * 0.6f, h * 0.6f);
+		pannel->graphics()->set_image(L"image/layout/notepad.png");
+		pannel->set_Visible(true);
+
+		frame::Component * button = new frame::ButtonCompo(
+			0, 0, w * 0.15f, h * 0.07f);
+
 		button->set_Mouseable(new ToGameButtonEvent());
 		button->graphics()->set_image(L"image/layout/button.png");
 		button->set_Visible(true);
 
-		g_GUI_Background0.add_Component(button);
+		g_GUI_Background0.reform();
+
+		container.add_Component(pannel);
+		container.add_Component(button);
+		container.reform();
+		container.set_Visible(true);
 
 		// sound
 		IF_SUCCEEDED(hr = sound::g_FMOD_SoundDevice.load_WaveFile(
@@ -203,7 +221,8 @@ IMPL_FUNC_T(void, entry::OnD3D10FrameRender)(
 	ID3D10DepthStencilView * pDSV = framework::g_Framework_Device.d3d10DSV;
 	_d3dDevice->ClearDepthStencilView(pDSV, D3D10_CLEAR_DEPTH, 1.0, 0);
 
-	g_GUI_Background0.render();
+	container.render();
+	// g_GUI_Background0.render();
 }
 
 //--------------------------------------------------------------------------------------
@@ -212,5 +231,6 @@ DECL_FUNC_T(void, entry::OnD3D10DestroyDevice)(
 {
 	common::destroy_Common();
 
+	container.clear();
 	g_GUI_Background0.clear();
 }

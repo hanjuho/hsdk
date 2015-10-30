@@ -444,7 +444,7 @@ CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_UIRectangle)(
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_UITexture)(
 	_In_ ID3D10ShaderResourceView * _texture,
-	_In_ D3DXMATRIX * _texcoord)
+	_In_ const D3DXMATRIX * _texcoord)
 {
 	set_MatrixTexture(_texcoord);
 	set_TextureDiffuse(_texture);
@@ -468,42 +468,42 @@ CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_Font)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_Renderer, void, set_MatrixWorld)(
-	_In_ D3DXMATRIX * _matrix)
+	_In_ const D3DXMATRIX * _matrix)
 {
 	g_RenderVariable.mWorld->SetMatrix((float *)_matrix);
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_Renderer, void, set_MatrixView)(
-	_In_ D3DXMATRIX * _matrix)
+	_In_ const D3DXMATRIX * _matrix)
 {
 	g_RenderVariable.mView->SetMatrix((float *)_matrix);
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_Renderer, void, set_MatrixProj)(
-	_In_ D3DXMATRIX * _matrix)
+	_In_ const D3DXMATRIX * _matrix)
 {
 	g_RenderVariable.mProj->SetMatrix((float *)_matrix);
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_Renderer, void, set_MatrixWorldView)(
-	_In_ D3DXMATRIX * _matrix)
+	_In_ const D3DXMATRIX * _matrix)
 {
 	g_RenderVariable.mWorldView->SetMatrix((float *)_matrix);
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_Renderer, void, set_MatrixWorldViewProj)(
-	_In_ D3DXMATRIX * _matrix)
+	_In_ const D3DXMATRIX * _matrix)
 {
 	g_RenderVariable.mWorldViewProj->SetMatrix((float *)_matrix);
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_Renderer, void, set_MatrixTexture)(
-	_In_ D3DXMATRIX * _matrix)
+	_In_ const D3DXMATRIX * _matrix)
 {
 	g_RenderVariable.mTexture->SetMatrix((float *)_matrix);
 }
@@ -573,7 +573,7 @@ CLASS_IMPL_FUNC_T(D3D10_Renderer, void, set_TextureSpecular)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_Renderer, void, set_MatrixSkyBox)(
-	_In_ D3DXMATRIX * _matrix)
+	_In_ const D3DXMATRIX * _matrix)
 {
 	g_RenderVariable.mSkyBox->SetMatrix((float *)_matrix);
 }
@@ -587,7 +587,7 @@ CLASS_IMPL_FUNC_T(D3D10_Renderer, void, set_TextureSkyBox)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_Renderer, void, set_MatricesBone)(
-	_In_ D3DXMATRIX * _matrices,
+	_In_ const D3DXMATRIX * _matrices,
 	_In_ unsigned int _size)
 {
 	g_RenderVariable.mBone->SetMatrixArray((float *)_matrices, 0, _size);
@@ -630,6 +630,13 @@ D3D10_Renderer hsdk::direct3d::g_D3D10_Renderer;
 
 // 설명 :
 const D3D10_RenderVariable & hsdk::direct3d::g_D3D10_RenderVariable = g_RenderVariable;
+
+// 설명 : 
+const D3DXMATRIX hsdk::direct3d::g_D3D10_identityMatrix = {
+	1.0, 0.0, 0.0, 0.0,
+	0.0, 1.0, 0.0, 0.0,
+	0.0, 0.0, 1.0, 0.0,
+	0.0, 0.0, 0.0, 1.0, };
 
 // 설명 :
 D3DXMATRIX hsdk::direct3d::g_D3D10_ViewMatrix = {

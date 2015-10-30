@@ -11,9 +11,8 @@ CLASS_IMPL_CONSTRUCTOR(Container, Container)(
 	_In_ float _x,
 	_In_ float _y,
 	_In_ float _w,
-	_In_ float _h,
-	_In_ hsdk::i::frame::FRAME_FORM _form)
-	: Component(_x, _y, _w, _h, _form)
+	_In_ float _h)
+	: Component(_x, _y, _w, _h)
 {
 
 }
@@ -32,7 +31,8 @@ CLASS_IMPL_DESTRUCTOR(Container, Container)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Container, add_Component)(
-	_In_ i_Component * _component)
+	_In_ i_Component * _component,
+	_In_ hsdk::i::frame::LAYOUT_COMPOSITION _composition)
 {
 	if (contain_Component(_component))
 	{
@@ -168,7 +168,7 @@ CLASS_IMPL_FUNC_T(Container, void, render)(
 {
 	if (is_Visible())
 	{
-		m_D3D10Graphics.render(1.0f);
+		m_Graphics.render(1.0f);
 
 		auto iter = m_Container.begin();
 		auto end = m_Container.end();
@@ -185,5 +185,5 @@ CLASS_IMPL_FUNC_T(Container, void, clear)(
 	_X_ void)
 {
 	m_Container.clear();
-	m_D3D10Graphics = Graphics();
+	m_Graphics = Graphics();
 }

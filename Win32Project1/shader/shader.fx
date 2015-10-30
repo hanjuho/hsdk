@@ -11,20 +11,13 @@ PS_BASIC_INPUT VS_0(VS_BASIC_INPUT input)
 	
 	output.Pos = mul(input.Pos, g_mWorldViewProj);
 	output.Nor = normalize(mul(input.Nor, (float3x3)g_mWorld));
+	output.Tex = tex;
 
 	if (g_vsFlag & VS_CALLFUNCTION_0)
 	{
 		output.Pos.xyz = computeDestroy(output.Pos.xyz, 
 			normalize(float3(input.Pos.xy, 0.0f)), g_vsTime);
 	}
-
-	float2 tex = input.Tex;
-	if (g_vsFlag & VS_TEXMATRIX_0)
-	{
-		tex = mul(float4(tex, 0.0f, 1.0f), g_mTexture).xy;
-	}
-
-	output.Tex = tex;
 
 	return output;
 }
@@ -64,12 +57,6 @@ PS_BASIC_INPUT VS_Skinned(VS_SKINNED_INPUT input)
 
 	output.Pos = mul(float4(pos, 1.0f), g_mWorldViewProj);
 	output.Nor = normalize(mul(nor, (float3x3)g_mWorld));
-
-	float2 tex = input.Tex;
-	if (g_vsFlag & VS_TEXMATRIX_0)
-	{
-		tex = mul(float4(tex, 0.0f, 1.0f), g_mTexture).xy;
-	}
 	output.Tex = tex;
 
 	if (g_vsFlag & VS_CALLFUNCTION_0)
@@ -109,6 +96,20 @@ float4 PS_0(PS_BASIC_INPUT input) : COLOR0
 		diffuse = g_vDiffuse;
 	}
 
+	//
+	if (g_psFlag & PS_CALLFUNCTION_0)
+	{
+		if (computeCircleAlpha(input.Tex, g_psTime))
+		{
+			diffuse.w *= 0.5f;
+		}
+	}
+
+	if (g_psFlag & PS_TEXMATRIX_0)
+	{
+		input.Tex = mul(float4(input.Tex, 0.0f, 1.0f), g_mTexture).xy;
+	}
+
 	// texture color
 	if (g_psFlag & PS_TEXTURE_0)
 	{
@@ -134,18 +135,7 @@ float4 PS_0(PS_BASIC_INPUT input) : COLOR0
 		}
 	}
 
-	diffuse *= textureColor;
-
-	//
-	if (g_psFlag & PS_CALLFUNCTION_0)
-	{
-		if (computeCircleAlpha(input.Tex, g_psTime))
-		{
-			diffuse.w *= 0.5f;
-		}
-	}
-
-	return diffuse;
+	return diffuse * textureColor;
 }
 
 //-----------------------------------------------------------------------------------------
@@ -162,14 +152,6 @@ float4 PS_SkyBox(PS_SKYBOX_INPUT input) : COLOR0
 		diffuse = g_vDiffuse;
 	}
 
-	// texture color
-	if (g_psFlag & PS_TEXTURE_0)
-	{
-		textureColor = texCUBE(SkyBoxSampler, input.Tex);
-	}
-
-	diffuse *= textureColor;
-
 	//
 	if (g_psFlag & PS_CALLFUNCTION_0)
 	{
@@ -179,5 +161,16 @@ float4 PS_SkyBox(PS_SKYBOX_INPUT input) : COLOR0
 		}
 	}
 
-	return diffuse;
+	if (g_psFlag & PS_TEXMATRIX_0)
+	{
+		input.Tex = mul(float4(input.Tex, 0.0f, 1.0f), g_mTexture).xy;
+	}
+
+	// texture color
+	if (g_psFlag & PS_TEXTURE_0)
+	{
+		textureColor = texCUBE(SkyBoxSampler, input.Tex);
+	}
+
+	return diffuse * textureColor;
 }

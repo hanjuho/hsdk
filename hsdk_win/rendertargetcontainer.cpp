@@ -1,5 +1,5 @@
 #include <hsdk/win/frame/rendertargetcontainer.h>
-#include <hsdk/win/framework.h>
+#include <hsdk/win/direct3d/d3d10_renderer.h>
 
 
 
@@ -11,9 +11,8 @@ CLASS_IMPL_CONSTRUCTOR(RenderTargetContainer, RenderTargetContainer)(
 	_In_ float _w,
 	_In_ float _h,
 	_In_ float _x,
-	_In_ float _y,
-	_In_ hsdk::i::frame::FRAME_FORM _form)
-	: Container(_x, _y, _w, _h, _form)
+	_In_ float _y)
+	: Container(_x, _y, _w, _h)
 {
 
 }
@@ -35,49 +34,35 @@ CLASS_IMPL_FUNC_T(RenderTargetContainer, void, update)(
 CLASS_IMPL_FUNC_T(RenderTargetContainer, void, reform)(
 	_X_ void)
 {
-	IF_INVALID(my_RenderTarget)
-	{
-		float w = get_W();
-		float h = get_H();
+	Container::reform();
 
-		if (w != 0 && h != 0)
-		{
-			D3D10_TEXTURE2D_DESC desc;
-			desc.Width = w;
-			desc.Height = h;
-			desc.MipLevels = 1;
-			desc.ArraySize = 1;
-			desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-			desc.SampleDesc.Count = 1;
-			desc.SampleDesc.Quality = 0;
-			desc.Usage = D3D10_USAGE_DEFAULT;
-			desc.BindFlags = D3D10_BIND_RENDER_TARGET;
-			desc.CPUAccessFlags = (D3D10_CPU_ACCESS_FLAG)(0);
-			desc.MiscFlags = 0;
-
-			AutoRelease<ID3D10Texture2D> rendertarget;
-			IF_SUCCEEDED(framework::g_Framework_Device.d3d10Device->CreateTexture2D(
-				&desc,
-				nullptr,
-				&rendertarget))
-			{
-				my_RenderTarget = rendertarget;
-
-			}
-		}
-	}
+	my_RenderTarget.initialize(
+		(unsigned int)get_W(), 
+		(unsigned int)get_H());
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(RenderTargetContainer, void, render)(
 	_X_ void)
 {
+	IF_SUCCEEDED(my_RenderTarget.begin(m_Graphics.bgColor))
+	{
+		Container::render();
 
+		my_RenderTarget.end();
+	}
+
+	direct3d::g_D3D10_Renderer.set_MatrixWorldView(&m_Graphics.mPosition);
+	direct3d::g_D3D10_Renderer.set_ScalarVSFlag(0);
+	direct3d::g_D3D10_Renderer.set_ScalarPSFlag(direct3d::PS_TEXTURE_0);
+	direct3d::g_D3D10_Renderer.render_UITexture(
+		my_RenderTarget.get_View(), &direct3d::g_D3D10_identityMatrix);
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(RenderTargetContainer, void, clear)(
 	_X_ void)
 {
-
+	Container::clear();
+	my_RenderTarget = direct3d::D3D10_RenderTarget();
 }

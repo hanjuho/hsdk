@@ -50,6 +50,6 @@ CLASS_IMPL_FUNC_T(ButtonCompo, void, render)(
 {
 	if (is_Visible())
 	{
-		m_D3D10Graphics.render(m_GraphicsRenderState);
+		m_Graphics.render(m_GraphicsRenderState);
 	}
 }

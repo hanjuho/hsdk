@@ -15,21 +15,13 @@ CLASS_IMPL_CONSTRUCTOR(Component, Component)(
 	_In_ float _x,
 	_In_ float _y,
 	_In_ float _w,
-	_In_ float _h,
-	_In_ hsdk::i::frame::FRAME_FORM _form)
-	: my_id(component_id++),
-	my_Parent(nullptr),
-	my_Form(_form),
-	my_AbsX(0.0f),
-	my_AbsY(0.0f),
-	my_Visible(false)
+	_In_ float _h)
+	: my_id(component_id++)
 {
 	my_Rectangle[0] = _x;
 	my_Rectangle[1] = _y;
 	my_Rectangle[2] = _w;
 	my_Rectangle[3] = _h;
-
-	reform();
 }
 
 //--------------------------------------------------------------------------------------
@@ -49,21 +41,22 @@ CLASS_IMPL_FUNC_T(Component, hsdk::i::frame::i_Component *, parent)(
 CLASS_IMPL_FUNC_T(Component, hsdk::i::frame::i_Graphics *, graphics)(
 	_X_ void)const
 {
-	return (hsdk::i::frame::i_Graphics *)&m_D3D10Graphics;
+	return (hsdk::i::frame::i_Graphics *)&m_Graphics;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Component, add_Component)(
-	/* [set] */ i_Component * _component)
+	/* [set] */ i_Component * _component,
+	_In_ hsdk::i::frame::LAYOUT_COMPOSITION _composition)
 {
-	return 0x8000000;
+	return E_NOTIMPL;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Component, remove_Component)(
 	_In_ i_Component * _component)
 {
-	return 0x8000000;
+	return E_NOTIMPL;
 }
 
 //--------------------------------------------------------------------------------------
@@ -78,7 +71,7 @@ CLASS_IMPL_FUNC(Component, get_Component)(
 	_Out_ i_Component * (&_component),
 	_In_ unsigned int _id)const
 {
-	return 0x8000000;
+	return E_NOTIMPL;
 }
 
 //--------------------------------------------------------------------------------------
@@ -145,26 +138,6 @@ CLASS_IMPL_FUNC_T(Component, float, get_H)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Component, void, set_Form)(
-	_In_ hsdk::i::frame::FRAME_FORM _form)
-{
-	if (_form == my_Form)
-	{
-		return;
-	}
-
-	my_Form = _form;
-	reform();
-}
-
-//--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Component, hsdk::i::frame::FRAME_FORM, get_Form)(
-	_X_  void)const
-{
-	return my_Form;
-}
-
-//--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Component, set_Visible)(
 	_In_ bool _visible)
 {
@@ -201,10 +174,10 @@ CLASS_IMPL_FUNC_T(Component, void, reform)(
 {
 	if (my_Parent)
 	{
-		my_AbsX = my_Parent->get_AbsX() + get_X();
-		my_AbsY = my_Parent->get_AbsY() + get_Y();
+		my_AbsX = my_Parent->my_AbsX + my_Rectangle[1];
+		my_AbsY = my_Parent->my_AbsY + my_Rectangle[2];
 
-		m_D3D10Graphics.update({
+		m_Graphics.update({
 			my_AbsX,
 			my_AbsY,
 			my_AbsX + my_Rectangle[2],
@@ -212,7 +185,7 @@ CLASS_IMPL_FUNC_T(Component, void, reform)(
 	}
 	else
 	{
-		m_D3D10Graphics.update(my_Rectangle);
+		m_Graphics.update(my_Rectangle);
 	}
 }
 
@@ -222,7 +195,7 @@ CLASS_IMPL_FUNC_T(Component, void, render)(
 {
 	if (is_Visible())
 	{
-		m_D3D10Graphics.render(1.0f);
+		m_Graphics.render(1.0f);
 	}
 }
 

@@ -97,11 +97,13 @@ COPY "$(OutDir)hsdk_win.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
     <ClCompile Include="container.cpp" />
     <ClCompile Include="d3d10_animation.cpp" />
     <ClCompile Include="d3d10_font.cpp" />
+    <ClCompile Include="d3d10_rendertarget.cpp" />
     <ClCompile Include="d8_sounddevice.cpp" />
     <ClCompile Include="d8_soundmultiplayer.cpp" />
     <ClCompile Include="framework.cpp" />
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="inputeventhelper.cpp" />
+    <ClCompile Include="layout.cpp" />
     <ClCompile Include="thread.cpp" />
     <ClCompile Include="semaphore.cpp" />
     <ClCompile Include="autoresetevent.cpp" />
@@ -136,6 +138,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_animation.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_renderer.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_font.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_rendertarget.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework_camera.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework_device.h" />

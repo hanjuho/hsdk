@@ -94,7 +94,6 @@ uint g_vsFlag;
 float g_vsTime;
 
 // vs flag
-#define VS_TEXMATRIX_0 1
 #define VS_CALLFUNCTION_0 1024
 
 uint g_psFlag;
@@ -113,4 +112,6 @@ float g_psTime;
 
 #define PS_LIGHT 256
 
-#define PS_CALLFUNCTION_0 1024
+#define PS_CALLFUNCTION_0 4096
+
+#define PS_TEXMATRIX_0 65536

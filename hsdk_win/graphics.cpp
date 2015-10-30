@@ -32,7 +32,7 @@ CLASS_IMPL_DESTRUCTOR(Graphics, Graphics)(void)
 CLASS_IMPL_FUNC_T(Graphics, void, set_Background)(
 	_In_ const float(&_color)[4])
 {
-	my_BGColor = _color;
+	bgColor = _color;
 }
 
 //--------------------------------------------------------------------------------------
@@ -41,31 +41,37 @@ CLASS_IMPL_FUNC_T(Graphics, void, set_image)(
 {
 	IF_INVALID(_filename)
 	{
-		my_Texture_info = nullptr;
 		my_Texture = nullptr;
+		my_imageW = 0.0f;
+		my_imageH = 0.0f;
 		return;
 	}
 
-	g_D3D10_Factory.get_Texture(&my_Texture, _filename, &my_Texture_info);
+	const D3DX10_IMAGE_INFO * info;
+	IF_SUCCEEDED(g_D3D10_Factory.get_Texture(&my_Texture, _filename, &info))
+	{
+		my_imageW = info->Width;
+		my_imageH = info->Height;
+	}
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Graphics, void, set_imageDetail)(
 	_In_ const float(&_rectangle)[4])
 {
-	if (my_Texture_info)
+	if (my_Texture)
 	{
 		D3DXMATRIX t;
 		D3DXMatrixTranslation(&t,
-			_rectangle[0] / my_Texture_info->Width,
-			_rectangle[1] / my_Texture_info->Height, 0.0f);
+			_rectangle[0] / my_imageW,
+			_rectangle[1] / my_imageH, 0.0f);
 
 		D3DXMATRIX s;
 		D3DXMatrixScaling(&s,
-			_rectangle[2] / my_Texture_info->Width,
-			_rectangle[3] / my_Texture_info->Height, 0.0f);
+			_rectangle[2] / my_imageW,
+			_rectangle[3] / my_imageH, 0.0f);
 
-		my_Texcoord = t * s;
+		mTexcoord = t * s;
 	}
 }
 
@@ -95,7 +101,7 @@ CLASS_IMPL_FUNC_T(Graphics, void, set_Text)(
 
 	char atow[256];
 	wcstombs_s<256>(nullptr, atow, _text, sizeof(atow));
-	font.build_Text(my_Context, atow);
+	font.build_Text(context, atow);
 }
 
 //--------------------------------------------------------------------------------------
@@ -116,33 +122,33 @@ CLASS_IMPL_FUNC_T(Graphics, void, update)(
 	D3DXMatrixScaling(&s,
 		myWidth, myHeight, 0.0f);
 
-	my_Position = s * t;
+	mPosition = s * t;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Graphics, void, render)(
 	_X_ float _persent)
 {
-	if (my_Context.textSlot)
+	if (context.textSlot)
 	{
 
 	}
 
-	g_D3D10_Renderer.set_MatrixWorldViewProj(&my_Position);
+	g_D3D10_Renderer.set_MatrixWorldViewProj(&mPosition);
 	g_D3D10_Renderer.set_ScalarPSTime(_persent);
 	if (my_Texture)
 	{
-		g_D3D10_Renderer.set_ScalarVSFlag(VS_TEXMATRIX_0);
-		g_D3D10_Renderer.set_ScalarPSFlag(PS_TEXTURE_0 | PS_CALLFUNCTION_0);
+		g_D3D10_Renderer.set_ScalarVSFlag(0);
+		g_D3D10_Renderer.set_ScalarPSFlag(PS_TEXTURE_0 | PS_CALLFUNCTION_0 | PS_TEXMATRIX_0);
 		g_D3D10_Renderer.render_UITexture(
 			my_Texture,
-			&my_Texcoord);
+			&mTexcoord);
 	}
 	else
 	{
 		g_D3D10_Renderer.set_ScalarVSFlag(0);
 		g_D3D10_Renderer.set_ScalarPSFlag(PS_MARERIAL_0 | PS_CALLFUNCTION_0);
 		g_D3D10_Renderer.render_UIRectangle(
-			&my_BGColor);
+			&bgColor);
 	}
 }
