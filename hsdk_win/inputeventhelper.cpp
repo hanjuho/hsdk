@@ -43,7 +43,14 @@ CLASS_IMPL_FUNC_T(inputEventHelper, bool, chain)(
 		int h = xy.y - (int)(component->get_AbsY());
 		if (0 <= h && h <= component->get_H())
 		{
+			if (my_FocusComponent != component)
+			{
+				my_FocusComponent->onMouse_Exit(xy.x, xy.y);
+				component->onMouse_Enter(xy.x, xy.y);
+			}
+
 			my_FocusComponent = component;
+
 			return true;
 		}
 	}
@@ -127,10 +134,7 @@ CLASS_IMPL_FUNC_T(inputEventHelper, void, onClick_Up)(
 {
 	xy.x = _x;
 	xy.y = _y;
-
-	// focus 재설정.
-	update();
-
+	
 	// event 전달.
 	if (my_FocusComponent)
 	{
@@ -161,8 +165,11 @@ CLASS_IMPL_FUNC_T(inputEventHelper, void, onMove)(
 	_In_ int _x,
 	_In_ int _y)
 {
-	xy.x = _x;
-	xy.y = _y;
+	xy.x = xy.x + _x;
+	xy.y = xy.y + _y;
+	
+	// focus 재설정.
+	update();
 
 	if (my_FocusComponent)
 	{

@@ -325,7 +325,8 @@ CLASS_IMPL_FUNC_T(D3D10_Renderer, void, destroy)(
 CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_Skinned)(
 	_In_ D3D10_Mesh & _mesh,
 	_In_ D3D10_Animation & _animation,
-	_In_ D3D10_Animation_Recorder & _pos)
+	_In_ D3D10_Animation_Recorder & _pos,
+	_In_ unsigned int _pass)
 {
 	g_refDevice_1->IASetInputLayout(g_Skinned_inputLayout);
 
@@ -376,7 +377,7 @@ CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_Skinned)(
 
 			g_refDevice_1->IASetPrimitiveTopology(desc.primitiveType);
 
-			g_Skinned0_Technique->GetPassByIndex(0)->Apply(0);
+			g_Skinned0_Technique->GetPassByIndex(_pass)->Apply(0);
 			g_refDevice_1->DrawIndexed(
 				desc.indexCount,
 				desc.indexStart,

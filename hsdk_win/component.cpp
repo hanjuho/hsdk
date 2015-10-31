@@ -164,27 +164,7 @@ CLASS_IMPL_FUNC_T(Component, bool, event_chain)(
 CLASS_IMPL_FUNC_T(Component, void, update)(
 	_X_ void)
 {
-	if (framework::g_Framework.is_KeyDown(VK_UP))
-	{
-		m_Position._42 += 0.01f;
-	}
 
-	if (framework::g_Framework.is_KeyDown(VK_DOWN))
-	{
-		m_Position._42 -= 0.01f;
-	}
-
-
-	if (framework::g_Framework.is_KeyDown(VK_LEFT))
-	{
-		m_Position._41 -= 0.01f;
-	}
-
-
-	if (framework::g_Framework.is_KeyDown(VK_RIGHT))
-	{
-		m_Position._41 += 0.01f;
-	}
 }
 
 //--------------------------------------------------------------------------------------

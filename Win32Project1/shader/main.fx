@@ -102,6 +102,16 @@ technique10 Skinned_0
 		SetBlendState(AdditiveBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 		SetRasterizerState(CullBack);
 	}
+	pass p1
+	{
+		SetVertexShader(CompileShader(vs_4_0, VS_Skinned()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_4_0, PS_0()));
+
+		SetDepthStencilState(EnableDepth, 0);
+		SetBlendState(AdditiveBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+		SetRasterizerState(CullBack);
+	}
 }
 
 technique10 SkyBox_0

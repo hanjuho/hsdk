@@ -7,6 +7,9 @@
 using namespace hsdk::direct3d;
 
 
+// Ό³Έν :
+const D3D10_VIEWPORT * g_OldViewport = nullptr;
+
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(D3D10_RenderTarget, D3D10_RenderTarget)(void)
 {
@@ -19,6 +22,13 @@ CLASS_IMPL_CONSTRUCTOR(D3D10_RenderTarget, D3D10_RenderTarget)(void)
 	my_Desc.Usage = D3D10_USAGE_DEFAULT;
 	my_Desc.CPUAccessFlags = (D3D10_CPU_ACCESS_FLAG)(0);
 	my_Desc.MiscFlags = 0;
+	
+	my_Vp.Width = 0;
+	my_Vp.Height = 0;
+	my_Vp.MinDepth = 0;
+	my_Vp.MaxDepth = 1;
+	my_Vp.TopLeftX = 0;
+	my_Vp.TopLeftY = 0;
 }
 
 //--------------------------------------------------------------------------------------
@@ -112,6 +122,9 @@ CLASS_IMPL_FUNC(D3D10_RenderTarget, initialize)(
 	{
 		return hr;
 	}
+	
+	my_Vp.Width = _width;
+	my_Vp.Height = _height;
 
 	my_texure2D = texure2D;
 	my_DSV = dsv;
@@ -130,6 +143,14 @@ CLASS_IMPL_FUNC(D3D10_RenderTarget, begin)(
 	refdevice->ClearDepthStencilView(my_DSV, D3D10_CLEAR_DEPTH, 1.0, 0);
 	refdevice->OMSetRenderTargets(1, &my_RTV, my_DSV);
 
+	// Setup the viewport to match the backbuffer
+	framework::g_Framework_Device.d3d10Device->RSSetViewports(1, &my_Vp);
+
+	if(g_OldViewport == nullptr)
+	{
+
+	}
+
 	return S_OK;
 }
 
@@ -140,6 +161,11 @@ CLASS_IMPL_FUNC_T(D3D10_RenderTarget, void, end)(
 	framework::g_Framework_Device.d3d10Device->OMSetRenderTargets(1,
 		&framework::g_Framework_Device.d3d10RTV,
 		framework::g_Framework_Device.d3d10DSV);
+
+	// Setup the viewport to match the backbuffer
+	framework::g_Framework_Device.d3d10Device->RSSetViewports(1,
+		&framework::g_Framework_Device.d3d10ViewPort);
+
 }
 
 //--------------------------------------------------------------------------------------

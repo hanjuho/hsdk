@@ -12,13 +12,6 @@ CLASS_IMPL_CONSTRUCTOR(RenderTargetContainer, RenderTargetContainer)(
 	_In_ PARENT_RELATION _relation)
 	: Container(_relation)
 {
-	my_Vp.Width = 0;
-	my_Vp.Height = 0;
-	my_Vp.MinDepth = 0;
-	my_Vp.MaxDepth = 1;
-	my_Vp.TopLeftX = 0;
-	my_Vp.TopLeftY = 0;
-
 	m_Graphics.bgColor.w = 0.0f;
 }
 
@@ -34,13 +27,9 @@ CLASS_IMPL_FUNC_T(RenderTargetContainer, void, reform)(
 {
 	Container::reform();
 
-	unsigned int w = (unsigned int)get_W();
-	unsigned int h = (unsigned int)get_H();
-
-	my_RenderTarget.initialize(w, h);
-
-	my_Vp.Width = w;
-	my_Vp.Height = h;
+	my_RenderTarget.initialize(
+		(unsigned int)get_W(),
+		(unsigned int)get_H());
 }
 
 //--------------------------------------------------------------------------------------
@@ -51,9 +40,6 @@ CLASS_IMPL_FUNC_T(RenderTargetContainer, void, render)(
 	{
 		IF_SUCCEEDED(my_RenderTarget.begin(m_Graphics.bgColor))
 		{
-			// Setup the viewport to match the backbuffer
-			framework::g_Framework_Device.d3d10Device->RSSetViewports(1, &my_Vp);
-
 			direct3d::g_D3D10_Renderer.set_MatrixWorldViewProj(&direct3d::g_D3D10_identityMatrix);
 			direct3d::g_D3D10_Renderer.set_ScalarPSTime(1.0f);
 			if (m_Graphics.texture)
@@ -72,9 +58,7 @@ CLASS_IMPL_FUNC_T(RenderTargetContainer, void, render)(
 					&m_Graphics.bgColor);
 			}
 
-			// Setup the viewport to match the backbuffer
-			framework::g_Framework_Device.d3d10Device->RSSetViewports(1,
-				&framework::g_Framework_Device.d3d10ViewPort);
+			my_RenderTarget.end();
 
 			auto begin = m_Container.begin();
 			auto end = m_Container.end();
@@ -83,8 +67,6 @@ CLASS_IMPL_FUNC_T(RenderTargetContainer, void, render)(
 				(*begin)->render();
 				++begin;
 			}
-
-			my_RenderTarget.end();
 		}
 
 		direct3d::g_D3D10_Renderer.set_MatrixWorldViewProj(&m_Position);
