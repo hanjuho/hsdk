@@ -58,7 +58,7 @@ CLASS_IMPL_FUNC_T(RenderTargetContainer, void, render)(
 					&m_Graphics.bgColor);
 			}
 
-			my_RenderTarget.end();
+			my_RenderTarget.viewport();
 
 			auto begin = m_Container.begin();
 			auto end = m_Container.end();
@@ -67,6 +67,8 @@ CLASS_IMPL_FUNC_T(RenderTargetContainer, void, render)(
 				(*begin)->render();
 				++begin;
 			}
+
+			my_RenderTarget.end();
 		}
 
 		direct3d::g_D3D10_Renderer.set_MatrixWorldViewProj(&m_Position);

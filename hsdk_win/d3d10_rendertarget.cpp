@@ -1,6 +1,7 @@
 #include <hsdk/win/direct3d/d3d10_rendertarget.h>
 #include <hsdk/win/direct3d/d3d10_renderer.h>
 #include <hsdk/win/framework.h>
+#include <stack>
 
 
 
@@ -8,7 +9,7 @@ using namespace hsdk::direct3d;
 
 
 // Ό³Έν :
-const D3D10_VIEWPORT * g_OldViewport = nullptr;
+std::stack<const D3D10_RenderTarget *> g_RenderTargetQueue;
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(D3D10_RenderTarget, D3D10_RenderTarget)(void)
@@ -144,12 +145,10 @@ CLASS_IMPL_FUNC(D3D10_RenderTarget, begin)(
 	refdevice->OMSetRenderTargets(1, &my_RTV, my_DSV);
 
 	// Setup the viewport to match the backbuffer
-	framework::g_Framework_Device.d3d10Device->RSSetViewports(1, &my_Vp);
+	refdevice->RSSetViewports(1, &my_Vp);
 
-	if(g_OldViewport == nullptr)
-	{
-
-	}
+	//
+	g_RenderTargetQueue.push(this);
 
 	return S_OK;
 }
@@ -158,14 +157,29 @@ CLASS_IMPL_FUNC(D3D10_RenderTarget, begin)(
 CLASS_IMPL_FUNC_T(D3D10_RenderTarget, void, end)(
 	_X_ void)
 {
-	framework::g_Framework_Device.d3d10Device->OMSetRenderTargets(1,
-		&framework::g_Framework_Device.d3d10RTV,
-		framework::g_Framework_Device.d3d10DSV);
+	g_RenderTargetQueue.pop();
+	if (g_RenderTargetQueue.empty())
+	{
+		framework::g_Framework_Device.d3d10Device->OMSetRenderTargets(1,
+			&framework::g_Framework_Device.d3d10RTV,
+			framework::g_Framework_Device.d3d10DSV);
+	}
+	else
+	{
+		auto iter = g_RenderTargetQueue.top();
+		framework::g_Framework_Device.d3d10Device->OMSetRenderTargets(1,
+			&iter->my_RTV,
+			iter->my_DSV);
+	}
+}
 
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(D3D10_RenderTarget, void, viewport)(
+	_X_ void)
+{
 	// Setup the viewport to match the backbuffer
 	framework::g_Framework_Device.d3d10Device->RSSetViewports(1,
 		&framework::g_Framework_Device.d3d10ViewPort);
-
 }
 
 //--------------------------------------------------------------------------------------

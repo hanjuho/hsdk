@@ -128,6 +128,8 @@ CLASS_IMPL_FUNC_T(ModelViewCompo, void, render)(
 					&m_Graphics.bgColor);
 			}
 
+			my_RenderTarget.viewport();
+
 			D3DXMATRIX t;
 			direct3d::g_D3D10_Renderer.set_MatrixWorldViewProj(D3DXMatrixMultiply(&t, &my_mView, &my_mProj));
 			direct3d::g_D3D10_Renderer.set_MatrixWorld(&direct3d::g_D3D10_identityMatrix);
