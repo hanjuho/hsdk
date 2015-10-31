@@ -32,8 +32,8 @@ CLASS_IMPL_FUNC_T(Graphics, void, set_image)(
 	const D3DX10_IMAGE_INFO * info;
 	IF_SUCCEEDED(direct3d::g_D3D10_Factory.get_Texture(&texture, _filename, &info))
 	{
-		imageW = info->Width;
-		imageH = info->Height;
+		imageW = (float)info->Width;
+		imageH = (float)info->Height;
 	}
 }
 

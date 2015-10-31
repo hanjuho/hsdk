@@ -8,11 +8,8 @@ using namespace hsdk::frame;
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(ButtonCompo, ButtonCompo)(
-	_In_ float _x,
-	_In_ float _y,
-	_In_ float _w,
-	_In_ float _h)
-	: Component(_x, _y, _w, _h)
+	_In_ PARENT_RELATION _relation)
+	: Component(_relation)
 {
 
 }

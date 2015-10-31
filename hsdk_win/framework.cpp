@@ -633,6 +633,9 @@ CLASS_IMPL_FUNC(Framework, transform)(
 			}
 		}
 	}
+	
+	g_Device.d3d10ViewPort.Width = resultWidth;
+	g_Device.d3d10ViewPort.Height = resultHeight;
 
 	g_Window.windowed = resultWindowed;
 	g_Window.width = resultWidth;

@@ -92,6 +92,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="borderlayout.cpp" />
     <ClCompile Include="buttoncompo.cpp" />
     <ClCompile Include="component.cpp" />
     <ClCompile Include="container.cpp" />
@@ -100,6 +101,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
     <ClCompile Include="d3d10_rendertarget.cpp" />
     <ClCompile Include="d8_sounddevice.cpp" />
     <ClCompile Include="d8_soundmultiplayer.cpp" />
+    <ClCompile Include="flowlayout.cpp" />
     <ClCompile Include="framework.cpp" />
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="inputeventhelper.cpp" />
@@ -123,8 +125,6 @@ COPY "$(OutDir)hsdk_win.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
     <ClCompile Include="d8_soundplayer.cpp" />
     <ClCompile Include="fmod_sounddevice.cpp" />
     <ClCompile Include="rendertargetcontainer.cpp" />
-    <ClCompile Include="borderlayout.cpp" />
-    <ClCompile Include="소스.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\common.h" />
@@ -150,6 +150,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\inputeventhelper.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\buttoncompo.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\layout\borderlayout.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\layout\flowlayout.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\rendertargetcontainer.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpproxy.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpserver.h" />

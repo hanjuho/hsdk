@@ -14,16 +14,13 @@ volatile unsigned int component_id = 0;
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(Component, Component)(
-	_In_ float _x,
-	_In_ float _y,
-	_In_ float _w,
-	_In_ float _h)
-	: my_id(component_id++)
+	_In_ PARENT_RELATION _relation)
+	: my_Relation(_relation), my_id(component_id++)
 {
-	my_Rectangle[0] = _x;
-	my_Rectangle[1] = _y;
-	my_Rectangle[2] = _w;
-	my_Rectangle[3] = _h;
+	my_Rectangle[0] = 0.0f;
+	my_Rectangle[1] = 0.0f;
+	my_Rectangle[2] = 0.0f;
+	my_Rectangle[3] = 0.0f;
 }
 
 //--------------------------------------------------------------------------------------
@@ -167,7 +164,27 @@ CLASS_IMPL_FUNC_T(Component, bool, event_chain)(
 CLASS_IMPL_FUNC_T(Component, void, update)(
 	_X_ void)
 {
+	if (framework::g_Framework.is_KeyDown(VK_UP))
+	{
+		m_Position._42 += 0.01f;
+	}
 
+	if (framework::g_Framework.is_KeyDown(VK_DOWN))
+	{
+		m_Position._42 -= 0.01f;
+	}
+
+
+	if (framework::g_Framework.is_KeyDown(VK_LEFT))
+	{
+		m_Position._41 -= 0.01f;
+	}
+
+
+	if (framework::g_Framework.is_KeyDown(VK_RIGHT))
+	{
+		m_Position._41 += 0.01f;
+	}
 }
 
 //--------------------------------------------------------------------------------------
@@ -176,23 +193,37 @@ CLASS_IMPL_FUNC_T(Component, void, reform)(
 {
 	if (my_Parent)
 	{
-		my_AbsX = my_Parent->my_AbsX + my_Rectangle[1];
-		my_AbsY = my_Parent->my_AbsY + my_Rectangle[2];
+		m_AbsX = my_Parent->m_AbsX + my_Rectangle[0];
+		m_AbsY = my_Parent->m_AbsY + my_Rectangle[1];
 	}
 
-	float screenWidth = (float)framework::g_Framework_Window.width;
-	float screenHeigth = (float)framework::g_Framework_Window.height;
-	float myWidth = my_Rectangle[2] / screenWidth;
-	float myHeight = my_Rectangle[3] / screenHeigth;
+	float screenWidth;
+	float screenHeigth;
+	float x, y, w, h;
+
+	if (my_Relation == PARENT_RELATION_ABSOLUTE)
+	{
+		x = m_AbsX;
+		y = m_AbsY;
+	}
+	else
+	{
+		x = my_Rectangle[0];
+		y = my_Rectangle[1];
+	}
+
+	screenWidth = (float)framework::g_Framework_Window.width;
+	screenHeigth = (float)framework::g_Framework_Window.height;
+	w = my_Rectangle[2] / screenWidth;
+	h = my_Rectangle[3] / screenHeigth;
 
 	D3DXMATRIX t;
 	D3DXMatrixTranslation(&t,
-		(my_AbsX / screenWidth * 2.0f) + (myWidth - 1.0f),
-		(1.0f - myHeight) - (my_AbsY / screenHeigth * 2.0f), 0.0f);
+		(x / screenWidth * 2.0f) - (1.0f - w),
+		(1.0f - h) - (y / screenHeigth * 2.0f), 0.0f);
 
 	D3DXMATRIX s;
-	D3DXMatrixScaling(&s,
-		myWidth, myHeight, 0.0f);
+	D3DXMatrixScaling(&s, w, h, 0.0f);
 
 	m_Position = s * t;
 }
@@ -270,6 +301,28 @@ CLASS_IMPL_FUNC_T(Component, hsdk::i::frame::i_Actable *, get_Actable)(
 	_X_ void)const
 {
 	return m_Actable;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Component, void, onMouse_Enter)(
+	_In_ int _x,
+	_In_ int _y)
+{
+	if (m_Mouseable)
+	{
+		m_Mouseable->onMouse_Enter(_x, _y);
+	}
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Component, void, onMouse_Exit)(
+	_In_ int _x,
+	_In_ int _y)
+{
+	if (m_Mouseable)
+	{
+		m_Mouseable->onMouse_Exit(_x, _y);
+	}
 }
 
 //--------------------------------------------------------------------------------------
@@ -371,13 +424,13 @@ CLASS_IMPL_FUNC_T(Component, void, onAct)(
 CLASS_IMPL_FUNC_T(Component, float, get_AbsX)(
 	_X_ void)const
 {
-	return my_AbsX;
+	return m_AbsX;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(Component, float, get_AbsY)(
 	_X_ void)const
 {
-	return my_AbsY;
+	return m_AbsY;
 }
 

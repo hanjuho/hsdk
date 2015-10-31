@@ -8,11 +8,8 @@ using namespace hsdk::frame;
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(Container, Container)(
-	_In_ float _x,
-	_In_ float _y,
-	_In_ float _w,
-	_In_ float _h)
-	: Component(_x, _y, _w, _h)
+	_In_ PARENT_RELATION _relation)
+	: Component(_relation)
 {
 
 }
@@ -20,13 +17,7 @@ CLASS_IMPL_CONSTRUCTOR(Container, Container)(
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_DESTRUCTOR(Container, Container)(void)
 {
-	auto begin = m_Container.begin();
-	auto end = m_Container.end();
-	while (begin != end)
-	{
-		DEL_POINTER(*begin);
-		++begin;
-	}
+	clear();
 }
 
 //--------------------------------------------------------------------------------------
@@ -37,6 +28,7 @@ CLASS_IMPL_FUNC_T(Container, void, set_Layout)(
 	if (m_Layout)
 	{
 		m_Layout->resize(get_W(), get_H());
+		m_Layout->reset();
 		reform();
 	}
 }
@@ -69,9 +61,13 @@ CLASS_IMPL_FUNC(Container, add_Component)(
 
 	if (m_Layout)
 	{
-		m_Layout->get_Form(
+		HRESULT hr;
+		IF_FAILED(hr = m_Layout->link_Form(
 			component->my_Rectangle,
-			_composition);
+			_composition))
+		{
+			return hr;
+		}
 	}
 
 	// 부모관계 추가
@@ -228,6 +224,7 @@ CLASS_IMPL_FUNC_T(Container, void, update)(
 	while (begin != end)
 	{
 		(*begin)->update();
+		++begin;
 	}
 }
 
@@ -237,24 +234,29 @@ CLASS_IMPL_FUNC_T(Container, void, reform)(
 {
 	Component::reform();
 
+	auto begin = m_Container.begin();
+	auto end = m_Container.end();
+
 	if (m_Layout)
 	{
 		m_Layout->resize(get_W(), get_H());
-	}
+		m_Layout->reset();
 
-	auto begin = m_Container.begin();
-	auto end = m_Container.end();
-	while (begin != end)
-	{
-		Component * compo = (*begin);
-		if (m_Layout)
+		while (begin != end)
 		{
-			m_Layout->get_Form(
+			Component * compo = (*begin);
+			m_Layout->link_Form(
 				compo->my_Rectangle,
 				compo->m_Composition);
-		}
 
-		compo->reform();
+			++begin;
+		}
+	}
+
+	begin = m_Container.begin();
+	while (begin != end)
+	{
+		(*begin)->reform();
 		++begin;
 	}
 }
@@ -290,5 +292,13 @@ CLASS_IMPL_FUNC_T(Container, void, reset)(
 CLASS_IMPL_FUNC_T(Container, void, clear)(
 	_X_ void)
 {
+	auto begin = m_Container.begin();
+	auto end = m_Container.end();
+	while (begin != end)
+	{
+		DEL_POINTER(*begin);
+		++begin;
+	}
+
 	m_Container.clear();
 }

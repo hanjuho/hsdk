@@ -608,7 +608,7 @@ CLASS_IMPL_FUNC(Framework_DeviceFactory, setup_RenderTarget)(
 	HRESULT hr;
 
 	// Setup the viewport to match the backbuffer
-	D3D10_VIEWPORT vp;
+	D3D10_VIEWPORT & vp = _device.d3d10ViewPort;
 	vp.Width = _desc.sd.BufferDesc.Width;
 	vp.Height = _desc.sd.BufferDesc.Height;
 	vp.MinDepth = 0;
