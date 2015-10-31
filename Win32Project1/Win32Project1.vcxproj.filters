@@ -24,6 +24,9 @@
     <ClInclude Include="game.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="modelviewcompo.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="common.inl">
@@ -38,6 +41,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="game.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="modelviewcompo.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

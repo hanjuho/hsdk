@@ -111,8 +111,7 @@ IMPL_FUNC_T(void, game::OnMouse)(
 	{
 		g_Camera.rotate_YAxis(D3DXToDegree(_xPos - x) * 0.001f);
 		g_Camera.rotate_XAxis(D3DXToDegree(_yPos - y) * 0.001f);
-
-
+		
 		const float * dir = g_Camera.get_ZDir();
 		D3DXVECTOR3 position(
 			-(dir[0] * length),
@@ -207,7 +206,7 @@ IMPL_FUNC(game::OnD3D10CreateDevice)(
 		g_GUI_Background1.reform();
 		g_GUI_Background1.set_Visible(true);
 
-		frame::Component * button = new frame::ButtonCompo(10, 10, 312, 48);
+		frame::Component * button = new frame::ButtonCompo();
 		button->set_Mouseable(new ToEntryButtonEvent());
 		button->graphics()->set_image(L"image/layout/button.png");
 		button->set_Visible(true);
@@ -228,7 +227,7 @@ IMPL_FUNC(game::OnD3D10CreateDevice)(
 		}
 
 		IF_FAILED(hr = direct3d::g_D3D10_Factory.create_MeshFromFile(
-			g_Mesh, L"model/human/", L"Deathwing.X",
+			g_Mesh, L"model/", L"Deathwing.X",
 			&g_MeshAnimation))
 		{
 			return hr;
@@ -261,7 +260,7 @@ IMPL_FUNC_T(void, game::OnD3D10FrameRender)(
 	_d3dDevice->ClearRenderTargetView(pRTV, ClearColor);
 	ID3D10DepthStencilView * pDSV = framework::g_Framework_Device.d3d10DSV;
 	_d3dDevice->ClearDepthStencilView(pDSV, D3D10_CLEAR_DEPTH, 1.0, 0);
-	
+		
 	g_MeshPos.time += _fElapsedTime;
 	direct3d::animation::animate_Pos(
 		g_MeshPos,

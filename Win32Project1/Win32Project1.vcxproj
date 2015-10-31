@@ -87,6 +87,7 @@
     <ClInclude Include="common.h" />
     <ClInclude Include="entry.h" />
     <ClInclude Include="game.h" />
+    <ClInclude Include="modelviewcompo.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="common.inl" />
@@ -95,6 +96,7 @@
     <ClCompile Include="entry.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="modelviewcompo.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -12,10 +12,14 @@
 #include <hsdk/win/frame/container.h>
 #include <hsdk/win/frame/buttoncompo.h>
 #include <hsdk/win/frame/inputeventhelper.h>
+#include <hsdk/win/frame/rendertargetcontainer.h>
+#include <hsdk/win/frame/layout/borderlayout.h>
+#include <hsdk/win/frame/layout/flowlayout.h>
 
 #include <hsdk/win/direct3d/d3d10_factory.h>
 #include <hsdk/win/direct3d/d3d10_mesh.h>
 #include <hsdk/win/direct3d/d3d10_renderer.h>
+#include <hsdk/win/direct3d/d3d10_rendertarget.h>
 
 #include <hsdk/win/sound/fmod_sounddevice.h>
 
@@ -55,6 +59,16 @@ namespace common
 		{
 
 		}
+
+		// 설명 :
+		INTERFACE_DECL_FUNC_T(void, onMouse_Enter)(
+			_In_ int _x,
+			_In_ int _y){}
+
+		// 설명 : 
+		INTERFACE_DECL_FUNC_T(void, onMouse_Exit)(
+			_In_ int _x,
+			_In_ int _y){}
 
 		// 설명 : mouse의 버튼이 눌렸을 때 발생하는 event.
 		INTERFACE_DECL_FUNC_T(void, onClick_Down)(
