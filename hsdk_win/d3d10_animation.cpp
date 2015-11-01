@@ -2,7 +2,7 @@
 
 
 //--------------------------------------------------------------------------------------
-DLL_DECL_FUNC_T(void, hsdk::direct3d::animation::animationClear)(
+IMPL_FUNC_T(void, hsdk::direct3d::animation::animationClear)(
 	_Out_ D3D10_Animation & _animation)
 {
 	_animation.animationPath.clear();
@@ -13,7 +13,7 @@ DLL_DECL_FUNC_T(void, hsdk::direct3d::animation::animationClear)(
 }
 
 //--------------------------------------------------------------------------------------
-DLL_DECL_FUNC_T(void, hsdk::direct3d::animation::animationRecordClear)(
+IMPL_FUNC_T(void, hsdk::direct3d::animation::animationRecordClear)(
 	_Out_ D3D10_Animation_Recorder & _recorder)
 {
 	_recorder.aniamtionID = -1;
@@ -22,7 +22,7 @@ DLL_DECL_FUNC_T(void, hsdk::direct3d::animation::animationRecordClear)(
 }
 
 //--------------------------------------------------------------------------------------
-DLL_DECL_FUNC_T(void, hsdk::direct3d::animation::build_MeshBoneMatrix)(
+IMPL_FUNC_T(void, hsdk::direct3d::animation::build_MeshBoneMatrix)(
 	_Out_ D3DXMATRIX * _matrixbuffer,
 	_In_ const unsigned int * _boneNodeBuffer,
 	_In_ unsigned int _bufferSize,

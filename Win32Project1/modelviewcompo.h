@@ -99,7 +99,7 @@ namespace gamecompo
 		std::vector<Model> my_Models;
 
 		// Ό³Έν :
-		unsigned int my_ViewModel = 0;
+		unsigned int my_ViewModel = 1;
 
 	};
 }

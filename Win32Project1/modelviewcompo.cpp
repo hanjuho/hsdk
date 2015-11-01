@@ -13,6 +13,11 @@ CLASS_IMPL_CONSTRUCTOR(ModelViewCompo, ModelViewCompo)(
 	_In_ unsigned int _size)
 	: Component(_relation)
 {
+	if (_size < 1)
+	{
+		throw E_INVALIDARG;
+	}
+
 	my_Models.resize(_size);
 
 	HRESULT hr;
@@ -69,9 +74,9 @@ CLASS_IMPL_FUNC_T(ModelViewCompo, void, onDrag)(
 
 		const float * dir = my_Camera.get_ZDir();
 		D3DXVECTOR3 position(
-			-(dir[0] * 5.0f),
-			0.5f -(dir[1] * 5.0f),
-			-(dir[2] * 5.0f));
+			-(dir[0] * 3.0f),
+			0.5f -(dir[1] * 3.0f),
+			-(dir[2] * 3.0f));
 
 		my_Camera.set_Position(position);
 		my_Camera.compute_ViewMatrix(my_mView);
@@ -82,7 +87,12 @@ CLASS_IMPL_FUNC_T(ModelViewCompo, void, onDrag)(
 CLASS_IMPL_FUNC_T(ModelViewCompo, void, update)(
 	_X_ void)
 {
+	my_Models[my_ViewModel].meshPos.time += 
+		framework::g_Direct3D_TimeStream.get_ElapsedTime();
 
+	direct3d::animation::animate_Pos(
+		my_Models[my_ViewModel].meshPos,
+		my_Models[my_ViewModel].meshAnimation);
 }
 
 //--------------------------------------------------------------------------------------
@@ -128,8 +138,6 @@ CLASS_IMPL_FUNC_T(ModelViewCompo, void, render)(
 					&m_Graphics.bgColor);
 			}
 
-			my_RenderTarget.viewport();
-
 			D3DXMATRIX t;
 			direct3d::g_D3D10_Renderer.set_MatrixWorldViewProj(D3DXMatrixMultiply(&t, &my_mView, &my_mProj));
 			direct3d::g_D3D10_Renderer.set_MatrixWorld(&direct3d::g_D3D10_identityMatrix);
@@ -140,10 +148,12 @@ CLASS_IMPL_FUNC_T(ModelViewCompo, void, render)(
 			direct3d::g_D3D10_Renderer.render_Skinned(
 				my_Models[my_ViewModel].mesh,
 				my_Models[my_ViewModel].meshAnimation,
-				my_Models[my_ViewModel].meshPos);
+				my_Models[my_ViewModel].meshPos, 1);
 
 			my_RenderTarget.end();
 		}
+
+		my_RenderTarget.viewport();
 
 		direct3d::g_D3D10_Renderer.set_MatrixWorldViewProj(&m_Position);
 		direct3d::g_D3D10_Renderer.set_ScalarVSFlag(0);

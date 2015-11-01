@@ -162,6 +162,9 @@
     <ClCompile Include="flowlayout.cpp">
       <Filter>소스 파일\frame\layout</Filter>
     </ClCompile>
+    <ClCompile Include="d3d10_terrain.cpp">
+      <Filter>소스 파일\direct3d</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\component.h">
@@ -283,6 +286,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\layout\flowlayout.h">
       <Filter>헤더 파일\frame\layout</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_terrain.h">
+      <Filter>헤더 파일\direct3d</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

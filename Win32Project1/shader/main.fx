@@ -109,7 +109,7 @@ technique10 Skinned_0
 		SetPixelShader(CompileShader(ps_4_0, PS_0()));
 
 		SetDepthStencilState(EnableDepth, 0);
-		SetBlendState(AdditiveBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+		SetBlendState(UIBlend, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 		SetRasterizerState(CullBack);
 	}
 }

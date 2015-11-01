@@ -31,6 +31,10 @@ frame::Container g_GUI_Entry;
 frame::inputEventHelper g_GUIHelper_Entry(&g_GUI_Entry);
 
 // 설명 :
+FMOD::Sound * g_Sound_Background0;
+FMOD::Channel * g_Sound_Controller0;
+
+// 설명 :
 int mouse_X = 0, mouse_Y = 0;
 
 //--------------------------------------------------------------------------------------
@@ -94,10 +98,25 @@ IMPL_FUNC_T(void, entry::OnMouse)(
 	_In_ int _yPos,
 	_Inout_ void * _userContext)
 {
+	int dx = _xPos - mouse_X;
+	int dy = _yPos - mouse_Y;
+	bool moved = false;
+
+	g_GUIHelper_Entry.onMove(dx, dy);
+
+	if (0 < dx || 0 < dy)
+	{
+		moved = true;
+	}
+
 	if (_buttonsDown[FRAMEWORK_LEFTBUTTON] == 1)
 	{
 		g_GUIHelper_Entry.onClick_Down(i::frame::LBUTTON, _xPos, _yPos);
-		g_GUIHelper_Entry.onDrag(i::frame::LBUTTON, _xPos - mouse_X, _yPos - mouse_Y);
+
+		if (moved)
+		{
+			g_GUIHelper_Entry.onDrag(i::frame::LBUTTON, _xPos - mouse_X, _yPos - mouse_Y);
+		}
 	}
 	else if (_buttonsDown[FRAMEWORK_LEFTBUTTON] == 2)
 	{
@@ -163,7 +182,7 @@ IMPL_FUNC(entry::OnD3D10CreateDevice)(
 		{
 			// 메인 레이아웃
 			frame::layout::BorderLayout * borderLayout = new frame::layout::BorderLayout();
-			
+
 			borderLayout->set_Space(
 				hsdk::i::frame::SPACE_LEFT, 0.05f);
 			borderLayout->set_Space(
@@ -194,18 +213,18 @@ IMPL_FUNC(entry::OnD3D10CreateDevice)(
 			borderLayout->set_Space(
 				hsdk::i::frame::SPACE_LEFT, 0.05f);
 			borderLayout->set_Space(
+				hsdk::i::frame::SPACE_TOP, 0.07f);
+			borderLayout->set_Space(
 				hsdk::i::frame::SPACE_RIGHT, 0.05f);
 			borderLayout->set_Space(
-				hsdk::i::frame::SPACE_TOP, 0.05f);
-			borderLayout->set_Space(
-				hsdk::i::frame::SPACE_BOTTOM, 0.05f);
+				hsdk::i::frame::SPACE_BOTTOM, 0.07f);
 
 			borderLayout->set_HGap(0.03f);
 			borderLayout->set_VGap(0.03f);
 
 			// 상태 정보 컨테이너
 			frame::RenderTargetContainer * stateLayout = new frame::RenderTargetContainer();
-			
+
 			stateLayout->set_Visible(true);
 			stateLayout->set_X(0.0f);
 			stateLayout->set_Y(0.0f);
@@ -214,9 +233,10 @@ IMPL_FUNC(entry::OnD3D10CreateDevice)(
 			stateLayout->set_Layout(borderLayout);
 			stateLayout->graphics()->set_image(L"image/layout/notepad.png");
 
-			// 구성 요소
+			// 버튼 컨테이너 구성 요소
 			try
 			{
+				// 모델 목록
 				const wchar_t * modelnames[3] = {
 					L"Arthas.X",
 					L"DeathwingHuman.X",
@@ -227,12 +247,26 @@ IMPL_FUNC(entry::OnD3D10CreateDevice)(
 					frame::PARENT_RELATION_RELATIVE,
 					L"model/", modelnames, ARRAYSIZE(modelnames));
 				modelView->set_Visible(true);
+				modelView->graphics()->set_Background({ 0.0f, 1.0f, 0.0f, 1.0f });
 
+				// 추가
 				stateLayout->add_Component(modelView, i::frame::COMPOSITION_CENTER);
 			}
 			catch (HRESULT hr)
 			{
 				return hr;
+			}
+
+			{
+				// text 창
+				frame::Component * notepad = new frame::Component(
+					frame::PARENT_RELATION_RELATIVE);
+
+				notepad->set_Visible(true);
+				notepad->graphics()->set_image(L"image/layout/buttonpad.png");
+
+				// 추가
+				stateLayout->add_Component(notepad, i::frame::COMPOSITION_WEST);
 			}
 
 			// 레이아웃 추가
@@ -243,13 +277,14 @@ IMPL_FUNC(entry::OnD3D10CreateDevice)(
 		{
 			// 주 버튼 레이아웃
 			frame::layout::FlowLayout * flowlayout = new frame::layout::FlowLayout(frame::layout::FLOW_VERTICAL);
-		
+
+			// 레이아웃 설정
 			flowlayout->set_Space(
 				hsdk::i::frame::SPACE_LEFT, 0.15f);
 			flowlayout->set_Space(
-				hsdk::i::frame::SPACE_RIGHT, 0.0f);
-			flowlayout->set_Space(
 				hsdk::i::frame::SPACE_TOP, 0.2f);
+			flowlayout->set_Space(
+				hsdk::i::frame::SPACE_RIGHT, 0.0f);
 			flowlayout->set_Space(
 				hsdk::i::frame::SPACE_BOTTOM, 0.0f);
 
@@ -259,7 +294,7 @@ IMPL_FUNC(entry::OnD3D10CreateDevice)(
 			flowlayout->set_EachWidthAbs(256.0f);
 			flowlayout->set_EachHeightAbs(96.0f);
 
-			// 버튼 창
+			// 버튼 컨테이너
 			frame::RenderTargetContainer * buttonContainer = new frame::RenderTargetContainer();
 
 			buttonContainer->set_Visible(true);
@@ -268,30 +303,32 @@ IMPL_FUNC(entry::OnD3D10CreateDevice)(
 			buttonContainer->set_Layout(flowlayout);
 			buttonContainer->graphics()->set_image(L"image/layout/buttonpad.png");
 
-			// 구성 요소
-			frame::ButtonCompo * buttons[4];
-
-			// 
-			buttons[0] = new frame::ButtonCompo(frame::PARENT_RELATION_RELATIVE);
-			buttons[0]->graphics()->set_image(L"image/layout/button.png");
-			
-			// 
-			buttons[1] = new frame::ButtonCompo(frame::PARENT_RELATION_RELATIVE);
-			buttons[1]->graphics()->set_image(L"image/layout/button.png");
-			buttons[1]->set_Mouseable(new ToGameButtonEvent());
-
-			// 
-			buttons[2] = new frame::ButtonCompo(frame::PARENT_RELATION_RELATIVE);
-			buttons[2]->graphics()->set_image(L"image/layout/button.png");
-
-			// 
-			buttons[3] = new frame::ButtonCompo(frame::PARENT_RELATION_RELATIVE);
-			buttons[3]->graphics()->set_image(L"image/layout/button.png");
-
-			for (unsigned int index = 0; index < 4; ++index)
 			{
-				buttons[index]->set_Visible(true);
-				buttonContainer->add_Component(buttons[index]);
+				// 구성 요소
+				frame::ButtonCompo * buttons[4];
+
+				// 
+				buttons[0] = new frame::ButtonCompo(frame::PARENT_RELATION_RELATIVE);
+				buttons[0]->graphics()->set_image(L"image/layout/button.png");
+
+				// 
+				buttons[1] = new frame::ButtonCompo(frame::PARENT_RELATION_RELATIVE);
+				buttons[1]->graphics()->set_image(L"image/layout/button.png");
+				buttons[1]->set_Mouseable(new ToGameButtonEvent());
+
+				// 
+				buttons[2] = new frame::ButtonCompo(frame::PARENT_RELATION_RELATIVE);
+				buttons[2]->graphics()->set_image(L"image/layout/button.png");
+
+				// 
+				buttons[3] = new frame::ButtonCompo(frame::PARENT_RELATION_RELATIVE);
+				buttons[3]->graphics()->set_image(L"image/layout/button.png");
+
+				for (unsigned int index = 0; index < 4; ++index)
+				{
+					buttons[index]->set_Visible(true);
+					buttonContainer->add_Component(buttons[index]);
+				}
 			}
 
 			// 레이아웃 추가
@@ -305,7 +342,7 @@ IMPL_FUNC(entry::OnD3D10CreateDevice)(
 			frame::layout::FlowLayout * flowlayout = new frame::layout::FlowLayout(frame::layout::FLOW_HORIZON);
 
 			// 보조 버튼 컨테이너
-			frame::RenderTargetContainer * subButtonContainer =	new frame::RenderTargetContainer();
+			frame::RenderTargetContainer * subButtonContainer = new frame::RenderTargetContainer();
 
 			subButtonContainer->set_Visible(true);
 			subButtonContainer->set_W(w);
@@ -318,9 +355,22 @@ IMPL_FUNC(entry::OnD3D10CreateDevice)(
 			// 레이아웃 추가
 			g_GUI_Entry.add_Component(subButtonContainer, i::frame::COMPOSITION_SOUTH);
 		}
-		
+
 		// 이후에 WM_SIZE에서 호출됨
 		// g_GUI_Entry.reform();
+
+		// sound
+		IF_SUCCEEDED(hr = sound::g_FMOD_SoundDevice.load_WaveFile(
+			&g_Sound_Background0,
+			&g_Sound_Controller0,
+			L"sound/entry_background.wav"))
+		{
+			FMOD_VECTOR pos = { 0.0f, 0.0f, 0.0f };
+			FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
+
+			g_Sound_Controller0->setMode(FMOD_LOOP_NORMAL);
+			g_Sound_Controller0->set3DAttributes(&pos, &vel);
+		}
 	}
 
 	return hr;

@@ -14,6 +14,7 @@
     <ProjectGuid>{AF94E6E9-4040-4597-BF2F-D14E541AB02C}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>hsdk_physics2d</RootNamespace>
+    <ProjectName>hsdk_bullet</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -57,7 +58,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;HSDK_EXPORT;_DEBUG;_WINDOWS;_USRDLL;HSDK_PHYSICS2D_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;HSDK_EXPORT;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -77,7 +78,7 @@ COPY "$(OutDir)hsdk_physics2d.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;HSDK_EXPORT;NDEBUG;_WINDOWS;_USRDLL;HSDK_PHYSICS2D_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;HSDK_EXPORT;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -91,37 +92,6 @@ COPY "$(OutDir)hsdk_physics2d.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
 COPY "$(OutDir)hsdk_physics2d.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\collision.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\interface\collider2d.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\interface\common.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\interface\physics2dengine.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\interface\terrain2d.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\interface\rigidbody2d.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\interface\physics2dobject.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\interface\collision2dlistener.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\interface\boundary2dlistener.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\manifold2d.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\vector2d.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\matrix2d.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\rigidbody2d.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\physics2dengine.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\physics2dobject.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\collider2dpolygon.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\collider2dcircle.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\physics2d\terrain2d.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="collider2dcircle.cpp" />
-    <ClCompile Include="collider2dpolygon.cpp" />
-    <ClCompile Include="mainfold2d.cpp" />
-    <ClCompile Include="matrix2d.cpp" />
-    <ClCompile Include="physics2dengine.cpp" />
-    <ClCompile Include="physics2dobject.cpp" />
-    <ClCompile Include="rigidbody2d.cpp" />
-    <ClCompile Include="terrain2d.cpp" />
-    <ClCompile Include="vector2d.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

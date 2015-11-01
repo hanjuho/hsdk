@@ -11,7 +11,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hsdk_interface", "hsdk_inte
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hsdk_game", "hsdk_game\hsdk_game.vcxproj", "{DC2C6C89-6703-44BD-8784-402B66596C68}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hsdk_physics2d", "hsdk_physics2d\hsdk_physics2d.vcxproj", "{AF94E6E9-4040-4597-BF2F-D14E541AB02C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hsdk_bullet", "hsdk_bullet\hsdk_bullet.vcxproj", "{46E9FE19-E59F-484E-92E2-1DCEEB56ECE3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,12 +45,12 @@ Global
 		{DC2C6C89-6703-44BD-8784-402B66596C68}.Release|Win32.ActiveCfg = Release|Win32
 		{DC2C6C89-6703-44BD-8784-402B66596C68}.Release|Win32.Build.0 = Release|Win32
 		{DC2C6C89-6703-44BD-8784-402B66596C68}.Release|x64.ActiveCfg = Release|Win32
-		{AF94E6E9-4040-4597-BF2F-D14E541AB02C}.Debug|Win32.ActiveCfg = Debug|Win32
-		{AF94E6E9-4040-4597-BF2F-D14E541AB02C}.Debug|Win32.Build.0 = Debug|Win32
-		{AF94E6E9-4040-4597-BF2F-D14E541AB02C}.Debug|x64.ActiveCfg = Debug|Win32
-		{AF94E6E9-4040-4597-BF2F-D14E541AB02C}.Release|Win32.ActiveCfg = Release|Win32
-		{AF94E6E9-4040-4597-BF2F-D14E541AB02C}.Release|Win32.Build.0 = Release|Win32
-		{AF94E6E9-4040-4597-BF2F-D14E541AB02C}.Release|x64.ActiveCfg = Release|Win32
+		{46E9FE19-E59F-484E-92E2-1DCEEB56ECE3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{46E9FE19-E59F-484E-92E2-1DCEEB56ECE3}.Debug|Win32.Build.0 = Debug|Win32
+		{46E9FE19-E59F-484E-92E2-1DCEEB56ECE3}.Debug|x64.ActiveCfg = Debug|Win32
+		{46E9FE19-E59F-484E-92E2-1DCEEB56ECE3}.Release|Win32.ActiveCfg = Release|Win32
+		{46E9FE19-E59F-484E-92E2-1DCEEB56ECE3}.Release|Win32.Build.0 = Release|Win32
+		{46E9FE19-E59F-484E-92E2-1DCEEB56ECE3}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
