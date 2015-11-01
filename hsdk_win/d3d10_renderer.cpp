@@ -389,6 +389,45 @@ CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_Skinned)(
 }
 
 //--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_Mesh)(
+	_In_ D3D10_Mesh & _mesh)
+{
+	g_refDevice_1->IASetInputLayout(g_Basic_inputLayout);
+
+	auto begin = _mesh.meshs.begin();
+	auto end = _mesh.meshs.end();
+
+	while (begin != end)
+	{
+		g_refDevice_1->IASetVertexBuffers(0, 1,
+			&begin->vetexbuffer.vertexbuffer,
+			&begin->vetexbuffer.vertexbuffers_Strides,
+			&begin->vetexbuffer.vertexbuffers_Offsets);
+
+		g_refDevice_1->IASetIndexBuffer(
+			begin->indexbuffer.indexbuffer,
+			begin->indexbuffer.indexType, 0);
+
+		for (unsigned int irender = 0; irender < begin->subsets.size(); ++irender)
+		{
+			const D3D10MY_RENDER_DESC & desc = begin->subsets[irender];
+
+			set_TextureDiffuse(_mesh.materials[desc.material_id].diffuseRV);
+
+			g_refDevice_1->IASetPrimitiveTopology(desc.primitiveType);
+
+			g_Basic_Technique->GetPassByIndex(0)->Apply(0);
+			g_refDevice_1->DrawIndexed(
+				desc.indexCount,
+				desc.indexStart,
+				desc.vertexbufferStart);
+		}
+
+		++begin;
+	}
+}
+
+//--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_SkyBox)(
 	_In_ D3D10_Mesh & _mesh)
 {

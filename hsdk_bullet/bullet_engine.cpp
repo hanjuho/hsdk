@@ -22,8 +22,7 @@ DECL_FUNC_T(int, compute_Pow2)(
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(Bullet_Engine, Bullet_Engine)(
 	_In_ float _gravityscale)
-	: my_GravityScale(_gravityscale),
-	my_OverlappingPairCache(btVector3(), btVector3())
+	: my_GravityScale(_gravityscale)
 {
 	my_CollisionConfiguration = new btDefaultCollisionConfiguration();
 	my_CollisionDispatcher = new btCollisionDispatcher(my_CollisionConfiguration);
@@ -49,14 +48,14 @@ CLASS_IMPL_FUNC(Bullet_Engine, setup0_World)(
 	my_WorldMinSize = btVector3(-w, 0, -d);
 	my_WorldMaxSize = btVector3(w, abs(_height), d);
 
-	my_OverlappingPairCache = btAxisSweep3(
+	my_OverlappingPairCache = new btAxisSweep3(
 		my_WorldMinSize,
 		my_WorldMaxSize);
 
 	//
 	my_DynamicsWorld = new btDiscreteDynamicsWorld(
 		my_CollisionDispatcher,
-		&my_OverlappingPairCache,
+		my_OverlappingPairCache,
 		my_ConstraintSolver,
 		my_CollisionConfiguration);
 

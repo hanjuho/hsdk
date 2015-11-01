@@ -37,7 +37,7 @@ direct3d::D3D10_Terrain g_Terrain;
 direct3d::D3D10_Mesh g_TerrainMesh;
 
 // 설명 : 
-
+bullet::Bullet_Engine g_Engine(100.0f);
 
 // 설명 : 
 D3DXMATRIX g_World_0 = {
@@ -57,6 +57,8 @@ IMPL_FUNC_T(void, game::OnFrameMove)(
 {
 	sound::g_FMOD_SoundDevice.play();
 
+	g_Engine.update(_fTime);
+
 	g_GUI_Game.update();
 }
 
@@ -75,6 +77,15 @@ IMPL_FUNC_T(void, game::OnD3D10FrameRender)(
 	_d3dDevice->ClearRenderTargetView(pRTV, ClearColor);
 	ID3D10DepthStencilView * pDSV = framework::g_Framework_Device.d3d10DSV;
 	_d3dDevice->ClearDepthStencilView(pDSV, D3D10_CLEAR_DEPTH, 1.0, 0);
+
+	D3DXMATRIX t;
+	direct3d::g_D3D10_Renderer.set_MatrixWorldViewProj(D3DXMatrixMultiply(&t, 
+		&direct3d::g_D3D10_ViewMatrix, &direct3d::g_D3D10_ProjMatrix));
+	direct3d::g_D3D10_Renderer.set_MatrixWorld(&direct3d::g_D3D10_identityMatrix);
+
+	direct3d::g_D3D10_Renderer.set_ScalarVSFlag(0);
+	direct3d::g_D3D10_Renderer.set_ScalarPSFlag(direct3d::PS_TEXTURE_0);
+	direct3d::g_D3D10_Renderer.render_Mesh(g_TerrainMesh);
 
 	g_GUI_Game.render();
 }
@@ -171,6 +182,28 @@ IMPL_FUNC(game::OnD3D10CreateDevice)(
 	HRESULT hr = E_FAIL;
 	IF_SUCCEEDED(hr = common::initialize_Common())
 	{
+		//
+		float heightbuffer[195];
+		direct3d::terrain::load_RawFromFile(
+			heightbuffer, L"terrain/terrain0.raw", 195);
+
+		// pixel size 1.0f
+		direct3d::terrain::build_Terrain(
+			g_Terrain, 65, 3, 65, 3);
+
+		//
+		direct3d::g_D3D10_Factory.build_MeshTerran(
+			g_TerrainMesh, g_Terrain, heightbuffer);
+
+		g_TerrainMesh.materials.resize(1);
+		direct3d::g_D3D10_Factory.get_Texture(
+			&g_TerrainMesh.materials[0].diffuseRV,
+			L"terrain/terrain.png");
+
+		//
+		g_Engine.setup0_World(100.0f, 100.0f, 100.0f);
+		g_Engine.setup1_Terrain(64, 2, heightbuffer, 195);
+		
 		// layout
 		IF_FAILED(hr = build_GameLayout(&g_GUI_Game,
 			_backBufferSurfaceDesc.Width,
@@ -203,6 +236,11 @@ DECL_FUNC_T(void, game::OnD3D10DestroyDevice)(
 	_Inout_ void * _userContext)
 {
 	common::destroy_Common();
+
+	direct3d::mesh::meshClear(
+		g_TerrainMesh);
+
+	g_Engine.reset();
 
 	g_GUI_Game.clear();
 	g_GUIHelper_Game.restore();
