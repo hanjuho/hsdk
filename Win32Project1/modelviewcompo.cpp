@@ -20,19 +20,14 @@ CLASS_IMPL_CONSTRUCTOR(ModelViewCompo, ModelViewCompo)(
 
 	my_Models.resize(_size);
 
-	HRESULT hr;
+	HRESULT hr = E_FAIL;
 	for (unsigned int index = 0; index < _size; ++index)
 	{
-		if (SUCCEEDED(hr = direct3d::g_D3D10_Factory.create_MeshFromFile(
-			my_Models[index].mesh,
-			_path,
-			_names[index],
-			&my_Models[index].meshAnimation)))
+		if (SUCCEEDED(hr = direct3d::g_D3D10_Factory.build_MeshFromFile(
+			my_Models[index].mesh, _path, _names[index], &my_Models[index].meshAnimation)))
 		{
-			direct3d::animation::create_Pos(
-				my_Models[index].meshPos,
-				my_Models[index].meshAnimation,
-				0, 0.0f);
+			direct3d::animation::build_Pos(my_Models[index].meshPos,
+				my_Models[index].meshAnimation,	0, 0.0f);
 		}
 		else
 		{

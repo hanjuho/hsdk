@@ -31,37 +31,6 @@ CLASS_IMPL_CONSTRUCTOR(Bullet_Engine, Bullet_Engine)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Bullet_Engine, void, reset)(
-	_X_ void)
-{
-	//delete collision shapes
-	for (int index = 0; index < my_CollisionShapes.size(); index++)
-	{
-		btCollisionShape * shape = my_CollisionShapes[index];
-		delete shape;
-	}
-	my_CollisionShapes.clear();
-
-	//remove the rigidbodies from the dynamics world and delete them
-	// 첫번째 유닛은 반드시 터레인이므로 reset()으로 밖에 지울 수 없다.
-	for (int index = my_DynamicsWorld->getNumCollisionObjects() - 1; index != -1; --index)
-	{
-		btCollisionObject * obj = my_DynamicsWorld->getCollisionObjectArray()[index];
-		btRigidBody * body = btRigidBody::upcast(obj);
-
-		if (body && body->getMotionState())
-		{
-			delete body->getMotionState();
-		}
-
-		my_DynamicsWorld->removeCollisionObject(obj);
-		delete obj;
-	}
-
-	my_DynamicsWorld.~AutoDelete();
-}
-
-//--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(Bullet_Engine, setup0_World)(
 	_In_ int _width,
 	_In_ int _height,
@@ -144,6 +113,44 @@ CLASS_IMPL_FUNC(Bullet_Engine, setup1_Terrain)(
 	}
 
 	return 0;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Bullet_Engine, void, update)(
+	_X_ float _time)
+{
+	my_DynamicsWorld->stepSimulation(_time);
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(Bullet_Engine, void, reset)(
+	_X_ void)
+{
+	//delete collision shapes
+	for (int index = 0; index < my_CollisionShapes.size(); index++)
+	{
+		btCollisionShape * shape = my_CollisionShapes[index];
+		delete shape;
+	}
+	my_CollisionShapes.clear();
+
+	//remove the rigidbodies from the dynamics world and delete them
+	// 첫번째 유닛은 반드시 터레인이므로 reset()으로 밖에 지울 수 없다.
+	for (int index = my_DynamicsWorld->getNumCollisionObjects() - 1; index != -1; --index)
+	{
+		btCollisionObject * obj = my_DynamicsWorld->getCollisionObjectArray()[index];
+		btRigidBody * body = btRigidBody::upcast(obj);
+
+		if (body && body->getMotionState())
+		{
+			delete body->getMotionState();
+		}
+
+		my_DynamicsWorld->removeCollisionObject(obj);
+		delete obj;
+	}
+
+	my_DynamicsWorld.~AutoDelete();
 }
 
 //--------------------------------------------------------------------------------------

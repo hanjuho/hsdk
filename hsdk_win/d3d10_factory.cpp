@@ -263,12 +263,157 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_SkyBoxTexture)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_Factory, create_MeshSkyBox)(
+CLASS_IMPL_FUNC(D3D10_Factory, build_MeshTerran)(
+	_Out_ D3D10_Mesh & _mesh,
+	_In_ const D3D10_Terrain & _terrain,
+	_In_ const float * _heightbuffer)
+{
+	mesh::meshClear(_mesh);
+	_mesh.meshs.resize(1);
+	_mesh.materials.resize(1);
+
+	// 결과
+	HRESULT hr = E_FAIL;
+
+	// 매쉬 생성
+	D3D10MY_MESH & refmesh = _mesh.meshs[0];
+	{
+		std::vector<D3D10_BasicFormat> ptr_vertexs(_terrain.vertices);
+		{
+			// compute the increment size of the texture coordinates
+			// from one vertex to the next.
+			double uCoordIncrementSize = 1.0f / double(_terrain.cellsPerRow);
+			double vCoordIncrementSize = 1.0f / double(_terrain.cellsPerCol);
+
+			// coordinates to start generating vertices at
+			double X = -abs(long(_terrain.width) / 2.0);
+			double Z = abs(long(_terrain.height) / 2.0);
+
+			// counter
+			unsigned long count = 0;
+			unsigned long A = 0;
+			unsigned long B = 0;
+			while (count < _terrain.vertices)
+			{
+				ptr_vertexs[count].pos = D3DXVECTOR3(
+					float(X + (B * _terrain.xCellSpacing)),
+					_heightbuffer[A * _terrain.verticsPerRow + B],
+					float(Z - (A * _terrain.zCellSpacing)));
+
+				ptr_vertexs[count].tex = D3DXVECTOR2(
+					float(A) * float(vCoordIncrementSize),
+					float(B) * float(uCoordIncrementSize));
+
+				++B;
+
+				if (B == _terrain.verticsPerRow)
+				{
+					++A;
+					B = 0;
+				}
+
+				++count;
+			}
+
+			D3D10_BUFFER_DESC vbDesc;
+			// x,y,z and u,v
+			vbDesc.ByteWidth = _terrain.vertices * sizeof(D3D10_BasicFormat);
+			vbDesc.Usage = D3D10_USAGE_DEFAULT;
+			vbDesc.BindFlags = D3D10_BIND_VERTEX_BUFFER;
+			vbDesc.CPUAccessFlags = D3D10_CPU_ACCESS_FLAG(0);
+			vbDesc.MiscFlags = 0;
+
+			// 버텍스 버퍼 내용 추가
+			D3D10_SUBRESOURCE_DATA vbSd;
+			vbSd.pSysMem = &ptr_vertexs[0];
+			vbSd.SysMemPitch = 0;
+			vbSd.SysMemSlicePitch = 0;
+
+			// 버텍스 버퍼 생성
+			AutoRelease<ID3D10Buffer> vbBuffer;
+			IF_FAILED(hr = framework::g_Framework_Device.d3d10Device->CreateBuffer(&vbDesc, &vbSd, &vbBuffer))
+			{
+				return hr;
+			}
+
+			refmesh.vetexbuffer.numOfVertices = ptr_vertexs.size();
+			refmesh.vetexbuffer.vertexbuffer = vbBuffer;
+			refmesh.vetexbuffer.vertexbuffers_Offsets = 0;
+			refmesh.vetexbuffer.vertexbuffers_Strides = sizeof(D3D10_BasicFormat);
+		}
+
+		// 인덱스 버퍼 내용 생성
+		std::vector<unsigned long> ptr_indices(_terrain.triangles * 3);
+		{
+			// 인덱스
+			unsigned long index = 0;
+
+			// loop through and compute the triangles of each quad
+			for (unsigned long A = 0; A < _terrain.cellsPerCol; ++A)
+			{
+				for (unsigned long B = 0; B < _terrain.cellsPerRow; ++B)
+				{
+					ptr_indices[index] = unsigned long(A * _terrain.verticsPerRow + B);
+					ptr_indices[index + 1] = unsigned long(A * _terrain.verticsPerRow + B + 1);
+					ptr_indices[index + 2] = unsigned long((A + 1) * _terrain.verticsPerRow + B);
+
+					ptr_indices[index + 3] = unsigned long((A + 1) * _terrain.verticsPerRow + B);
+					ptr_indices[index + 4] = unsigned long(A * _terrain.verticsPerRow + B + 1);
+					ptr_indices[index + 5] = unsigned long((A + 1) * _terrain.verticsPerRow + B + 1);
+
+					// next quad
+					index += 6;
+				}
+			}
+
+			D3D10_BUFFER_DESC ibDesc;
+			ibDesc.ByteWidth = ptr_indices.size() * sizeof(unsigned long);
+			ibDesc.Usage = D3D10_USAGE_DEFAULT;
+			ibDesc.BindFlags = D3D10_BIND_VERTEX_BUFFER;
+			ibDesc.CPUAccessFlags = D3D10_CPU_ACCESS_FLAG(0);
+			ibDesc.MiscFlags = 0;
+
+			// 인덱스 버퍼 내용 추가
+			D3D10_SUBRESOURCE_DATA ibSd;
+			ibSd.pSysMem = &ptr_indices[0];
+			ibSd.SysMemPitch = 0;
+			ibSd.SysMemSlicePitch = 0;
+
+			// 인덱스 버퍼 생성
+			AutoRelease<ID3D10Buffer> ibBuffer;
+			IF_FAILED(hr = framework::g_Framework_Device.d3d10Device->CreateBuffer(&ibDesc, &ibSd, &ibBuffer))
+			{
+				return hr;
+			}
+
+			refmesh.indexbuffer.numOfindices = ptr_indices.size();
+			refmesh.indexbuffer.indexbuffer = ibBuffer;
+			refmesh.indexbuffer.indexType = DXGI_FORMAT_R32_UINT;
+		}
+
+		refmesh.subsets.resize(1);
+		D3D10MY_RENDER_DESC & refdesc = refmesh.subsets[0];
+		{
+			refdesc.material_id = 0;
+			refdesc.indexCount = ptr_indices.size();
+			refdesc.indexStart = 0;
+			refdesc.vertexbufferCount = ptr_vertexs.size();
+			refdesc.vertexbufferStart = 0;
+			refdesc.primitiveType = D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		}
+	}
+
+	return hr;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC(D3D10_Factory, build_MeshSkyBox)(
 	_Out_ D3D10_Mesh & _mesh,
 	_In_ float _size)
 {
-	_mesh.materials.resize(1);
+	mesh::meshClear(_mesh);
 	_mesh.meshs.resize(1);
+	_mesh.materials.resize(1);
 
 	D3D10MY_MESH & refmesh =
 		_mesh.meshs[0];
@@ -379,12 +524,14 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_MeshSkyBox)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC(D3D10_Factory, create_MeshFromFile)(
+CLASS_IMPL_FUNC(D3D10_Factory, build_MeshFromFile)(
 	_Out_ D3D10_Mesh & _mesh,
 	_In_ const wchar_t * _filePath,
 	_In_ const wchar_t * _fileName,
 	_Out_ D3D10_Animation * _animation)
 {
+	mesh::meshClear(_mesh);
+
 	wchar_t wtoa[256];
 	ZeroMemory(wtoa, sizeof(wtoa));
 

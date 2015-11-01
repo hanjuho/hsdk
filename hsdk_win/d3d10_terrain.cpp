@@ -3,18 +3,21 @@
 
 
 //--------------------------------------------------------------------------------------
-IMPL_FUNC_T(void, hsdk::direct3d::terrain::create_Terrain)(
+IMPL_FUNC_T(void, hsdk::direct3d::terrain::build_Terrain)(
 	_Out_ D3D10_Terrain & _terrain,
-	_In_ const D3D10_Terrain_Resolution & _resolution)
+	_In_ unsigned long _width,
+	_In_ unsigned long _height,
+	_In_ unsigned long _row,
+	_In_ unsigned long _column)
 {
-	_terrain.verticsPerRow = _resolution.pixel_Row;
-	_terrain.verticsPerCol = _resolution.pixel_Column;
+	_terrain.verticsPerRow = _row;
+	_terrain.verticsPerCol = _column;
 	_terrain.vertices = _terrain.verticsPerRow * _terrain.verticsPerCol;
-	_terrain.cellsPerRow = _resolution.pixel_Row - 1;
-	_terrain.cellsPerCol = _resolution.pixel_Column - 1;
+	_terrain.cellsPerRow = _row - 1;
+	_terrain.cellsPerCol = _column - 1;
 	_terrain.triangles = _terrain.cellsPerRow * _terrain.cellsPerCol * 2;
-	_terrain.xCellSpacing = double(_resolution.size_Width) / double(_terrain.cellsPerRow);
-	_terrain.zCellSpacing = double(_resolution.size_Height) / double(_terrain.cellsPerCol);
+	_terrain.xCellSpacing = double(_width) / double(_terrain.cellsPerRow);
+	_terrain.zCellSpacing = double(_height) / double(_terrain.cellsPerCol);
 }
 
 //--------------------------------------------------------------------------------------

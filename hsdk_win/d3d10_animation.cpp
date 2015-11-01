@@ -40,7 +40,7 @@ IMPL_FUNC_T(void, hsdk::direct3d::animation::build_MeshBoneMatrix)(
 }
 
 //--------------------------------------------------------------------------------------
-IMPL_FUNC(hsdk::direct3d::animation::create_Pos)(
+IMPL_FUNC(hsdk::direct3d::animation::build_Pos)(
 	_Out_ D3D10_Animation_Recorder & _pos,
 	_In_ const D3D10_Animation & _animation,
 	_In_ unsigned int _animationPos,

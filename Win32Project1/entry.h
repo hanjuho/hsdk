@@ -10,8 +10,27 @@ namespace entry
 {
 
 	// 설명 :
-	DECL_FUNC_T(void, initialize)(
-		_X_ void);
+	DECL_FUNC(initialize_Entry)(
+		_In_ void * _context);
+
+	// 설명 :
+	DECL_FUNC(build_EntryLayout)(
+		_In_ frame::Container * _container,
+		_In_ float _width,
+		_In_ float _height);
+
+	// 설명 : 
+	DECL_FUNC_T(void, OnFrameMove)(
+		_In_ double _fTime,
+		_In_ float _fElapsedTime,
+		_Inout_ void * _userContext);
+
+	// 설명 : 
+	DECL_FUNC_T(void, OnD3D10FrameRender)(
+		_In_ ID3D10Device * _d3dDevice,
+		_In_ double _fTime,
+		_In_ float _fElapsedTime,
+		_Inout_ void * _userContext);
 
 	// 설명 : 
 	DECL_FUNC_T(LRESULT, OnMsgProc)(
@@ -37,24 +56,11 @@ namespace entry
 		_In_ short _bKeyDown,
 		_In_ short _bAltDown,
 		_Inout_ void * _userContext);
-
-	// 설명 : 
-	DECL_FUNC_T(void, OnFrameMove)(
-		_In_ double _fTime,
-		_In_ float _fElapsedTime,
-		_Inout_ void * _userContext);
 	
 	// 설명 : 
 	DECL_FUNC(OnD3D10CreateDevice)(
 		_In_ ID3D10Device * _d3dDevice,
 		_In_ const DXGI_SURFACE_DESC & _backBufferSurfaceDesc,
-		_Inout_ void * _userContext);
-	
-	// 설명 : 
-	DECL_FUNC_T(void, OnD3D10FrameRender)(
-		_In_ ID3D10Device * _d3dDevice,
-		_In_ double _fTime,
-		_In_ float _fElapsedTime,
 		_Inout_ void * _userContext);
 
 	// 설명 : 

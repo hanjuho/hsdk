@@ -465,7 +465,7 @@ CLASS_IMPL_FUNC_T(BorderLayout, float, get_SpaceAbs)(
 
 	case hsdk::i::frame::SPACE_TOP:
 
-		return my_Width * my_Frame[_space];
+		return my_Height * my_Frame[_space];
 
 	case hsdk::i::frame::SPACE_RIGHT:
 
