@@ -194,6 +194,7 @@ DECL_FUNC_T(void, entry::OnD3D10DestroyDevice)(
 	common::destroy_Common();
 
 	g_GUI_Entry.clear();
+	g_GUIHelper_Entry.restore();
 }
 
 //--------------------------------------------------------------------------------------
@@ -236,10 +237,6 @@ IMPL_FUNC(entry::build_EntryLayout)(
 	_In_ float _width,
 	_In_ float _height)
 {
-	if (_container == nullptr)
-	{
-		return E_INVALIDARG;
-	}
 	_container->clear();
 
 	// 상태 정보 레이아웃

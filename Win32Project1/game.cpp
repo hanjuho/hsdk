@@ -1,5 +1,8 @@
 #include "game.h"
 #include "entry.h"
+#include <bullet/bullet_engine.h>
+
+
 
 class ToEntryButtonEvent :
 	public common::MouseableAdapter
@@ -30,6 +33,13 @@ FMOD::Sound * g_Sound_Background1;
 FMOD::Channel * g_Sound_Controller1;
 
 // 설명 : 
+direct3d::D3D10_Terrain g_Terrain;
+direct3d::D3D10_Mesh g_TerrainMesh;
+
+// 설명 : 
+
+
+// 설명 : 
 D3DXMATRIX g_World_0 = {
 	1.0f, 0.0f, 0.0f, 0.0f,
 	0.0f, 1.0f, 0.0f, 0.0f,
@@ -37,7 +47,7 @@ D3DXMATRIX g_World_0 = {
 	0.0f, 0.0f, 0.0f, 1.0f };
 
 framework::Framework_Camera g_Camera;
-int x = 0, y = 0; float length = 5;
+int x = 0, y = 0; float distance = 5;
 
 //--------------------------------------------------------------------------------------
 IMPL_FUNC_T(void, game::OnFrameMove)(
@@ -98,7 +108,7 @@ IMPL_FUNC_T(void, game::OnMouse)(
 	_In_ int _yPos,
 	_Inout_ void * _userContext)
 {
-	length += (float)_mouseWheelDelta / (float)120.0f;
+	distance += (float)_mouseWheelDelta / (float)120.0f;
 
 	if (_buttonsDown[FRAMEWORK_LEFTBUTTON] == 1)
 	{
@@ -107,9 +117,9 @@ IMPL_FUNC_T(void, game::OnMouse)(
 
 		const float * dir = g_Camera.get_ZDir();
 		D3DXVECTOR3 position(
-			-(dir[0] * length),
-			0.5f - (dir[1] * length),
-			-(dir[2] * length));
+			-(dir[0] * distance),
+			0.5f - (dir[1] * distance),
+			-(dir[2] * distance));
 		g_Camera.set_Position(position);
 
 
@@ -195,6 +205,7 @@ DECL_FUNC_T(void, game::OnD3D10DestroyDevice)(
 	common::destroy_Common();
 
 	g_GUI_Game.clear();
+	g_GUIHelper_Game.restore();
 }
 
 //--------------------------------------------------------------------------------------
@@ -278,6 +289,7 @@ IMPL_FUNC(game::build_GameLayout)(
 	_container->set_W(_width);
 	_container->set_H(_height);
 	_container->set_Layout(borderLayout);
+	_container->graphics()->set_Background({ 0 });
 	
 	//
 	_container->add_Component(skillContainer, i::frame::COMPOSITION_CENTER);

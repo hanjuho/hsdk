@@ -49,9 +49,6 @@
     <Filter Include="헤더 파일\direct3d">
       <UniqueIdentifier>{fb0025f1-3c51-4636-b773-780a4747d314}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\direct3d">
-      <UniqueIdentifier>{d5d41e5f-6c7c-462a-8a29-358c8d08ff70}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\db">
       <UniqueIdentifier>{78b1d013-4332-4a8c-aac1-8762a10b2bf0}</UniqueIdentifier>
     </Filter>
@@ -60,6 +57,9 @@
     </Filter>
     <Filter Include="소스 파일\frame\layout">
       <UniqueIdentifier>{439b9504-5e5e-497f-997a-601899babc7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\direct3d">
+      <UniqueIdentifier>{d5d41e5f-6c7c-462a-8a29-358c8d08ff70}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

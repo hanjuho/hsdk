@@ -226,14 +226,14 @@ CLASS_IMPL_FUNC_T(Bullet_Engine, void, clear)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Bullet_Engine, btVector3, min)(
+CLASS_IMPL_FUNC_T(Bullet_Engine, btVector3, minWorldSize)(
 	_X_ void)
 {
 	return my_WorldMinSize;
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(Bullet_Engine, btVector3, max)(
+CLASS_IMPL_FUNC_T(Bullet_Engine, btVector3, maxWorldSize)(
 	_X_ void)
 {
 	return my_WorldMaxSize;

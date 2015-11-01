@@ -9,8 +9,13 @@ using namespace hsdk::frame;
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(inputEventHelper, inputEventHelper)(
 	_In_ hsdk::i::frame::i_Component * _component)
-	: my_FocusComponent(_component)
+	: my_MainComponent(_component), my_FocusComponent(_component)
 {
+	IF_INVALID(_component)
+	{
+		throw HSDK_FAIL;
+	}
+
 	xy.x = 0;
 	xy.y = 0;
 }
@@ -105,6 +110,13 @@ CLASS_IMPL_FUNC_T(inputEventHelper, void, update)(
 			}
 		}
 	}
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(inputEventHelper, void, restore)(
+	_X_ void) 
+{
+	my_FocusComponent = my_MainComponent;
 }
 
 //--------------------------------------------------------------------------------------

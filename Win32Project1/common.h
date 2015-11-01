@@ -2,10 +2,6 @@
 
 
 
-#pragma comment (lib, "hsdk_win.lib")
-
-
-
 #include <hsdk/win/framework.h>
 #include <hsdk/win/framework_camera.h>
 
