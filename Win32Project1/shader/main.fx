@@ -84,6 +84,16 @@ technique10 Basic_0
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_4_0, PS_0()));
 
+		SetDepthStencilState(EnableDepth, 0);
+		SetBlendState(AdditiveBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+		SetRasterizerState(CullBack);
+	}
+	pass p1
+	{
+		SetVertexShader(CompileShader(vs_4_0, VS_0()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_4_0, PS_0()));
+
 		SetDepthStencilState(DisableDepth, 0);
 		SetBlendState(UIBlend, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 		SetRasterizerState(CullNone);
@@ -110,7 +120,7 @@ technique10 Skinned_0
 
 		SetDepthStencilState(EnableDepth, 0);
 		SetBlendState(UIBlend, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-		SetRasterizerState(CullBack);
+		SetRasterizerState(CullNone);
 	}
 }
 

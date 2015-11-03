@@ -101,26 +101,31 @@ CLASS_IMPL_FUNC_T(FlowLayout, void, set_Space)(
 		return;
 	}
 
+	float over;
 	switch (_space)
 	{
 	case SPACE_LEFT:
 
-		my_Frame[SPACE_LEFT] = min(_value, 1.0f - (my_Frame[SPACE_RIGHT] + (my_HGap * my_NumHorizon)));
+		over = abs(1.0f - (my_Frame[SPACE_RIGHT] + (my_HGap * my_NumHorizon)));
+		my_Frame[SPACE_LEFT] = min(_value, over);
 
 		return;
 	case SPACE_TOP:
 
-		my_Frame[SPACE_TOP] = min(_value, 1.0f - (my_Frame[SPACE_BOTTOM] + (my_VGap * my_NumVertical)));
+		over = abs(1.0f - (my_Frame[SPACE_BOTTOM] + (my_VGap * my_NumVertical)));
+		my_Frame[SPACE_TOP] = min(_value, over);
 
 		return;
 	case SPACE_RIGHT:
 
-		my_Frame[SPACE_RIGHT] = min(_value, 1.0f - (my_Frame[SPACE_LEFT] + (my_HGap * my_NumHorizon)));
+		over = abs(1.0f - (my_Frame[SPACE_LEFT] + (my_HGap * my_NumHorizon)));
+		my_Frame[SPACE_RIGHT] = min(_value, over);
 
 		return;
 	case SPACE_BOTTOM:
 
-		my_Frame[SPACE_BOTTOM] = min(_value, 1.0f - (my_Frame[SPACE_TOP] + (my_VGap * my_NumVertical)));
+		over = abs(1.0f - (my_Frame[SPACE_TOP] + (my_VGap * my_NumVertical)));
+		my_Frame[SPACE_BOTTOM] = min(_value, over);
 
 		return;
 	default:
@@ -175,7 +180,7 @@ CLASS_IMPL_FUNC_T(FlowLayout, float, get_SpaceAbs)(
 
 	case hsdk::i::frame::SPACE_TOP:
 
-		return my_Width * my_Frame[_space];
+		return my_Height * my_Frame[_space];
 
 	case hsdk::i::frame::SPACE_RIGHT:
 

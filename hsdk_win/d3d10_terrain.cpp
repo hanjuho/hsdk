@@ -10,21 +10,24 @@ IMPL_FUNC_T(void, hsdk::direct3d::terrain::build_Terrain)(
 	_In_ unsigned long _row,
 	_In_ unsigned long _column)
 {
-	_terrain.verticsPerRow = _row;
-	_terrain.verticsPerCol = _column;
+	_terrain.width = _width;
+	_terrain.height = _height;
+	_terrain.row = _row;
+	_terrain.col = _column;
+	_terrain.verticsPerRow = _row + 1;
+	_terrain.verticsPerCol = _column + 1;
 	_terrain.vertices = _terrain.verticsPerRow * _terrain.verticsPerCol;
-	_terrain.cellsPerRow = _row - 1;
-	_terrain.cellsPerCol = _column - 1;
-	_terrain.triangles = _terrain.cellsPerRow * _terrain.cellsPerCol * 2;
-	_terrain.xCellSpacing = double(_width) / double(_terrain.cellsPerRow);
-	_terrain.zCellSpacing = double(_height) / double(_terrain.cellsPerCol);
+	_terrain.triangles = _terrain.row * _terrain.col * 2;
+	_terrain.xCellSpacing = double(_width) / double(_row);
+	_terrain.zCellSpacing = double(_height) / double(_column);
 }
 
 //--------------------------------------------------------------------------------------
 IMPL_FUNC(hsdk::direct3d::terrain::load_RawFromFile)(
 	_Out_ float * _buffer,
 	_In_ const wchar_t * _fileName,
-	_In_ unsigned int _size)
+	_In_ unsigned int _size,
+	_In_ unsigned int _displacement)
 {
 	// A height for each vertex
 	std::vector<BYTE> in(_size);
@@ -45,7 +48,7 @@ IMPL_FUNC(hsdk::direct3d::terrain::load_RawFromFile)(
 	unsigned int size = min(_size, in.size());
 	for (unsigned long index = 0; index < size; ++index)
 	{
-		_buffer[index] = (float)in[index];
+		_buffer[index] = (float)in[index] / (float)_displacement;
 	}
 
 	return S_OK;

@@ -4,18 +4,14 @@
 
 
 using namespace hsdk::frame;
+using namespace hsdk::i::frame;
 
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(inputEventHelper, inputEventHelper)(
-	_In_ hsdk::i::frame::i_Component * _component)
-	: my_MainComponent(_component), my_FocusComponent(_component)
+	_In_ i_Component * _component)
+	: my_FocusComponent(_component)
 {
-	IF_INVALID(_component)
-	{
-		throw HSDK_FAIL;
-	}
-
 	xy.x = 0;
 	xy.y = 0;
 }
@@ -28,7 +24,7 @@ CLASS_IMPL_DESTRUCTOR(inputEventHelper, inputEventHelper)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(inputEventHelper, bool, chain)(
-	_In_ const hsdk::i::frame::i_Component * _component)
+	_In_ const i_Component * _component)
 {
 	IF_FALSE(_component->is_Visible())
 	{
@@ -113,15 +109,8 @@ CLASS_IMPL_FUNC_T(inputEventHelper, void, update)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(inputEventHelper, void, restore)(
-	_X_ void) 
-{
-	my_FocusComponent = my_MainComponent;
-}
-
-//--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(inputEventHelper, void, onClick_Down)(
-	_In_ hsdk::i::frame::MOUSE_BUTTON _button,
+	_In_ MOUSE_BUTTON _button,
 	_In_ int _x,
 	_In_ int _y)
 {
@@ -140,7 +129,7 @@ CLASS_IMPL_FUNC_T(inputEventHelper, void, onClick_Down)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(inputEventHelper, void, onClick_Up)(
-	_In_ hsdk::i::frame::MOUSE_BUTTON _button,
+	_In_ MOUSE_BUTTON _button,
 	_In_ int _x,
 	_In_ int _y)
 {
@@ -156,19 +145,16 @@ CLASS_IMPL_FUNC_T(inputEventHelper, void, onClick_Up)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(inputEventHelper, void, onDrag)(
-	_In_ hsdk::i::frame::MOUSE_BUTTON _button,
+	_In_ MOUSE_BUTTON _button,
 	_In_ int _x,
 	_In_ int _y)
 {
-	int dx = xy.x - _x;
-	int dy = xy.y - _y;
-
-	xy.x = _x;
-	xy.y = _y;
+	xy.x += _x;
+	xy.y += _y;
 
 	if (my_FocusComponent)
 	{
-		my_FocusComponent->onDrag(_button, dx, dy);
+		my_FocusComponent->onDrag(_button, _x, _y);
 	}
 }
 
@@ -177,8 +163,8 @@ CLASS_IMPL_FUNC_T(inputEventHelper, void, onMove)(
 	_In_ int _x,
 	_In_ int _y)
 {
-	xy.x = xy.x + _x;
-	xy.y = xy.y + _y;
+	xy.x += _x;
+	xy.y += _y;
 	
 	// focus Àç¼³Á¤.
 	update();
@@ -202,4 +188,11 @@ CLASS_IMPL_FUNC_T(inputEventHelper, void, onWheel)(
 	{
 		my_FocusComponent->onWheel(_x, _y, _w);
 	}
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(inputEventHelper, void, restore)(
+	_In_ i_Component * _component)
+{
+	my_FocusComponent = _component;
 }

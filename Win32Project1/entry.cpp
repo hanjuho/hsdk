@@ -5,8 +5,20 @@
 #include <hsdk/win/frame/layout/flowlayout.h>
 
 
-class ToGameButtonEvent :
-	public common::MouseableAdapter
+//--------------------------------------------------------------------------------------
+// Grobal Variable
+//--------------------------------------------------------------------------------------
+
+// 설명 : 
+frame::Container g_GUI_Entry;
+
+// 설명 :
+FMOD::Sound * g_Sound_Background0;
+FMOD::Channel * g_Sound_Controller0;
+
+//--------------------------------------------------------------------------------------
+class GoGameButtonEvent :
+	public i::frame::MouseableAdapter
 {
 public:
 
@@ -21,21 +33,39 @@ public:
 };
 
 //--------------------------------------------------------------------------------------
-// Grobal Variable
-//--------------------------------------------------------------------------------------
+class ModelViewChangeButtonEvent :
+	public i::frame::MouseableAdapter
+{
+public:
 
-// 설명 : 
-frame::Container g_GUI_Entry;
+	CLASS_DECL_CONSTRUCTOR(ModelViewChangeButtonEvent)(
+		_In_ gamecompo::ModelViewCompo * _mvcompo,
+		_In_ unsigned int _viewNumber) :
+		my_MVCompo(_mvcompo), my_ViewNumber(_viewNumber), my_AnimNumber(0)
+	{
 
-// 설명 : 
-frame::inputEventHelper g_GUIHelper_Entry(&g_GUI_Entry);
+	}
 
-// 설명 :
-FMOD::Sound * g_Sound_Background0;
-FMOD::Channel * g_Sound_Controller0;
+	INTERFACE_DECL_FUNC_T(void, onClick_Up)(
+		_In_ i::frame::MOUSE_BUTTON _button,
+		_In_ int _x,
+		_In_ int _y)
+	{
+		my_MVCompo->select_Model(my_ViewNumber, my_AnimNumber++);
+	}
 
-// 설명 :
-int mouse_X = 0, mouse_Y = 0;
+private:
+
+	// 설명 : 
+	gamecompo::ModelViewCompo * my_MVCompo;
+
+	// 설명 : 
+	const unsigned int my_ViewNumber;
+
+	// 설명 : 
+	unsigned int my_AnimNumber;
+
+};
 
 //--------------------------------------------------------------------------------------
 IMPL_FUNC_T(void, entry::OnFrameMove)(
@@ -94,51 +124,12 @@ IMPL_FUNC_T(void, entry::OnMouse)(
 	_In_ int _yPos,
 	_Inout_ void * _userContext)
 {
-	int dx = _xPos - mouse_X;
-	int dy = _yPos - mouse_Y;
-	bool moved = false;
-
-	g_GUIHelper_Entry.onMove(dx, dy);
-
-	if (0 < dx || 0 < dy)
-	{
-		moved = true;
-	}
-
-	if (_buttonsDown[FRAMEWORK_LEFTBUTTON] == 1)
-	{
-		g_GUIHelper_Entry.onClick_Down(i::frame::LBUTTON, _xPos, _yPos);
-
-		if (moved)
-		{
-			g_GUIHelper_Entry.onDrag(i::frame::LBUTTON, _xPos - mouse_X, _yPos - mouse_Y);
-		}
-	}
-	else if (_buttonsDown[FRAMEWORK_LEFTBUTTON] == 2)
-	{
-		g_GUIHelper_Entry.onClick_Up(i::frame::LBUTTON, _xPos, _yPos);
-	}
-
-	if (_buttonsDown[FRAMEWORK_MIDDLEBUTTON])
-	{
-		g_GUIHelper_Entry.onClick_Down(i::frame::WBUTTON, _xPos, _yPos);
-	}
-	else if (_buttonsDown[FRAMEWORK_MIDDLEBUTTON] == 2)
-	{
-		g_GUIHelper_Entry.onClick_Up(i::frame::LBUTTON, _xPos, _yPos);
-	}
-
-	if (_buttonsDown[FRAMEWORK_RIGHTBUTTON])
-	{
-		g_GUIHelper_Entry.onClick_Down(i::frame::RBUTTON, _xPos, _yPos);
-	}
-	else if (_buttonsDown[FRAMEWORK_RIGHTBUTTON] == 2)
-	{
-		g_GUIHelper_Entry.onClick_Up(i::frame::LBUTTON, _xPos, _yPos);
-	}
-
-	mouse_X = _xPos;
-	mouse_Y = _yPos;
+	common::OnMouse(
+		_buttonsDown,
+		_buttonCount,
+		_mouseWheelDelta,
+		_xPos, _yPos,
+		_userContext);
 }
 
 //--------------------------------------------------------------------------------------
@@ -158,12 +149,12 @@ IMPL_FUNC(entry::OnD3D10CreateDevice)(
 	_Inout_ void * _userContext)
 {
 	HRESULT hr = E_FAIL;
-	IF_SUCCEEDED(hr = common::initialize_Common())
+	IF_SUCCEEDED(hr = common::initialize_Common(&g_GUI_Entry))
 	{
 		// layout
-		IF_FAILED(hr = build_EntryLayout(&g_GUI_Entry, 
-			_backBufferSurfaceDesc.Width, 
-			_backBufferSurfaceDesc.Height))
+		IF_FAILED(hr = build_EntryLayout(&g_GUI_Entry,
+			(float)_backBufferSurfaceDesc.Width,
+			(float)_backBufferSurfaceDesc.Height))
 		{
 			return hr;
 		}
@@ -194,7 +185,6 @@ DECL_FUNC_T(void, entry::OnD3D10DestroyDevice)(
 	common::destroy_Common();
 
 	g_GUI_Entry.clear();
-	g_GUIHelper_Entry.restore();
 }
 
 //--------------------------------------------------------------------------------------
@@ -245,7 +235,7 @@ IMPL_FUNC(entry::build_EntryLayout)(
 	borderLayout_0->set_Space(
 		hsdk::i::frame::SPACE_LEFT, 0.05f);
 	borderLayout_0->set_Space(
-		hsdk::i::frame::SPACE_TOP, 0.07f);
+		hsdk::i::frame::SPACE_TOP, 0.14f);
 	borderLayout_0->set_Space(
 		hsdk::i::frame::SPACE_RIGHT, 0.05f);
 	borderLayout_0->set_Space(
@@ -265,6 +255,8 @@ IMPL_FUNC(entry::build_EntryLayout)(
 	stateLayout->set_Layout(borderLayout_0);
 	stateLayout->graphics()->set_image(L"image/layout/notepad.png");
 
+	// 모델 뷰어
+	gamecompo::ModelViewCompo * modelView = nullptr;
 	{
 		// 1
 		try
@@ -273,22 +265,21 @@ IMPL_FUNC(entry::build_EntryLayout)(
 			const wchar_t * modelnames[3] = {
 				L"Arthas.X",
 				L"DeathwingHuman.X",
-				L"tiny_4anim.X" };
+				L"Deathwing.X" };
 
-			// 모델 뷰어
-			gamecompo::ModelViewCompo * modelView = new gamecompo::ModelViewCompo(
+			modelView = new gamecompo::ModelViewCompo(
 				frame::PARENT_RELATION_RELATIVE,
 				L"model/", modelnames, ARRAYSIZE(modelnames));
 
 			modelView->set_X(0.0f);
 			modelView->set_Y(0.0f);
 			modelView->set_Visible(true);
-			modelView->graphics()->set_Background({ 0.0f, 1.0f, 0.0f, 1.0f });
+			modelView->graphics()->set_Background({ 0.0f, 0.0f, 0.0f, 1.0f });
 
 			// 추가
 			stateLayout->add_Component(modelView, i::frame::COMPOSITION_CENTER);
 		}
-		catch (HRESULT hr)
+		catch (...)
 		{
 
 		}
@@ -308,14 +299,14 @@ IMPL_FUNC(entry::build_EntryLayout)(
 			stateLayout->add_Component(notepad, i::frame::COMPOSITION_WEST);
 		}
 	}
-	
+
 	// 주 버튼 레이아웃
 	frame::layout::FlowLayout * flowlayout_0 = new frame::layout::FlowLayout(frame::layout::FLOW_VERTICAL);
 
 	flowlayout_0->set_Space(
 		hsdk::i::frame::SPACE_LEFT, 0.15f);
 	flowlayout_0->set_Space(
-		hsdk::i::frame::SPACE_TOP, 0.2f);
+		hsdk::i::frame::SPACE_TOP, 0.1f);
 	flowlayout_0->set_Space(
 		hsdk::i::frame::SPACE_RIGHT, 0.0f);
 	flowlayout_0->set_Space(
@@ -349,7 +340,7 @@ IMPL_FUNC(entry::build_EntryLayout)(
 		// 2
 		buttons[1] = new frame::ButtonCompo(frame::PARENT_RELATION_RELATIVE);
 		buttons[1]->graphics()->set_image(L"image/layout/button.png");
-		buttons[1]->set_Mouseable(new ToGameButtonEvent());
+		buttons[1]->set_Mouseable(new GoGameButtonEvent());
 
 		// 3
 		buttons[2] = new frame::ButtonCompo(frame::PARENT_RELATION_RELATIVE);
@@ -359,7 +350,7 @@ IMPL_FUNC(entry::build_EntryLayout)(
 		buttons[3] = new frame::ButtonCompo(frame::PARENT_RELATION_RELATIVE);
 		buttons[3]->graphics()->set_image(L"image/layout/button.png");
 
-		for (unsigned int index = 0; index < 4; ++index)
+		for (unsigned int index = 0; index < ARRAYSIZE(buttons); ++index)
 		{
 			buttons[index]->set_X(0.0f);
 			buttons[index]->set_Y(0.0f);
@@ -372,9 +363,9 @@ IMPL_FUNC(entry::build_EntryLayout)(
 	frame::layout::FlowLayout * flowlayout = new frame::layout::FlowLayout(frame::layout::FLOW_HORIZON);
 
 	flowlayout->set_Space(
-		hsdk::i::frame::SPACE_LEFT, 0.15f);
+		hsdk::i::frame::SPACE_LEFT, 0.2f);
 	flowlayout->set_Space(
-		hsdk::i::frame::SPACE_TOP, 0.2f);
+		hsdk::i::frame::SPACE_TOP, 0.3f);
 	flowlayout->set_Space(
 		hsdk::i::frame::SPACE_RIGHT, 0.0f);
 	flowlayout->set_Space(
@@ -383,8 +374,8 @@ IMPL_FUNC(entry::build_EntryLayout)(
 	flowlayout->set_HGap(0.2f);
 	flowlayout->set_VGap(0.1f);
 
-	flowlayout->set_EachWidthAbs(256.0f);
-	flowlayout->set_EachHeightAbs(96.0f);
+	flowlayout->set_EachWidthAbs(64.0f);
+	flowlayout->set_EachHeightAbs(48.0f);
 
 	// 보조 버튼 컨테이너
 	frame::RenderTargetContainer * subButtonContainer = new frame::RenderTargetContainer();
@@ -396,7 +387,35 @@ IMPL_FUNC(entry::build_EntryLayout)(
 	subButtonContainer->set_H(_height);
 	subButtonContainer->set_Layout(flowlayout);
 	subButtonContainer->graphics()->set_image(L"image/layout/subbuttonpad.png");
-	
+
+	{
+		// 구성 요소
+		frame::ButtonCompo * buttons[3];
+
+		// 1
+		buttons[0] = new frame::ButtonCompo(frame::PARENT_RELATION_RELATIVE);
+		buttons[0]->set_Mouseable(new ModelViewChangeButtonEvent(modelView, 0));
+		buttons[0]->graphics()->set_image(L"image/layout/button.png");
+
+		// 2
+		buttons[1] = new frame::ButtonCompo(frame::PARENT_RELATION_RELATIVE);
+		buttons[1]->set_Mouseable(new ModelViewChangeButtonEvent(modelView, 1));
+		buttons[1]->graphics()->set_image(L"image/layout/button.png");
+
+		// 3
+		buttons[2] = new frame::ButtonCompo(frame::PARENT_RELATION_RELATIVE);
+		buttons[2]->set_Mouseable(new ModelViewChangeButtonEvent(modelView, 2));
+		buttons[2]->graphics()->set_image(L"image/layout/button.png");
+
+		for (unsigned int index = 0; index < ARRAYSIZE(buttons); ++index)
+		{
+			buttons[index]->set_X(0.0f);
+			buttons[index]->set_Y(0.0f);
+			buttons[index]->set_Visible(true);
+			subButtonContainer->add_Component(buttons[index]);
+		}
+	}
+
 	// 메인 레이아웃
 	frame::layout::BorderLayout * borderLayout = new frame::layout::BorderLayout();
 
@@ -420,7 +439,7 @@ IMPL_FUNC(entry::build_EntryLayout)(
 	_container->set_H(_height);
 	_container->set_Layout(borderLayout);
 	_container->graphics()->set_image(L"image/background/entry.png");
-	
+
 	// 레이아웃 추가
 	_container->add_Component(stateLayout, i::frame::COMPOSITION_CENTER);
 

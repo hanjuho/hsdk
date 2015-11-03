@@ -263,6 +263,144 @@ CLASS_IMPL_FUNC(D3D10_Factory, create_SkyBoxTexture)(
 }
 
 //--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC(D3D10_Factory, build_MeshBox)(
+	_Out_ D3D10_Mesh & _mesh,
+	_In_ D3DXVECTOR4 color,
+	_In_ float _size)
+{
+	mesh::meshClear(_mesh);
+	_mesh.meshs.resize(1);
+	_mesh.materials.resize(1);
+	_mesh.materials[0].diffuse = color;
+
+	// 결과
+	HRESULT hr = E_FAIL;
+
+	// 매쉬 생성
+	D3D10MY_MESH & refmesh = _mesh.meshs[0];
+	{
+		// Create vertex buffer
+		D3D10_BasicFormat vertices[] =
+		{
+			{ D3DXVECTOR3(-_size, _size, -_size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(0.0f, 0.0f) },
+			{ D3DXVECTOR3(_size, _size, -_size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(1.0f, 0.0f) },
+			{ D3DXVECTOR3(_size, _size, _size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(1.0f, 1.0f) },
+			{ D3DXVECTOR3(-_size, _size, _size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(0.0f, 1.0f) },
+
+			{ D3DXVECTOR3(-_size, -_size, -_size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(0.0f, 0.0f) },
+			{ D3DXVECTOR3(_size, -_size, -_size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(1.0f, 0.0f) },
+			{ D3DXVECTOR3(_size, -_size, _size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(1.0f, 1.0f) },
+			{ D3DXVECTOR3(-_size, -_size, _size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(0.0f, 1.0f) },
+
+			{ D3DXVECTOR3(-_size, -_size, _size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(0.0f, 0.0f) },
+			{ D3DXVECTOR3(-_size, -_size, -_size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(1.0f, 0.0f) },
+			{ D3DXVECTOR3(-_size, _size, -_size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(1.0f, 1.0f) },
+			{ D3DXVECTOR3(-_size, _size, _size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(0.0f, 1.0f) },
+
+			{ D3DXVECTOR3(_size, -_size, _size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(0.0f, 0.0f) },
+			{ D3DXVECTOR3(_size, -_size, -_size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(1.0f, 0.0f) },
+			{ D3DXVECTOR3(_size, _size, -_size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(1.0f, 1.0f) },
+			{ D3DXVECTOR3(_size, _size, _size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(0.0f, 1.0f) },
+
+			{ D3DXVECTOR3(-_size, -_size, -_size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(0.0f, 0.0f) },
+			{ D3DXVECTOR3(_size, -_size, -_size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(1.0f, 0.0f) },
+			{ D3DXVECTOR3(_size, _size, -_size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(1.0f, 1.0f) },
+			{ D3DXVECTOR3(-_size, _size, -_size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(0.0f, 1.0f) },
+
+			{ D3DXVECTOR3(-_size, -_size, _size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(0.0f, 0.0f) },
+			{ D3DXVECTOR3(_size, -_size, _size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(1.0f, 0.0f) },
+			{ D3DXVECTOR3(_size, _size, _size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(1.0f, 1.0f) },
+			{ D3DXVECTOR3(-_size, _size, _size), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(0.0f, 1.0f) },
+		};
+
+		D3D10_BUFFER_DESC vbDesc;
+
+		// x,y,z and u,v
+		vbDesc.ByteWidth = sizeof(vertices);
+		vbDesc.Usage = D3D10_USAGE_DEFAULT;
+		vbDesc.BindFlags = D3D10_BIND_VERTEX_BUFFER;
+		vbDesc.CPUAccessFlags = D3D10_CPU_ACCESS_FLAG(0);
+		vbDesc.MiscFlags = 0;
+
+		// 버텍스 버퍼 내용 추가
+		D3D10_SUBRESOURCE_DATA vbSd;
+		vbSd.pSysMem = vertices;
+
+		// 버텍스 버퍼 생성
+		AutoRelease<ID3D10Buffer> vbBuffer;
+		IF_FAILED(hr = framework::g_Framework_Device.d3d10Device->CreateBuffer(&vbDesc, &vbSd, &vbBuffer))
+		{
+			return hr;
+		}
+
+		refmesh.vetexbuffer.numOfVertices = ARRAYSIZE(vertices);
+		refmesh.vetexbuffer.vertexbuffer = vbBuffer;
+		refmesh.vetexbuffer.vertexbuffers_Offsets = 0;
+		refmesh.vetexbuffer.vertexbuffers_Strides = sizeof(D3D10_BasicFormat);
+
+
+		// Create index buffer
+		// Create vertex buffer
+		unsigned short indices[] =
+		{
+			3, 1, 0,
+			2, 1, 3,
+
+			6, 4, 5,
+			7, 4, 6,
+
+			11, 9, 8,
+			10, 9, 11,
+
+			14, 12, 13,
+			15, 12, 14,
+
+			19, 17, 16,
+			18, 17, 19,
+
+			22, 20, 21,
+			23, 20, 22
+		};
+
+		D3D10_BUFFER_DESC ibDesc;
+		ibDesc.ByteWidth = sizeof(indices);
+		ibDesc.Usage = D3D10_USAGE_DEFAULT;
+		ibDesc.BindFlags = D3D10_BIND_INDEX_BUFFER;
+		ibDesc.CPUAccessFlags = D3D10_CPU_ACCESS_FLAG(0);
+		ibDesc.MiscFlags = 0;
+
+		// 인덱스 버퍼 내용 추가
+		D3D10_SUBRESOURCE_DATA ibSd;
+		ibSd.pSysMem = indices;
+
+		// 인덱스 버퍼 생성
+		AutoRelease<ID3D10Buffer> ibBuffer;
+		IF_FAILED(hr = framework::g_Framework_Device.d3d10Device->CreateBuffer(&ibDesc, &ibSd, &ibBuffer))
+		{
+			return hr;
+		}
+
+		refmesh.indexbuffer.numOfindices = ARRAYSIZE(indices);
+		refmesh.indexbuffer.indexbuffer = ibBuffer;
+		refmesh.indexbuffer.indexType = DXGI_FORMAT_R16_UINT;
+
+
+		refmesh.subsets.resize(1);
+		D3D10MY_RENDER_DESC & refdesc = refmesh.subsets[0];
+		{
+			refdesc.material_id = 0;
+			refdesc.indexCount = ARRAYSIZE(indices);
+			refdesc.indexStart = 0;
+			refdesc.vertexbufferCount = ARRAYSIZE(vertices);
+			refdesc.vertexbufferStart = 0;
+			refdesc.primitiveType = D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		}
+	}
+
+	return hr;
+}
+
+//--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(D3D10_Factory, build_MeshTerran)(
 	_Out_ D3D10_Mesh & _mesh,
 	_In_ const D3D10_Terrain & _terrain,
@@ -278,12 +416,13 @@ CLASS_IMPL_FUNC(D3D10_Factory, build_MeshTerran)(
 	// 매쉬 생성
 	D3D10MY_MESH & refmesh = _mesh.meshs[0];
 	{
+
 		std::vector<D3D10_BasicFormat> ptr_vertexs(_terrain.vertices);
 		{
 			// compute the increment size of the texture coordinates
 			// from one vertex to the next.
-			double uCoordIncrementSize = 1.0f / double(_terrain.cellsPerRow);
-			double vCoordIncrementSize = 1.0f / double(_terrain.cellsPerCol);
+			double uCoordIncrementSize = 1.0f / double(_terrain.row);
+			double vCoordIncrementSize = 1.0f / double(_terrain.col);
 
 			// coordinates to start generating vertices at
 			double X = -abs(long(_terrain.width) / 2.0);
@@ -295,9 +434,10 @@ CLASS_IMPL_FUNC(D3D10_Factory, build_MeshTerran)(
 			unsigned long B = 0;
 			while (count < _terrain.vertices)
 			{
+				float y = _heightbuffer[A * _terrain.verticsPerRow + B];
 				ptr_vertexs[count].pos = D3DXVECTOR3(
 					float(X + (B * _terrain.xCellSpacing)),
-					_heightbuffer[A * _terrain.verticsPerRow + B],
+					y,
 					float(Z - (A * _terrain.zCellSpacing)));
 
 				ptr_vertexs[count].tex = D3DXVECTOR2(
@@ -326,8 +466,6 @@ CLASS_IMPL_FUNC(D3D10_Factory, build_MeshTerran)(
 			// 버텍스 버퍼 내용 추가
 			D3D10_SUBRESOURCE_DATA vbSd;
 			vbSd.pSysMem = &ptr_vertexs[0];
-			vbSd.SysMemPitch = 0;
-			vbSd.SysMemSlicePitch = 0;
 
 			// 버텍스 버퍼 생성
 			AutoRelease<ID3D10Buffer> vbBuffer;
@@ -343,23 +481,24 @@ CLASS_IMPL_FUNC(D3D10_Factory, build_MeshTerran)(
 		}
 
 		// 인덱스 버퍼 내용 생성
-		std::vector<unsigned long> ptr_indices(_terrain.triangles * 3);
+		std::vector<unsigned int> ptr_indices(_terrain.triangles * 3);
 		{
+
 			// 인덱스
-			unsigned long index = 0;
+			unsigned int index = 0;
 
 			// loop through and compute the triangles of each quad
-			for (unsigned long A = 0; A < _terrain.cellsPerCol; ++A)
+			for (unsigned int A = 0; A < _terrain.col; ++A)
 			{
-				for (unsigned long B = 0; B < _terrain.cellsPerRow; ++B)
+				for (unsigned int B = 0; B < _terrain.row; ++B)
 				{
-					ptr_indices[index] = unsigned long(A * _terrain.verticsPerRow + B);
-					ptr_indices[index + 1] = unsigned long(A * _terrain.verticsPerRow + B + 1);
-					ptr_indices[index + 2] = unsigned long((A + 1) * _terrain.verticsPerRow + B);
+					ptr_indices[index] = unsigned int(A * _terrain.verticsPerRow + B);
+					ptr_indices[index + 1] = unsigned int(A * _terrain.verticsPerRow + B + 1);
+					ptr_indices[index + 2] = unsigned int((A + 1) * _terrain.verticsPerRow + B);
 
-					ptr_indices[index + 3] = unsigned long((A + 1) * _terrain.verticsPerRow + B);
-					ptr_indices[index + 4] = unsigned long(A * _terrain.verticsPerRow + B + 1);
-					ptr_indices[index + 5] = unsigned long((A + 1) * _terrain.verticsPerRow + B + 1);
+					ptr_indices[index + 3] = unsigned int((A + 1) * _terrain.verticsPerRow + B);
+					ptr_indices[index + 4] = unsigned int(A * _terrain.verticsPerRow + B + 1);
+					ptr_indices[index + 5] = unsigned int((A + 1) * _terrain.verticsPerRow + B + 1);
 
 					// next quad
 					index += 6;
@@ -367,17 +506,15 @@ CLASS_IMPL_FUNC(D3D10_Factory, build_MeshTerran)(
 			}
 
 			D3D10_BUFFER_DESC ibDesc;
-			ibDesc.ByteWidth = ptr_indices.size() * sizeof(unsigned long);
+			ibDesc.ByteWidth = ptr_indices.size() * sizeof(unsigned int);
 			ibDesc.Usage = D3D10_USAGE_DEFAULT;
-			ibDesc.BindFlags = D3D10_BIND_VERTEX_BUFFER;
+			ibDesc.BindFlags = D3D10_BIND_INDEX_BUFFER;
 			ibDesc.CPUAccessFlags = D3D10_CPU_ACCESS_FLAG(0);
 			ibDesc.MiscFlags = 0;
 
 			// 인덱스 버퍼 내용 추가
 			D3D10_SUBRESOURCE_DATA ibSd;
 			ibSd.pSysMem = &ptr_indices[0];
-			ibSd.SysMemPitch = 0;
-			ibSd.SysMemSlicePitch = 0;
 
 			// 인덱스 버퍼 생성
 			AutoRelease<ID3D10Buffer> ibBuffer;
@@ -829,6 +966,9 @@ CLASS_IMPL_FUNC(D3D10_Factory, build_MeshFromFile)(
 		}
 
 		{
+			D3DXVECTOR3 minV = D3DXVECTOR3(D3D10_FLOAT32_MAX, D3D10_FLOAT32_MAX, D3D10_FLOAT32_MAX);
+			D3DXVECTOR3 maxV = -D3DXVECTOR3(D3D10_FLOAT32_MAX, D3D10_FLOAT32_MAX, D3D10_FLOAT32_MAX);
+
 			std::vector<D3D10_SkinnedFormat> vbuffer(mesh.mNumVertices);
 			D3D10_SkinnedFormat * formatBuffer = &vbuffer[0];
 
@@ -840,6 +980,9 @@ CLASS_IMPL_FUNC(D3D10_Factory, build_MeshFromFile)(
 			{
 				D3D10_SkinnedFormat & format = formatBuffer[vindex];
 				memcpy(&format.pos, &mesh.mVertices[vindex], sizeof(D3DXVECTOR3));
+
+				D3DXVec3Minimize(&minV, &format.pos, &minV);
+				D3DXVec3Maximize(&maxV, &format.pos, &maxV);
 
 				if (mesh.mNormals)
 				{
@@ -856,6 +999,7 @@ CLASS_IMPL_FUNC(D3D10_Factory, build_MeshFromFile)(
 					memcpy(&format.color, &mesh.mColors[0][vindex], sizeof(D3DXVECTOR4));
 				}
 			}
+			refmesh.boundingBox = (maxV - minV) * 0.5f;
 
 			if (_animation)
 			{

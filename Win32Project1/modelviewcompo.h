@@ -22,10 +22,10 @@ namespace gamecompo
 			direct3d::D3D10_Mesh mesh;
 
 			// 설명 : 
-			direct3d::D3D10_Animation meshAnimation;
+			direct3d::D3D10_Animation anim;
 
 			// 설명 : 
-			direct3d::D3D10_Animation_Recorder meshPos;
+			direct3d::D3D10_Animation_Recorder pos;
 
 		};
 
@@ -68,7 +68,8 @@ namespace gamecompo
 
 		// 설명 :
 		CLASS_DECL_FUNC_T(void, select_Model)(
-			_In_ unsigned int _index);
+			_In_ unsigned int _index,
+			_In_ unsigned int _animation);
 
 	protected:
 		
@@ -99,7 +100,7 @@ namespace gamecompo
 		std::vector<Model> my_Models;
 
 		// 설명 :
-		unsigned int my_ViewModel = 1;
+		unsigned int my_ViewModel = 0;
 
 	};
 }

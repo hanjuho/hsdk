@@ -365,7 +365,6 @@ CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_Skinned)(
 		{
 			const D3D10MY_RENDER_DESC & desc = begin->subsets[irender];
 			const D3D10MY_MATERIAL & material = _mesh.materials[desc.material_id];
-
 			set_TextureDiffuse(material.diffuseRV);
 			set_TextureNormal(material.normalRV);
 			set_TextureNormal(material.normalRV);
@@ -374,9 +373,7 @@ CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_Skinned)(
 			set_ColorSpecular((float *)&material.specular);
 			set_ColorEmissive((float *)&material.emissive);
 			set_ScalarShininess(material.shininess);
-
 			g_refDevice_1->IASetPrimitiveTopology(desc.primitiveType);
-
 			g_Skinned0_Technique->GetPassByIndex(_pass)->Apply(0);
 			g_refDevice_1->DrawIndexed(
 				desc.indexCount,
@@ -411,11 +408,9 @@ CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_Mesh)(
 		for (unsigned int irender = 0; irender < begin->subsets.size(); ++irender)
 		{
 			const D3D10MY_RENDER_DESC & desc = begin->subsets[irender];
-
+			set_ColorDiffuse(_mesh.materials[desc.material_id].diffuse);
 			set_TextureDiffuse(_mesh.materials[desc.material_id].diffuseRV);
-
 			g_refDevice_1->IASetPrimitiveTopology(desc.primitiveType);
-
 			g_Basic_Technique->GetPassByIndex(0)->Apply(0);
 			g_refDevice_1->DrawIndexed(
 				desc.indexCount,
@@ -450,11 +445,9 @@ CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_SkyBox)(
 		for (unsigned int irender = 0; irender < begin->subsets.size(); ++irender)
 		{
 			const D3D10MY_RENDER_DESC & desc = begin->subsets[irender];
-
-			set_TextureDiffuse(_mesh.materials[desc.material_id].diffuseRV);
-
+			set_ColorDiffuse(_mesh.materials[desc.material_id].diffuse);
+			set_TextureSkyBox(_mesh.materials[desc.material_id].diffuseRV);
 			g_refDevice_1->IASetPrimitiveTopology(desc.primitiveType);
-
 			g_SkyBox0_Technique->GetPassByIndex(0)->Apply(0);
 			g_refDevice_1->DrawIndexed(
 				desc.indexCount,
@@ -477,7 +470,7 @@ CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_UIRectangle)(
 	g_refDevice_1->IASetIndexBuffer(g_Sprite_IBuffer, DXGI_FORMAT_R16_UINT, 0);
 	g_refDevice_1->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	g_Basic_Technique->GetPassByIndex(0)->Apply(0);
+	g_Basic_Technique->GetPassByIndex(1)->Apply(0);
 	g_refDevice_1->DrawIndexed(6, 0, 0);
 }
 
@@ -494,7 +487,7 @@ CLASS_IMPL_FUNC_T(D3D10_Renderer, void, render_UITexture)(
 	g_refDevice_1->IASetIndexBuffer(g_Sprite_IBuffer, DXGI_FORMAT_R16_UINT, 0);
 	g_refDevice_1->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	g_Basic_Technique->GetPassByIndex(0)->Apply(0);
+	g_Basic_Technique->GetPassByIndex(1)->Apply(0);
 	g_refDevice_1->DrawIndexed(6, 0, 0);
 }
 
@@ -687,6 +680,13 @@ D3DXMATRIX hsdk::direct3d::g_D3D10_ViewMatrix = {
 
 // 설명 :
 D3DXMATRIX hsdk::direct3d::g_D3D10_ProjMatrix = {
+	1.0, 0.0, 0.0, 0.0,
+	0.0, 1.0, 0.0, 0.0,
+	0.0, 0.0, 1.0, 0.0,
+	0.0, 0.0, 0.0, 1.0, };
+
+// 설명 :
+D3DXMATRIX hsdk::direct3d::g_D3D10_ViewProjMatrix = {
 	1.0, 0.0, 0.0, 0.0,
 	0.0, 1.0, 0.0, 0.0,
 	0.0, 0.0, 1.0, 0.0,

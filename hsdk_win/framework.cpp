@@ -1681,7 +1681,7 @@ LRESULT CALLBACK direct3D_LowLevelKeyboardProc(
 Framework hsdk::framework::g_Framework;
 
 // 설명 : 
-Framework_UserTimeStream & hsdk::framework::g_Direct3D_TimeStream = g_TimeStream;
+Framework_UserTimeStream & hsdk::framework::g_Framework_TimeStream = g_TimeStream;
 
 // 설명 : you can read / write
 Framework_Callbacks & hsdk::framework::g_Framework_Callbacks = g_Callbacks;

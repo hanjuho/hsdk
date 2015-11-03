@@ -23,11 +23,18 @@ CLASS_IMPL_CONSTRUCTOR(ModelViewCompo, ModelViewCompo)(
 	HRESULT hr = E_FAIL;
 	for (unsigned int index = 0; index < _size; ++index)
 	{
+		Model & model = my_Models[index];
 		if (SUCCEEDED(hr = direct3d::g_D3D10_Factory.build_MeshFromFile(
-			my_Models[index].mesh, _path, _names[index], &my_Models[index].meshAnimation)))
+			model.mesh,
+			_path,
+			_names[index],
+			&model.anim)))
 		{
-			direct3d::animation::build_Pos(my_Models[index].meshPos,
-				my_Models[index].meshAnimation,	0, 0.0f);
+			direct3d::animation::build_Pos(
+				model.pos,
+				model.anim,
+				0,
+				0.0f);
 		}
 		else
 		{
@@ -35,8 +42,11 @@ CLASS_IMPL_CONSTRUCTOR(ModelViewCompo, ModelViewCompo)(
 		}
 	}
 
-	my_Camera.set_Position(D3DXVECTOR3(0.0f, 0.5f, -5.0f));
-	my_Camera.set_Position(my_mView);
+	my_Camera.set_Position(D3DXVECTOR3(0.0f, 1.0f, 3.0f));
+	my_Camera.set_Target(D3DXVECTOR3(0.0f, 0.5f, 0.0f));
+	my_Camera.rotate_ZAxis(D3DX_PI);
+
+	my_Camera.compute_ViewMatrix(my_mView);
 }
 
 //--------------------------------------------------------------------------------------
@@ -63,17 +73,9 @@ CLASS_IMPL_FUNC_T(ModelViewCompo, void, onDrag)(
 {
 	if (my_CameraControl)
 	{
-		my_Camera.rotate_YAxis(D3DXToDegree(_x) * 0.000001f);
-		my_Camera.rotate_XAxis(D3DXToDegree(_y) * 0.000001f);
-		my_Camera.compute_ViewMatrix(my_mView);
+		my_Camera.rotate_YAxis(D3DXToDegree(_x) * 0.001f, true);
+		my_Camera.rotate_XAxis(D3DXToDegree(_y) * 0.001f, true);
 
-		const float * dir = my_Camera.get_ZDir();
-		D3DXVECTOR3 position(
-			-(dir[0] * 3.0f),
-			0.5f -(dir[1] * 3.0f),
-			-(dir[2] * 3.0f));
-
-		my_Camera.set_Position(position);
 		my_Camera.compute_ViewMatrix(my_mView);
 	}
 }
@@ -82,12 +84,12 @@ CLASS_IMPL_FUNC_T(ModelViewCompo, void, onDrag)(
 CLASS_IMPL_FUNC_T(ModelViewCompo, void, update)(
 	_X_ void)
 {
-	my_Models[my_ViewModel].meshPos.time += 
-		framework::g_Direct3D_TimeStream.get_ElapsedTime();
+	my_Models[my_ViewModel].pos.time +=
+		framework::g_Framework_TimeStream.get_ElapsedTime();
 
 	direct3d::animation::animate_Pos(
-		my_Models[my_ViewModel].meshPos,
-		my_Models[my_ViewModel].meshAnimation);
+		my_Models[my_ViewModel].pos,
+		my_Models[my_ViewModel].anim);
 }
 
 //--------------------------------------------------------------------------------------
@@ -135,15 +137,14 @@ CLASS_IMPL_FUNC_T(ModelViewCompo, void, render)(
 
 			D3DXMATRIX t;
 			direct3d::g_D3D10_Renderer.set_MatrixWorldViewProj(D3DXMatrixMultiply(&t, &my_mView, &my_mProj));
-			direct3d::g_D3D10_Renderer.set_MatrixWorld(&direct3d::g_D3D10_identityMatrix);
 
 			direct3d::g_D3D10_Renderer.set_ScalarVSFlag(0);
 			direct3d::g_D3D10_Renderer.set_ScalarPSFlag(direct3d::PS_TEXTURE_0);
 
 			direct3d::g_D3D10_Renderer.render_Skinned(
 				my_Models[my_ViewModel].mesh,
-				my_Models[my_ViewModel].meshAnimation,
-				my_Models[my_ViewModel].meshPos, 1);
+				my_Models[my_ViewModel].anim,
+				my_Models[my_ViewModel].pos, 1);
 
 			my_RenderTarget.end();
 		}
@@ -160,14 +161,19 @@ CLASS_IMPL_FUNC_T(ModelViewCompo, void, render)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(ModelViewCompo, void, select_Model)(
-	_In_ unsigned int _index)
+	_In_ unsigned int _index,
+	_In_ unsigned int _animation)
 {
 	if (_index < my_Models.size())
 	{
+		Model & refmodel = my_Models[my_ViewModel];
 		my_ViewModel = _index;
-		my_Models[my_ViewModel].meshPos.time = 0.0f;
+
+		refmodel.pos.time = 0.0f;
+		refmodel.pos.aniamtionID =
+			_animation % refmodel.anim.animations.size();
+
 		direct3d::animation::reset_Pos(
-			my_Models[my_ViewModel].meshPos,
-			my_Models[my_ViewModel].meshAnimation);
+			refmodel.pos, refmodel.anim);
 	}
 }
