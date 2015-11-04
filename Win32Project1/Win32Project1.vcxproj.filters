@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="게임오브젝트">
+      <UniqueIdentifier>{e8dc2924-6526-4ae1-8edf-2b4caa4b721d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="물리엔진">
+      <UniqueIdentifier>{8e5df2ed-30ff-4d38-93b3-bc5af78e162e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="entry.h">
@@ -27,8 +33,11 @@
     <ClInclude Include="modelviewcompo.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="헤더.h">
+      <Filter>게임오브젝트</Filter>
+    </ClInclude>
     <ClInclude Include="bullet_engine.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>물리엔진</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -50,7 +59,7 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="bullet_engine.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>물리엔진</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

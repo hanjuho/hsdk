@@ -1,6 +1,6 @@
 #include "game.h"
 #include "entry.h"
-#include "bullet_engine.h"
+
 
 
 // (256 + 1) * (16 + 1)
@@ -8,6 +8,7 @@
 #define TERRAINWIDTH 256
 #define TERRAINDEPTH 16
 #define BOXSIZE 1.5f
+
 
 
 //--------------------------------------------------------------------------------------
@@ -33,11 +34,13 @@ direct3d::D3D10_Mesh g_BoxMesh;
 direct3d::D3D10_Mesh mesh;
 direct3d::D3D10_Animation anim;
 
-struct BodyBody
+DECL_STRUCT(BodyBody)
 {
 
+	// 설명 : 
 	btRigidBody * body;
 
+	// 설명 : 
 	direct3d::D3D10_Animation_Recorder pos;
 
 };
@@ -65,7 +68,6 @@ public:
 		entry::initialize_Entry(nullptr);
 	}
 };
-
 
 //--------------------------------------------------------------------------------------
 class ScreenMouseEvent :
@@ -231,7 +233,7 @@ IMPL_FUNC_T(void, game::OnKeyboard)(
 		form.setOrigin(btVector3(0.0f, 10.0f, 0.0f));
 
 		btRigidBody * body = g_Engine.add(form, new btBoxShape(btVector3(
-			BOXSIZE, BOXSIZE, BOXSIZE)), 10.0f);		
+			BOXSIZE, BOXSIZE, BOXSIZE)), 10.0f);
 
 		if (body)
 		{
@@ -290,6 +292,7 @@ IMPL_FUNC(game::OnD3D10CreateDevice)(
 	HRESULT hr = E_FAIL;
 	IF_SUCCEEDED(hr = common::initialize_Common(&g_GUI_Game))
 	{
+
 		// model
 		direct3d::g_D3D10_Factory.build_MeshFromFile(
 			mesh, L"model/", L"Deathwing.X", &anim);
@@ -345,7 +348,7 @@ IMPL_FUNC(game::OnD3D10CreateDevice)(
 		}
 
 		// 물리 엔진
-		g_Engine.setup0_World(300, 300, 300);
+		g_Engine.setup0_World(300, 300, 300, game::callback_CollisionResult);
 		g_Engine.setup1_Terrain(TERRAINWIDTH, TERRAINDEPTH, heightbuffer, TERRAINHEIGHTBUFFER);
 
 		// layout
@@ -390,6 +393,14 @@ DECL_FUNC_T(void, game::OnD3D10DestroyDevice)(
 	g_Engine.reset();
 
 	g_GUI_Game.clear();
+}
+
+//--------------------------------------------------------------------------------------
+IMPL_FUNC_T(void, game::callback_CollisionResult)(
+	_In_ const btPersistentManifold & _manifold,
+	_In_ btScalar _timeStep)
+{
+	int a = 0;
 }
 
 //--------------------------------------------------------------------------------------

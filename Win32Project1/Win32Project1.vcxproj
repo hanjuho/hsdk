@@ -93,6 +93,7 @@
     <ClInclude Include="entry.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="modelviewcompo.h" />
+    <ClInclude Include="헤더.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="common.inl" />

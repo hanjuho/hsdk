@@ -93,9 +93,6 @@ COPY "$(OutDir)hsdk_game.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\actionlayer.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\datatable\buildingdatatable.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\datatable\characterdatatable.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\datatable\objectdatatable.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\gameobject.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\actionlayer.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\actiontable.h" />
@@ -111,10 +108,7 @@ COPY "$(OutDir)hsdk_game.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="actionlayer.cpp" />
-    <ClCompile Include="buildingdatatable.cpp" />
-    <ClCompile Include="characterdatatable.cpp" />
     <ClCompile Include="gameobject.cpp" />
-    <ClCompile Include="objectdatatable.cpp" />
     <ClCompile Include="소스.cpp" />
     <ClCompile Include="controller.cpp" />
     <ClCompile Include="actionbase.cpp" />

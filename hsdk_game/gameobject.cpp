@@ -34,21 +34,21 @@ CLASS_IMPL_DESTRUCTOR(GameObject, GameObject)(void)
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(GameObject, i::i_DataTable *, datatalbe)(
-	/* [void] */ void)const
+	_X_ void)const
 {
 	return m_DataTable;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(GameObject, i::i_Controller *, controller)(
-	/* [void] */ void)const
+	_X_ void)const
 {
 	return m_Controller;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(GameObject, i::i_ModelRenderer *, renderer)(
-	/* [void] */ void)const
+	_X_ void)const
 {
 	return m_Renderer;
 }
