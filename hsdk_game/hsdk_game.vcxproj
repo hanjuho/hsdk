@@ -10,6 +10,30 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\actionbase.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\actionlayer.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\controller.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\gameobject.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\actionlayer.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\actionlistener.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\actiontable.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\common.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\controller.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\datatable.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\gameobject.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\modelrenderer.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\modelrenderer.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\physics\bullet_engine.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\actionbase.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\actionlayer.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\controller.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\gameobject.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\modelrenderer.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\physics\bullet_engine.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{DC2C6C89-6703-44BD-8784-402B66596C68}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -17,13 +41,13 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -41,14 +65,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SDK_DIR)hsdk\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(LibraryPath)</LibraryPath>
     <OutDir>..\..\..\bin</OutDir>
+    <LibraryPath>$(SDK_DIR)bullet\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SDK_DIR)hsdk\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(LibraryPath)</LibraryPath>
     <OutDir>..\..\..\bin</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -59,14 +80,14 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;HSDK_EXPORT;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SDK_DIR)bullet\src;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>COPY "$(OutDir)hsdk_game.lib" "$(SDK_DIR)hsdk\lib" /y
-COPY "$(OutDir)hsdk_game.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
+      <Command>COPY "$(OutDir)hsdk_game.lib" "$(SDK_DIR)hsdk\lib" /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -87,33 +108,9 @@ COPY "$(OutDir)hsdk_game.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>COPY "$(OutDir)hsdk_game.lib" "$(SDK_DIR)hsdk\lib" /y
-COPY "$(OutDir)hsdk_game.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
+      <Command>COPY "$(OutDir)hsdk_game.lib" "$(SDK_DIR)hsdk\lib" /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\actionlayer.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\gameobject.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\actionlayer.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\actiontable.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\common.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\controller.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\datatable.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\gameobject.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\modelrenderer.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\controller.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\actionlistener.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\actionbase.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\modelrenderer.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="actionlayer.cpp" />
-    <ClCompile Include="gameobject.cpp" />
-    <ClCompile Include="소스.cpp" />
-    <ClCompile Include="controller.cpp" />
-    <ClCompile Include="actionbase.cpp" />
-    <ClCompile Include="modelrenderer.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

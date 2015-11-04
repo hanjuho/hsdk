@@ -3,7 +3,7 @@
 
 
 #include "common.h"
-#include "bullet_engine.h"
+#include "game/physics/bullet_engine.h"
 
 
 
@@ -14,7 +14,7 @@ namespace game
 	DECL_FUNC_T(void, callback_CollisionResult)(
 		_In_ const btPersistentManifold & _manifold,
 		_In_ btScalar _timeStep);
-	
+
 	// Ό³Έν :
 	DECL_FUNC(initialize_Game)(
 		_In_ void * _context);

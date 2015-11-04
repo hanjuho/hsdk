@@ -16,7 +16,7 @@
 //--------------------------------------------------------------------------------------
 
 // 설명 : 
-frame::Container g_GUI_Game;
+common::GUI_Target g_GUI_Game;
 
 // 설명 :
 FMOD::Sound * g_Sound_Background1;
@@ -26,29 +26,6 @@ FMOD::Channel * g_Sound_Controller1;
 direct3d::D3D10_Terrain g_Terrain;
 direct3d::D3D10_Mesh g_TerrainMesh;
 direct3d::D3D10_Mesh g_SkyMesh;
-
-// 설명 :
-direct3d::D3D10_Mesh g_BoxMesh;
-
-// 설명 : 
-direct3d::D3D10_Mesh mesh;
-direct3d::D3D10_Animation anim;
-
-DECL_STRUCT(BodyBody)
-{
-
-	// 설명 : 
-	btRigidBody * body;
-
-	// 설명 : 
-	direct3d::D3D10_Animation_Recorder pos;
-
-};
-
-// 설명 : 
-bullet::Bullet_Engine g_Engine(1.0f);
-std::list<BodyBody> g_Bodys;
-btRigidBody * g_Controller;
 
 // 설명 : 
 framework::Framework_Camera g_Camera;
@@ -116,18 +93,6 @@ IMPL_FUNC_T(void, game::OnFrameMove)(
 	sound::g_FMOD_SoundDevice.play();
 
 	g_GUI_Game.update();
-
-	g_Engine.update(_fElapsedTime);
-
-	if (g_Bodys.empty())
-	{
-		g_Controller = nullptr;
-	}
-	else
-	{
-		g_Controller = 
-			g_Bodys.front().body;
-	}
 }
 
 //--------------------------------------------------------------------------------------
@@ -147,37 +112,6 @@ IMPL_FUNC_T(void, game::OnD3D10FrameRender)(
 	_d3dDevice->ClearRenderTargetView(pRTV, ClearColor);
 	ID3D10DepthStencilView * pDSV = framework::g_Framework_Device.d3d10DSV;
 	_d3dDevice->ClearDepthStencilView(pDSV, D3D10_CLEAR_DEPTH, 1.0, 0);
-
-	direct3d::g_D3D10_Renderer.set_MatrixWorldViewProj(&direct3d::g_D3D10_ViewProjMatrix);
-	direct3d::g_D3D10_Renderer.set_ScalarVSFlag(0);
-	direct3d::g_D3D10_Renderer.set_ScalarPSFlag(direct3d::PS_TEXTURE_0);
-	direct3d::g_D3D10_Renderer.render_SkyBox(g_SkyMesh);
-	direct3d::g_D3D10_Renderer.render_Mesh(g_TerrainMesh);
-
-	auto begin = g_Bodys.begin();
-	auto end = g_Bodys.end();
-
-	direct3d::g_D3D10_Renderer.set_ScalarVSFlag(0);
-	direct3d::g_D3D10_Renderer.set_ScalarPSFlag(direct3d::PS_TEXTURE_0);
-	
-	while (begin != end)
-	{
-		BodyBody & body = (*begin);
-
-		btDefaultMotionState * dms = (
-			btDefaultMotionState *)body.body->getMotionState();
-
-		D3DXMATRIX t;
-		dms->m_graphicsWorldTrans.getOpenGLMatrix((btScalar *)&t);
-		t = t * direct3d::g_D3D10_ViewProjMatrix;
-
-		direct3d::g_D3D10_Renderer.set_MatrixWorldViewProj(&t);
-		body.pos.time += _fElapsedTime;
-		direct3d::animation::animate_Pos(body.pos, anim);
-		direct3d::g_D3D10_Renderer.render_Skinned(mesh, anim, body.pos);
-
-		++begin;
-	}
 	
 	g_GUI_Game.render();
 }
@@ -211,7 +145,7 @@ IMPL_FUNC_T(void, game::OnMouse)(
 	_In_ int _yPos,
 	_Inout_ void * _userContext)
 {
-	common::OnMouse(
+	common::OnMouse_GUI(
 		_buttonsDown,
 		_buttonCount,
 		_mouseWheelDelta,
@@ -226,61 +160,7 @@ IMPL_FUNC_T(void, game::OnKeyboard)(
 	_In_ short _bAltDown,
 	_Inout_ void * _userContext)
 {
-	if (_nKey == 'Q')
-	{
-		btTransform form;
-		form.setIdentity();
-		form.setOrigin(btVector3(0.0f, 10.0f, 0.0f));
 
-		btRigidBody * body = g_Engine.add(form, new btBoxShape(btVector3(
-			BOXSIZE, BOXSIZE, BOXSIZE)), 10.0f);
-
-		if (body)
-		{
-			g_Bodys.push_back({ body });
-			direct3d::animation::build_Pos(g_Bodys.back().pos, anim, 0, 0.0f);
-		}
-	}
-
-	if (g_Controller)
-	{
-		btDefaultMotionState * dms =
-			(btDefaultMotionState *)g_Controller->getMotionState();
-		
-		float time = framework::g_Framework_TimeStream.get_ElapsedTime();
-		if (_nKey == VK_UP)
-		{
-			g_Controller->applyCentralImpulse(
-			{ 0.0f, 0.0f, 5.0f });
-		}
-
-		if (_nKey == VK_DOWN)
-		{
-			g_Controller->applyCentralImpulse(
-			{ 0.0f, 0.0f, -5.0f });
-		}
-
-		if (_nKey == VK_LEFT)
-		{
-			g_Controller->applyCentralImpulse(
-			{ -5.0f, 0.0f, 0.0f });
-		}
-
-		if (_nKey == VK_RIGHT)
-		{
-			g_Controller->applyCentralImpulse(
-			{ 5.0f, 0.0f, 0.0f });
-		}
-
-		if (_nKey == VK_SPACE)
-		{
-			g_Controller->applyCentralImpulse(
-			{ 0.0f, 5.0f, 0.0f });
-		}
-
-		dms->m_graphicsWorldTrans.setIdentity();
-		g_Controller->activate(true);
-	}
 }
 
 //--------------------------------------------------------------------------------------
@@ -292,11 +172,6 @@ IMPL_FUNC(game::OnD3D10CreateDevice)(
 	HRESULT hr = E_FAIL;
 	IF_SUCCEEDED(hr = common::initialize_Common(&g_GUI_Game))
 	{
-
-		// model
-		direct3d::g_D3D10_Factory.build_MeshFromFile(
-			mesh, L"model/", L"Deathwing.X", &anim);
-
 		g_Camera.set_Position(D3DXVECTOR3(0.0f, 20.0f, -50.0f));
 		g_Camera.set_Hinge(50.0f);
 		//g_Camera.set_Target(D3DXVECTOR3(0.0f, 10.0f, 0.0f));
@@ -334,9 +209,6 @@ IMPL_FUNC(game::OnD3D10CreateDevice)(
 			direct3d::g_D3D10_Factory.build_MeshTerran(
 				g_TerrainMesh, g_Terrain, heightbuffer);
 
-			direct3d::g_D3D10_Factory.build_MeshBox(
-				g_BoxMesh, { 1.0f, 0.0f, 0.0f, 1.0f }, BOXSIZE);
-
 			//
 			ID3D10ShaderResourceView * view;
 			IF_SUCCEEDED(direct3d::g_D3D10_Factory.get_Texture(
@@ -348,8 +220,9 @@ IMPL_FUNC(game::OnD3D10CreateDevice)(
 		}
 
 		// 물리 엔진
-		g_Engine.setup0_World(300, 300, 300, game::callback_CollisionResult);
-		g_Engine.setup1_Terrain(TERRAINWIDTH, TERRAINDEPTH, heightbuffer, TERRAINHEIGHTBUFFER);
+		bullet::g_BulletEngine.reset();
+		bullet::g_BulletEngine.setup0_World(300, 300, 300, game::callback_CollisionResult);
+		bullet::g_BulletEngine.setup1_Terrain(TERRAINWIDTH, TERRAINDEPTH, heightbuffer, TERRAINHEIGHTBUFFER);
 
 		// layout
 		IF_FAILED(hr = build_GameLayout(&g_GUI_Game,
@@ -384,23 +257,11 @@ DECL_FUNC_T(void, game::OnD3D10DestroyDevice)(
 {
 	common::destroy_Common();
 
+	bullet::g_BulletEngine.reset();
 	direct3d::mesh::meshClear(g_TerrainMesh);
 	direct3d::mesh::meshClear(g_SkyMesh);
-	direct3d::mesh::meshClear(g_BoxMesh);
-	direct3d::mesh::meshClear(mesh);
-
-	g_Bodys.clear();
-	g_Engine.reset();
 
 	g_GUI_Game.clear();
-}
-
-//--------------------------------------------------------------------------------------
-IMPL_FUNC_T(void, game::callback_CollisionResult)(
-	_In_ const btPersistentManifold & _manifold,
-	_In_ btScalar _timeStep)
-{
-	int a = 0;
 }
 
 //--------------------------------------------------------------------------------------
@@ -497,4 +358,12 @@ IMPL_FUNC(game::build_GameLayout)(
 	_container->reform();
 
 	return S_OK;
+}
+
+//--------------------------------------------------------------------------------------
+IMPL_FUNC_T(void, game::callback_CollisionResult)(
+	_In_ const btPersistentManifold & _manifold,
+	_In_ btScalar _timeStep)
+{
+	int a = 0;
 }

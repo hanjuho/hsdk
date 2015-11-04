@@ -2,15 +2,15 @@
 
 //--------------------------------------------------------------------------------------
 IMPL_FUNC(common::initialize_Common)(
-	_In_ frame::Container * _container)
+	_In_ GUI_Target * _guiTarget)
 {
-	HRESULT hr = sound::g_FMOD_SoundDevice.initialize() | direct3d::g_D3D10_Renderer.initialize(L"shader/");
+	HRESULT hr = ADD_FLAG(sound::g_FMOD_SoundDevice.initialize(), direct3d::g_D3D10_Renderer.initialize(L"shader/"));
 	IF_SUCCEEDED(hr)
 	{
 		float pos[3] = { 0.0f, 0.0f, 0.0f };
 		sound::g_FMOD_SoundDevice.move(pos);
 
-		g_GUIHelper.restore(_container);
+		g_GUIHelper.restore(_guiTarget);
 	}
 
 	return hr;
@@ -43,7 +43,7 @@ IMPL_FUNC(common::OnD3D10SwapchainResized)(
 }
 
 //--------------------------------------------------------------------------------------
-IMPL_FUNC_T(void, common::OnMouse)(
+IMPL_FUNC_T(void, common::OnMouse_GUI)(
 	_In_ const short * _buttonsDown,
 	_In_ unsigned int _buttonCount,
 	_In_ int _mouseWheelDelta,

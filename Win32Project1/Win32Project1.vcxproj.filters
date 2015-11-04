@@ -33,11 +33,14 @@
     <ClInclude Include="modelviewcompo.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="헤더.h">
+    <ClInclude Include="gomodelrenderer.h">
       <Filter>게임오브젝트</Filter>
     </ClInclude>
-    <ClInclude Include="bullet_engine.h">
-      <Filter>물리엔진</Filter>
+    <ClInclude Include="godatatable.h">
+      <Filter>게임오브젝트</Filter>
+    </ClInclude>
+    <ClInclude Include="gomain.h">
+      <Filter>게임오브젝트</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -58,8 +61,8 @@
     <ClCompile Include="modelviewcompo.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="bullet_engine.cpp">
-      <Filter>물리엔진</Filter>
+    <ClCompile Include="gocommon.cpp">
+      <Filter>게임오브젝트</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

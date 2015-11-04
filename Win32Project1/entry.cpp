@@ -10,7 +10,7 @@
 //--------------------------------------------------------------------------------------
 
 // 설명 : 
-frame::Container g_GUI_Entry;
+common::GUI_Target g_GUI_Entry;
 
 // 설명 :
 FMOD::Sound * g_Sound_Background0;
@@ -124,7 +124,7 @@ IMPL_FUNC_T(void, entry::OnMouse)(
 	_In_ int _yPos,
 	_Inout_ void * _userContext)
 {
-	common::OnMouse(
+	common::OnMouse_GUI(
 		_buttonsDown,
 		_buttonCount,
 		_mouseWheelDelta,

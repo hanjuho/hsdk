@@ -17,13 +17,13 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -41,14 +41,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SDK_DIR)assimp\include;$(SDK_DIR)fmod\include;$(SDK_DIR)hsdk\include;$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SDK_DIR)assimp\lib\x86;$(SDK_DIR)fmod\lib;$(SDK_DIR)hsdk\lib;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SDK_DIR)assimp\include;$(SDK_DIR)fmod\include;$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SDK_DIR)assimp\lib\x86;$(SDK_DIR)fmod\lib;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
     <OutDir>..\..\..\bin</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SDK_DIR)assimp\include;$(SDK_DIR)fmod\include;$(SDK_DIR)hsdk\include;$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SDK_DIR)assimp\lib\x86;$(SDK_DIR)fmod\lib;$(SDK_DIR)hsdk\lib;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SDK_DIR)assimp\include;$(SDK_DIR)fmod\include;$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SDK_DIR)assimp\lib\x86;$(SDK_DIR)fmod\lib;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
     <OutDir>..\..\..\bin</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -57,17 +57,15 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;HSDK_EXPORT;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>dxerr.lib;dxguid.lib;d3d9.lib;d3dx9.lib;d3d10.lib;d3dx10.lib;d3d10_1.lib;dxgi.lib;comctl32.lib;winmm.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>COPY "$(OutDir)hsdk_win.lib" "$(SDK_DIR)hsdk\lib" /y
-COPY "$(OutDir)hsdk_win.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
+      <Command>COPY "$(OutDir)hsdk_win.lib" "$(SDK_DIR)hsdk\lib" /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -78,7 +76,7 @@ COPY "$(OutDir)hsdk_win.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;HSDK_EXPORT;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -86,114 +84,93 @@ COPY "$(OutDir)hsdk_win.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>dxerr.lib;dxguid.lib;d3d9.lib;d3dx9.lib;d3d10.lib;d3dx10.lib;d3d10_1.lib;dxgi.lib;comctl32.lib;winmm.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>COPY "$(OutDir)hsdk_win.lib" "$(SDK_DIR)hsdk\lib" /y
-COPY "$(OutDir)hsdk_win.dll" "$(SDK_DIR)hsdk\lib" /y</Command>
+      <Command>COPY "$(OutDir)hsdk_win.lib" "$(SDK_DIR)hsdk\lib" /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="borderlayout.cpp" />
-    <ClCompile Include="buttoncompo.cpp" />
-    <ClCompile Include="component.cpp" />
-    <ClCompile Include="container.cpp" />
-    <ClCompile Include="d3d10_animation.cpp" />
-    <ClCompile Include="d3d10_font.cpp" />
-    <ClCompile Include="d3d10_rendertarget.cpp" />
-    <ClCompile Include="d8_sounddevice.cpp" />
-    <ClCompile Include="d8_soundmultiplayer.cpp" />
-    <ClCompile Include="flowlayout.cpp" />
-    <ClCompile Include="framework.cpp" />
-    <ClCompile Include="graphics.cpp" />
-    <ClCompile Include="inputeventhelper.cpp" />
-    <ClCompile Include="thread.cpp" />
-    <ClCompile Include="semaphore.cpp" />
-    <ClCompile Include="autoresetevent.cpp" />
-    <ClCompile Include="manualevent.cpp" />
-    <ClCompile Include="mutex.cpp" />
-    <ClCompile Include="tcpproxy.cpp" />
-    <ClCompile Include="tcpserver.cpp" />
-    <ClCompile Include="tcpclient.cpp" />
-    <ClCompile Include="framework_outside.cpp" />
-    <ClCompile Include="wictextureloader.cpp" />
-    <ClCompile Include="framework_wintimer.cpp" />
-    <ClCompile Include="d3d10_factory.cpp" />
-    <ClCompile Include="d3d10_mesh.cpp" />
-    <ClCompile Include="d3d10_renderer.cpp" />
-    <ClCompile Include="framework_camera.cpp" />
-    <ClCompile Include="framework_usertimestream.cpp" />
-    <ClCompile Include="framework_device.cpp" />
-    <ClCompile Include="d8_soundplayer.cpp" />
-    <ClCompile Include="fmod_sounddevice.cpp" />
-    <ClCompile Include="rendertargetcontainer.cpp" />
-    <ClCompile Include="d3d10_terrain.cpp" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\common.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\comptr.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\criticalsection\autoresetevent.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\criticalsection\manualevent.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\criticalsection\mutex.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\criticalsection\semaphore.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_animation.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_common.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_factory.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_font.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_mesh.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_renderer.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_rendertarget.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_terrain.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\framework.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\framework_camera.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\framework_device.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\framework_outside.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\framework_usertimestream.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\framework_wintimer.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\buttoncompo.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\component.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\container.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\graphics.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\inputeventhelper.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\layout\borderlayout.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\layout\flowlayout.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\rendertargetcontainer.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\network\common.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\network\tcpclient.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\network\tcpproxy.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\network\tcpserver.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\sound\d8_common.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\sound\d8_sounddevice.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\sound\d8_soundmultiplayer.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\sound\d8_soundplayer.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\sound\fmod_common.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\sound\fmod_sounddevice.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\thread\task.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\thread\thread.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\wictextureloader.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\common.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\comptr.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\semaphore.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\autoresetevent.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\manualevent.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\criticalsection\mutex.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_common.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_factory.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_mesh.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_animation.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_renderer.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_font.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_rendertarget.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_terrain.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework_camera.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework_device.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework_outside.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\component.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\container.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\graphics.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\inputeventhelper.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\buttoncompo.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\layout\borderlayout.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\layout\flowlayout.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\frame\rendertargetcontainer.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpproxy.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpserver.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\tcpclient.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\network\common.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_sounddevice.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundmultiplayer.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_common.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\d8_soundplayer.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\fmod_common.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\sound\fmod_sounddevice.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\thread\thread.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\thread\task.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\wictextureloader.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework_wintimer.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\win\framework_usertimestream.h" />
+    <None Include="..\..\..\..\sdks\hsdk\src\hsdk\win\common.inl" />
+    <None Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_animation.inl" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\common.inl" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\..\sdks\hsdk\include\hsdk\win\direct3d\d3d10_animation.inl" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Win32Project1\shader\format.fx">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="..\Win32Project1\shader\function.fx">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="..\Win32Project1\shader\grobal.fx">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="..\Win32Project1\shader\main.fx">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="..\Win32Project1\shader\shader.fx">
-      <FileType>Document</FileType>
-    </None>
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\criticalsection\autoresetevent.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\criticalsection\manualevent.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\criticalsection\mutex.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\criticalsection\semaphore.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_animation.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_factory.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_font.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_mesh.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_renderer.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_rendertarget.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_terrain.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\framework.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\framework_camera.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\framework_device.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\framework_outside.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\framework_usertimestream.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\framework_wintimer.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\buttoncompo.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\component.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\container.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\graphics.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\inputeventhelper.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\layout\borderlayout.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\layout\flowlayout.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\rendertargetcontainer.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\network\tcpclient.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\network\tcpproxy.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\network\tcpserver.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\sound\d8_sounddevice.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\sound\d8_soundmultiplayer.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\sound\d8_soundplayer.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\sound\fmod_sounddevice.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\thread\thread.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\wictextureloader.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

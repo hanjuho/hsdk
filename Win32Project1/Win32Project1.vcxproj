@@ -41,13 +41,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SDK_DIR)assimp\include;$(SDK_DIR)fmod\include;$(SDK_DIR)hsdk\include;$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Administrator\Desktop\bullet-2.82-r2704\lib;$(SDK_DIR)assimp\lib\x86;$(SDK_DIR)fmod\lib;$(SDK_DIR)hsdk\lib;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SDK_DIR)assimp\include;$(SDK_DIR)fmod\include;$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SDK_DIR)assimp\lib\x86;$(SDK_DIR)fmod\lib;$(SDK_DIR)bullet\lib;$(SDK_DIR)hsdk\lib;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
     <OutDir>..\..\..\bin</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SDK_DIR)assimp\include;$(SDK_DIR)fmod\include;$(SDK_DIR)hsdk\include;$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SDK_DIR)assimp\include;$(SDK_DIR)fmod\include;$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Administrator\Desktop\bullet-2.82-r2704\lib;$(SDK_DIR)assimp\lib\x86;$(SDK_DIR)fmod\lib;$(SDK_DIR)hsdk\lib;$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
     <OutDir>..\..\..\bin</OutDir>
   </PropertyGroup>
@@ -58,13 +58,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\Administrator\Desktop\bullet-2.82-r2704\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SDK_DIR)hsdk\src;$(SDK_DIR)bullet\src</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>BT_NO_SIMD_OPERATOR_OVERLOADS;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>hsdk_win.lib;d3d10.lib;d3dx10.lib;d3d10_1.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -77,7 +77,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>BT_NO_SIMD_OPERATOR_OVERLOADS;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\Administrator\Desktop\bullet-2.82-r2704\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SDK_DIR)hsdk\include;C:\Users\Administrator\Desktop\bullet-2.82-r2704\src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -88,22 +88,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="bullet_engine.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="entry.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="modelviewcompo.h" />
-    <ClInclude Include="헤더.h" />
+    <ClInclude Include="godatatable.h" />
+    <ClInclude Include="gomodelrenderer.h" />
+    <ClInclude Include="gomain.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="common.inl" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="bullet_engine.cpp" />
     <ClCompile Include="entry.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="modelviewcompo.cpp" />
+    <ClCompile Include="gocommon.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

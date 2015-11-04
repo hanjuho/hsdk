@@ -5,75 +5,83 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="헤더 파일">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
     <Filter Include="리소스 파일">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="헤더 파일\interface">
+    <Filter Include="GAME">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="GAME\interface">
       <UniqueIdentifier>{ec085c7a-9693-45e0-807c-1f45034292a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GAME\physics">
+      <UniqueIdentifier>{5a89a828-4015-4524-aa36-c53e0c21bdd1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\actiontable.h">
-      <Filter>헤더 파일\interface</Filter>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\actionlayer.h">
+      <Filter>GAME\interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\common.h">
-      <Filter>헤더 파일\interface</Filter>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\actionlistener.h">
+      <Filter>GAME\interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\controller.h">
-      <Filter>헤더 파일\interface</Filter>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\actiontable.h">
+      <Filter>GAME\interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\datatable.h">
-      <Filter>헤더 파일\interface</Filter>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\common.h">
+      <Filter>GAME\interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\gameobject.h">
-      <Filter>헤더 파일\interface</Filter>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\controller.h">
+      <Filter>GAME\interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\modelrenderer.h">
-      <Filter>헤더 파일\interface</Filter>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\datatable.h">
+      <Filter>GAME\interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\actionlayer.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\gameobject.h">
+      <Filter>GAME\interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\gameobject.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\modelrenderer.h">
+      <Filter>GAME\interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\controller.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\actionbase.h">
+      <Filter>GAME</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\actionlayer.h">
-      <Filter>헤더 파일\interface</Filter>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\actionlayer.h">
+      <Filter>GAME</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\interface\actionlistener.h">
-      <Filter>헤더 파일\interface</Filter>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\controller.h">
+      <Filter>GAME</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\actionbase.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\gameobject.h">
+      <Filter>GAME</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\game\modelrenderer.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\modelrenderer.h">
+      <Filter>GAME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\physics\bullet_engine.h">
+      <Filter>GAME\physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="actionlayer.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\actionbase.cpp">
+      <Filter>GAME</Filter>
     </ClCompile>
-    <ClCompile Include="gameobject.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\actionlayer.cpp">
+      <Filter>GAME</Filter>
     </ClCompile>
-    <ClCompile Include="controller.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\controller.cpp">
+      <Filter>GAME</Filter>
     </ClCompile>
-    <ClCompile Include="actionbase.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\gameobject.cpp">
+      <Filter>GAME</Filter>
     </ClCompile>
-    <ClCompile Include="소스.cpp" />
-    <ClCompile Include="modelrenderer.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\modelrenderer.cpp">
+      <Filter>GAME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\physics\bullet_engine.cpp">
+      <Filter>GAME\physics</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
