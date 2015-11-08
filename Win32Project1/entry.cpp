@@ -1,8 +1,8 @@
 #include "entry.h"
 #include "game.h"
-#include "modelviewcompo.h"
+#include "modelviewercompo.h"
 #include <hsdk/win/frame/layout/borderlayout.h>
-#include <hsdk/win/frame/layout/flowlayout.h>
+#include <hsdk/win/frame/layout/gridlayout.h>
 
 
 //--------------------------------------------------------------------------------------
@@ -15,57 +15,6 @@ common::GUI_Target g_GUI_Entry;
 // 설명 :
 FMOD::Sound * g_Sound_Background0;
 FMOD::Channel * g_Sound_Controller0;
-
-//--------------------------------------------------------------------------------------
-class GoGameButtonEvent :
-	public i::frame::MouseableAdapter
-{
-public:
-
-	INTERFACE_DECL_FUNC_T(void, onClick_Up)(
-		_In_ i::frame::MOUSE_BUTTON _button,
-		_In_ int _x,
-		_In_ int _y)
-	{
-		game::initialize_Game(nullptr);
-	}
-
-};
-
-//--------------------------------------------------------------------------------------
-class ModelViewChangeButtonEvent :
-	public i::frame::MouseableAdapter
-{
-public:
-
-	CLASS_DECL_CONSTRUCTOR(ModelViewChangeButtonEvent)(
-		_In_ gamecompo::ModelViewCompo * _mvcompo,
-		_In_ unsigned int _viewNumber) :
-		my_MVCompo(_mvcompo), my_ViewNumber(_viewNumber), my_AnimNumber(0)
-	{
-
-	}
-
-	INTERFACE_DECL_FUNC_T(void, onClick_Up)(
-		_In_ i::frame::MOUSE_BUTTON _button,
-		_In_ int _x,
-		_In_ int _y)
-	{
-		my_MVCompo->select_Model(my_ViewNumber, my_AnimNumber++);
-	}
-
-private:
-
-	// 설명 : 
-	gamecompo::ModelViewCompo * my_MVCompo;
-
-	// 설명 : 
-	const unsigned int my_ViewNumber;
-
-	// 설명 : 
-	unsigned int my_AnimNumber;
-
-};
 
 //--------------------------------------------------------------------------------------
 IMPL_FUNC_T(void, entry::OnFrameMove)(
@@ -255,21 +204,12 @@ IMPL_FUNC(entry::build_EntryLayout)(
 	stateLayout->set_Layout(borderLayout_0);
 	stateLayout->graphics()->set_image(L"image/layout/notepad.png");
 
-	// 모델 뷰어
-	gamecompo::ModelViewCompo * modelView = nullptr;
 	{
 		// 1
 		try
 		{
-			// 모델 목록
-			const wchar_t * modelnames[3] = {
-				L"Arthas.X",
-				L"DeathwingHuman.X",
-				L"Deathwing.X" };
 
-			modelView = new gamecompo::ModelViewCompo(
-				frame::PARENT_RELATION_RELATIVE,
-				L"model/", modelnames, ARRAYSIZE(modelnames));
+			modelView
 
 			modelView->set_X(0.0f);
 			modelView->set_Y(0.0f);
@@ -301,22 +241,19 @@ IMPL_FUNC(entry::build_EntryLayout)(
 	}
 
 	// 주 버튼 레이아웃
-	frame::layout::FlowLayout * flowlayout_0 = new frame::layout::FlowLayout(frame::layout::FLOW_VERTICAL);
+	frame::layout::GridLayout * gridlayout_0 = new frame::layout::GridLayout(1, 4);
 
-	flowlayout_0->set_Space(
+	gridlayout_0->set_Space(
 		hsdk::i::frame::SPACE_LEFT, 0.15f);
-	flowlayout_0->set_Space(
+	gridlayout_0->set_Space(
 		hsdk::i::frame::SPACE_TOP, 0.1f);
-	flowlayout_0->set_Space(
-		hsdk::i::frame::SPACE_RIGHT, 0.0f);
-	flowlayout_0->set_Space(
-		hsdk::i::frame::SPACE_BOTTOM, 0.0f);
+	gridlayout_0->set_Space(
+		hsdk::i::frame::SPACE_RIGHT, 0.15f);
+	gridlayout_0->set_Space(
+		hsdk::i::frame::SPACE_BOTTOM, 0.1f);
 
-	flowlayout_0->set_HGap(0.2f);
-	flowlayout_0->set_VGap(0.1f);
-
-	flowlayout_0->set_EachWidthAbs(256.0f);
-	flowlayout_0->set_EachHeightAbs(96.0f);
+	gridlayout_0->set_HGap(0.2f);
+	gridlayout_0->set_VGap(0.1f);
 
 	// 버튼 컨테이너
 	frame::RenderTargetContainer * buttonContainer = new frame::RenderTargetContainer();
@@ -326,7 +263,7 @@ IMPL_FUNC(entry::build_EntryLayout)(
 	buttonContainer->set_Y(0.0f);
 	buttonContainer->set_W(_width);
 	buttonContainer->set_H(_height);
-	buttonContainer->set_Layout(flowlayout_0);
+	buttonContainer->set_Layout(gridlayout_0);
 	buttonContainer->graphics()->set_image(L"image/layout/buttonpad.png");
 
 	{
@@ -360,22 +297,19 @@ IMPL_FUNC(entry::build_EntryLayout)(
 	}
 
 	// 보조 버튼 레이아웃
-	frame::layout::FlowLayout * flowlayout = new frame::layout::FlowLayout(frame::layout::FLOW_HORIZON);
+	frame::layout::GridLayout * gridlayout = new frame::layout::GridLayout(3, 1);
 
-	flowlayout->set_Space(
+	gridlayout->set_Space(
 		hsdk::i::frame::SPACE_LEFT, 0.2f);
-	flowlayout->set_Space(
+	gridlayout->set_Space(
 		hsdk::i::frame::SPACE_TOP, 0.3f);
-	flowlayout->set_Space(
-		hsdk::i::frame::SPACE_RIGHT, 0.0f);
-	flowlayout->set_Space(
-		hsdk::i::frame::SPACE_BOTTOM, 0.0f);
+	gridlayout->set_Space(
+		hsdk::i::frame::SPACE_RIGHT, 0.2f);
+	gridlayout->set_Space(
+		hsdk::i::frame::SPACE_BOTTOM, 0.3f);
 
-	flowlayout->set_HGap(0.2f);
-	flowlayout->set_VGap(0.1f);
-
-	flowlayout->set_EachWidthAbs(64.0f);
-	flowlayout->set_EachHeightAbs(48.0f);
+	gridlayout->set_HGap(0.2f);
+	gridlayout->set_VGap(0.1f);
 
 	// 보조 버튼 컨테이너
 	frame::RenderTargetContainer * subButtonContainer = new frame::RenderTargetContainer();
@@ -385,7 +319,7 @@ IMPL_FUNC(entry::build_EntryLayout)(
 	subButtonContainer->set_Y(0.0f);
 	subButtonContainer->set_W(_width);
 	subButtonContainer->set_H(_height);
-	subButtonContainer->set_Layout(flowlayout);
+	subButtonContainer->set_Layout(gridlayout);
 	subButtonContainer->graphics()->set_image(L"image/layout/subbuttonpad.png");
 
 	{

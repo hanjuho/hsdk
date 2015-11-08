@@ -115,9 +115,6 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\layout\borderlayout.h">
       <Filter>WIN\frame\layout</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\layout\flowlayout.h">
-      <Filter>WIN\frame\layout</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_animation.h">
       <Filter>WIN\direct3d</Filter>
     </ClInclude>
@@ -153,6 +150,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\criticalsection\semaphore.h">
       <Filter>WIN\ctst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\layout\gridlayout.h">
+      <Filter>WIN\frame\layout</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\multicontainer.h">
+      <Filter>WIN\frame</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -230,9 +233,6 @@
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\layout\borderlayout.cpp">
       <Filter>WIN\frame\layout</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\layout\flowlayout.cpp">
-      <Filter>WIN\frame\layout</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_animation.cpp">
       <Filter>WIN\direct3d</Filter>
     </ClCompile>
@@ -265,6 +265,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\criticalsection\semaphore.cpp">
       <Filter>WIN\ctst</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\layout\gridlayout.cpp">
+      <Filter>WIN\frame\layout</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\multicontainer.cpp">
+      <Filter>WIN\frame</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

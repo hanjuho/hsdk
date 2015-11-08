@@ -1,12 +1,12 @@
-#include "modelviewcompo.h"
+#include "modelviewercompo.h"
 
 
 
-using namespace gamecompo;
+using namespace compo;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_CONSTRUCTOR(ModelViewCompo, ModelViewCompo)(
+CLASS_IMPL_CONSTRUCTOR(ModelViewerCompo, ModelViewerCompo)(
 	_In_ frame::PARENT_RELATION _relation,
 	_In_ const wchar_t * _path,
 	_In_ const wchar_t ** _names,
@@ -50,7 +50,7 @@ CLASS_IMPL_CONSTRUCTOR(ModelViewCompo, ModelViewCompo)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(ModelViewCompo, void, onMouse_Enter)(
+CLASS_IMPL_FUNC_T(ModelViewerCompo, void, onMouse_Enter)(
 	_In_ int _x,
 	_In_ int _y)
 {
@@ -58,7 +58,7 @@ CLASS_IMPL_FUNC_T(ModelViewCompo, void, onMouse_Enter)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(ModelViewCompo, void, onMouse_Exit)(
+CLASS_IMPL_FUNC_T(ModelViewerCompo, void, onMouse_Exit)(
 	_In_ int _x,
 	_In_ int _y)
 {
@@ -66,7 +66,7 @@ CLASS_IMPL_FUNC_T(ModelViewCompo, void, onMouse_Exit)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(ModelViewCompo, void, onDrag)(
+CLASS_IMPL_FUNC_T(ModelViewerCompo, void, onDrag)(
 	_In_ i::frame::MOUSE_BUTTON _button,
 	_In_ int _x,
 	_In_ int _y)
@@ -81,7 +81,7 @@ CLASS_IMPL_FUNC_T(ModelViewCompo, void, onDrag)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(ModelViewCompo, void, update)(
+CLASS_IMPL_FUNC_T(ModelViewerCompo, void, update)(
 	_X_ void)
 {
 	my_Models[my_ViewModel].pos.time +=
@@ -93,7 +93,7 @@ CLASS_IMPL_FUNC_T(ModelViewCompo, void, update)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(ModelViewCompo, void, reform)(
+CLASS_IMPL_FUNC_T(ModelViewerCompo, void, reform)(
 	_X_ void)
 {
 	Component::reform();
@@ -110,7 +110,7 @@ CLASS_IMPL_FUNC_T(ModelViewCompo, void, reform)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(ModelViewCompo, void, render)(
+CLASS_IMPL_FUNC_T(ModelViewerCompo, void, render)(
 	_X_ void)
 {
 	if (is_Visible())
@@ -160,7 +160,7 @@ CLASS_IMPL_FUNC_T(ModelViewCompo, void, render)(
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(ModelViewCompo, void, select_Model)(
+CLASS_IMPL_FUNC_T(ModelViewerCompo, void, select_Model)(
 	_In_ unsigned int _index,
 	_In_ unsigned int _animation)
 {
@@ -176,4 +176,18 @@ CLASS_IMPL_FUNC_T(ModelViewCompo, void, select_Model)(
 		direct3d::animation::reset_Pos(
 			refmodel.pos, refmodel.anim);
 	}
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(ModelViewerCompo, unsigned int, get_NumModel)(
+	_X_ void)
+{
+	return my_ViewModel;
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(ModelViewerCompo, unsigned int, get_NumModelAnimation)(
+	_X_ void)
+{
+	return my_Models[my_ViewModel].pos.aniamtionID;
 }

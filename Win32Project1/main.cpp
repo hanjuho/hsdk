@@ -1,5 +1,6 @@
 #include "common.h"
 #include "entry.h"
+#include "hsdk/win/frame/multicontainer.h"
 
 //--------------------------------------------------------------------------------------
 frame::inputEventHelper common::g_GUIHelper(nullptr);
@@ -7,6 +8,9 @@ frame::inputEventHelper common::g_GUIHelper(nullptr);
 //--------------------------------------------------------------------------------------
 int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 {
+	frame::MultiContainer<4> container;
+	container.select_Buffer(0);
+
 	// Set DXUT callbacks
 	framework::g_Framework_Callbacks.windowMsgFunc = entry::OnMsgProc;
 	framework::g_Framework_Callbacks.mouseFunc = entry::OnMouse;
@@ -20,13 +24,13 @@ int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 	framework::g_Framework_Callbacks.d3d10SwapChainResizedFunc = common::OnD3D10SwapchainResized;
 
 	HRESULT hr = S_OK;
-	hr = ADD_FLAG(framework::g_Framework.setup0_Window(L"Skinning10", 0, 0), hr);
-	hr = ADD_FLAG(framework::g_Framework.setup1_DeviceFactory(new framework::Framework_DeviceFactory()), hr);
-	hr = ADD_FLAG(framework::g_Framework.setup2_Device10(framework::D3D10_DEVICE_DESC(true, 1440, 900)), hr);
+	hr = ADD_FLAG(hr, framework::g_Framework.setup0_Window(L"Colosseum", 0, 0));
+	hr = ADD_FLAG(hr, framework::g_Framework.setup1_DeviceFactory(new framework::Framework_DeviceFactory()));
+	hr = ADD_FLAG(hr, framework::g_Framework.setup2_Device10(framework::D3D10_DEVICE_DESC(true, 1440, 900)));
 
 	IF_SUCCEEDED(hr)
 	{
-		// Enter into the DXUT render loop
+		// Enter into render loop
 		framework::g_Framework.mainLoop();
 	}
 	

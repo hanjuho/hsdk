@@ -6,11 +6,11 @@
 
 
 
-namespace gamecompo
+namespace compo
 {
 
 	// 설명 : 
-	DECL_CLASS(ModelViewCompo)
+	DECL_CLASS(ModelViewerCompo)
 		: public frame::Component
 	{
 
@@ -32,7 +32,7 @@ namespace gamecompo
 	public:
 
 		// 생성자.
-		CLASS_DECL_CONSTRUCTOR(ModelViewCompo)(
+		CLASS_DECL_CONSTRUCTOR(ModelViewerCompo)(
 			_In_ frame::PARENT_RELATION _relation,
 			_In_ const wchar_t * _path,
 			_In_ const wchar_t ** _names,
@@ -70,6 +70,14 @@ namespace gamecompo
 		CLASS_DECL_FUNC_T(void, select_Model)(
 			_In_ unsigned int _index,
 			_In_ unsigned int _animation);
+		
+		// 설명 :
+		CLASS_DECL_FUNC_T(unsigned int, get_NumModel)(
+			_X_ void);
+
+		// 설명 :
+		CLASS_DECL_FUNC_T(unsigned int, get_NumModelAnimation)(
+			_X_ void);
 
 	protected:
 		

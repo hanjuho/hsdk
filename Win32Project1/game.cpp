@@ -112,7 +112,13 @@ IMPL_FUNC_T(void, game::OnD3D10FrameRender)(
 	_d3dDevice->ClearRenderTargetView(pRTV, ClearColor);
 	ID3D10DepthStencilView * pDSV = framework::g_Framework_Device.d3d10DSV;
 	_d3dDevice->ClearDepthStencilView(pDSV, D3D10_CLEAR_DEPTH, 1.0, 0);
-	
+
+	direct3d::g_D3D10_Renderer.set_MatrixWorldViewProj(&direct3d::g_D3D10_ViewProjMatrix);
+	direct3d::g_D3D10_Renderer.set_ScalarVSFlag(0);
+	direct3d::g_D3D10_Renderer.set_ScalarPSFlag(direct3d::PS_TEXTURE_0);
+	direct3d::g_D3D10_Renderer.render_SkyBox(g_SkyMesh);
+	direct3d::g_D3D10_Renderer.render_Mesh(g_TerrainMesh);
+
 	g_GUI_Game.render();
 }
 
@@ -219,10 +225,10 @@ IMPL_FUNC(game::OnD3D10CreateDevice)(
 			}
 		}
 
-		// 물리 엔진
-		bullet::g_BulletEngine.reset();
-		bullet::g_BulletEngine.setup0_World(300, 300, 300, game::callback_CollisionResult);
-		bullet::g_BulletEngine.setup1_Terrain(TERRAINWIDTH, TERRAINDEPTH, heightbuffer, TERRAINHEIGHTBUFFER);
+		//// 물리 엔진
+		//bullet::g_BulletEngine.reset();
+		//bullet::g_BulletEngine.setup0_World(300, 300, 300, game::callback_CollisionResult);
+		//bullet::g_BulletEngine.setup1_Terrain(TERRAINWIDTH, TERRAINDEPTH, heightbuffer, TERRAINHEIGHTBUFFER);
 
 		// layout
 		IF_FAILED(hr = build_GameLayout(&g_GUI_Game,
@@ -257,7 +263,7 @@ DECL_FUNC_T(void, game::OnD3D10DestroyDevice)(
 {
 	common::destroy_Common();
 
-	bullet::g_BulletEngine.reset();
+	// bullet::g_BulletEngine.reset();
 	direct3d::mesh::meshClear(g_TerrainMesh);
 	direct3d::mesh::meshClear(g_SkyMesh);
 
@@ -358,12 +364,4 @@ IMPL_FUNC(game::build_GameLayout)(
 	_container->reform();
 
 	return S_OK;
-}
-
-//--------------------------------------------------------------------------------------
-IMPL_FUNC_T(void, game::callback_CollisionResult)(
-	_In_ const btPersistentManifold & _manifold,
-	_In_ btScalar _timeStep)
-{
-	int a = 0;
 }

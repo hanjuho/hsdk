@@ -84,26 +84,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\frame\actable.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\frame\keyboardable.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\frame\layout.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk_common.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\autodelete.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\autopointer.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\autorelease.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\criticalsection\event.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\criticalsection\section.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\database\database.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\frame\common.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\frame\component.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\frame\graphics.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\frame\inputeventhelper.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\frame\mouseable.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\network\client.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\network\proxy.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\network\server.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\interface\thread\thread.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\include\hsdk\autoslot.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\autodelete.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\autopointer.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\autorelease.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\autoslot.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\interface\frame\actable.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\interface\frame\common.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\interface\frame\component.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\interface\frame\graphics.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\interface\frame\inputeventhelper.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\interface\frame\keyboardable.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\interface\frame\layout.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\interface\frame\mouseable.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk_common.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

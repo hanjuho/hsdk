@@ -116,8 +116,9 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\graphics.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\inputeventhelper.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\layout\borderlayout.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\layout\flowlayout.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\layout\gridlayout.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\rendertargetcontainer.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\multicontainer.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\network\common.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\network\tcpclient.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\network\tcpproxy.h" />
@@ -160,8 +161,9 @@
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\graphics.cpp" />
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\inputeventhelper.cpp" />
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\layout\borderlayout.cpp" />
-    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\layout\flowlayout.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\layout\gridlayout.cpp" />
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\rendertargetcontainer.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\multicontainer.cpp" />
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\network\tcpclient.cpp" />
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\network\tcpproxy.cpp" />
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\network\tcpserver.cpp" />

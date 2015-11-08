@@ -5,10 +5,6 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="헤더 파일">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
     <Filter Include="리소스 파일">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
@@ -16,53 +12,107 @@
     <Filter Include="게임오브젝트">
       <UniqueIdentifier>{e8dc2924-6526-4ae1-8edf-2b4caa4b721d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="물리엔진">
-      <UniqueIdentifier>{8e5df2ed-30ff-4d38-93b3-bc5af78e162e}</UniqueIdentifier>
+    <Filter Include="소스 파일\entry">
+      <UniqueIdentifier>{52c3ee12-a696-41fe-b15a-fd166153d372}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\compo">
+      <UniqueIdentifier>{aade497d-372c-42cf-bf59-e4e7f463beda}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\compoevent">
+      <UniqueIdentifier>{28bafeef-eebe-4623-b207-f8aa2fa914a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\game">
+      <UniqueIdentifier>{93006a76-9408-4916-afc6-3f40052eb609}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="entry.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="common.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="game.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="modelviewcompo.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="gomodelrenderer.h">
       <Filter>게임오브젝트</Filter>
     </ClInclude>
     <ClInclude Include="godatatable.h">
       <Filter>게임오브젝트</Filter>
     </ClInclude>
+    <ClInclude Include="gocommon.h">
+      <Filter>게임오브젝트</Filter>
+    </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
     <ClInclude Include="gomain.h">
       <Filter>게임오브젝트</Filter>
     </ClInclude>
+    <ClInclude Include="entry.h">
+      <Filter>소스 파일\entry</Filter>
+    </ClInclude>
+    <ClInclude Include="entrycompo.h">
+      <Filter>소스 파일\entry</Filter>
+    </ClInclude>
+    <ClInclude Include="entrybuttoneventfactory.h">
+      <Filter>소스 파일\entry</Filter>
+    </ClInclude>
+    <ClInclude Include="entrycompofactory.h">
+      <Filter>소스 파일\entry</Filter>
+    </ClInclude>
+    <ClInclude Include="헤더2.h">
+      <Filter>소스 파일\compoevent</Filter>
+    </ClInclude>
+    <ClInclude Include="gotogamebuttonevent.h">
+      <Filter>소스 파일\compoevent</Filter>
+    </ClInclude>
+    <ClInclude Include="game.h">
+      <Filter>소스 파일\game</Filter>
+    </ClInclude>
+    <ClInclude Include="modelchangebuttonevent.h">
+      <Filter>소스 파일\compoevent</Filter>
+    </ClInclude>
+    <ClInclude Include="modelviewercompo.h">
+      <Filter>소스 파일\compo</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="common.inl">
-      <Filter>헤더 파일</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="entry.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="game.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="modelviewcompo.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="gocommon.cpp">
+    <ClCompile Include="gomodelrenderer.cpp">
       <Filter>게임오브젝트</Filter>
     </ClCompile>
+    <ClCompile Include="godatatable.cpp">
+      <Filter>게임오브젝트</Filter>
+    </ClCompile>
+    <ClCompile Include="gomain.cpp">
+      <Filter>게임오브젝트</Filter>
+    </ClCompile>
+    <ClCompile Include="entry.cpp">
+      <Filter>소스 파일\entry</Filter>
+    </ClCompile>
+    <ClCompile Include="entrycompo.cpp">
+      <Filter>소스 파일\entry</Filter>
+    </ClCompile>
+    <ClCompile Include="entrybuttoneventfactory.cpp">
+      <Filter>소스 파일\entry</Filter>
+    </ClCompile>
+    <ClCompile Include="entrycompofactory.cpp">
+      <Filter>소스 파일\entry</Filter>
+    </ClCompile>
+    <ClCompile Include="소스.cpp">
+      <Filter>소스 파일\compoevent</Filter>
+    </ClCompile>
+    <ClCompile Include="gotogamebuttonevent.cpp">
+      <Filter>소스 파일\compoevent</Filter>
+    </ClCompile>
+    <ClCompile Include="game.cpp">
+      <Filter>소스 파일\game</Filter>
+    </ClCompile>
+    <ClCompile Include="modelviewercompo.cpp">
+      <Filter>소스 파일\compo</Filter>
+    </ClCompile>
+    <ClCompile Include="modelchangebuttonevent.cpp">
+      <Filter>소스 파일\compoevent</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="common.inl">
+      <Filter>소스 파일</Filter>
+    </None>
   </ItemGroup>
 </Project>
