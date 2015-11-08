@@ -1,8 +1,6 @@
 #include "entry.h"
+#include "entrycompofactory.h"
 #include "game.h"
-#include "modelviewercompo.h"
-#include <hsdk/win/frame/layout/borderlayout.h>
-#include <hsdk/win/frame/layout/gridlayout.h>
 
 
 //--------------------------------------------------------------------------------------
@@ -101,12 +99,11 @@ IMPL_FUNC(entry::OnD3D10CreateDevice)(
 	IF_SUCCEEDED(hr = common::initialize_Common(&g_GUI_Entry))
 	{
 		// layout
-		IF_FAILED(hr = build_EntryLayout(&g_GUI_Entry,
-			(float)_backBufferSurfaceDesc.Width,
-			(float)_backBufferSurfaceDesc.Height))
-		{
-			return hr;
-		}
+		EntryCompoFactory factory;
+		factory.build_EntryGUI(&g_GUI_Entry);
+		g_GUI_Entry.set_W((float)_backBufferSurfaceDesc.Width);
+		g_GUI_Entry.set_H((float)_backBufferSurfaceDesc.Height);
+		g_GUI_Entry.reform();
 
 		// sound
 		IF_FAILED(hr = sound::g_FMOD_SoundDevice.load_WaveFile(
@@ -132,8 +129,7 @@ DECL_FUNC_T(void, entry::OnD3D10DestroyDevice)(
 	_Inout_ void * _userContext)
 {
 	common::destroy_Common();
-
-	g_GUI_Entry.clear();
+	g_GUI_Entry.reset();
 }
 
 //--------------------------------------------------------------------------------------
@@ -166,225 +162,6 @@ IMPL_FUNC(entry::initialize_Entry)(
 			return E_FAIL;
 		}
 	}
-
-	return S_OK;
-}
-
-//--------------------------------------------------------------------------------------
-IMPL_FUNC(entry::build_EntryLayout)(
-	_In_ frame::Container * _container,
-	_In_ float _width,
-	_In_ float _height)
-{
-	_container->clear();
-
-	// 상태 정보 레이아웃
-	frame::layout::BorderLayout * borderLayout_0 = new frame::layout::BorderLayout();
-
-	borderLayout_0->set_Space(
-		hsdk::i::frame::SPACE_LEFT, 0.05f);
-	borderLayout_0->set_Space(
-		hsdk::i::frame::SPACE_TOP, 0.14f);
-	borderLayout_0->set_Space(
-		hsdk::i::frame::SPACE_RIGHT, 0.05f);
-	borderLayout_0->set_Space(
-		hsdk::i::frame::SPACE_BOTTOM, 0.07f);
-
-	borderLayout_0->set_HGap(0.03f);
-	borderLayout_0->set_VGap(0.03f);
-
-	// 상태 정보 컨테이너
-	frame::RenderTargetContainer * stateLayout = new frame::RenderTargetContainer();
-
-	stateLayout->set_Visible(true);
-	stateLayout->set_X(0.0f);
-	stateLayout->set_Y(0.0f);
-	stateLayout->set_W(_width);
-	stateLayout->set_H(_height);
-	stateLayout->set_Layout(borderLayout_0);
-	stateLayout->graphics()->set_image(L"image/layout/notepad.png");
-
-	{
-		// 1
-		try
-		{
-
-			modelView
-
-			modelView->set_X(0.0f);
-			modelView->set_Y(0.0f);
-			modelView->set_Visible(true);
-			modelView->graphics()->set_Background({ 0.0f, 0.0f, 0.0f, 1.0f });
-
-			// 추가
-			stateLayout->add_Component(modelView, i::frame::COMPOSITION_CENTER);
-		}
-		catch (...)
-		{
-
-		}
-
-		// 2
-		{
-			// text layout
-			frame::Component * notepad = new frame::Component(
-				frame::PARENT_RELATION_RELATIVE);
-
-			notepad->set_X(0.0f);
-			notepad->set_Y(0.0f);
-			notepad->set_Visible(true);
-			notepad->graphics()->set_image(L"image/layout/buttonpad.png");
-
-			// 추가
-			stateLayout->add_Component(notepad, i::frame::COMPOSITION_WEST);
-		}
-	}
-
-	// 주 버튼 레이아웃
-	frame::layout::GridLayout * gridlayout_0 = new frame::layout::GridLayout(1, 4);
-
-	gridlayout_0->set_Space(
-		hsdk::i::frame::SPACE_LEFT, 0.15f);
-	gridlayout_0->set_Space(
-		hsdk::i::frame::SPACE_TOP, 0.1f);
-	gridlayout_0->set_Space(
-		hsdk::i::frame::SPACE_RIGHT, 0.15f);
-	gridlayout_0->set_Space(
-		hsdk::i::frame::SPACE_BOTTOM, 0.1f);
-
-	gridlayout_0->set_HGap(0.2f);
-	gridlayout_0->set_VGap(0.1f);
-
-	// 버튼 컨테이너
-	frame::RenderTargetContainer * buttonContainer = new frame::RenderTargetContainer();
-
-	buttonContainer->set_Visible(true);
-	buttonContainer->set_X(0.0f);
-	buttonContainer->set_Y(0.0f);
-	buttonContainer->set_W(_width);
-	buttonContainer->set_H(_height);
-	buttonContainer->set_Layout(gridlayout_0);
-	buttonContainer->graphics()->set_image(L"image/layout/buttonpad.png");
-
-	{
-		// 구성 요소
-		frame::ButtonCompo * buttons[4];
-
-		// 1
-		buttons[0] = new frame::ButtonCompo(frame::PARENT_RELATION_RELATIVE);
-		buttons[0]->graphics()->set_image(L"image/layout/button.png");
-
-		// 2
-		buttons[1] = new frame::ButtonCompo(frame::PARENT_RELATION_RELATIVE);
-		buttons[1]->graphics()->set_image(L"image/layout/button.png");
-		buttons[1]->set_Mouseable(new GoGameButtonEvent());
-
-		// 3
-		buttons[2] = new frame::ButtonCompo(frame::PARENT_RELATION_RELATIVE);
-		buttons[2]->graphics()->set_image(L"image/layout/button.png");
-
-		// 4
-		buttons[3] = new frame::ButtonCompo(frame::PARENT_RELATION_RELATIVE);
-		buttons[3]->graphics()->set_image(L"image/layout/button.png");
-
-		for (unsigned int index = 0; index < ARRAYSIZE(buttons); ++index)
-		{
-			buttons[index]->set_X(0.0f);
-			buttons[index]->set_Y(0.0f);
-			buttons[index]->set_Visible(true);
-			buttonContainer->add_Component(buttons[index]);
-		}
-	}
-
-	// 보조 버튼 레이아웃
-	frame::layout::GridLayout * gridlayout = new frame::layout::GridLayout(3, 1);
-
-	gridlayout->set_Space(
-		hsdk::i::frame::SPACE_LEFT, 0.2f);
-	gridlayout->set_Space(
-		hsdk::i::frame::SPACE_TOP, 0.3f);
-	gridlayout->set_Space(
-		hsdk::i::frame::SPACE_RIGHT, 0.2f);
-	gridlayout->set_Space(
-		hsdk::i::frame::SPACE_BOTTOM, 0.3f);
-
-	gridlayout->set_HGap(0.2f);
-	gridlayout->set_VGap(0.1f);
-
-	// 보조 버튼 컨테이너
-	frame::RenderTargetContainer * subButtonContainer = new frame::RenderTargetContainer();
-
-	subButtonContainer->set_Visible(true);
-	subButtonContainer->set_X(0.0f);
-	subButtonContainer->set_Y(0.0f);
-	subButtonContainer->set_W(_width);
-	subButtonContainer->set_H(_height);
-	subButtonContainer->set_Layout(gridlayout);
-	subButtonContainer->graphics()->set_image(L"image/layout/subbuttonpad.png");
-
-	{
-		// 구성 요소
-		frame::ButtonCompo * buttons[3];
-
-		// 1
-		buttons[0] = new frame::ButtonCompo(frame::PARENT_RELATION_RELATIVE);
-		buttons[0]->set_Mouseable(new ModelViewChangeButtonEvent(modelView, 0));
-		buttons[0]->graphics()->set_image(L"image/layout/button.png");
-
-		// 2
-		buttons[1] = new frame::ButtonCompo(frame::PARENT_RELATION_RELATIVE);
-		buttons[1]->set_Mouseable(new ModelViewChangeButtonEvent(modelView, 1));
-		buttons[1]->graphics()->set_image(L"image/layout/button.png");
-
-		// 3
-		buttons[2] = new frame::ButtonCompo(frame::PARENT_RELATION_RELATIVE);
-		buttons[2]->set_Mouseable(new ModelViewChangeButtonEvent(modelView, 2));
-		buttons[2]->graphics()->set_image(L"image/layout/button.png");
-
-		for (unsigned int index = 0; index < ARRAYSIZE(buttons); ++index)
-		{
-			buttons[index]->set_X(0.0f);
-			buttons[index]->set_Y(0.0f);
-			buttons[index]->set_Visible(true);
-			subButtonContainer->add_Component(buttons[index]);
-		}
-	}
-
-	// 메인 레이아웃
-	frame::layout::BorderLayout * borderLayout = new frame::layout::BorderLayout();
-
-	borderLayout->set_Space(
-		hsdk::i::frame::SPACE_LEFT, 0.05f);
-	borderLayout->set_Space(
-		hsdk::i::frame::SPACE_RIGHT, 0.05f);
-	borderLayout->set_Space(
-		hsdk::i::frame::SPACE_TOP, 0.05f);
-	borderLayout->set_Space(
-		hsdk::i::frame::SPACE_BOTTOM, 0.05f);
-
-	borderLayout->set_HGap(0.03f);
-	borderLayout->set_VGap(0.03f);
-
-	// 메인 컨테이너
-	_container->set_Visible(true);
-	_container->set_X(0.0f);
-	_container->set_Y(0.0f);
-	_container->set_W(_width);
-	_container->set_H(_height);
-	_container->set_Layout(borderLayout);
-	_container->graphics()->set_image(L"image/background/entry.png");
-
-	// 레이아웃 추가
-	_container->add_Component(stateLayout, i::frame::COMPOSITION_CENTER);
-
-	// 레이아웃 추가
-	_container->add_Component(buttonContainer, i::frame::COMPOSITION_EAST);
-
-	// 레이아웃 추가
-	_container->add_Component(subButtonContainer, i::frame::COMPOSITION_SOUTH);
-
-	//
-	_container->reform();
 
 	return S_OK;
 }

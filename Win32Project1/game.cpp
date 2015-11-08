@@ -320,7 +320,8 @@ IMPL_FUNC(game::build_GameLayout)(
 	button->graphics()->set_image(L"image/layout/button.png");
 
 	// 버튼 컨테이너
-	frame::RenderTargetContainer * skillContainer = new frame::RenderTargetContainer();
+	frame::RenderTargetContainer<frame::Container> * skillContainer = 
+		new frame::RenderTargetContainer<frame::Container>();
 
 	skillContainer->set_Visible(true);
 	skillContainer->set_X(0.0f);

@@ -15,21 +15,53 @@ namespace entry
 	{
 	public:
 
-		// 설명 : Container의 구성요소는 내부에서 결정됨.
-		CLASS_DECL_FUNC_T(frame::MultiContainer<2> *, create_CenterPad)(
-			_X_ void);
+		// 설명 : 
+		CLASS_DECL_FUNC_T(void, build_EntryGUI)(
+			_Out_ frame::Container * _container);
 
 		// 설명 : Container의 구성요소는 내부에서 결정됨.
-		CLASS_DECL_FUNC_T(frame::MultiContainer<2> *, create_SouthPad)(
-			_X_ void);
+		CLASS_DECL_FUNC_T(void, build_CenterPad)(
+			_Out_ frame::MultiContainer<2> * _container,
+			_In_ compo::ModelViewerCompo * _mvcompo);
 
 		// 설명 : Container의 구성요소는 내부에서 결정됨.
-		CLASS_DECL_FUNC_T(frame::Container *, create_EasePad)(
-			_X_ void);
+		CLASS_DECL_FUNC_T(void, build_SouthPad)(
+			_Out_ frame::MultiContainer<2> * _container,
+			_In_ compo::ModelViewerCompo * _mvcompo);
 
-		// 설명 :
+		// 설명 : Container의 구성요소는 내부에서 결정됨.
+		CLASS_DECL_FUNC_T(void, build_EastPad)(
+			_Out_ frame::Container * _container,
+			_In_ frame::MultiContainer<2> * _centerpad,
+			_In_ frame::MultiContainer<2> * _southpad);
+
+		// 설명 : Container의 구성요소는 내부에서 결정됨.
 		CLASS_DECL_FUNC_T(compo::ModelViewerCompo *, create_ModelViewerCompo)(
 			_X_ void);
+
+		// 설명 : 
+		CLASS_DECL_FUNC_T(void, autoset_MainBorderLayout)(
+			_Out_ i::frame::i_Layout * _layout);
+
+		// 설명 : 
+		CLASS_DECL_FUNC_T(void, autoset_CenterBorderLayout)(
+			_Out_ i::frame::i_Layout * _layout);
+
+		// 설명 : 
+		CLASS_DECL_FUNC_T(void, autoset_CenterGridLayout)(
+			_Out_ i::frame::i_Layout * _layout);
+		
+		// 설명 : 
+		CLASS_DECL_FUNC_T(void, autoset_SouthGridLayout0)(
+			_Out_ i::frame::i_Layout * _layout);
+
+		// 설명 : 
+		CLASS_DECL_FUNC_T(void, autoset_SouthGridLayout1)(
+			_Out_ i::frame::i_Layout * _layout);
+
+		// 설명 : 
+		CLASS_DECL_FUNC_T(void, autoset_EastGridLayout)(
+			_Out_ i::frame::i_Layout * _layout);
 
 	private:
 

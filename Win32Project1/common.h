@@ -9,6 +9,7 @@
 
 #include "hsdk/win/framework.h"
 #include "hsdk/win/framework_camera.h"
+
 #include "hsdk/win/frame/container.h"
 #include "hsdk/win/frame/multicontainer.h"
 #include "hsdk/win/frame/buttoncompo.h"
@@ -16,10 +17,12 @@
 #include "hsdk/win/frame/rendertargetcontainer.h"
 #include "hsdk/win/frame/layout/borderlayout.h"
 #include "hsdk/win/frame/layout/gridlayout.h"
+
 #include "hsdk/win/direct3d/d3d10_factory.h"
 #include "hsdk/win/direct3d/d3d10_mesh.h"
 #include "hsdk/win/direct3d/d3d10_renderer.h"
 #include "hsdk/win/direct3d/d3d10_rendertarget.h"
+
 #include "hsdk/win/sound/fmod_sounddevice.h"
 
 

@@ -3,7 +3,6 @@
 
 
 #include "common.h"
-#include "modelviewercompo.h"
 
 
 
@@ -11,14 +10,15 @@ namespace compoevent
 {
 
 	// 설명 : 
-	DECL_CLASS(ModelChangeButtonEvent) :
+	DECL_CLASS(ViewerPadChangeButtonEvent) :
 		public i::frame::MouseableAdapter
 	{
 	public:
 
 		// 설명 : 
-		CLASS_DECL_CONSTRUCTOR(ModelChangeButtonEvent)(
-			_In_ compo::ModelViewerCompo * _mvcompo,
+		CLASS_DECL_CONSTRUCTOR(ViewerPadChangeButtonEvent)(
+			_In_ frame::MultiContainer<2> * _centerpad,
+			_In_ frame::MultiContainer<2> * _southpad,
 			_In_ unsigned int _number);
 
 		// 설명 : 
@@ -30,13 +30,13 @@ namespace compoevent
 	private:
 
 		// 설명 : 
-		compo::ModelViewerCompo * const my_MVCompo;
-		
-		// 설명 : 
-		const unsigned int my_ModelNumber;
+		frame::MultiContainer<2> * const my_Centerpad;
 
 		// 설명 : 
-		unsigned int my_AnimNumber;
+		frame::MultiContainer<2> * const my_Southpad;
+
+		// 설명 : 
+		const unsigned int my_Number;
 
 	};
 

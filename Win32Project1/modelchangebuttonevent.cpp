@@ -8,8 +8,8 @@ using namespace compoevent;
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(ModelChangeButtonEvent, ModelChangeButtonEvent)(
 	_In_ compo::ModelViewerCompo * _mvcompo,
-	_In_ unsigned int _index) :
-	my_MVCompo(_mvcompo), my_ModelNumber(_index), my_AnimNumber(0)
+	_In_ unsigned int _number) :
+	my_MVCompo(_mvcompo), my_ModelNumber(_number), my_AnimNumber(0)
 {
 	if (nullptr == _mvcompo)
 	{

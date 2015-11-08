@@ -91,7 +91,6 @@
     <ClInclude Include="common.h" />
     <ClInclude Include="entry.h" />
     <ClInclude Include="entrybuttoneventfactory.h" />
-    <ClInclude Include="entrycompo.h" />
     <ClInclude Include="entrycompofactory.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="gocommon.h" />
@@ -101,7 +100,7 @@
     <ClInclude Include="gotogamebuttonevent.h" />
     <ClInclude Include="modelchangebuttonevent.h" />
     <ClInclude Include="modelviewercompo.h" />
-    <ClInclude Include="헤더2.h" />
+    <ClInclude Include="viewerpadchangebuttonevent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="common.inl" />
@@ -109,7 +108,6 @@
   <ItemGroup>
     <ClCompile Include="entry.cpp" />
     <ClCompile Include="entrybuttoneventfactory.cpp" />
-    <ClCompile Include="entrycompo.cpp" />
     <ClCompile Include="entrycompofactory.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="godatatable.cpp" />
@@ -119,7 +117,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="modelchangebuttonevent.cpp" />
     <ClCompile Include="modelviewercompo.cpp" />
-    <ClCompile Include="소스.cpp" />
+    <ClCompile Include="viewerpadchangebuttonevent.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

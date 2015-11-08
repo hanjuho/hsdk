@@ -136,6 +136,8 @@
   <ItemGroup>
     <None Include="..\..\..\..\sdks\hsdk\src\hsdk\win\common.inl" />
     <None Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_animation.inl" />
+    <None Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\multicontainer.inl" />
+    <None Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\rendertargetcontainer.inl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\criticalsection\autoresetevent.cpp" />
@@ -162,8 +164,6 @@
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\inputeventhelper.cpp" />
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\layout\borderlayout.cpp" />
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\layout\gridlayout.cpp" />
-    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\rendertargetcontainer.cpp" />
-    <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\multicontainer.cpp" />
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\network\tcpclient.cpp" />
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\network\tcpproxy.cpp" />
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\network\tcpserver.cpp" />

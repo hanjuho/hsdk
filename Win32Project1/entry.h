@@ -13,12 +13,6 @@ namespace entry
 	DECL_FUNC(initialize_Entry)(
 		_In_ void * _context);
 
-	// 설명 :
-	DECL_FUNC(build_EntryLayout)(
-		_In_ frame::Container * _container,
-		_In_ float _width,
-		_In_ float _height);
-
 	// 설명 : 
 	DECL_FUNC_T(void, OnFrameMove)(
 		_In_ double _fTime,
