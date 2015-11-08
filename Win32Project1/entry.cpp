@@ -100,9 +100,11 @@ IMPL_FUNC(entry::OnD3D10CreateDevice)(
 	{
 		// layout
 		EntryCompoFactory factory;
-		factory.build_EntryGUI(&g_GUI_Entry);
-		g_GUI_Entry.set_W((float)_backBufferSurfaceDesc.Width);
-		g_GUI_Entry.set_H((float)_backBufferSurfaceDesc.Height);
+
+		factory.build_EntryGUI(&g_GUI_Entry,
+			(float)_backBufferSurfaceDesc.Width,
+			(float)_backBufferSurfaceDesc.Height);
+
 		g_GUI_Entry.reform();
 
 		// sound

@@ -8,9 +8,6 @@ frame::inputEventHelper common::g_GUIHelper(nullptr);
 //--------------------------------------------------------------------------------------
 int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 {
-	frame::MultiContainer<4> container;
-	container.select_Buffer(0);
-
 	// Set DXUT callbacks
 	framework::g_Framework_Callbacks.windowMsgFunc = entry::OnMsgProc;
 	framework::g_Framework_Callbacks.mouseFunc = entry::OnMouse;

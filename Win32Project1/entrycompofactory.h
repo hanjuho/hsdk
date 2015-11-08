@@ -17,7 +17,9 @@ namespace entry
 
 		// 설명 : 
 		CLASS_DECL_FUNC_T(void, build_EntryGUI)(
-			_Out_ frame::Container * _container);
+			_Out_ frame::Container * _container,
+			_In_ float _width,
+			_In_ float _height);
 
 		// 설명 : Container의 구성요소는 내부에서 결정됨.
 		CLASS_DECL_FUNC_T(void, build_CenterPad)(

@@ -8,39 +8,45 @@ using namespace entry;
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(EntryCompoFactory, void, build_EntryGUI)(
-	_Out_ frame::Container * _container)
+	_Out_ frame::Container * _container,
+	_In_ float _width,
+	_In_ float _height)
 {
-	// 모델 뷰어 컴포넌트 생성 및 설정
+	// 모델 뷰어 컴포넌트 생성
 	compo::ModelViewerCompo * modelViewer = create_ModelViewerCompo();
 
-	// 중앙 컨테이너 생성 및 설정
+	// 중앙 컨테이너 생성
 	frame::RenderTargetContainer<frame::MultiContainer<2>> * centerCompo =
 		new frame::RenderTargetContainer<frame::MultiContainer<2>>();
-	build_CenterPad(centerCompo, modelViewer);
 
-	// 남쪽 컨테이너 생성 및 설정
+	// 남쪽 컨테이너 생성
 	frame::RenderTargetContainer<frame::MultiContainer<2>> * southCompo =
 		new frame::RenderTargetContainer<frame::MultiContainer<2>>();
-	build_SouthPad(southCompo, modelViewer);
 
-	// 동쪽 컨테이너 생성 및 설정
+	// 동쪽 컨테이너 생성
 	frame::RenderTargetContainer<frame::Container> * eastCompo =
 		new frame::RenderTargetContainer<frame::Container>();
-	build_EastPad(eastCompo, centerCompo, southCompo);
 
 	// 레이아웃 설정
 	frame::layout::BorderLayout * borderLayout = new frame::layout::BorderLayout();
 	autoset_MainBorderLayout(borderLayout);
+
+	// 컨테이널 설정
+	_container->set_Visible(true);
+	_container->set_W(_width);
+	_container->set_H(_height);
 	_container->set_Layout(borderLayout);
+	_container->graphics()->set_image(L"image/background/entry.png");
 
 	// 컴포넌트 추가
 	_container->add_Component(centerCompo, i::frame::COMPOSITION_CENTER);
 	_container->add_Component(eastCompo, i::frame::COMPOSITION_EAST);
 	_container->add_Component(southCompo, i::frame::COMPOSITION_SOUTH);
 
-	// 컨테이널 설정
-	_container->set_Visible(true);
-	_container->graphics()->set_image(L"image/background/entry.png");
+	// 컴포넌트 설정
+	build_CenterPad(centerCompo, modelViewer);
+	build_SouthPad(southCompo, modelViewer);
+	build_EastPad(eastCompo, centerCompo, southCompo);
 }
 
 //--------------------------------------------------------------------------------------
