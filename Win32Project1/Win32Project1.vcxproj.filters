@@ -26,79 +26,52 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="gomodelrenderer.h">
-      <Filter>게임오브젝트</Filter>
-    </ClInclude>
-    <ClInclude Include="godatatable.h">
-      <Filter>게임오브젝트</Filter>
-    </ClInclude>
-    <ClInclude Include="gocommon.h">
-      <Filter>게임오브젝트</Filter>
-    </ClInclude>
     <ClInclude Include="common.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="gomain.h">
-      <Filter>게임오브젝트</Filter>
+    <ClInclude Include="game.h">
+      <Filter>소스 파일\game</Filter>
+    </ClInclude>
+    <ClInclude Include="modelviewercompo.h">
+      <Filter>소스 파일\compo</Filter>
     </ClInclude>
     <ClInclude Include="entry.h">
-      <Filter>소스 파일\entry</Filter>
-    </ClInclude>
-    <ClInclude Include="entrycompo.h">
       <Filter>소스 파일\entry</Filter>
     </ClInclude>
     <ClInclude Include="entrybuttoneventfactory.h">
       <Filter>소스 파일\entry</Filter>
     </ClInclude>
-    <ClInclude Include="entrycompofactory.h">
+    <ClInclude Include="entrycompo.h">
       <Filter>소스 파일\entry</Filter>
     </ClInclude>
-    <ClInclude Include="헤더2.h">
-      <Filter>소스 파일\compoevent</Filter>
+    <ClInclude Include="entrycompofactory.h">
+      <Filter>소스 파일\entry</Filter>
     </ClInclude>
     <ClInclude Include="gotogamebuttonevent.h">
       <Filter>소스 파일\compoevent</Filter>
     </ClInclude>
-    <ClInclude Include="game.h">
-      <Filter>소스 파일\game</Filter>
-    </ClInclude>
     <ClInclude Include="modelchangebuttonevent.h">
       <Filter>소스 파일\compoevent</Filter>
     </ClInclude>
-    <ClInclude Include="modelviewercompo.h">
-      <Filter>소스 파일\compo</Filter>
+    <ClInclude Include="헤더2.h">
+      <Filter>소스 파일\compoevent</Filter>
+    </ClInclude>
+    <ClInclude Include="gocommon.h">
+      <Filter>게임오브젝트</Filter>
+    </ClInclude>
+    <ClInclude Include="godatatable.h">
+      <Filter>게임오브젝트</Filter>
+    </ClInclude>
+    <ClInclude Include="gomain.h">
+      <Filter>게임오브젝트</Filter>
+    </ClInclude>
+    <ClInclude Include="gomodelrenderer.h">
+      <Filter>게임오브젝트</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="gomodelrenderer.cpp">
-      <Filter>게임오브젝트</Filter>
-    </ClCompile>
-    <ClCompile Include="godatatable.cpp">
-      <Filter>게임오브젝트</Filter>
-    </ClCompile>
-    <ClCompile Include="gomain.cpp">
-      <Filter>게임오브젝트</Filter>
-    </ClCompile>
-    <ClCompile Include="entry.cpp">
-      <Filter>소스 파일\entry</Filter>
-    </ClCompile>
-    <ClCompile Include="entrycompo.cpp">
-      <Filter>소스 파일\entry</Filter>
-    </ClCompile>
-    <ClCompile Include="entrybuttoneventfactory.cpp">
-      <Filter>소스 파일\entry</Filter>
-    </ClCompile>
-    <ClCompile Include="entrycompofactory.cpp">
-      <Filter>소스 파일\entry</Filter>
-    </ClCompile>
-    <ClCompile Include="소스.cpp">
-      <Filter>소스 파일\compoevent</Filter>
-    </ClCompile>
-    <ClCompile Include="gotogamebuttonevent.cpp">
-      <Filter>소스 파일\compoevent</Filter>
     </ClCompile>
     <ClCompile Include="game.cpp">
       <Filter>소스 파일\game</Filter>
@@ -106,8 +79,35 @@
     <ClCompile Include="modelviewercompo.cpp">
       <Filter>소스 파일\compo</Filter>
     </ClCompile>
+    <ClCompile Include="entry.cpp">
+      <Filter>소스 파일\entry</Filter>
+    </ClCompile>
+    <ClCompile Include="entrybuttoneventfactory.cpp">
+      <Filter>소스 파일\entry</Filter>
+    </ClCompile>
+    <ClCompile Include="entrycompo.cpp">
+      <Filter>소스 파일\entry</Filter>
+    </ClCompile>
+    <ClCompile Include="entrycompofactory.cpp">
+      <Filter>소스 파일\entry</Filter>
+    </ClCompile>
+    <ClCompile Include="gotogamebuttonevent.cpp">
+      <Filter>소스 파일\compoevent</Filter>
+    </ClCompile>
     <ClCompile Include="modelchangebuttonevent.cpp">
       <Filter>소스 파일\compoevent</Filter>
+    </ClCompile>
+    <ClCompile Include="소스.cpp">
+      <Filter>소스 파일\compoevent</Filter>
+    </ClCompile>
+    <ClCompile Include="godatatable.cpp">
+      <Filter>게임오브젝트</Filter>
+    </ClCompile>
+    <ClCompile Include="gomain.cpp">
+      <Filter>게임오브젝트</Filter>
+    </ClCompile>
+    <ClCompile Include="gomodelrenderer.cpp">
+      <Filter>게임오브젝트</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
