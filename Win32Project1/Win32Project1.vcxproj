@@ -119,6 +119,23 @@
     <ClCompile Include="modelviewercompo.cpp" />
     <ClCompile Include="viewerpadchangebuttonevent.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="shader\format.fx">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="shader\function.fx">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="shader\grobal.fx">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="shader\main.fx">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="shader\shader.fx">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -60,7 +60,7 @@ CLASS_IMPL_FUNC_T(EntryCompoFactory, void, build_CenterPad)(
 	_container->select_Buffer(1);
 
 	// 100개의 컴포넌트를 추가
-	for (unsigned int index = 0; index < 100; ++index)
+	for (unsigned int index = 0; index < 54; ++index)
 	{
 		// 컴포넌트 생성
 		frame::Component * skill_icon = new frame::Component(frame::PARENT_RELATION_RELATIVE);
@@ -73,8 +73,8 @@ CLASS_IMPL_FUNC_T(EntryCompoFactory, void, build_CenterPad)(
 
 		// 컴포넌트 설정
 		skill_icon->set_Visible(true);
-		skill_icon->graphics()->set_imageDetail(clip);
 		skill_icon->graphics()->set_image(L"image/icon/skill.png");
+		skill_icon->graphics()->set_imageDetail(clip);
 
 		// 컴포넌트 추가
 		_container->add_Component(skill_icon);

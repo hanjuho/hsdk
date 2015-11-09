@@ -25,8 +25,8 @@ CLASS_IMPL_FUNC_T(ViewerPadChangeButtonEvent, void, onClick_Up)(
 	_In_ int _x,
 	_In_ int _y)
 {
-	if (my_Centerpad->get_CurrentBuffer() != my_Number ||
-		my_Southpad->get_CurrentBuffer() != my_Number)
+	if (my_Centerpad->get_CurrentBuffer() == my_Number &&
+		my_Southpad->get_CurrentBuffer() == my_Number)
 	{
 		return;
 	}
@@ -56,7 +56,7 @@ CLASS_IMPL_FUNC_T(ViewerPadChangeButtonEvent, void, onClick_Up)(
 	case 1:
 	{
 			  // 센터 레이아웃
-			  frame::layout::GridLayout * gridLayout_Center = new frame::layout::GridLayout(10, 10);
+			  frame::layout::GridLayout * gridLayout_Center = new frame::layout::GridLayout(10, 6);
 			  factory.autoset_CenterGridLayout(gridLayout_Center);
 
 			  // 남쪽 레이아웃
