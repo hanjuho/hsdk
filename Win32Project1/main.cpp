@@ -1,6 +1,7 @@
 #include "common.h"
 #include "entry.h"
-#include "hsdk/win/frame/multicontainer.h"
+#include "hsdk/embeddedpattern.h"
+#include "game/gameobject.h"
 
 //--------------------------------------------------------------------------------------
 frame::inputEventHelper common::g_GUIHelper(nullptr);

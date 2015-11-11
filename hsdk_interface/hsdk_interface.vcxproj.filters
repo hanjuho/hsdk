@@ -81,5 +81,8 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\interface\frame\mouseable.h">
       <Filter>CODE\frame</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\embeddedpattern.h">
+      <Filter>CODE</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
