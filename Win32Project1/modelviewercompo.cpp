@@ -119,12 +119,12 @@ CLASS_IMPL_FUNC_T(ModelViewerCompo, void, render)(
 		{
 			direct3d::g_D3D10_Renderer.set_MatrixWorldViewProj(&direct3d::g_D3D10_identityMatrix);
 			direct3d::g_D3D10_Renderer.set_ScalarPSTime(1.0f);
-			if (m_Graphics.texture)
+			if (m_Graphics.refTexture)
 			{
 				direct3d::g_D3D10_Renderer.set_ScalarVSFlag(0);
 				direct3d::g_D3D10_Renderer.set_ScalarPSFlag(direct3d::PS_TEXTURE_0 | direct3d::PS_CALLFUNCTION_0 | direct3d::PS_TEXMATRIX_0);
 				direct3d::g_D3D10_Renderer.render_UITexture(
-					m_Graphics.texture,
+					m_Graphics.refTexture,
 					&m_Graphics.mTexcoord);
 			}
 			else

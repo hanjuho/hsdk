@@ -122,7 +122,8 @@ CLASS_IMPL_FUNC_T(EntryCompoFactory, void, build_SouthPad)(
 			frame::PARENT_RELATION_RELATIVE);
 
 		// 컴포넌트 추가
-		_container->set_Visible(true);
+		skill_icon->set_Visible(true);
+		skill_icon->graphics()->set_Background({ 0.0f, 0.0f, 0.0f, 1.0f });
 		_container->add_Component(skill_icon);
 	}
 
@@ -308,7 +309,7 @@ CLASS_IMPL_FUNC_T(EntryCompoFactory, void, autoset_SouthGridLayout1)(
 	_layout->set_Space(
 		hsdk::i::frame::SPACE_BOTTOM, 0.3f);
 
-	_layout->set_HGap(0.2f);
+	_layout->set_HGap(0.1f);
 	_layout->set_VGap(0.1f);
 }
 

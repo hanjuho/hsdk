@@ -267,7 +267,7 @@ DECL_FUNC_T(void, game::OnD3D10DestroyDevice)(
 	direct3d::mesh::meshClear(g_TerrainMesh);
 	direct3d::mesh::meshClear(g_SkyMesh);
 
-	g_GUI_Game.clear();
+	g_GUI_Game.reset();
 }
 
 //--------------------------------------------------------------------------------------
@@ -310,7 +310,7 @@ IMPL_FUNC(game::build_GameLayout)(
 	_In_ float _width,
 	_In_ float _height)
 {
-	_container->clear();
+	_container->clear_Component();
 
 	frame::Component * button = new frame::ButtonCompo();
 	button->set_Visible(true);
