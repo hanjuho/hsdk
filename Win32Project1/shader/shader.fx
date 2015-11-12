@@ -75,8 +75,6 @@ PS_SKYBOX_INPUT VS_SkyBox(float4 Pos : POSITION)
 	PS_SKYBOX_INPUT output;
 
 	output.Pos = mul(Pos, g_mWorldViewProj);
-	//output.Pos.z = output.Pos.w;
-
 	output.Tex = Pos.xyz;
 
 	return output;

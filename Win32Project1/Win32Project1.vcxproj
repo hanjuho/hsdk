@@ -104,6 +104,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="common.inl" />
+    <None Include="gocommon.inl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="entry.cpp" />

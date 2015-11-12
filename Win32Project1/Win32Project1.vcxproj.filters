@@ -63,7 +63,7 @@
       <Filter>소스 파일\compoevent</Filter>
     </ClInclude>
     <ClInclude Include="game.h">
-      <Filter>리소스 파일</Filter>
+      <Filter>소스 파일\game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -122,6 +122,9 @@
     </None>
     <None Include="shader\shader.fx">
       <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="gocommon.inl">
+      <Filter>게임오브젝트</Filter>
     </None>
   </ItemGroup>
 </Project>
