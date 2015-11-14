@@ -8,6 +8,16 @@ using namespace go;
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_CONSTRUCTOR(GameEngine, GameEngine)(void)
 {
+	HRESULT hr;	
+	IF_FAILED(hr = my_PhysicsEngine.setup0_World(
+		10000,
+		10000,
+		10000,
+		go::callback_CollisionResult))
+	{
+		throw hr;
+	}
+
 
 }
 

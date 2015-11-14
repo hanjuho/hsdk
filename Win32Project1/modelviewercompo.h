@@ -27,6 +27,9 @@ namespace compo
 			// 설명 : 
 			direct3d::D3D10_Animation_Recorder pos;
 
+			// 설명 :
+			bool animation = false;
+
 		};
 
 	public:
@@ -54,6 +57,12 @@ namespace compo
 			_In_ int _x,
 			_In_ int _y);
 
+		// 설명 : mouse의 wheel을 조작하면 발생하는 event.
+		INTERFACE_DECL_FUNC_T(void, onWheel)(
+			_In_ int _x,
+			_In_ int _y,
+			_In_ int _w);
+
 		// 설명 : component 갱신.
 		INTERFACE_DECL_FUNC_T(void, update)(
 			_X_ void);
@@ -70,7 +79,7 @@ namespace compo
 		CLASS_DECL_FUNC_T(void, select_Model)(
 			_In_ unsigned int _index,
 			_In_ unsigned int _animation);
-		
+
 		// 설명 :
 		CLASS_DECL_FUNC_T(unsigned int, get_NumModel)(
 			_X_ void);
@@ -80,12 +89,18 @@ namespace compo
 			_X_ void);
 
 	protected:
-		
+
 		// 설명 :
 		bool my_CameraControl = false;
 
 		// 설명 : 
-		framework::Framework_Camera my_Camera;
+		D3DXVECTOR3 my_vTarget;
+
+		// 설명 : 
+		D3DXVECTOR3 my_vPos;
+
+		// 설명 : 
+		D3DXVECTOR3 my_vUp;
 
 		// 설명 : 
 		D3DXMATRIX my_mView = {
@@ -104,11 +119,13 @@ namespace compo
 		// 설명 : 
 		direct3d::D3D10_RenderTarget my_RenderTarget;
 
-		// 설명 : 
-		std::vector<Model> my_Models;
-
 		// 설명 :
 		unsigned int my_ViewModel = 0;
+
+	public:
+
+		// 설명 : 
+		std::vector<Model> my_Models;
 
 	};
 }

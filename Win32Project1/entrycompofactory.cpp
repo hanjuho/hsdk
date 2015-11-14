@@ -212,8 +212,8 @@ CLASS_IMPL_FUNC_T(EntryCompoFactory, compo::ModelViewerCompo *, create_ModelView
 	// ¸ðµ¨ ¸ñ·Ï
 	const wchar_t * modelnames[3] = {
 		L"Arthas.X",
-		L"DeathwingHuman.X",
-		L"Deathwing.X" };
+		L"LibertStatue.obj",
+		L"lich_King.FBX" };
 
 	// ¸ðµ¨ ºä¾î
 	compo::ModelViewerCompo * modelView = new compo::ModelViewerCompo(
@@ -223,6 +223,30 @@ CLASS_IMPL_FUNC_T(EntryCompoFactory, compo::ModelViewerCompo *, create_ModelView
 	// ¼³Á¤
 	modelView->set_Visible(true);
 	modelView->graphics()->set_Background({ 0.0f, 0.0f, 0.0f, 1.0f });
+
+	D3DX10CreateShaderResourceViewFromFile(
+		framework::g_Framework_Device.d3d10Device,
+		L"model/ARTHASLICHKING_01.png", nullptr, nullptr, &modelView->my_Models[2].mesh.materials[0].diffuseRV, nullptr);
+
+	D3DX10CreateShaderResourceViewFromFile(
+		framework::g_Framework_Device.d3d10Device,
+		L"model/ARTHASLICHKING_02.png", nullptr, nullptr, &modelView->my_Models[2].mesh.materials[1].diffuseRV, nullptr);
+
+	D3DX10CreateShaderResourceViewFromFile(
+		framework::g_Framework_Device.d3d10Device,
+		L"model/SWORD_2H_FROSTMOURNE_ARTHAS2.png", nullptr, nullptr, &modelView->my_Models[2].mesh.materials[2].diffuseRV, nullptr);
+
+	D3DX10CreateShaderResourceViewFromFile(
+		framework::g_Framework_Device.d3d10Device,
+		L"model/ARMORREFLECT3.png", nullptr, nullptr, &modelView->my_Models[2].mesh.materials[3].diffuseRV, nullptr);
+
+	D3DX10CreateShaderResourceViewFromFile(
+		framework::g_Framework_Device.d3d10Device,
+		L"model/BEAM_SMOKEGREY.png", nullptr, nullptr, &modelView->my_Models[2].mesh.materials[4].diffuseRV, nullptr);
+
+	D3DX10CreateShaderResourceViewFromFile(
+		framework::g_Framework_Device.d3d10Device,
+		L"model/T_VFX_FIRE_ANIM02_128_FULL_DESAT_BLUE.png", nullptr, nullptr, &modelView->my_Models[2].mesh.materials[5].diffuseRV, nullptr);
 
 	// ¹ÝÈ¯
 	return modelView;

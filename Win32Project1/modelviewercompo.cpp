@@ -11,7 +11,10 @@ CLASS_IMPL_CONSTRUCTOR(ModelViewerCompo, ModelViewerCompo)(
 	_In_ const wchar_t * _path,
 	_In_ const wchar_t ** _names,
 	_In_ unsigned int _size)
-	: Component(_relation)
+	: Component(_relation), 
+	my_vTarget(0.0f, 0.5f, 0.0f), 
+	my_vPos(0.0f, 1.0f, 3.0f),
+	my_vUp(0.0f, 1.0f, 0.0f)
 {
 	if (_size < 1)
 	{
@@ -30,11 +33,15 @@ CLASS_IMPL_CONSTRUCTOR(ModelViewerCompo, ModelViewerCompo)(
 			_names[index],
 			&model.anim)))
 		{
-			direct3d::animation::build_Pos(
-				model.pos,
-				model.anim,
-				0,
-				0.0f);
+			if (hr & 0x01)
+			{
+				model.animation = true;
+				direct3d::animation::build_Pos(
+					model.pos,
+					model.anim,
+					0,
+					0.0f);
+			}
 		}
 		else
 		{
@@ -42,11 +49,7 @@ CLASS_IMPL_CONSTRUCTOR(ModelViewerCompo, ModelViewerCompo)(
 		}
 	}
 
-	my_Camera.set_Position(D3DXVECTOR3(0.0f, 1.0f, 3.0f));
-	my_Camera.set_Target(D3DXVECTOR3(0.0f, 0.5f, 0.0f));
-	my_Camera.rotate_ZAxis(D3DX_PI);
-
-	my_Camera.compute_ViewMatrix(my_mView);
+	D3DXMatrixLookAtLH(&my_mView, &(my_vTarget + my_vPos), &my_vTarget, &my_vUp);
 }
 
 //--------------------------------------------------------------------------------------
@@ -73,10 +76,32 @@ CLASS_IMPL_FUNC_T(ModelViewerCompo, void, onDrag)(
 {
 	if (my_CameraControl)
 	{
-		my_Camera.rotate_YAxis(D3DXToDegree(_x) * 0.001f, true);
-		my_Camera.rotate_XAxis(D3DXToDegree(_y) * 0.001f, true);
+		D3DXMATRIX r1, r2;
+		D3DXVECTOR3 cross;
 
-		my_Camera.compute_ViewMatrix(my_mView);
+		D3DXVec3Normalize(&cross, &my_vPos);
+		D3DXMatrixRotationAxis(&r1, D3DXVec3Cross(&cross, &cross, &my_vUp), D3DXToDegree(_y) * 0.001f);
+		D3DXMatrixRotationY(&r2, D3DXToDegree(_x) * 0.001f);
+
+		D3DXVec3TransformNormal(&my_vPos, &my_vPos, &(r1 * r2));
+
+		D3DXMatrixLookAtLH(&my_mView, &(my_vTarget + my_vPos), &my_vTarget, &my_vUp);
+	}
+}
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(ModelViewerCompo, void, onWheel)(
+	_In_ int _x,
+	_In_ int _y,
+	_In_ int _w)
+{
+	if (my_CameraControl)
+	{
+		D3DXVECTOR3 normal;
+		D3DXVec3Normalize(&normal, &my_vPos);
+		my_vPos += (normal * float(_w / 120));
+
+		D3DXMatrixLookAtLH(&my_mView, &(my_vTarget + my_vPos), &my_vTarget, &my_vUp);
 	}
 }
 
@@ -84,12 +109,15 @@ CLASS_IMPL_FUNC_T(ModelViewerCompo, void, onDrag)(
 CLASS_IMPL_FUNC_T(ModelViewerCompo, void, update)(
 	_X_ void)
 {
-	my_Models[my_ViewModel].pos.time +=
-		framework::g_Framework_TimeStream.get_ElapsedTime();
+	if (my_Models[my_ViewModel].animation)
+	{
+		my_Models[my_ViewModel].pos.time +=
+			framework::g_Framework_TimeStream.get_ElapsedTime();
 
-	direct3d::animation::animate_Pos(
-		my_Models[my_ViewModel].pos,
-		my_Models[my_ViewModel].anim);
+		direct3d::animation::animate_Pos(
+			my_Models[my_ViewModel].pos,
+			my_Models[my_ViewModel].anim);
+	}
 }
 
 //--------------------------------------------------------------------------------------
@@ -139,12 +167,20 @@ CLASS_IMPL_FUNC_T(ModelViewerCompo, void, render)(
 			direct3d::g_D3D10_Renderer.set_MatrixWorldViewProj(D3DXMatrixMultiply(&t, &my_mView, &my_mProj));
 
 			direct3d::g_D3D10_Renderer.set_ScalarVSFlag(0);
-			direct3d::g_D3D10_Renderer.set_ScalarPSFlag(direct3d::PS_TEXTURE_0);
+			direct3d::g_D3D10_Renderer.set_ScalarPSFlag(direct3d::PS_MARERIAL_0 | direct3d::PS_TEXTURE_0);
 
-			direct3d::g_D3D10_Renderer.render_Skinned(
-				my_Models[my_ViewModel].mesh,
-				my_Models[my_ViewModel].anim,
-				my_Models[my_ViewModel].pos, 1);
+			if (my_Models[my_ViewModel].animation)
+			{
+				direct3d::g_D3D10_Renderer.render_Skinned(
+					my_Models[my_ViewModel].mesh,
+					my_Models[my_ViewModel].anim,
+					my_Models[my_ViewModel].pos, 1);
+			}
+			else
+			{
+				direct3d::g_D3D10_Renderer.render_Mesh(
+					my_Models[my_ViewModel].mesh, 2);
+			}
 
 			my_RenderTarget.end();
 		}
@@ -166,8 +202,13 @@ CLASS_IMPL_FUNC_T(ModelViewerCompo, void, select_Model)(
 {
 	if (_index < my_Models.size())
 	{
-		Model & refmodel = my_Models[my_ViewModel];
+		Model & refmodel = my_Models[_index];
 		my_ViewModel = _index;
+
+		IF_FALSE(refmodel.animation)
+		{
+			return;
+		}
 
 		refmodel.pos.time = 0.0f;
 		refmodel.pos.aniamtionID =
