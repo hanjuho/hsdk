@@ -26,7 +26,7 @@
     <Filter Include="WIN\sound">
       <UniqueIdentifier>{41916e44-d8eb-47c4-88b8-e760c061b659}</UniqueIdentifier>
     </Filter>
-    <Filter Include="WIN\direct3d">
+    <Filter Include="WIN\frame\direct3d">
       <UniqueIdentifier>{fb0025f1-3c51-4636-b773-780a4747d314}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -116,28 +116,28 @@
       <Filter>WIN\frame\layout</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_animation.h">
-      <Filter>WIN\direct3d</Filter>
+      <Filter>WIN\frame\direct3d</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_common.h">
-      <Filter>WIN\direct3d</Filter>
+      <Filter>WIN\frame\direct3d</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_factory.h">
-      <Filter>WIN\direct3d</Filter>
+      <Filter>WIN\frame\direct3d</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_font.h">
-      <Filter>WIN\direct3d</Filter>
+      <Filter>WIN\frame\direct3d</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_mesh.h">
-      <Filter>WIN\direct3d</Filter>
+      <Filter>WIN\frame\direct3d</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_renderer.h">
-      <Filter>WIN\direct3d</Filter>
+      <Filter>WIN\frame\direct3d</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_rendertarget.h">
-      <Filter>WIN\direct3d</Filter>
+      <Filter>WIN\frame\direct3d</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_terrain.h">
-      <Filter>WIN\direct3d</Filter>
+      <Filter>WIN\frame\direct3d</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\hsdk\win\criticalsection\autoresetevent.h">
       <Filter>WIN\ctst</Filter>
@@ -163,7 +163,7 @@
       <Filter>WIN</Filter>
     </None>
     <None Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_animation.inl">
-      <Filter>WIN\direct3d</Filter>
+      <Filter>WIN\frame\direct3d</Filter>
     </None>
     <None Include="..\..\..\..\sdks\hsdk\src\hsdk\win\frame\rendertargetcontainer.inl">
       <Filter>WIN\frame</Filter>
@@ -237,25 +237,25 @@
       <Filter>WIN\frame\layout</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_animation.cpp">
-      <Filter>WIN\direct3d</Filter>
+      <Filter>WIN\frame\direct3d</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_factory.cpp">
-      <Filter>WIN\direct3d</Filter>
+      <Filter>WIN\frame\direct3d</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_font.cpp">
-      <Filter>WIN\direct3d</Filter>
+      <Filter>WIN\frame\direct3d</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_mesh.cpp">
-      <Filter>WIN\direct3d</Filter>
+      <Filter>WIN\frame\direct3d</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_renderer.cpp">
-      <Filter>WIN\direct3d</Filter>
+      <Filter>WIN\frame\direct3d</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_rendertarget.cpp">
-      <Filter>WIN\direct3d</Filter>
+      <Filter>WIN\frame\direct3d</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\direct3d\d3d10_terrain.cpp">
-      <Filter>WIN\direct3d</Filter>
+      <Filter>WIN\frame\direct3d</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\hsdk\win\criticalsection\autoresetevent.cpp">
       <Filter>WIN\ctst</Filter>

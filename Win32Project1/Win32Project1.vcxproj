@@ -96,7 +96,7 @@
     <ClInclude Include="gocommon.h" />
     <ClInclude Include="godatatable.h" />
     <ClInclude Include="gomain.h" />
-    <ClInclude Include="gomodelrenderer.h" />
+    <ClInclude Include="gorenderer.h" />
     <ClInclude Include="gotogamebuttonevent.h" />
     <ClInclude Include="modelchangebuttonevent.h" />
     <ClInclude Include="modelviewercompo.h" />
@@ -113,7 +113,7 @@
     <ClCompile Include="game.cpp" />
     <ClCompile Include="godatatable.cpp" />
     <ClCompile Include="gomain.cpp" />
-    <ClCompile Include="gomodelrenderer.cpp" />
+    <ClCompile Include="gorenderer.cpp" />
     <ClCompile Include="gotogamebuttonevent.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="modelchangebuttonevent.cpp" />

@@ -11,8 +11,8 @@ CLASS_IMPL_CONSTRUCTOR(ModelViewerCompo, ModelViewerCompo)(
 	_In_ const wchar_t * _path,
 	_In_ const wchar_t ** _names,
 	_In_ unsigned int _size)
-	: Component(_relation), 
-	my_vTarget(0.0f, 0.5f, 0.0f), 
+	: Component(_relation),
+	my_vTarget(0.0f, 0.5f, 0.0f),
 	my_vPos(0.0f, 1.0f, 3.0f),
 	my_vUp(0.0f, 1.0f, 0.0f)
 {
@@ -28,7 +28,7 @@ CLASS_IMPL_CONSTRUCTOR(ModelViewerCompo, ModelViewerCompo)(
 	{
 		Model & model = my_Models[index];
 		if (SUCCEEDED(hr = direct3d::g_D3D10_Factory.build_MeshFromFile(
-			model.mesh,
+			&model.mesh,
 			_path,
 			_names[index],
 			&model.anim)))
@@ -37,10 +37,7 @@ CLASS_IMPL_CONSTRUCTOR(ModelViewerCompo, ModelViewerCompo)(
 			{
 				model.animation = true;
 				direct3d::animation::build_Pos(
-					model.pos,
-					model.anim,
-					0,
-					0.0f);
+					&model.pos, model.anim,	0, 0.0f);
 			}
 		}
 		else
@@ -115,8 +112,13 @@ CLASS_IMPL_FUNC_T(ModelViewerCompo, void, update)(
 			framework::g_Framework_TimeStream.get_ElapsedTime();
 
 		direct3d::animation::animate_Pos(
-			my_Models[my_ViewModel].pos,
+			&my_Models[my_ViewModel].pos,
 			my_Models[my_ViewModel].anim);
+	}
+
+	if (parent())
+	{
+		parent()->redraw();
 	}
 }
 
@@ -215,7 +217,7 @@ CLASS_IMPL_FUNC_T(ModelViewerCompo, void, select_Model)(
 			_animation % refmodel.anim.animations.size();
 
 		direct3d::animation::reset_Pos(
-			refmodel.pos, refmodel.anim);
+			&refmodel.pos, refmodel.anim);
 	}
 }
 

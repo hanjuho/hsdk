@@ -1,5 +1,6 @@
 #include "game.h"
 #include "entry.h"
+#include "gomain.h"
 
 
 
@@ -18,17 +19,17 @@
 // 설명 : 
 common::GUI_Target g_GUI_Game;
 
+// 설명 : 
+go::GameEngine g_GameEngine;
+
 // 설명 :
 FMOD::Sound * g_Sound_Background1;
 FMOD::Channel * g_Sound_Controller1;
 
 // 설명 : 
-direct3d::D3D10_Terrain g_Terrain;
-direct3d::D3D10_Mesh g_TerrainMesh;
-direct3d::D3D10_Mesh g_SkyMesh;
-
-// 설명 : 
-framework::Framework_Camera g_Camera;
+D3DXVECTOR3 g_vTarget;
+D3DXVECTOR3 g_vPos;
+D3DXVECTOR3 g_vUp;
 
 //--------------------------------------------------------------------------------------
 class GoEntryButtonEvent :
@@ -42,7 +43,7 @@ public:
 		_In_ int _x,
 		_In_ int _y)
 	{
-		entry::initialize_Entry(nullptr);
+		entryloop::initialize_Entry(nullptr);
 	}
 };
 
@@ -67,10 +68,14 @@ public:
 		_In_ int _x,
 		_In_ int _y)
 	{
-		g_Camera.rotate_YAxis(D3DXToDegree(_x) * 0.001f, true);
-		g_Camera.rotate_XAxis(D3DXToDegree(_y) * 0.001f, true);
+		D3DXMATRIX r1, r2;
+		D3DXVECTOR3 cross;
 
-		g_Camera.compute_ViewMatrix(direct3d::g_D3D10_ViewMatrix);
+		D3DXVec3Normalize(&cross, &g_vPos);
+		D3DXMatrixRotationAxis(&r1, D3DXVec3Cross(&cross, &cross, &g_vUp), D3DXToDegree(_y) * 0.001f);
+		D3DXMatrixRotationY(&r2, D3DXToDegree(_x) * 0.001f);
+
+		D3DXVec3TransformNormal(&g_vPos, &g_vPos, &(r1 * r2));
 	}
 
 	// 설명 : mouse의 wheel을 조작하면 발생하는 event.
@@ -79,32 +84,33 @@ public:
 		_In_ int _y,
 		_In_ int _w)
 	{
-		g_Camera.set_Hinge(g_Camera.get_Hinge() + (_w / 120.f));
+		D3DXVECTOR3 normal;
+		D3DXVec3Normalize(&normal, &g_vPos);
+		g_vPos += (normal * float(_w / 40));
 	}
 
 };
 
 //--------------------------------------------------------------------------------------
-IMPL_FUNC_T(void, game::OnFrameMove)(
+IMPL_FUNC_T(void, gameloop::OnFrameMove)(
 	_In_ double _fTime,
 	_In_ float _fElapsedTime,
 	_Inout_ void * _userContext)
 {
 	sound::g_FMOD_SoundDevice.play();
-
+	g_GameEngine.update(_fElapsedTime);
 	g_GUI_Game.update();
 }
 
 //--------------------------------------------------------------------------------------
-IMPL_FUNC_T(void, game::OnD3D10FrameRender)(
+IMPL_FUNC_T(void, gameloop::OnD3D10FrameRender)(
 	_In_ ID3D10Device * _d3dDevice,
 	_In_ double _fTime,
 	_In_ float _fElapsedTime,
 	_Inout_ void * _userContext)
 {
-	g_Camera.compute_ViewMatrix(direct3d::g_D3D10_ViewMatrix);
-	direct3d::g_D3D10_ViewProjMatrix =
-		direct3d::g_D3D10_ViewMatrix * direct3d::g_D3D10_ProjMatrix;
+	D3DXMatrixLookAtLH(&direct3d::g_D3D10_ViewMatrix, &(g_vTarget + g_vPos), &g_vTarget, &g_vUp);
+	direct3d::g_D3D10_ViewProjMatrix = direct3d::g_D3D10_ViewMatrix * direct3d::g_D3D10_ProjMatrix;
 
 	// Clear the render target and depth stencil
 	float ClearColor[4] = { 0.2f, 0.2f, 0.2f, 1.0f };
@@ -112,18 +118,12 @@ IMPL_FUNC_T(void, game::OnD3D10FrameRender)(
 	_d3dDevice->ClearRenderTargetView(pRTV, ClearColor);
 	ID3D10DepthStencilView * pDSV = framework::g_Framework_Device.d3d10DSV;
 	_d3dDevice->ClearDepthStencilView(pDSV, D3D10_CLEAR_DEPTH, 1.0, 0);
-
-	direct3d::g_D3D10_Renderer.set_MatrixWorldViewProj(&direct3d::g_D3D10_ViewProjMatrix);
-	direct3d::g_D3D10_Renderer.set_ScalarVSFlag(0);
-	direct3d::g_D3D10_Renderer.set_ScalarPSFlag(direct3d::PS_TEXTURE_0);
-	direct3d::g_D3D10_Renderer.render_SkyBox(g_SkyMesh);
-	direct3d::g_D3D10_Renderer.render_Mesh(g_TerrainMesh);
-
+	g_GameEngine.render();
 	g_GUI_Game.render();
 }
 
 //--------------------------------------------------------------------------------------
-IMPL_FUNC_T(LRESULT, game::OnMsgProc)(
+IMPL_FUNC_T(LRESULT, gameloop::OnMsgProc)(
 	_Out_opt_ BOOL * _bNoFurtherProcessing,
 	_In_ HWND _hWnd,
 	_In_ UINT _uMsg,
@@ -137,13 +137,14 @@ IMPL_FUNC_T(LRESULT, game::OnMsgProc)(
 		g_GUI_Game.set_W((float)LOWORD(_lParam));
 		g_GUI_Game.set_H((float)HIWORD(_lParam));
 		g_GUI_Game.reform();
+		g_GUI_Game.redraw();
 	}
 
 	return 0;
 }
 
 //--------------------------------------------------------------------------------------
-IMPL_FUNC_T(void, game::OnMouse)(
+IMPL_FUNC_T(void, gameloop::OnMouse)(
 	_In_ const short * _buttonsDown,
 	_In_ unsigned int _buttonCount,
 	_In_ int _mouseWheelDelta,
@@ -160,7 +161,7 @@ IMPL_FUNC_T(void, game::OnMouse)(
 }
 
 //--------------------------------------------------------------------------------------
-IMPL_FUNC_T(void, game::OnKeyboard)(
+IMPL_FUNC_T(void, gameloop::OnKeyboard)(
 	_In_ unsigned char _nKey,
 	_In_ short _bKeyDown,
 	_In_ short _bAltDown,
@@ -170,7 +171,7 @@ IMPL_FUNC_T(void, game::OnKeyboard)(
 }
 
 //--------------------------------------------------------------------------------------
-IMPL_FUNC(game::OnD3D10CreateDevice)(
+IMPL_FUNC(gameloop::OnD3D10CreateDevice)(
 	_In_ ID3D10Device * _d3dDevice,
 	_In_ const DXGI_SURFACE_DESC & _backBufferSurfaceDesc,
 	_Inout_ void * _userContext)
@@ -178,57 +179,42 @@ IMPL_FUNC(game::OnD3D10CreateDevice)(
 	HRESULT hr = E_FAIL;
 	IF_SUCCEEDED(hr = common::initialize_Common(&g_GUI_Game))
 	{
-		g_Camera.set_Position(D3DXVECTOR3(0.0f, 20.0f, -50.0f));
-		g_Camera.set_Hinge(50.0f);
-		//g_Camera.set_Target(D3DXVECTOR3(0.0f, 10.0f, 0.0f));
+		g_vTarget = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_vPos = D3DXVECTOR3(0.0f, 20.0f, 100.0f);
+		g_vUp = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
 
-		// skybox
-		{
-			//
-			ID3D10ShaderResourceView * view;
-			direct3d::g_D3D10_Factory.create_SkyBoxTexture(&view, 512, 512,
-				L"image/skybox/jajalien1_front.jpg",
-				L"image/skybox/jajalien1_back.jpg",
-				L"image/skybox/jajalien1_left.jpg",
-				L"image/skybox/jajalien1_right.jpg",
-				L"image/skybox/jajalien1_top.jpg",
-				L"");
+		D3DXMatrixLookAtLH(&direct3d::g_D3D10_ViewMatrix,
+			&(g_vTarget + g_vPos), &g_vTarget, &g_vUp);
 
-			direct3d::g_D3D10_Factory.build_MeshSkyBox(g_SkyMesh, 100.0f);
-
-			g_SkyMesh.materials[0].diffuseRV =
-				AutoRelease<ID3D10ShaderResourceView>(view);
-		}
-
-		// height buffer
 		float heightbuffer[TERRAINHEIGHTBUFFER];
-		direct3d::terrain::load_RawFromFile(
-			heightbuffer, L"terrain/terrain0.raw", TERRAINHEIGHTBUFFER, 25);
-
-		// terrain
+		IF_FAILED(hr = direct3d::terrain::load_RawFromFile(heightbuffer, L"terrain/terrain0.raw", TERRAINHEIGHTBUFFER, 25))
 		{
-			// pixel size 1.0f
-			direct3d::terrain::build_Terrain(
-				g_Terrain, TERRAINWIDTH, TERRAINDEPTH, TERRAINWIDTH, TERRAINDEPTH);
-
-			//
-			direct3d::g_D3D10_Factory.build_MeshTerran(
-				g_TerrainMesh, g_Terrain, heightbuffer);
-
-			//
-			ID3D10ShaderResourceView * view;
-			IF_SUCCEEDED(direct3d::g_D3D10_Factory.get_Texture(
-				&view, L"image/terrain/terrain.png"))
-			{
-				g_TerrainMesh.materials[0].diffuseRV =
-					AutoRelease<ID3D10ShaderResourceView>(view);
-			}
+			return hr;
 		}
 
-		//// 물리 엔진
-		//bullet::g_BulletEngine.reset();
-		//bullet::g_BulletEngine.setup0_World(300, 300, 300, game::callback_CollisionResult);
-		//bullet::g_BulletEngine.setup1_Terrain(TERRAINWIDTH, TERRAINDEPTH, heightbuffer, TERRAINHEIGHTBUFFER);
+		// 터레인
+		IF_FAILED(hr = g_GameEngine.setup0_Terrain(TERRAINWIDTH, TERRAINDEPTH, heightbuffer, TERRAINHEIGHTBUFFER))
+		{
+			return hr;
+		}
+
+		// 터레인
+		IF_FAILED(hr = g_GameEngine.usetSet_Terrain(L"image/terrain/terrain.png"))
+		{
+			return hr;
+		}
+
+		// 스카이
+		IF_FAILED(hr = g_GameEngine.usetSet_Sky(512, 512,
+			L"image/skybox/jajalien1_front.jpg",
+			L"image/skybox/jajalien1_back.jpg",
+			L"image/skybox/jajalien1_left.jpg",
+			L"image/skybox/jajalien1_right.jpg",
+			L"image/skybox/jajalien1_top.jpg",
+			L""))
+		{
+			return hr;
+		}
 
 		// layout
 		IF_FAILED(hr = build_GameLayout(&g_GUI_Game,
@@ -258,20 +244,20 @@ IMPL_FUNC(game::OnD3D10CreateDevice)(
 }
 
 //--------------------------------------------------------------------------------------
-DECL_FUNC_T(void, game::OnD3D10DestroyDevice)(
+DECL_FUNC_T(void, gameloop::OnD3D10DestroyDevice)(
 	_Inout_ void * _userContext)
 {
 	common::destroy_Common();
 
 	// bullet::g_BulletEngine.reset();
-	direct3d::mesh::meshClear(g_TerrainMesh);
-	direct3d::mesh::meshClear(g_SkyMesh);
+	/*direct3d::mesh::meshClear(g_TerrainMesh);
+	direct3d::mesh::meshClear(g_SkyMesh);*/
 
 	g_GUI_Game.reset();
 }
 
 //--------------------------------------------------------------------------------------
-IMPL_FUNC(game::initialize_Game)(
+IMPL_FUNC(gameloop::initialize_Game)(
 	_In_ void * _context)
 {
 	if (framework::g_Framework_Callbacks.d3d10DeviceDestroyedFunc)
@@ -280,14 +266,13 @@ IMPL_FUNC(game::initialize_Game)(
 			framework::g_Framework_Callbacks.d3d10DeviceDestroyedFuncUserContext);
 	}
 
-	framework::g_Framework_Callbacks.windowMsgFunc = game::OnMsgProc;
-	framework::g_Framework_Callbacks.mouseFunc = game::OnMouse;
-	framework::g_Framework_Callbacks.keyboardFunc = game::OnKeyboard;
-	framework::g_Framework_Callbacks.frameMoveFunc = game::OnFrameMove;
-
-	framework::g_Framework_Callbacks.d3d10DeviceCreatedFunc = game::OnD3D10CreateDevice;
-	framework::g_Framework_Callbacks.d3d10DeviceDestroyedFunc = game::OnD3D10DestroyDevice;
-	framework::g_Framework_Callbacks.d3d10FrameRenderFunc = game::OnD3D10FrameRender;
+	framework::g_Framework_Callbacks.windowMsgFunc = gameloop::OnMsgProc;
+	framework::g_Framework_Callbacks.mouseFunc = gameloop::OnMouse;
+	framework::g_Framework_Callbacks.keyboardFunc = gameloop::OnKeyboard;
+	framework::g_Framework_Callbacks.frameMoveFunc = gameloop::OnFrameMove;
+	framework::g_Framework_Callbacks.d3d10DeviceCreatedFunc = gameloop::OnD3D10CreateDevice;
+	framework::g_Framework_Callbacks.d3d10DeviceDestroyedFunc = gameloop::OnD3D10DestroyDevice;
+	framework::g_Framework_Callbacks.d3d10FrameRenderFunc = gameloop::OnD3D10FrameRender;
 
 	if (framework::g_Framework_Callbacks.d3d10DeviceCreatedFunc)
 	{
@@ -305,7 +290,7 @@ IMPL_FUNC(game::initialize_Game)(
 }
 
 //--------------------------------------------------------------------------------------
-IMPL_FUNC(game::build_GameLayout)(
+IMPL_FUNC(gameloop::build_GameLayout)(
 	_In_ frame::Container * _container,
 	_In_ float _width,
 	_In_ float _height)
@@ -320,7 +305,7 @@ IMPL_FUNC(game::build_GameLayout)(
 	button->graphics()->set_image(L"image/layout/button.png");
 
 	// 버튼 컨테이너
-	frame::RenderTargetContainer<frame::Container> * skillContainer = 
+	frame::RenderTargetContainer<frame::Container> * skillContainer =
 		new frame::RenderTargetContainer<frame::Container>();
 
 	skillContainer->set_Visible(true);

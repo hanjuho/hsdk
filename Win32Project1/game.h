@@ -6,7 +6,7 @@
 
 
 
-namespace game
+namespace gameloop
 {
 
 	// Ό³Έν :

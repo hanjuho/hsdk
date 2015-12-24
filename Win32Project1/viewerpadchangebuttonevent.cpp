@@ -34,7 +34,7 @@ CLASS_IMPL_FUNC_T(ViewerPadChangeButtonEvent, void, onClick_Up)(
 	my_Centerpad->select_Buffer(my_Number);
 	my_Southpad->select_Buffer(my_Number);
 
-	entry::EntryCompoFactory factory;
+	entryloop::EntryCompoFactory factory;
 
 	switch (my_Number)
 	{
@@ -71,5 +71,8 @@ CLASS_IMPL_FUNC_T(ViewerPadChangeButtonEvent, void, onClick_Up)(
 	}
 
 	my_Centerpad->reform();
+	my_Centerpad->redraw();
+
 	my_Southpad->reform();
+	my_Southpad->redraw();
 }

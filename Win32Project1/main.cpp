@@ -10,15 +10,13 @@ frame::inputEventHelper common::g_GUIHelper(nullptr);
 int CALLBACK wWinMain(HINSTANCE _hInstance, HINSTANCE, LPWSTR, int)
 {
 	// Set DXUT callbacks
-	framework::g_Framework_Callbacks.windowMsgFunc = entry::OnMsgProc;
-	framework::g_Framework_Callbacks.mouseFunc = entry::OnMouse;
-	framework::g_Framework_Callbacks.keyboardFunc = entry::OnKeyboard;
-	framework::g_Framework_Callbacks.frameMoveFunc = entry::OnFrameMove;
-
-	framework::g_Framework_Callbacks.d3d10DeviceCreatedFunc = entry::OnD3D10CreateDevice;
-	framework::g_Framework_Callbacks.d3d10DeviceDestroyedFunc = entry::OnD3D10DestroyDevice;
-	framework::g_Framework_Callbacks.d3d10FrameRenderFunc = entry::OnD3D10FrameRender;
-
+	framework::g_Framework_Callbacks.windowMsgFunc = entryloop::OnMsgProc;
+	framework::g_Framework_Callbacks.mouseFunc = entryloop::OnMouse;
+	framework::g_Framework_Callbacks.keyboardFunc = entryloop::OnKeyboard;
+	framework::g_Framework_Callbacks.frameMoveFunc = entryloop::OnFrameMove;
+	framework::g_Framework_Callbacks.d3d10DeviceCreatedFunc = entryloop::OnD3D10CreateDevice;
+	framework::g_Framework_Callbacks.d3d10DeviceDestroyedFunc = entryloop::OnD3D10DestroyDevice;
+	framework::g_Framework_Callbacks.d3d10FrameRenderFunc = entryloop::OnD3D10FrameRender;
 	framework::g_Framework_Callbacks.d3d10SwapChainResizedFunc = common::OnD3D10SwapchainResized;
 
 	HRESULT hr = S_OK;

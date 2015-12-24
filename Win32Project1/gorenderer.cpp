@@ -1,4 +1,4 @@
-#include "gomodelrenderer.h"
+#include "gorenderer.h"
 
 
 
@@ -6,21 +6,21 @@ using namespace go;
 
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(AnimateModelRenderer, void, initialize)(
+CLASS_IMPL_FUNC_T(AnimateRenderer, void, initialize)(
 	_X_ void)
 {
 	
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(AnimateModelRenderer, void, update)(
+CLASS_IMPL_FUNC_T(AnimateRenderer, void, update)(
 	_X_ void)
 {
 
 }
 
 //--------------------------------------------------------------------------------------
-CLASS_IMPL_FUNC_T(AnimateModelRenderer, void, render)(
+CLASS_IMPL_FUNC_T(AnimateRenderer, void, render)(
 	_X_ void)
 {
 

@@ -21,18 +21,19 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\common.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\controller.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\datatable.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\gameobject.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\modelrenderer.h" />
-    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\modelrenderer.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\renderer.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\renderer.h" />
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\physics\bullet_engine.h" />
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\datatable.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\actionbase.cpp" />
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\actionlayer.cpp" />
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\controller.cpp" />
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\gameobject.cpp" />
-    <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\modelrenderer.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\renderer.cpp" />
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\physics\bullet_engine.cpp" />
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\datatable.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{DC2C6C89-6703-44BD-8784-402B66596C68}</ProjectGuid>

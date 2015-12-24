@@ -13,7 +13,37 @@ namespace go
 {
 
 	// 설명 : 
-	typedef hsdk::EMBEDDED_ARCHITECTURE_PATTERN<btRigidBody *, game::i::i_GameObject, unsigned int> GOE;
+	DECL_STRUCT(GOE_Data)
+	{
+
+		// 설명 : 
+		unsigned int cbsize;
+
+		// 설명 : 
+		unsigned int count;
+
+		// 설명 : 
+		unsigned int dataTable_Key;
+
+		// 설명 : 
+		unsigned int controller_key;
+		
+		// 설명 : 
+		unsigned int actionBase_Key;
+
+		// 설명 : 
+		unsigned int renderer_Key;
+
+		// 설명 : 
+		btCollisionShape * shape;
+
+	};
+
+	// 설명 :
+	typedef hsdk::game::GameObject GOE_Use;
+
+	// 설명 : 
+	typedef hsdk::EMBEDDED_ARCHITECTURE_PATTERN<GOE_Data, GOE_Use, unsigned short> GOE;
 
 	// 설명 : 
 	inline DECL_FUNC_T(void, callback_CollisionResult)(

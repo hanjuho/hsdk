@@ -12,5 +12,5 @@ CLASS_IMPL_FUNC_T(GoToGameButtonEvent, void, onClick_Up)(
 	_In_ int _x,
 	_In_ int _y)
 {
-	game::initialize_Game(gameStart);
+	gameloop::initialize_Game(gameStart);
 }

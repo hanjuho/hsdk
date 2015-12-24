@@ -31,12 +31,6 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\datatable.h">
       <Filter>GAME\interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\gameobject.h">
-      <Filter>GAME\interface</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\modelrenderer.h">
-      <Filter>GAME\interface</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\actionbase.h">
       <Filter>GAME</Filter>
     </ClInclude>
@@ -49,11 +43,17 @@
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\gameobject.h">
       <Filter>GAME</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\modelrenderer.h">
-      <Filter>GAME</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\physics\bullet_engine.h">
       <Filter>GAME\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\interface\renderer.h">
+      <Filter>GAME\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\renderer.h">
+      <Filter>GAME</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\sdks\hsdk\src\game\datatable.h">
+      <Filter>GAME</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -69,11 +69,14 @@
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\gameobject.cpp">
       <Filter>GAME</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\modelrenderer.cpp">
-      <Filter>GAME</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\physics\bullet_engine.cpp">
       <Filter>GAME\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\renderer.cpp">
+      <Filter>GAME</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\sdks\hsdk\src\game\datatable.cpp">
+      <Filter>GAME</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

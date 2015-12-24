@@ -6,7 +6,7 @@
 
 
 
-namespace entry
+namespace entryloop
 {
 
 	// Ό³Έν :

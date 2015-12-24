@@ -56,14 +56,14 @@
     <ClInclude Include="gomain.h">
       <Filter>게임오브젝트</Filter>
     </ClInclude>
-    <ClInclude Include="gomodelrenderer.h">
-      <Filter>게임오브젝트</Filter>
-    </ClInclude>
     <ClInclude Include="viewerpadchangebuttonevent.h">
       <Filter>소스 파일\compoevent</Filter>
     </ClInclude>
     <ClInclude Include="game.h">
       <Filter>소스 파일\game</Filter>
+    </ClInclude>
+    <ClInclude Include="gorenderer.h">
+      <Filter>게임오브젝트</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -97,11 +97,11 @@
     <ClCompile Include="gomain.cpp">
       <Filter>게임오브젝트</Filter>
     </ClCompile>
-    <ClCompile Include="gomodelrenderer.cpp">
-      <Filter>게임오브젝트</Filter>
-    </ClCompile>
     <ClCompile Include="viewerpadchangebuttonevent.cpp">
       <Filter>소스 파일\compoevent</Filter>
+    </ClCompile>
+    <ClCompile Include="gorenderer.cpp">
+      <Filter>게임오브젝트</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

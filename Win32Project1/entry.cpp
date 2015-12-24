@@ -15,18 +15,17 @@ FMOD::Sound * g_Sound_Background0;
 FMOD::Channel * g_Sound_Controller0;
 
 //--------------------------------------------------------------------------------------
-IMPL_FUNC_T(void, entry::OnFrameMove)(
+IMPL_FUNC_T(void, entryloop::OnFrameMove)(
 	_In_ double _fTime,
 	_In_ float _fElapsedTime,
 	_Inout_ void * _userContext)
 {
 	sound::g_FMOD_SoundDevice.play();
-
 	g_GUI_Entry.update();
 }
 
 //--------------------------------------------------------------------------------------
-IMPL_FUNC_T(void, entry::OnD3D10FrameRender)(
+IMPL_FUNC_T(void, entryloop::OnD3D10FrameRender)(
 	_In_ ID3D10Device * _d3dDevice,
 	_In_ double _fTime,
 	_In_ float _fElapsedTime,
@@ -43,7 +42,7 @@ IMPL_FUNC_T(void, entry::OnD3D10FrameRender)(
 }
 
 //--------------------------------------------------------------------------------------
-IMPL_FUNC_T(LRESULT, entry::OnMsgProc)(
+IMPL_FUNC_T(LRESULT, entryloop::OnMsgProc)(
 	_Out_opt_ BOOL * _bNoFurtherProcessing,
 	_In_ HWND _hWnd,
 	_In_ UINT _uMsg,
@@ -57,13 +56,14 @@ IMPL_FUNC_T(LRESULT, entry::OnMsgProc)(
 		g_GUI_Entry.set_W((float)LOWORD(_lParam));
 		g_GUI_Entry.set_H((float)HIWORD(_lParam));
 		g_GUI_Entry.reform();
+		g_GUI_Entry.redraw();
 	}
 
 	return 0;
 }
 
 //--------------------------------------------------------------------------------------
-IMPL_FUNC_T(void, entry::OnMouse)(
+IMPL_FUNC_T(void, entryloop::OnMouse)(
 	_In_ const short * _buttonsDown,
 	_In_ unsigned int _buttonCount,
 	_In_ int _mouseWheelDelta,
@@ -80,7 +80,7 @@ IMPL_FUNC_T(void, entry::OnMouse)(
 }
 
 //--------------------------------------------------------------------------------------
-IMPL_FUNC_T(void, entry::OnKeyboard)(
+IMPL_FUNC_T(void, entryloop::OnKeyboard)(
 	_In_ unsigned char _nKey,
 	_In_ short _bKeyDown,
 	_In_ short _bAltDown,
@@ -90,7 +90,7 @@ IMPL_FUNC_T(void, entry::OnKeyboard)(
 }
 
 //--------------------------------------------------------------------------------------
-IMPL_FUNC(entry::OnD3D10CreateDevice)(
+IMPL_FUNC(entryloop::OnD3D10CreateDevice)(
 	_In_ ID3D10Device * _d3dDevice,
 	_In_ const DXGI_SURFACE_DESC & _backBufferSurfaceDesc,
 	_Inout_ void * _userContext)
@@ -127,7 +127,7 @@ IMPL_FUNC(entry::OnD3D10CreateDevice)(
 }
 
 //--------------------------------------------------------------------------------------
-DECL_FUNC_T(void, entry::OnD3D10DestroyDevice)(
+DECL_FUNC_T(void, entryloop::OnD3D10DestroyDevice)(
 	_Inout_ void * _userContext)
 {
 	common::destroy_Common();
@@ -135,7 +135,7 @@ DECL_FUNC_T(void, entry::OnD3D10DestroyDevice)(
 }
 
 //--------------------------------------------------------------------------------------
-IMPL_FUNC(entry::initialize_Entry)(
+IMPL_FUNC(entryloop::initialize_Entry)(
 	_In_ void * _context)
 {
 	if (framework::g_Framework_Callbacks.d3d10DeviceDestroyedFunc)
@@ -144,14 +144,13 @@ IMPL_FUNC(entry::initialize_Entry)(
 			framework::g_Framework_Callbacks.d3d10DeviceDestroyedFuncUserContext);
 	}
 
-	framework::g_Framework_Callbacks.windowMsgFunc = entry::OnMsgProc;
-	framework::g_Framework_Callbacks.mouseFunc = entry::OnMouse;
-	framework::g_Framework_Callbacks.keyboardFunc = entry::OnKeyboard;
-	framework::g_Framework_Callbacks.frameMoveFunc = entry::OnFrameMove;
-
-	framework::g_Framework_Callbacks.d3d10DeviceCreatedFunc = entry::OnD3D10CreateDevice;
-	framework::g_Framework_Callbacks.d3d10DeviceDestroyedFunc = entry::OnD3D10DestroyDevice;
-	framework::g_Framework_Callbacks.d3d10FrameRenderFunc = entry::OnD3D10FrameRender;
+	framework::g_Framework_Callbacks.windowMsgFunc = entryloop::OnMsgProc;
+	framework::g_Framework_Callbacks.mouseFunc = entryloop::OnMouse;
+	framework::g_Framework_Callbacks.keyboardFunc = entryloop::OnKeyboard;
+	framework::g_Framework_Callbacks.frameMoveFunc = entryloop::OnFrameMove;
+	framework::g_Framework_Callbacks.d3d10DeviceCreatedFunc = entryloop::OnD3D10CreateDevice;
+	framework::g_Framework_Callbacks.d3d10DeviceDestroyedFunc = entryloop::OnD3D10DestroyDevice;
+	framework::g_Framework_Callbacks.d3d10FrameRenderFunc = entryloop::OnD3D10FrameRender;
 
 	if (framework::g_Framework_Callbacks.d3d10DeviceCreatedFunc)
 	{

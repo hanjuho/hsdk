@@ -10,8 +10,8 @@ namespace go
 {
 
 	// 설명 : 
-	DECL_CLASS(AnimateModelRenderer)
-		: game::ModelRenderer
+	DECL_CLASS(AnimateRenderer)
+		: hsdk::game::Renderer
 	{
 	public:
 
@@ -29,11 +29,14 @@ namespace go
 
 	private:
 
-		// 설명 :
-		D3DXMATRIX my_Form;
+		// 설명 : 
+
 
 		// 설명 : 
 		direct3d::D3D10_Animation_Recorder my_Pos;
+
+		// 설명 :
+		D3DXMATRIX my_Form;
 
 	};
 
