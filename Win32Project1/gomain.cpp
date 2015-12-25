@@ -22,6 +22,12 @@ CLASS_IMPL_CONSTRUCTOR(GameEngine, GameEngine)(void)
 }
 
 //--------------------------------------------------------------------------------------
+CLASS_IMPL_DESTRUCTOR(GameEngine, GameEngine)(void)
+{
+	reset();
+}
+
+//--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(GameEngine, setup0_Terrain)(
 	_In_ int _cellX,
 	_In_ int _cellY,
@@ -153,7 +159,9 @@ CLASS_IMPL_FUNC(GameEngine, create_User)(
 	newUser->set_ActionBase(create_ActionBase(_data));
 	newUser->set_Renderer(create_Renderer(_data));
 
-	return HSDK_NOTIMPL;
+	(*_user) = newUser;
+
+	return S_OK;
 }
 
 //--------------------------------------------------------------------------------------
@@ -162,7 +170,7 @@ CLASS_IMPL_FUNC(GameEngine, create_ID)(
 	_In_ const REF_KEY _key)
 {
 	GOE_DataMap::const_iterator iter = my_DataMap.find(_key);
-	if (iter != my_DataMap.end())
+	if (iter == my_DataMap.end())
 	{
 		return HSDK_FAIL;
 	}
@@ -186,6 +194,19 @@ CLASS_IMPL_FUNC(GameEngine, get_Data)(
 		switch (_key)
 		{
 		case 0:
+
+			data = new GOE_Data();
+			data->cbsize = sizeof(GOE_Data);
+			data->count = 0;
+
+			data->dataTable_Key = 0;
+			data->actionBase_Key = 0;
+			data->controller_key = 0;
+			data->renderer_Key = 0;
+
+			btVector3 vector(5.0f, 5.0f, 5.0f);
+			data->shape = new btBoxShape(vector);
+
 			break;
 		}
 
@@ -203,14 +224,16 @@ CLASS_IMPL_FUNC(GameEngine, get_Data)(
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC(GameEngine, push)(
-	/* [set] */ PTR_USER * _user)
+	/* [set] */ PTR_USER _user)
 {
-	return HSDK_NOTIMPL;
+	my_UserMap[_user->get_ID() >> 16].push_back(_user);
+
+	return S_OK;
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(GameEngine, void, pop)(
-	_In_ PTR_USER * _user)
+	_In_ PTR_USER _user)
 {
 
 }
@@ -355,6 +378,15 @@ CLASS_IMPL_FUNC_T(GameEngine, void, render)(
 }
 
 //--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(GameEngine, void, reset)(
+	_X_ void)
+{
+	clear_All();
+
+	my_PhysicsEngine.reset();
+}
+
+//--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(GameEngine, game::DataTable *, create_DataTable)(
 	_In_ const PTR_DATA _data,
 	_In_ const D3DXMATRIX & _matrix)
@@ -364,10 +396,10 @@ CLASS_IMPL_FUNC_T(GameEngine, game::DataTable *, create_DataTable)(
 
 	if (_matrix)
 	{
-		memcpy(&form, &_matrix, sizeof(float)* 16);
+		memcpy(&form, &_matrix, 16 * sizeof(float));
 	}
 
-	btRigidBody * body;
+	btRigidBody * body = nullptr;
 	if (SUCCEEDED(my_PhysicsEngine.create(&body, form, _data->shape, 1.0f)))
 	{
 		game::DataTable * newData = new GameDataTable();

@@ -25,6 +25,9 @@ namespace go
 		// 설명 : 
 		CLASS_DECL_CONSTRUCTOR(GameEngine)(void);
 
+		// 설명 : 
+		CLASS_DECL_DESTRUCTOR(GameEngine)(void);
+
 		/*
 		설명 : 지형을 설치.
 		$ 참고 : _cellX, _cellY는 반드시 2의 배수이어야 함(그렇지 않은 경우 내부에서 수정함).
@@ -75,11 +78,11 @@ namespace go
 
 		// 설명 : 
 		INTERFACE_DECL_FUNC(push)(
-			/* [set] */ PTR_USER * _user);
+			/* [set] */ PTR_USER _user);
 
 		// 설명 : 
 		INTERFACE_DECL_FUNC_T(void, pop)(
-			_In_ PTR_USER * _user);
+			_In_ PTR_USER _user);
 
 		// 설명 : 
 		INTERFACE_DECL_FUNC_T(void, pop)(
@@ -163,6 +166,10 @@ namespace go
 
 		// 설명 : 
 		INTERFACE_DECL_FUNC_T(void, render)(
+			_X_ void);
+
+		// 설명 : 
+		INTERFACE_DECL_FUNC_T(void, reset)(
 			_X_ void);
 
 	protected:

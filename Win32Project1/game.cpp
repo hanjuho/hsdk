@@ -59,7 +59,22 @@ public:
 		_In_ int _x,
 		_In_ int _y)
 	{
+		if (_button == i::frame::RBUTTON)
+		{
+			D3DXMATRIX matrix;
+			D3DXMatrixTranslation(&matrix, 0.0f, 0.0f, 0.0f);
 
+			go::GameEngine::PTR_USER object;
+			unsigned short key = 0;
+
+			IF_SUCCEEDED(g_GameEngine.create_User(&object, key, &matrix))
+			{
+				IF_FAILED(g_GameEngine.push(object))
+				{
+					DEL_COM(object);
+				}
+			}
+		}
 	}
 
 	// 설명 : mouse의 버튼을 누른 채 커서를 이동하면 발생하는 event.

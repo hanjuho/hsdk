@@ -73,22 +73,22 @@ IMPL_FUNC_T(void, common::OnMouse_GUI)(
 		g_GUIHelper.onClick_Up(i::frame::LBUTTON, _xPos, _yPos);
 	}
 
-	if (_buttonsDown[FRAMEWORK_MIDDLEBUTTON])
+	if (_buttonsDown[FRAMEWORK_MIDDLEBUTTON] == 1)
 	{
 		g_GUIHelper.onClick_Down(i::frame::WBUTTON, _xPos, _yPos);
 	}
 	else if (_buttonsDown[FRAMEWORK_MIDDLEBUTTON] == 2)
 	{
-		g_GUIHelper.onClick_Up(i::frame::LBUTTON, _xPos, _yPos);
+		g_GUIHelper.onClick_Up(i::frame::WBUTTON, _xPos, _yPos);
 	}
 
-	if (_buttonsDown[FRAMEWORK_RIGHTBUTTON])
+	if (_buttonsDown[FRAMEWORK_RIGHTBUTTON] == 1)
 	{
 		g_GUIHelper.onClick_Down(i::frame::RBUTTON, _xPos, _yPos);
 	}
 	else if (_buttonsDown[FRAMEWORK_RIGHTBUTTON] == 2)
 	{
-		g_GUIHelper.onClick_Up(i::frame::LBUTTON, _xPos, _yPos);
+		g_GUIHelper.onClick_Up(i::frame::RBUTTON, _xPos, _yPos);
 	}
 
 	if (_mouseWheelDelta)
