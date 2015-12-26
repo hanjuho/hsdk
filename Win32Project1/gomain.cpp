@@ -235,21 +235,65 @@ CLASS_IMPL_FUNC(GameEngine, push)(
 CLASS_IMPL_FUNC_T(GameEngine, void, pop)(
 	_In_ PTR_USER _user)
 {
+	auto iter = my_UserMap.find(_user->get_ID() >> 16);
+	if (iter == my_UserMap.end())
+	{
+		return;
+	}
 
+	iter->second.remove(_user);
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(GameEngine, void, pop)(
 	_In_ unsigned int _id)
 {
+	auto iter = my_UserMap.find(_id >> 16);
+	if (iter == my_UserMap.end())
+	{
+		return;
+	}
 
+	auto begin = iter->second.begin();
+	auto end = iter->second.end();
+
+	while (begin != end)
+	{
+		PTR_USER value = (*begin);
+
+		if (value->get_ID() == _id)
+		{
+			iter->second.erase(begin);
+
+			DEL_COM(value);
+
+			return;
+		}
+
+		begin++;
+	}
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(GameEngine, void, clear)(
 	_In_ const REF_KEY _key)
 {
+	auto iter = my_UserMap.find(_key);
+	if (iter == my_UserMap.end())
+	{
+		return;
+	}
 
+	auto begin = iter->second.begin();
+	auto end = iter->second.end();
+
+	while (begin != end)
+	{
+		DEL_COM((*begin));
+		begin++;
+	}
+
+	my_UserMap.erase(iter);
 }
 
 //--------------------------------------------------------------------------------------
@@ -364,6 +408,30 @@ CLASS_IMPL_FUNC_T(GameEngine, void, update)(
 	_In_ float _time)
 {
 	my_PhysicsEngine.update(_time);
+
+	auto allbegin = my_UserMap.begin();
+	auto allend = my_UserMap.end();
+
+	while (allbegin != allend)
+	{
+		auto & userlist = allbegin->second;
+		if (userlist.size() == 0)
+		{
+			allbegin = my_UserMap.erase(allbegin);
+			continue;
+		}
+
+		auto eachbegin = userlist.begin();
+		auto eachend = userlist.end();
+
+		while (eachbegin != eachend)
+		{
+			(*eachbegin)->update();
+			eachbegin++;
+		}
+
+		++allbegin;
+	}
 }
 
 //--------------------------------------------------------------------------------------
@@ -375,6 +443,25 @@ CLASS_IMPL_FUNC_T(GameEngine, void, render)(
 	direct3d::g_D3D10_Renderer.set_ScalarPSFlag(direct3d::PS_TEXTURE_0);
 	direct3d::g_D3D10_Renderer.render_SkyBox(my_SkyMesh);
 	direct3d::g_D3D10_Renderer.render_Mesh(my_TerrainMesh);
+
+	auto allbegin = my_UserMap.begin();
+	auto allend = my_UserMap.end();
+
+	while (allbegin != allend)
+	{
+		auto & userlist = allbegin->second;
+
+		auto eachbegin = userlist.begin();
+		auto eachend = userlist.end();
+
+		while (eachbegin != eachend)
+		{
+			(*eachbegin)->render();
+			eachbegin++;
+		}
+
+		++allbegin;
+	}
 }
 
 //--------------------------------------------------------------------------------------
@@ -417,19 +504,19 @@ CLASS_IMPL_FUNC_T(GameEngine, game::DataTable *, create_DataTable)(
 CLASS_IMPL_FUNC_T(GameEngine, game::Controller *, create_Controller)(
 	_In_ const PTR_DATA _data)
 {
-	return nullptr;
+	return new game::Controller();
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(GameEngine, game::ActionBase *, create_ActionBase)(
 	_In_ const PTR_DATA _data)
 {
-	return nullptr;
+	return new game::ActionBase();
 }
 
 //--------------------------------------------------------------------------------------
 CLASS_IMPL_FUNC_T(GameEngine, game::Renderer *, create_Renderer)(
 	_In_ const PTR_DATA _data)
 {
-	return nullptr;
+	return new game::Renderer();
 }

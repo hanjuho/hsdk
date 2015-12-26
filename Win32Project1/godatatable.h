@@ -43,9 +43,6 @@ namespace go
 
 	private:
 
-		// 설명 : 
-		btRigidBody * my_Body;
-
 		// 설명 :
 		unsigned int my_Type;
 
