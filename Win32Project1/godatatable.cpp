@@ -42,3 +42,10 @@ CLASS_IMPL_FUNC_T(GameDataTable, unsigned int, state)(
 {
 	return my_State;
 }
+
+//--------------------------------------------------------------------------------------
+CLASS_IMPL_FUNC_T(GameDataTable, const float *, matrix)(
+	_X_ void)const
+{
+	return nullptr;
+}

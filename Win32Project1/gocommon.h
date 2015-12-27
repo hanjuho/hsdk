@@ -11,7 +11,16 @@
 
 namespace go
 {
+	// 설명 : 
+	DECL_STRUCT(GOAnimateMesh)
+		: public direct3d::D3D10_Mesh
+	{
 
+		// 설명 : 
+		direct3d::D3D10_Animation anim;
+
+	};
+	
 	// 설명 : 
 	DECL_STRUCT(GOE_Data)
 	{

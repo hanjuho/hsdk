@@ -39,7 +39,8 @@ namespace go
 			_X_ void)const;
 
 		// Ό³Έν : 
-
+		INTERFACE_DECL_FUNC_T(const float *, matrix)(
+			_X_ void)const;
 
 	private:
 

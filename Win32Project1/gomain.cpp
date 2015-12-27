@@ -438,7 +438,7 @@ CLASS_IMPL_FUNC_T(GameEngine, void, update)(
 CLASS_IMPL_FUNC_T(GameEngine, void, render)(
 	_X_ void)
 {
-	direct3d::g_D3D10_Renderer.set_MatrixWorldViewProj(&direct3d::g_D3D10_ViewProjMatrix);
+	direct3d::g_D3D10_Renderer.set_MatrixWorldViewProj(direct3d::g_D3D10_ViewProjMatrix);
 	direct3d::g_D3D10_Renderer.set_ScalarVSFlag(0);
 	direct3d::g_D3D10_Renderer.set_ScalarPSFlag(direct3d::PS_TEXTURE_0);
 	direct3d::g_D3D10_Renderer.render_SkyBox(my_SkyMesh);
@@ -518,5 +518,5 @@ CLASS_IMPL_FUNC_T(GameEngine, game::ActionBase *, create_ActionBase)(
 CLASS_IMPL_FUNC_T(GameEngine, game::Renderer *, create_Renderer)(
 	_In_ const PTR_DATA _data)
 {
-	return new game::Renderer();
+	return new AnimateRenderer();
 }
